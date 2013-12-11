@@ -26,7 +26,7 @@ function GFX(extBuildScene, extRender, extControls) {
             document.body.appendChild(renderer.domElement);
 
             // camera
-            camera = new THREE.PerspectiveCamera(45, w / h, 1, 10000);
+            camera = new THREE.PerspectiveCamera(45, w / h, 1, 6000);
             camera.position.set(0, 0, 0);
             scene.add(camera);
 
