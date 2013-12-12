@@ -14,6 +14,12 @@
         <script type="text/javascript" src="lib/three.min.js"></script>
         <script type="text/javascript" src="lib/OrbitControls.js"></script>
         <script type="text/javascript" src="lib/tween.min.js"></script>
+        <script type="text/javascript" src="game/Card.js"></script>
+        <script type="text/javascript" src="game/Personality.js"></script>
+        <script type="text/javascript" src="game/MainPersonality.js"></script>
+        <script type="text/javascript" src="game/LifeDeck.js"></script>
+        <script type="text/javascript" src="game/Player.js"></script>
+        <script type="text/javascript" src="game/Table.js"></script>
         <script type="text/javascript" src="game/Screen.js"></script>
         <script type="text/javascript" src="game/DBZCCG.js"></script>
         <script type="text/javascript">

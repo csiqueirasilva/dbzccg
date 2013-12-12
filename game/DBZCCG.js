@@ -1,85 +1,18 @@
 // http://github.com/csiqueirasilva/dbzccg.js
 function DBZCCG() {
 
+    /* Three related */
     var clock = new THREE.Clock();
+    var mouse = new THREE.Vector2();
+    var projector;
+    var intersected;
+    var objects = [];
 
-    var cardHeight = 5.5;
-    var cardWidth = 4;
-    var cornerWidth = 0.10;
-    var cornerHeight = cornerWidth;
-    var cardThicknessScale = 0.1;
-    var personalityNameDiff = 0.55;
-
-    function createCard(texturePath) {
-        var card = new THREE.Object3D();
-        var cardGeo = new THREE.CylinderGeometry(cornerWidth, cornerWidth, cardWidth - cornerWidth, 32, 16, true);
-        var backTexture = THREE.ImageUtils.loadTexture("images/DBZCCG/back.jpg");
-        var frontTexture = THREE.ImageUtils.loadTexture(texturePath);
-        var borderTexture = THREE.ImageUtils.loadTexture("images/DBZCCG/border.jpg");
-        var cornerTexture = THREE.ImageUtils.loadTexture("images/DBZCCG/corner.jpg");
-        var cardMaterial = new THREE.MeshBasicMaterial({color: 0x000000, side: THREE.FrontSide});
-
-        var cornerMaterial = new THREE.MeshBasicMaterial({
-            side: THREE.FrontSide,
-            map: cornerTexture
-        });
-        
-        var borderMaterial = new THREE.MeshBasicMaterial({
-            side: THREE.FrontSide,
-            map: borderTexture
-        });
-
-        var top = new THREE.Mesh(cardGeo, borderMaterial);
-        
-        var bot = top.clone();
-        
-        cardGeo = new THREE.CylinderGeometry(cornerWidth, cornerWidth, cardHeight, 32, 16, true);
-        var left = new THREE.Mesh(cardGeo, borderMaterial);
-        var right = left.clone();
-
-        top.rotation.z += 90 * Math.PI / 180;
-        top.position.y += cardHeight / 2;
-        bot.rotation.z += 90 * Math.PI / 180;
-        bot.position.y -= cardHeight / 2;
-        left.position.x -= (cardWidth - cornerWidth) / 2;
-        right.position.x += (cardWidth - cornerWidth) / 2;
-
-        card.add(top);
-        card.add(bot);
-        card.add(right);
-        card.add(left);
-
-        var cornerGeo = new THREE.SphereGeometry(cornerWidth, 32, 16);
-        var baseCorner = new THREE.Mesh(cornerGeo, cornerMaterial);
-
-        // Add circles in borders
-        for (var i = -1; i <= 1; i = i + 2) {
-            for (var j = -1; j <= 1; j = j + 2) {
-                corner = baseCorner.clone();
-                corner.position.x += i * cardWidth / 2 + i * (-1) * cornerWidth / 2;
-                corner.position.y += j * cardHeight / 2;
-                card.add(corner);
-            }
-        }
-
-        // Add card box
-        var cubeMaterials = [];
-        for (var i = 0; i < 4; i++) {
-            cubeMaterials.push(cardMaterial.clone()); // sides
-        }
-        cubeMaterials[4] = new THREE.MeshBasicMaterial({map: backTexture}); // back
-        cubeMaterials[5] = new THREE.MeshBasicMaterial({map: frontTexture}); // front
-        var cubeGeo = new THREE.CubeGeometry(cardWidth - cornerWidth, cardHeight, cornerWidth * 2);
-
-        var cube = new THREE.Mesh(cubeGeo, new THREE.MeshFaceMaterial(cubeMaterials));
-        card.add(cube);
-        card.scale.z = cardThicknessScale;
-
-        return card;
-    }
+    /* Game related */
+    var table = null;
 
     function createSkybox(scene) {
-        var urlPrefix = "images/bg/skybox_inferno3/";
+        var urlPrefix = "images/bg/skybox_carro/";
         var urls = [urlPrefix + "posx.jpg", urlPrefix + "negx.jpg",
             urlPrefix + "posy.jpg", urlPrefix + "negy.jpg",
             urlPrefix + "posz.jpg", urlPrefix + "negz.jpg"];
@@ -97,8 +30,8 @@ function DBZCCG() {
         //uniforms['tCube2'] = {type: 't', value: textureCube2};
 
         var material = new THREE.ShaderMaterial({
-            fragmentShader: shader.fragmentShader,//document.getElementById('skybox_fragment_shader').textContent,
-            vertexShader: shader.vertexShader,//document.getElementById('skybox_vertex_shader').textContent,
+            fragmentShader: shader.fragmentShader, //document.getElementById('skybox_fragment_shader').textContent,
+            vertexShader: document.getElementById('skybox_vertex_shader').textContent,
             uniforms: uniforms,
             side: THREE.BackSide
         });
@@ -112,132 +45,167 @@ function DBZCCG() {
 
     function buildScene(scene) {
         createSkybox(scene);
-        function formatnumber(n) {
-            if (n < 10)
-                return "00" + n;
-            else if (n < 100)
-                return "0" + n;
-            else
-                return n.toString();
+        table = Table.create([
+            /*P1*/    
+            {currentMainPersonality: 1, currentPowerStageAboveZero: 5, currentAngerLevel: 0,
+                angerLevelNeededToLevel: 5, mainPersonality: [{highTech: false, number: 158, texturePath: "images/DBZCCG/saiyan/158.jpg",
+                        personality: Personality.GOKU, saga: Card.Saga.Saiyan, powerStages: [0, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1400]},
+                    {highTech: false, number: 159, texturePath: "images/DBZCCG/saiyan/159.jpg",
+                        personality: Personality.GOKU, saga: Card.Saga.Saiyan, powerStages: [0, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1400]},
+                    {highTech: false, number: 160, texturePath: "images/DBZCCG/saiyan/160.jpg",
+                        personality: Personality.GOKU, saga: Card.Saga.Saiyan, powerStages: [0, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1400]}]},
+            /*P2*/
+            {currentMainPersonality: 1, currentPowerStageAboveZero: 5, currentAngerLevel: 0,
+                angerLevelNeededToLevel: 5, mainPersonality: [{highTech: false, number: 173, texturePath: "images/DBZCCG/saiyan/173.jpg",
+                        personality: Personality.VEGETA, saga: Card.Saga.Saiyan, powerStages: [0, 2000, 2200, 2400, 2600, 2800, 3000, 3200, 3400, 3600, 3800]},
+                    {highTech: false, number: 174, texturePath: "images/DBZCCG/saiyan/174.jpg",
+                        personality: Personality.VEGETA, saga: Card.Saga.Saiyan, powerStages: [0, 2000, 2200, 2400, 2600, 2800, 3000, 3200, 3400, 3600, 3800]},
+                    {highTech: false, number: 175, texturePath: "images/DBZCCG/saiyan/175.jpg",
+                        personality: Personality.VEGETA, saga: Card.Saga.Saiyan, powerStages: [0, 2000, 2200, 2400, 2600, 2800, 3000, 3200, 3400, 3600, 3800]}]}
+        ]);
+
+        console.log(table);
+
+        for (var i = 0; i < table.players.length; i++) {
+            var player = table.players[i];
+            player.loadPlayerSpace(scene);
         }
 
-        var card = createCard("images/DBZCCG/saiyan/001.jpg");
-        for (var i = 1; i <= 50; i++) {
-            var addcard = card.clone();
-            addcard.rotation.x += -90 * Math.PI / 180;
-            addcard.position.y = cornerWidth * cardThicknessScale * i * 2 ;
-            scene.add(addcard);
-        }
+        table.players[0].advanceLevel(3000);
+        table.players[0].advanceLevel(3000);
         
-        for (var i = 1; i <= 10; i++) {
-            var addcard = card.clone();
-            addcard.rotation.x += -90 * Math.PI / 180;
-            addcard.rotation.y += -180 * Math.PI / 180;
-            addcard.position.y = cornerWidth * cardThicknessScale * i * 2 ;
-            addcard.position.x -= cardWidth + 1;
-            scene.add(addcard);
-        }
-        
-        
-        card = createCard("images/DBZCCG/saiyan/002.jpg");
-        
-        for (var i = 1; i <= 30; i++) {
-            var addcard = card.clone();
-            addcard.rotation.x += -90 * Math.PI / 180;
-            addcard.rotation.z += 180 * Math.PI / 180;
-            addcard.rotation.y += -180 * Math.PI / 180;
-            addcard.position.y = cornerWidth * cardThicknessScale * i * 2 ;
-            addcard.position.x -= 29 - (cardWidth + 1);
-            addcard.position.z -= 20;
-            scene.add(addcard);
-        }
-        
-        for (var i = 80; i <= 120; i++) {
-            var addcard = card.clone();
-            addcard.rotation.x += -90 * Math.PI / 180;
-            addcard.rotation.z += 180 * Math.PI / 180;
-            addcard.position.y = cornerWidth * cardThicknessScale * (i-79) * 2 ;
-            addcard.position.x -= 29;
-            addcard.position.z -= 20;
-            scene.add(addcard);
-        }
+        console.log(table.players[0]);
+        /*
+         function formatnumber(n) {
+         if (n < 10)
+         return "00" + n;
+         else if (n < 100)
+         return "0" + n;
+         else
+         return n.toString();
+         }
+         
+         // discard 1
+         for (var i = 1; i <= 10; i++) {
+         var addcard = card.clone();
+         addcard.rotation.x += -90 * Math.PI / 180;
+         addcard.rotation.y += -180 * Math.PI / 180;
+         addcard.position.y = cornerWidth * cardThicknessScale * i * 2;
+         addcard.position.x -= cardWidth + 1;
+         scene.add(addcard);
+         }
+         
+         card = Card.create("images/DBZCCG/saiyan/002.jpg");
+         
+         // deck 2
+         for (var i = 1; i <= 30; i++) {
+         var addcard = card.clone();
+         addcard.rotation.x += -90 * Math.PI / 180;
+         addcard.rotation.z += 180 * Math.PI / 180;
+         addcard.rotation.y += -180 * Math.PI / 180;
+         addcard.position.y = cornerWidth * cardThicknessScale * i * 2;
+         addcard.position.x -= 29 - (cardWidth + 1);
+         addcard.position.z -= 20;
+         scene.add(addcard);
+         }
+         
+         // discard 2
+         for (var i = 80; i <= 120; i++) {
+         var addcard = card.clone();
+         addcard.rotation.x += -90 * Math.PI / 180;
+         addcard.rotation.z += 180 * Math.PI / 180;
+         addcard.position.y = cornerWidth * cardThicknessScale * (i - 79) * 2;
+         addcard.position.x -= 29;
+         addcard.position.z -= 20;
+         scene.add(addcard);
+         }
+         
+         // MP1
+         goku1 = Card.create("images/DBZCCG/saiyan/158.jpg");
+         goku2 = Card.create("images/DBZCCG/saiyan/159.jpg");
+         goku3 = Card.create("images/DBZCCG/saiyan/160.jpg");
+         
+         goku1.rotation.x += -90 * Math.PI / 180;
+         goku1.rotation.y += -180 * Math.PI / 180;
+         goku1.position.z -= 5 + personalityNameDiff;
+         goku1.position.y = cornerWidth * cardThicknessScale * 1 * 2;
+         goku1.position.x -= 14.5;
+         
+         goku2.rotation.x += -90 * Math.PI / 180;
+         goku2.rotation.y += -180 * Math.PI / 180;
+         goku2.position.z -= 5 + 2 * personalityNameDiff;
+         goku2.position.y = cornerWidth * cardThicknessScale * 0 * 2;
+         goku2.position.x -= 14.5;
+         
+         goku3.rotation.x += -90 * Math.PI / 180;
+         goku3.rotation.y += -180 * Math.PI / 180;
+         goku3.position.z -= 5;
+         goku3.position.y = cornerWidth * cardThicknessScale * 3 * 2;
+         goku3.position.x -= 14.5;
+         
+         // MP2
+         vegeta1 = Card.create("images/DBZCCG/saiyan/173.jpg");
+         vegeta2 = Card.create("images/DBZCCG/saiyan/174.jpg");
+         vegeta3 = Card.create("images/DBZCCG/saiyan/175.jpg");
+         
+         vegeta1.rotation.x += -90 * Math.PI / 180;
+         vegeta1.rotation.y += -180 * Math.PI / 180;
+         vegeta1.rotation.z += -180 * Math.PI / 180;
+         vegeta1.position.z -= 15 - personalityNameDiff;
+         vegeta1.position.y = cornerWidth * cardThicknessScale * 1 * 2;
+         vegeta1.position.x -= 14.5;
+         
+         vegeta2.rotation.z += -180 * Math.PI / 180;
+         vegeta2.rotation.x += -90 * Math.PI / 180;
+         vegeta2.rotation.y += -180 * Math.PI / 180;
+         vegeta2.position.z -= 15 - 2 * personalityNameDiff;
+         vegeta2.position.y = cornerWidth * cardThicknessScale * 0 * 2;
+         vegeta2.position.x -= 14.5;
+         
+         vegeta3.rotation.z += -180 * Math.PI / 180;
+         vegeta3.rotation.x += -90 * Math.PI / 180;
+         vegeta3.rotation.y += -180 * Math.PI / 180;
+         vegeta3.position.z -= 15;
+         vegeta3.position.y = cornerWidth * cardThicknessScale * 3 * 2;
+         vegeta3.position.x -= 14.5;
+         
+         var mp1 = new THREE.Object3D();
+         mp1.add(goku1);
+         mp1.add(goku2);
+         mp1.add(goku3);
+         scene.add(mp1);
+         
+         var mp2 = new THREE.Object3D();
+         mp2.add(vegeta1);
+         mp2.add(vegeta2);
+         mp2.add(vegeta3);
+         scene.add(mp2);
+         
+         objects.push(mp1);
+         objects.push(mp2);
+         
+         // Removed from the game
+         card = Card.create("images/DBZCCG/saiyan/250.jpg");
+         card.rotation.x += 90 * Math.PI / 180;
+         card.rotation.z += 90 * Math.PI / 180;
+         card.position.x -= 0.75;
+         card.position.z -= 5.5;
+         scene.add(card);
+         
+         card = Card.create("images/DBZCCG/saiyan/028.jpg");
+         card.rotation.x += 90 * Math.PI / 180;
+         card.rotation.z += -90 * Math.PI / 180;
+         card.position.x -= 28.25;
+         card.position.z -= 15 - 0.5;
+         scene.add(card); */
 
-        // MP1
-        goku1 = createCard("images/DBZCCG/saiyan/158.jpg");
-        goku2 = createCard("images/DBZCCG/saiyan/159.jpg");
-        goku3 = createCard("images/DBZCCG/saiyan/160.jpg");
-
-        goku1.rotation.x += -90 * Math.PI / 180;
-        goku1.rotation.y += -180 * Math.PI / 180;
-        goku1.position.z -= 5+personalityNameDiff;
-        goku1.position.y = cornerWidth * cardThicknessScale * 1 * 2 ;
-        goku1.position.x -= 14.5;
-
-        goku2.rotation.x += -90 * Math.PI / 180;
-        goku2.rotation.y += -180 * Math.PI / 180;
-        goku2.position.z -= 5+2*personalityNameDiff;
-        goku2.position.y = cornerWidth * cardThicknessScale * 0 * 2 ;
-        goku2.position.x -= 14.5;
-        
-        goku3.rotation.x += -90 * Math.PI / 180;
-        goku3.rotation.y += -180 * Math.PI / 180;
-        goku3.position.z -= 5;
-        goku3.position.y = cornerWidth * cardThicknessScale * 3 * 2 ;
-        goku3.position.x -= 14.5;
-
-        // MP2
-        vegeta1 = createCard("images/DBZCCG/saiyan/173.jpg");
-        vegeta2 = createCard("images/DBZCCG/saiyan/174.jpg");
-        vegeta3 = createCard("images/DBZCCG/saiyan/175.jpg");
-
-        vegeta1.rotation.x += -90 * Math.PI / 180;
-        vegeta1.rotation.y += -180 * Math.PI / 180;
-        vegeta1.rotation.z += -180 * Math.PI / 180;
-        vegeta1.position.z -= 15-personalityNameDiff;
-        vegeta1.position.y = cornerWidth * cardThicknessScale * 1 * 2 ;
-        vegeta1.position.x -= 14.5;
-
-        vegeta2.rotation.z += -180 * Math.PI / 180;
-        vegeta2.rotation.x += -90 * Math.PI / 180;
-        vegeta2.rotation.y += -180 * Math.PI / 180;
-        vegeta2.position.z -= 15-2*personalityNameDiff;
-        vegeta2.position.y = cornerWidth * cardThicknessScale * 0 * 2 ;
-        vegeta2.position.x -= 14.5;
-
-        vegeta3.rotation.z += -180 * Math.PI / 180;
-        vegeta3.rotation.x += -90 * Math.PI / 180;
-        vegeta3.rotation.y += -180 * Math.PI / 180;
-        vegeta3.position.z -= 15;
-        vegeta3.position.y = cornerWidth * cardThicknessScale * 3 * 2 ;
-        vegeta3.position.x -= 14.5;
-
-        scene.add(goku1);
-        scene.add(goku2);
-        scene.add(goku3);
-        scene.add(vegeta1);
-        scene.add(vegeta2);
-        scene.add(vegeta3);
-        
-        // Removed from the game
-        card = createCard("images/DBZCCG/saiyan/250.jpg");
-        card.rotation.x += 90 * Math.PI / 180;
-        card.rotation.z += 90 * Math.PI / 180;
-        card.position.x -= 0.75;
-        card.position.z -= 5.5;
-        scene.add(card);
-        
-        card = createCard("images/DBZCCG/saiyan/028.jpg");
-        card.rotation.x += 90 * Math.PI / 180;
-        card.rotation.z += -90 * Math.PI / 180;
-        card.position.x -= 28.25;
-        card.position.z -= 15 - 0.5;
-        scene.add(card);
-        
     }
 
     function render(cameraControl, renderer, scene, camera) {
         var delta = clock.getDelta();
         cameraControl.update(delta);
+
+        TWEEN.update();
 
         // Render the scene
         renderer.render(scene, camera);
@@ -245,12 +213,59 @@ function DBZCCG() {
 
     function controls(camera, element) {
         var control = new THREE.OrbitControls(camera, element);
-        control.target.z = -10;
-        camera.position.z = 20;
-        camera.position.y = 16;
-        control.target.x = camera.position.x = -15;
+        control.target.z = Table.basePlayerDistance / 2;
+        camera.position.z = Table.basePlayerDistance * 2.7;
+        camera.position.y = 28;
+        // control.maxPolarAngle = 45 * Math.PI/180;
+        // control.minPolarAngle = 10 * Math.PI/180;
+//        control.maxDistance = 40;
+        // control.minDistance = 10;
+        projector = new THREE.Projector();
+
+        function onDocumentMouseMove(event) {
+
+            event.preventDefault();
+
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+            var vector = new THREE.Vector3(mouse.x, mouse.y, 0.5);
+            projector.unprojectVector(vector, camera);
+
+            var raycaster = new THREE.Raycaster(camera.position, vector.sub(camera.position).normalize());
+            var intersections = raycaster.intersectObjects(objects, true);
+
+            if (intersections.length > 0) {
+
+                if (intersected != intersections[ 0 ].object) {
+
+                    //if (intersected)
+                    //    intersected.material.color.setHex(baseColor);
+
+                    intersected = intersections[ 0 ].object;
+                    //intersected.material.color.setHex(intersectColor);
+                }
+
+                control.enabled = false;
+                document.body.style.cursor = 'pointer';
+
+            }
+            else if (intersected) {
+
+                //intersected.material.color.setHex(baseColor);
+                intersected = null;
+
+                control.enabled = true;
+                document.body.style.cursor = 'auto';
+
+            }
+        }
+
+        element.addEventListener('mousemove', onDocumentMouseMove, false);
+
         return control;
     }
 
-    var screen = new Screen(buildScene, render, controls);
+    var scr = new Screen(buildScene, render, controls);
+
 }
