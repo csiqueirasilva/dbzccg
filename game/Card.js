@@ -15,8 +15,10 @@ Card.cardWidth = 4;
 Card.cornerWidth = 0.10;
 Card.cornerHeight = Card.cornerWidth;
 Card.cardThicknessScale = 0.1;
-Card.personalityNameDiff = {}; 
-Card.personalityNameDiff[Card.Saga.Saiyan] = 0.07 ;
+Card.personalityNameDiff = {};
+Card.personalityNameDiff[Card.Saga.Saiyan] = 0.02;
+Card.personalityPowerStageDiff = {};
+Card.personalityPowerStageDiff[Card.Saga.Saiyan] = { "regular": {"Zero": Card.cardHeight*0.61, "diff": 0.3845} };
 
 // TYPES
 Card.Type = {};

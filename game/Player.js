@@ -1,78 +1,99 @@
 Player = {};
 
+Player.Field = {};
+
+Player.Field.cornerWidth = 1;
+Player.Field.Height = 40;
+Player.Field.Width = 40;
+
 Player.create = function(dataObject, vec) {
 
     function PlayerObject(dataObject, vec) {
 
-        this.advanceLevel = function(delay) {
-            if (this.currentMainPersonalityLevel != this.mainPersonality.personalities.length) {
-                // Reorder personalities array
-                var rp = [];
-
-                var qttLevels = this.mainPersonality.personalities.length;
-                for (var i = this.currentMainPersonalityLevel - 1;
-                        rp.length != qttLevels;
-                        i++) {
-                    if (i == qttLevels) {
-                        i = 0;
-                    }
-                    rp.push(this.mainPersonality.personalities[i]);
-                }
-
-                var lastPosition = rp[0].display.position.clone();
-                var lastPosition = {x: lastPosition.x, y: lastPosition.y, z: lastPosition.z};
-
-                var currentPosition = {x: lastPosition.x, y: lastPosition.y, z: lastPosition.z};
-                var stepAside = {y: 3};
-                var currentLevelStepAside = new TWEEN.Tween(currentPosition).to(stepAside, 120);
-
-                var lastTween = currentLevelStepAside;
-
-                var j = 1;
-                var position = [];
-                var target = [];
-                for (var i = 1; i < rp.length; i++) {
-                    var pos = rp[i].display.position.clone();
-                    position[i] = {x: pos.x, y: pos.y, z: pos.z};
-                    target[i] = lastPosition;
-                    var currTween = new TWEEN.Tween(position[i]).to(target[i], 80);
-                    currTween.onUpdate(function() {
-                        rp[j].display.position.x = position[j].x;
-                        rp[j].display.position.y = position[j].y;
-                        rp[j].display.position.z = position[j].z;
-                    });
-
-                    currTween.onComplete(function() {
-                        j++;
-                    });
-
-                    lastTween.chain(currTween);
-                    lastTween = currTween;
-                    lastPosition = {};
-                    lastPosition.x = pos.x;
-                    lastPosition.y = pos.y;
-                    lastPosition.z = pos.z;
-                }
-                var putOldLevelBehind = new TWEEN.Tween(stepAside).to(lastPosition, 80);
-
-                lastTween.chain(putOldLevelBehind);
-                putOldLevelBehind.onUpdate(function() {
-                    rp[0].display.position.x = stepAside.x;
-                    rp[0].display.position.y = stepAside.y;
-                    rp[0].display.position.z = stepAside.z;
-                });
-
-                currentLevelStepAside.onUpdate(function() {
-                    rp[0].display.position.x = currentPosition.x;
-                });
-
-                currentLevelStepAside.start();
-                this.currentMainPersonalityLevel++;
-            }
-        };
+        this.dirVector = vec.clone().normalize();
+        this.distanceFromCenter = vec.length();
 
         this.loadPlayerSpace = function(scene) {
-            this.mainPersonality.addToScene(vec, scene);
+            var field = new THREE.Object3D();
+
+            var mainPersonalityPos = this.dirVector.clone();
+            mainPersonalityPos.multiplyScalar(Player.Field.Height/2 + this.distanceFromCenter);
+
+            this.mainPersonality.addToField(mainPersonalityPos, field);
+
+            /* Surrounding area */
+            var surroundingArea = new THREE.Object3D();
+            var geo = new THREE.CylinderGeometry(Player.Field.cornerWidth, Player.Field.cornerWidth, Player.Field.Width, 32, 16, true);
+            var material = new THREE.MeshBasicMaterial({wireframe: true, color: 0xFFFFFF, side: THREE.DoubleSide});
+
+            // Superior row
+            var superiorRow = new THREE.Mesh(geo, material);
+            superiorRow.position = this.dirVector.clone().multiplyScalar(this.distanceFromCenter);
+            superiorRow.rotation.z = Math.PI / 2;
+            surroundingArea.add(superiorRow);
+
+            // Bottom row
+            var inferiorRow = new THREE.Mesh(geo, material);
+            inferiorRow.position = this.dirVector.clone().multiplyScalar(this.distanceFromCenter);
+            var bottomRowPosition = this.dirVector.clone().multiplyScalar(Player.Field.Width);
+            inferiorRow.position.add(bottomRowPosition);
+            inferiorRow.rotation.z = Math.PI / 2;
+            surroundingArea.add(inferiorRow);
+
+            // Right and left rows
+            geo = new THREE.CylinderGeometry(Player.Field.cornerWidth, Player.Field.cornerWidth, bottomRowPosition.length(), 32, 16, true);
+            var horizontalPos = MathHelper.rotateVector(this.dirVector, new THREE.Vector3(0,1,0), Math.PI/2);
+            horizontalPos.multiplyScalar(Player.Field.Width / 2);
+
+            // Right column
+            var rightColumn = new THREE.Mesh(geo, material);
+            rightColumn.position.copy(horizontalPos).add(this.dirVector.clone().multiplyScalar(Player.Field.Height / 2 + this.distanceFromCenter));
+            rightColumn.rotation.x = Math.PI / 2;
+            surroundingArea.add(rightColumn);
+
+            // Left column
+            var leftColumn = new THREE.Mesh(geo, material);
+            leftColumn.position.copy(MathHelper.reflect(rightColumn.position, this.dirVector));
+            leftColumn.rotation.x = Math.PI / 2;
+            surroundingArea.add(leftColumn);
+
+            // debug reflect
+
+            // Corners
+            var topRightPos = rightColumn.position.clone().add(this.dirVector.clone().multiplyScalar(-Player.Field.Height / 2));
+            var bottomRightPos = rightColumn.position.clone().add(this.dirVector.clone().multiplyScalar(Player.Field.Height / 2));
+            var bottomLeftPos = MathHelper.reflect(bottomRightPos, this.dirVector);
+            var topLeftPos = MathHelper.reflect(topRightPos, this.dirVector);
+
+            scene.add(MathHelper.lineFromOrigin(topRightPos, 0xFFFF00));
+            scene.add(MathHelper.lineFromOrigin(bottomRightPos, 0xFFFF00));
+            scene.add(MathHelper.lineFromOrigin(topLeftPos, 0xFFFF00));
+            scene.add(MathHelper.lineFromOrigin(bottomLeftPos, 0xFFFF00));
+
+            geo = new THREE.SphereGeometry(Player.Field.cornerWidth, 32, 16);
+
+            // top left
+            var topLeftCorner = new THREE.Mesh(geo, material);
+            topLeftCorner.position.copy(topLeftPos);
+            surroundingArea.add(topLeftCorner);
+
+            // bottom left
+            var bottomLeftCorner = topLeftCorner.clone();
+            bottomLeftCorner.position.copy(bottomLeftPos);
+            surroundingArea.add(bottomLeftCorner);
+
+            // top right
+            var topRightCorner = topLeftCorner.clone();
+            topRightCorner.position.copy(topRightPos);
+            surroundingArea.add(topRightCorner);
+
+            // bottom right
+            var bottomRightCorner = topLeftCorner.clone();
+            bottomRightCorner.position.copy(bottomRightPos);
+            field.add(bottomRightCorner);
+
+            field.add(surroundingArea);
+            scene.add(field);
         };
 
         function loadCards(cardList) {
@@ -121,8 +142,6 @@ Player.create = function(dataObject, vec) {
         this.removedFromTheGame = null;
         this.allies = null;
         this.mastery = null;
-        this.currentMainPersonalityLevel = dataObject.currentMainPersonality;
-        this.currentPowerStageAboveZero = dataObject.currentPowerStageAboveZero;
 
         this.mainPersonality = MainPersonality.create(dataObject.mainPersonality);
 //            this.mastery = Mastery.create(dataObject.mastery);

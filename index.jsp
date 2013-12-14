@@ -12,8 +12,10 @@
         </script>
         <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
         <script type="text/javascript" src="lib/three.min.js"></script>
+        <script type="text/javascript" src="lib/JSONLoader.js"></script>
         <script type="text/javascript" src="lib/OrbitControls.js"></script>
         <script type="text/javascript" src="lib/tween.min.js"></script>
+        <script type="text/javascript" src="lib/MathHelper.js"></script>
         <script type="text/javascript" src="game/Card.js"></script>
         <script type="text/javascript" src="game/Personality.js"></script>
         <script type="text/javascript" src="game/MainPersonality.js"></script>

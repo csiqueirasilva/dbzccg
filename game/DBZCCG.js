@@ -47,34 +47,35 @@ function DBZCCG() {
         createSkybox(scene);
         table = Table.create([
             /*P1*/    
-            {currentMainPersonality: 1, currentPowerStageAboveZero: 5, currentAngerLevel: 0,
-                angerLevelNeededToLevel: 5, mainPersonality: [{highTech: false, number: 158, texturePath: "images/DBZCCG/saiyan/158.jpg",
+            {   angerLevelNeededToLevel: 5, currentAngerLevel: 0, mainPersonality: { personalities: [{highTech: false, number: 158, texturePath: "images/DBZCCG/saiyan/158.jpg",
                         personality: Personality.GOKU, saga: Card.Saga.Saiyan, powerStages: [0, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1400]},
                     {highTech: false, number: 159, texturePath: "images/DBZCCG/saiyan/159.jpg",
                         personality: Personality.GOKU, saga: Card.Saga.Saiyan, powerStages: [0, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1400]},
                     {highTech: false, number: 160, texturePath: "images/DBZCCG/saiyan/160.jpg",
-                        personality: Personality.GOKU, saga: Card.Saga.Saiyan, powerStages: [0, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1400]}]},
+                        personality: Personality.GOKU, saga: Card.Saga.Saiyan, powerStages: [0, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1400]}], currentPowerStageAboveZero: 5, currentMainPersonality: 1 } },
             /*P2*/
-            {currentMainPersonality: 1, currentPowerStageAboveZero: 5, currentAngerLevel: 0,
-                angerLevelNeededToLevel: 5, mainPersonality: [{highTech: false, number: 173, texturePath: "images/DBZCCG/saiyan/173.jpg",
+            {currentMainPersonality: 1, currentAngerLevel: 0,
+                angerLevelNeededToLevel: 5, mainPersonality: { personalities: [{highTech: false, number: 173, texturePath: "images/DBZCCG/saiyan/173.jpg",
                         personality: Personality.VEGETA, saga: Card.Saga.Saiyan, powerStages: [0, 2000, 2200, 2400, 2600, 2800, 3000, 3200, 3400, 3600, 3800]},
                     {highTech: false, number: 174, texturePath: "images/DBZCCG/saiyan/174.jpg",
                         personality: Personality.VEGETA, saga: Card.Saga.Saiyan, powerStages: [0, 2000, 2200, 2400, 2600, 2800, 3000, 3200, 3400, 3600, 3800]},
                     {highTech: false, number: 175, texturePath: "images/DBZCCG/saiyan/175.jpg",
-                        personality: Personality.VEGETA, saga: Card.Saga.Saiyan, powerStages: [0, 2000, 2200, 2400, 2600, 2800, 3000, 3200, 3400, 3600, 3800]}]}
+                        personality: Personality.VEGETA, saga: Card.Saga.Saiyan, powerStages: [0, 2000, 2200, 2400, 2600, 2800, 3000, 3200, 3400, 3600, 3800]}], currentPowerStageAboveZero: 5, currentMainPersonality: 1 } }
         ]);
-
-        console.log(table);
 
         for (var i = 0; i < table.players.length; i++) {
             var player = table.players[i];
             player.loadPlayerSpace(scene);
         }
 
-        table.players[0].advanceLevel(3000);
-        table.players[0].advanceLevel(3000);
+        table.players[0].mainPersonality.advanceLevels(2);
+        table.players[1].mainPersonality.advanceLevels(8);    
+
+        console.log(table);
+
+        // debug
+        scene.add(MathHelper.buildAxes(1000));
         
-        console.log(table.players[0]);
         /*
          function formatnumber(n) {
          if (n < 10)
