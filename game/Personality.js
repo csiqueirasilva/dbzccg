@@ -58,7 +58,8 @@ Personality.create = function(data) {
 
                 var zScouter = this.zScouter;
                 moveAnimation.onUpdate(function() {
-                    zScouter.position.copy(startPos);
+                    zScouter.position.x = startPos.x;
+                    zScouter.position.z = startPos.z;
                 });
                 
                 
@@ -103,8 +104,9 @@ Personality.create = function(data) {
 
                 personality.zScouter.rotation.y = MathHelper.angleVectors(new THREE.Vector3(0, 0, -1), personality.display.position);
 
-                personality.zScouter.position.y += Card.cornerWidth * Card.cardThicknessScale * distanceFromY;
+                personality.zScouter.position.y += Card.cornerWidth * Card.cardThicknessScale * distanceFromY * 2 ;
                 personality.zScouter.dirVector = dirVector;
+                personality.zScouter.receiveShadow = true;
 
                 personality.moveZScouter(personality.currentPowerStageAboveZero || 0, true);
 

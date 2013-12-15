@@ -64,8 +64,8 @@ DBZCCG.create = function() {
     }
 
     function buildScene(scene) {
-        var light = new THREE.PointLight( 0xF0F0F0 , 1, 100 ); // soft white light
-        light.position.set(0,5,0);
+        var light = new THREE.PointLight( 0xF0F0F0 ); // soft white light
+        light.position.set(0,100,0);
         scene.add( light );
         createSkybox(scene);
         table = Table.create([

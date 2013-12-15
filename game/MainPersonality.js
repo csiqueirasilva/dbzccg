@@ -121,7 +121,7 @@ MainPersonality.create = function(data) {
                 card.moveY(this.personalities.length - 1 - i);
                 field.add(card.display);
             }
-            this.personalities[0].addZScouter(field, this.personalities[0].display.position, this.personalities.length - 1);
+            this.personalities[0].addZScouter(field, this.personalities[0].display.position, this.personalities.length );
         }
 
         this.personalities = [];

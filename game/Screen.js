@@ -24,6 +24,7 @@ function Screen(buildScene, render, controls) {
                 renderer = new THREE.WebGLRenderer({antialias: true});
                 renderer.setClearColor(0x000000, 1);
                 renderer.setSize(w, h);
+                
                 document.body.appendChild(renderer.domElement);
 
                 // camera
