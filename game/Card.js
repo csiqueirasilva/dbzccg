@@ -16,7 +16,7 @@ Card.cornerWidth = 0.10;
 Card.cornerHeight = Card.cornerWidth;
 Card.cardThicknessScale = 0.1;
 Card.personalityNameDiff = {};
-Card.personalityNameDiff[Card.Saga.Saiyan] = 0.02;
+Card.personalityNameDiff[Card.Saga.Saiyan] = Card.cardHeight/10;
 Card.personalityPowerStageDiff = {};
 Card.personalityPowerStageDiff[Card.Saga.Saiyan] = { "regular": {"Zero": Card.cardHeight*0.61, "diff": 0.3845} };
 
@@ -140,6 +140,7 @@ Card.create = function(dataObject) {
             }
         };
         
+        this.name = dataObject.name;
         this.highTech = dataObject.highTech;
         this.saga = dataObject.saga;
         this.number = dataObject.number;

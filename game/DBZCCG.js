@@ -1,5 +1,24 @@
 // http://github.com/csiqueirasilva/dbzccg.js
-function DBZCCG() {
+DBZCCG = {};
+
+DBZCCG.performingAnimation = false;
+DBZCCG.performingAction = null;
+DBZCCG.mainPlayer = null;
+
+DBZCCG.quickMessage = function (msg) {
+    if(DBZCCG.performingAction != null) {
+        if(DBZCCG.performingAction == DBZCCG.mainPlayer) {
+            alertify.custom = alertify.extend("player");
+        } else {
+            alertify.custom = alertify.extend("enemy");
+        }
+        alertify.custom(msg);
+    } else {
+        alertify.log(msg);
+    }
+};
+
+DBZCCG.create = function() {
 
     /* Three related */
     var clock = new THREE.Clock();
@@ -7,9 +26,10 @@ function DBZCCG() {
     var projector;
     var intersected;
     var objects = [];
-
+    
     /* Game related */
     var table = null;
+    var listActions = [];
 
     function createSkybox(scene) {
         var urlPrefix = "images/bg/skybox_carro/";
@@ -44,38 +64,87 @@ function DBZCCG() {
     }
 
     function buildScene(scene) {
+        var light = new THREE.PointLight( 0xF0F0F0 , 1, 100 ); // soft white light
+        light.position.set(0,5,0);
+        scene.add( light );
         createSkybox(scene);
         table = Table.create([
-            /*P1*/    
-            {   angerLevelNeededToLevel: 5, currentAngerLevel: 0, mainPersonality: { personalities: [{highTech: false, number: 158, texturePath: "images/DBZCCG/saiyan/158.jpg",
-                        personality: Personality.GOKU, saga: Card.Saga.Saiyan, powerStages: [0, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1400]},
-                    {highTech: false, number: 159, texturePath: "images/DBZCCG/saiyan/159.jpg",
-                        personality: Personality.GOKU, saga: Card.Saga.Saiyan, powerStages: [0, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1400]},
-                    {highTech: false, number: 160, texturePath: "images/DBZCCG/saiyan/160.jpg",
-                        personality: Personality.GOKU, saga: Card.Saga.Saiyan, powerStages: [0, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1400]}], currentPowerStageAboveZero: 5, currentMainPersonality: 1 } },
+            /*P1*/
+            {angerLevelNeededToLevel: 5, currentAngerLevel: 0, mainPersonality: {personalities: [{level: 1, name: "GOKU", highTech: false, number: 158, texturePath: "images/DBZCCG/saiyan/158.jpg",
+                            personality: Personality.GOKU, saga: Card.Saga.Saiyan, powerStages: [0, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1400]},
+                        {level: 2, name: "GOKU", highTech: false, number: 159, texturePath: "images/DBZCCG/saiyan/159.jpg",
+                            personality: Personality.GOKU, saga: Card.Saga.Saiyan, powerStages: [0, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1400]},
+                        {level: 3, name: "GOKU", highTech: false, number: 160, texturePath: "images/DBZCCG/saiyan/160.jpg",
+                            personality: Personality.GOKU, saga: Card.Saga.Saiyan, powerStages: [0, 8000, 8500, 9000, 9500, 10000, 10500, 11000, 11500, 12000, 12500]}], currentPowerStageAboveZero: 5, currentMainPersonality: 1}},
             /*P2*/
             {currentMainPersonality: 1, currentAngerLevel: 0,
-                angerLevelNeededToLevel: 5, mainPersonality: { personalities: [{highTech: false, number: 173, texturePath: "images/DBZCCG/saiyan/173.jpg",
-                        personality: Personality.VEGETA, saga: Card.Saga.Saiyan, powerStages: [0, 2000, 2200, 2400, 2600, 2800, 3000, 3200, 3400, 3600, 3800]},
-                    {highTech: false, number: 174, texturePath: "images/DBZCCG/saiyan/174.jpg",
-                        personality: Personality.VEGETA, saga: Card.Saga.Saiyan, powerStages: [0, 2000, 2200, 2400, 2600, 2800, 3000, 3200, 3400, 3600, 3800]},
-                    {highTech: false, number: 175, texturePath: "images/DBZCCG/saiyan/175.jpg",
-                        personality: Personality.VEGETA, saga: Card.Saga.Saiyan, powerStages: [0, 2000, 2200, 2400, 2600, 2800, 3000, 3200, 3400, 3600, 3800]}], currentPowerStageAboveZero: 5, currentMainPersonality: 1 } }
+                angerLevelNeededToLevel: 5, mainPersonality: {personalities: [{level: 1, name: "VEGETA", highTech: false, number: 173, texturePath: "images/DBZCCG/saiyan/173.jpg",
+                            personality: Personality.VEGETA, saga: Card.Saga.Saiyan, powerStages: [0, 2000, 2200, 2400, 2600, 2800, 3000, 3200, 3400, 3600, 3800]},
+                        {level: 2, name: "VEGETA", highTech: false, number: 174, texturePath: "images/DBZCCG/saiyan/174.jpg",
+                            personality: Personality.VEGETA, saga: Card.Saga.Saiyan, powerStages: [0, 2000, 2200, 2400, 2600, 2800, 3000, 3200, 3400, 3600, 3800]},
+                        {level: 3, name: "VEGETA", highTech: false, number: 175, texturePath: "images/DBZCCG/saiyan/175.jpg",
+                            personality: Personality.VEGETA, saga: Card.Saga.Saiyan, powerStages: [0, 9000, 10000, 11000, 12000, 13000, 14000, 15000, 16000, 17000, 18000]}], currentPowerStageAboveZero: 5, currentMainPersonality: 1}}
         ]);
+
+        DBZCCG.mainPlayer = table.players[0];
 
         for (var i = 0; i < table.players.length; i++) {
             var player = table.players[i];
             player.loadPlayerSpace(scene);
+            DBZCCG.quickMessage("Player "+(i+1)+" loaded.");
         }
 
-        table.players[0].mainPersonality.advanceLevels(2);
-        table.players[1].mainPersonality.advanceLevels(8);    
+        function checkLoad() {
+            if (table.players[0].mainPersonality.personalities[0].zScouter == undefined) {
+                window.setTimeout(checkLoad, 500);
+            } else /*Begin code after everything was loaded */ {
+                
+                listActions.push(function(){
+                    DBZCCG.performingAction = table.players[0];
+                    table.players[0].mainPersonality.advanceLevels(2);
+                });
+                
+                listActions.push(function(){
+                    DBZCCG.performingAction = table.players[1];
+                    table.players[1].mainPersonality.advanceLevels(8);
+                });
+                
+                listActions.push(function(){
+                    DBZCCG.performingAction = table.players[0];
+                    table.players[0].mainPersonality.moveZScouter(0);
+                });
+                
+                listActions.push(function(){
+                    DBZCCG.performingAction = table.players[0];
+                    table.players[0].mainPersonality.moveZScouter(5);
+                });
+                
+                listActions.push(function(){
+                    DBZCCG.performingAction = table.players[0];
+                    table.players[0].mainPersonality.moveZScouter(12);
+                });
+                
+                listActions.push(function(){
+                    DBZCCG.performingAction = table.players[0];
+                    table.players[0].mainPersonality.moveZScouter(1);
+                });
+                
+            }
+        }
 
-        console.log(table);
-
+        window.setTimeout(checkLoad, 500);
+        
+        function checkAction() {
+            if(DBZCCG.performingAnimation == false && listActions.length > 0) {
+                listActions.shift()();
+            }
+        }
+        
+        window.setInterval(checkAction, 150);
+        
         // debug
         scene.add(MathHelper.buildAxes(1000));
-        
+
         /*
          function formatnumber(n) {
          if (n < 10)

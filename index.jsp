@@ -4,12 +4,16 @@
         <title>Game</title>
         <meta charset="utf-8">
 
+        <link rel="stylesheet" href="css/alertify.css" />
+        <link rel="stylesheet" href="css/alertify.dbzccg.css" />
+        
         <script id="skybox_vertex_shader" type="x-shader/x-fragment">
             <%@include file="game/skyboxvertexshader.glsl"%>
         </script>
         <script id="skybox_fragment_shader" type="x-shader/x-fragment">
             <%@include file="game/skyboxfragmentshader.glsl"%>
         </script>
+        <script type="text/javascript" src="lib/alertify.min.js"></script>
         <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
         <script type="text/javascript" src="lib/three.min.js"></script>
         <script type="text/javascript" src="lib/JSONLoader.js"></script>
@@ -26,7 +30,17 @@
         <script type="text/javascript" src="game/DBZCCG.js"></script>
         <script type="text/javascript">
             $(document).ready(function(){
-                new DBZCCG();
+
+                function getKeyByValue ( object, value ) {
+                    for( var prop in object ) {
+                        if( this.hasOwnProperty( prop ) ) {
+                             if( object[ prop ] === value )
+                                 return prop;
+                        }
+                    }
+                }
+            
+                DBZCCG.create();
             });
         </script>
         

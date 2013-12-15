@@ -1,6 +1,6 @@
 Table = {}
 
-Table.basePlayerDistance = 16;
+Table.basePlayerDistance = 1;
 
 Table.create = function(extPlayers) {
 

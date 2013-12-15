@@ -5,8 +5,16 @@ MainPersonality.maxLevel = 5;
 MainPersonality.create = function(data) {
     
     function MainPersonalityObject (data) {
+        
+        this.moveZScouter = function(toPowerStage) {
+            this.personalities[this.currentMainPersonalityLevel-1].moveZScouter(toPowerStage);
+        }
+        
         this.advanceLevels = function(n) {
             var mp = this;
+            var desiredLevels = n;
+            var previousLevel = mp.personalities[mp.currentMainPersonalityLevel - 1];
+            DBZCCG.performingAnimation = true;
             function advanceLevel() {
                 if (mp.currentMainPersonalityLevel != mp.personalities.length && n > 0) {
                     // Reorder personalities array
@@ -72,21 +80,34 @@ MainPersonality.create = function(data) {
 
                     n--;
 
-                    if (n > 0) {
-                        currentLevelStepAside.onComplete(function() {
+
+                    currentLevelStepAside.onComplete(function() {
+                        if(n > 0) {
                             window.setTimeout(function() {
                                 advanceLevel(mp, n);
                             }, 750);
-                        });
-                    }
-
+                        }
+                    });
+                    
+                    
+                    rp[1].currentPowerStageAboveZero = rp[0].currentPowerStageAboveZero;
+                    rp[1].zScouter = rp[0].zScouter;
+                    rp[0].currentPowerStageAboveZero = rp[0].zScouter = undefined;
                     mp.currentMainPersonalityLevel++;
                     currentLevelStepAside.start();
                 }
             }
 
             advanceLevel();
-
+            
+            if(desiredLevels != n) {
+                window.setTimeout(function() {
+                    DBZCCG.performingAnimation = false;
+                    var currentLevel = mp.personalities[mp.currentMainPersonalityLevel - 1];
+                    DBZCCG.quickMessage(previousLevel.displayName() + " advanced to "+ currentLevel.displayName() + ".");
+                    mp.moveZScouter("max");
+                }, (80+80+120+750)*(desiredLevels-n) + 200 );
+            }
         };
 
         this.addToField = function(position, field) {
@@ -95,11 +116,12 @@ MainPersonality.create = function(data) {
                 card.faceup();
                 card.turnThisWay(position);
                 card.display.position = position.clone();
-                card.display.position.multiplyScalar(1 - Card.personalityNameDiff[card.saga] * i);
+                var diffName = card.display.position.clone().normalize();
+                card.display.position.add(diffName.multiplyScalar(-Card.personalityNameDiff[card.saga] * i));
                 card.moveY(this.personalities.length - 1 - i);
                 field.add(card.display);
             }
-            this.personalities[0].addZScouter(field, this.currentPowerStageAboveZero, this.personalities[0].display.position, this.personalities.length - 1);
+            this.personalities[0].addZScouter(field, this.personalities[0].display.position, this.personalities.length - 1);
         }
 
         this.personalities = [];
@@ -108,7 +130,7 @@ MainPersonality.create = function(data) {
         }
         
         this.currentMainPersonalityLevel = data.currentMainPersonality;
-        this.currentPowerStageAboveZero = data.currentPowerStageAboveZero;
+        this.personalities[this.currentMainPersonalityLevel - 1].currentPowerStageAboveZero = data.currentPowerStageAboveZero;
     }
     
     return new MainPersonalityObject(data);

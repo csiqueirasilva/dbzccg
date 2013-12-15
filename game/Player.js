@@ -2,9 +2,9 @@ Player = {};
 
 Player.Field = {};
 
-Player.Field.cornerWidth = 1;
-Player.Field.Height = 40;
-Player.Field.Width = 40;
+Player.Field.cornerWidth = 0.2;
+Player.Field.Height = 30;
+Player.Field.Width = Player.Field.Height;
 
 Player.create = function(dataObject, vec) {
 
@@ -14,23 +14,23 @@ Player.create = function(dataObject, vec) {
         this.distanceFromCenter = vec.length();
 
         this.loadPlayerSpace = function(scene) {
-            var field = new THREE.Object3D();
+            this.field = new THREE.Object3D();
 
             var mainPersonalityPos = this.dirVector.clone();
-            mainPersonalityPos.multiplyScalar(Player.Field.Height/2 + this.distanceFromCenter);
+            mainPersonalityPos.multiplyScalar(Player.Field.Height/5 + this.distanceFromCenter);
 
-            this.mainPersonality.addToField(mainPersonalityPos, field);
+            this.mainPersonality.addToField(mainPersonalityPos, this.field);
 
             /* Surrounding area */
-            var surroundingArea = new THREE.Object3D();
+            this.surroundingArea = new THREE.Object3D();
             var geo = new THREE.CylinderGeometry(Player.Field.cornerWidth, Player.Field.cornerWidth, Player.Field.Width, 32, 16, true);
-            var material = new THREE.MeshBasicMaterial({wireframe: true, color: 0xFFFFFF, side: THREE.DoubleSide});
+            var material = new THREE.MeshBasicMaterial({color: 0x444444, side: THREE.DoubleSide});
 
             // Superior row
             var superiorRow = new THREE.Mesh(geo, material);
             superiorRow.position = this.dirVector.clone().multiplyScalar(this.distanceFromCenter);
             superiorRow.rotation.z = Math.PI / 2;
-            surroundingArea.add(superiorRow);
+            this.surroundingArea.add(superiorRow);
 
             // Bottom row
             var inferiorRow = new THREE.Mesh(geo, material);
@@ -38,7 +38,7 @@ Player.create = function(dataObject, vec) {
             var bottomRowPosition = this.dirVector.clone().multiplyScalar(Player.Field.Width);
             inferiorRow.position.add(bottomRowPosition);
             inferiorRow.rotation.z = Math.PI / 2;
-            surroundingArea.add(inferiorRow);
+            this.surroundingArea.add(inferiorRow);
 
             // Right and left rows
             geo = new THREE.CylinderGeometry(Player.Field.cornerWidth, Player.Field.cornerWidth, bottomRowPosition.length(), 32, 16, true);
@@ -49,15 +49,13 @@ Player.create = function(dataObject, vec) {
             var rightColumn = new THREE.Mesh(geo, material);
             rightColumn.position.copy(horizontalPos).add(this.dirVector.clone().multiplyScalar(Player.Field.Height / 2 + this.distanceFromCenter));
             rightColumn.rotation.x = Math.PI / 2;
-            surroundingArea.add(rightColumn);
+            this.surroundingArea.add(rightColumn);
 
             // Left column
             var leftColumn = new THREE.Mesh(geo, material);
             leftColumn.position.copy(MathHelper.reflect(rightColumn.position, this.dirVector));
             leftColumn.rotation.x = Math.PI / 2;
-            surroundingArea.add(leftColumn);
-
-            // debug reflect
+            this.surroundingArea.add(leftColumn);
 
             // Corners
             var topRightPos = rightColumn.position.clone().add(this.dirVector.clone().multiplyScalar(-Player.Field.Height / 2));
@@ -65,35 +63,39 @@ Player.create = function(dataObject, vec) {
             var bottomLeftPos = MathHelper.reflect(bottomRightPos, this.dirVector);
             var topLeftPos = MathHelper.reflect(topRightPos, this.dirVector);
 
+            /*
+            // DEBUG 
             scene.add(MathHelper.lineFromOrigin(topRightPos, 0xFFFF00));
             scene.add(MathHelper.lineFromOrigin(bottomRightPos, 0xFFFF00));
             scene.add(MathHelper.lineFromOrigin(topLeftPos, 0xFFFF00));
             scene.add(MathHelper.lineFromOrigin(bottomLeftPos, 0xFFFF00));
-
+            */
+           
             geo = new THREE.SphereGeometry(Player.Field.cornerWidth, 32, 16);
 
             // top left
             var topLeftCorner = new THREE.Mesh(geo, material);
             topLeftCorner.position.copy(topLeftPos);
-            surroundingArea.add(topLeftCorner);
+            this.surroundingArea.add(topLeftCorner);
 
             // bottom left
             var bottomLeftCorner = topLeftCorner.clone();
             bottomLeftCorner.position.copy(bottomLeftPos);
-            surroundingArea.add(bottomLeftCorner);
+            this.surroundingArea.add(bottomLeftCorner);
 
             // top right
             var topRightCorner = topLeftCorner.clone();
             topRightCorner.position.copy(topRightPos);
-            surroundingArea.add(topRightCorner);
+            this.surroundingArea.add(topRightCorner);
 
             // bottom right
             var bottomRightCorner = topLeftCorner.clone();
             bottomRightCorner.position.copy(bottomRightPos);
-            field.add(bottomRightCorner);
+            this.surroundingArea.add(bottomRightCorner);
 
-            field.add(surroundingArea);
-            scene.add(field);
+            this.field.add(this.surroundingArea);
+            //this.surroundingArea.traverse( function ( object ) { object.visible = false; } );
+            scene.add(this.field);
         };
 
         function loadCards(cardList) {
