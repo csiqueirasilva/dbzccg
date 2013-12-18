@@ -137,8 +137,6 @@ Player.create = function(dataObject, vec) {
             return cards;
         }
 
-        this.angerLevelNeededToLevel = dataObject.angerLevelNeededToLevel;
-        this.angerLevel = dataObject.currentAngerLevel;
         this.lifeDeck = null;
         this.discardPile = null;
         this.removedFromTheGame = null;

@@ -9,6 +9,177 @@ MainPersonality.create = function(data) {
         this.moveZScouter = function(toPowerStage) {
             this.personalities[this.currentMainPersonalityLevel-1].moveZScouter(toPowerStage);
         }
+
+        this.neutralPositionScabbard = function(dirVector) {
+            this.zScabbard.rotation.copy(this.zSword.rotation);
+            this.zScabbard.position.copy(this.zSword.position);
+            this.zScabbard.position.y += -0.075;
+            this.zScabbard.position.add(MathHelper.rotateVector(dirVector).normalize().multiplyScalar(-0.49));
+            this.zScabbard.scale.copy(this.zSword.scale);
+        }
+        
+        this.addZSword = function(field, dirVector) {
+            var manager = new THREE.LoadingManager();
+            manager.onProgress = function(item, loaded, total) {
+                console.log(item, loaded, total);
+            };
+
+            var loader = new THREE.JSONLoader(manager);
+            var mp = this;
+            mp.zSwordComplete = new THREE.Object3D();
+
+            loader.load("model/zsword.js", function(geometry) {
+                mp.zSword = new THREE.Mesh(geometry, new THREE.MeshLambertMaterial({side: THREE.DoubleSide, shading: THREE.SmoothShading, color: 0x777777}));
+                mp.zSword.rotation.z = -Math.PI/2;
+                mp.zSword.rotation.y += MathHelper.angleVectors(new THREE.Vector3(0, 0, -1), dirVector);
+                mp.zSword.position.copy(dirVector);
+                mp.zSword.position.multiplyScalar(0.34);
+                mp.zSword.scale = new THREE.Vector3(3, 3, 3);
+                mp.zSword.position.y = 0.2;
+                mp.zSwordComplete.add(mp.zSword);
+                
+                loader.load("model/zswordcover.js", function(geometry) {
+                    mp.zScabbard = new THREE.Mesh(geometry, new THREE.MeshLambertMaterial({side: THREE.DoubleSide, shading: THREE.SmoothShading, color: 0x777777}));
+                    mp.zSwordComplete.add(mp.zScabbard);
+                    mp.neutralPositionScabbard(dirVector);
+                    DBZCCG.objects.push(mp.zSwordComplete);
+                    mp.zSwordComplete.cursor = 'auto';
+                    mp.zSwordComplete.mouseOver = function () {
+                        return "Current anger level: "+mp.currentAngerLevel;
+                    };
+                    
+                    var anger = mp.currentAngerLevel ;
+                    mp.zScabbard.position.add(
+                            MathHelper
+                            .rotateVector(mp.personalities[0].display.position)
+                            .normalize()
+                            .multiplyScalar(-1*0.785*anger));
+                    
+                    field.add(mp.zSwordComplete);
+                });
+            });
+        };
+
+        this.setAnger = function(n, noDelay, noMessage) {
+            // Sword animation
+            DBZCCG.performingAnimation = true;
+            var anger = parseInt(n);
+            
+            if(anger < this.angerLevelNeededToLevel && anger >= 0 && anger != this.currentAngerLevel) {
+                var oldAnger = this.currentAngerLevel;
+                var position = this.zScabbard.position.clone();
+                var moveAxis = MathHelper.rotateVector(this.personalities[0].display.position).normalize();
+
+                var target = this.zSword.position.clone();
+                target.y += -0.075;
+                target.add(moveAxis.clone().multiplyScalar(-0.49));
+                target.add(moveAxis.multiplyScalar(-1*((anger - oldAnger)/Math.abs(anger - oldAnger))*0.785*anger));
+
+                var animation = new TWEEN.Tween(position).to(target, 600+50*Math.abs(anger - oldAnger));
+                var scabbard = this.zScabbard.position;
+
+                animation.onUpdate(function() {
+                    scabbard.copy(position);
+                });
+
+                if(!noDelay) {
+                    animation.delay(500);
+                }
+
+                var mp = this;
+                animation.onComplete(function () {
+                    if(!noMessage) {
+                            var msg = mp.personalities[mp.currentMainPersonalityLevel - 1].displayName()+"'s anger was set to "+anger+".";
+                            DBZCCG.quickMessage(msg);
+                    }
+                    mp.currentAngerLevel = anger;
+                    DBZCCG.performingAnimation = false;
+                });
+            
+                animation.easing(TWEEN.Easing.Circular.In);
+
+                animation.start();
+            }
+        };
+        
+        this.changeAnger = function(n, noDelay, noMessage) {
+            // Sword animation
+            DBZCCG.performingAnimation = true;
+            var anger = parseInt(n);
+            var updateLevel = false;
+            var oldAnger = this.currentAngerLevel;
+            
+            if(anger+this.currentAngerLevel >= this.angerLevelNeededToLevel) {
+                anger = this.angerLevelNeededToLevel >= 5 ? 5 : this.angerLevelNeededToLevel;
+                updateLevel = true;
+            } else if (anger+this.currentAngerLevel <= 0) {
+                anger = 0;
+            } else if (anger == 0) {
+                anger = this.currentAngerLevel;
+            } else {
+                anger = anger+this.currentAngerLevel;
+            }
+            
+            var position = this.zScabbard.position.clone();
+            var moveAxis = MathHelper.rotateVector(this.personalities[0].display.position).normalize();
+
+            var target;
+
+            target = this.zSword.position.clone();
+            target.y += -0.075;
+            target.add(moveAxis.clone().multiplyScalar(-0.49));
+            
+            if( n > 0 ) {
+                target.add(moveAxis.multiplyScalar(-1*0.785*anger));
+            } else {
+                target.add(moveAxis.multiplyScalar(0.785*anger));
+            }
+    
+            var animation = new TWEEN.Tween(position).to(target, 600+50*Math.abs(anger - oldAnger));
+            var scabbard = this.zScabbard.position;
+            
+            animation.onUpdate(function() {
+                scabbard.copy(position);
+            });
+            
+            if(!noDelay) {
+                animation.delay(500);
+            }
+            
+            var mp = this;
+            animation.onComplete(function () {
+                if(!noMessage) {
+                    if(oldAnger != anger) {
+                        var diffAnger = anger - oldAnger ;
+                        var msg;
+                        if(diffAnger < 0) {
+                            msg = mp.personalities[mp.currentMainPersonalityLevel - 1].displayName()+" lost "+Math.abs(diffAnger)+" anger.";
+                        } else {
+                            msg = mp.personalities[mp.currentMainPersonalityLevel - 1].displayName()+" gained "+diffAnger+" anger.";
+                        }
+                        DBZCCG.quickMessage(msg);
+                    }
+                }
+                
+                if(updateLevel) {
+                    mp.currentAngerLevel = mp.angerLevelNeededToLevel ;
+                    if(mp.personalities.length != mp.currentMainPersonalityLevel) {
+                        mp.advanceLevels(1);
+                    } else {
+                        DBZCCG.quickMessage(mp.personalities[mp.currentMainPersonalityLevel - 1].displayName()+"'s level cannot go higher.");
+                        mp.personalities[mp.currentMainPersonalityLevel - 1].moveZScouter("max");
+                        mp.setAnger(0);
+                    }
+                } else {
+                    mp.currentAngerLevel = anger ;
+                }
+                DBZCCG.performingAnimation = false;
+            });
+            
+            animation.easing(TWEEN.Easing.Circular.In);
+            
+            animation.start();
+        };
         
         this.advanceLevels = function(n) {
             var mp = this;
@@ -106,6 +277,7 @@ MainPersonality.create = function(data) {
                     var currentLevel = mp.personalities[mp.currentMainPersonalityLevel - 1];
                     DBZCCG.quickMessage(previousLevel.displayName() + " advanced to "+ currentLevel.displayName() + ".");
                     mp.moveZScouter("max");
+                    mp.setAnger(0, true);
                 }, (80+80+120+750)*(desiredLevels-n) + 200 );
             }
         };
@@ -115,21 +287,26 @@ MainPersonality.create = function(data) {
                 var card = this.personalities[i];
                 card.faceup();
                 card.turnThisWay(position);
-                card.display.position = position.clone();
+                card.display.position = position.clone().multiplyScalar(1.3);
                 var diffName = card.display.position.clone().normalize();
                 card.display.position.add(diffName.multiplyScalar(-Card.personalityNameDiff[card.saga] * i));
                 card.moveY(this.personalities.length - 1 - i);
                 field.add(card.display);
             }
             this.personalities[0].addZScouter(field, this.personalities[0].display.position, this.personalities.length );
-        }
+            this.personalities[0].moveZScouter(this.currentPowerStageAboveZero, true, true);
+            this.addZSword(field, position);
+        };
 
         this.personalities = [];
         for(var i = 0; i < data.personalities.length; i++) {
             this.personalities.push(Personality.create(data.personalities[i]));
         }
-        
-        this.currentMainPersonalityLevel = data.currentMainPersonality;
+
+        this.angerLevelNeededToLevel = data.angerLevelNeededToLevel;
+        this.currentAngerLevel = data.currentAngerLevel;
+        this.currentPowerStageAboveZero = data.currentPowerStageAboveZero;
+        this.currentMainPersonalityLevel = data.currentMainPersonalityLevel;
         this.personalities[this.currentMainPersonalityLevel - 1].currentPowerStageAboveZero = data.currentPowerStageAboveZero;
     }
     

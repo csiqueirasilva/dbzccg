@@ -88,7 +88,7 @@ Personality.create = function(data) {
             }
         }
 
-        this.addZScouter = function(scene, dirVector, distanceFromY) {
+        this.addZScouter = function(field, dirVector, distanceFromY) {
             var manager = new THREE.LoadingManager();
             manager.onProgress = function(item, loaded, total) {
                 console.log(item, loaded, total);
@@ -107,10 +107,8 @@ Personality.create = function(data) {
                 personality.zScouter.position.y += Card.cornerWidth * Card.cardThicknessScale * distanceFromY * 2 ;
                 personality.zScouter.dirVector = dirVector;
                 personality.zScouter.receiveShadow = true;
-
-                personality.moveZScouter(personality.currentPowerStageAboveZero || 0, true);
-
-                scene.add(personality.zScouter);
+                personality.moveZScouter(personality.currentPowerStageAboveZero || 0, true, true);
+                field.add(personality.zScouter);
             });
         };
 
