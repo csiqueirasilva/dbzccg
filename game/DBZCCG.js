@@ -88,7 +88,8 @@ DBZCCG.create = function() {
     /* Game related */
     var table = null;
     var listActions = [];
-
+    var scr = null;
+    
     function createSkybox(scene) {
         var urlPrefix = "images/bg/skybox_carro/";
         var urls = [urlPrefix + "posx.jpg", urlPrefix + "negx.jpg",
@@ -498,6 +499,12 @@ DBZCCG.create = function() {
         return null;
     }
 
-    var scr = Screen.create(buildScene, render, controls);
-
-}
+    scr = Screen.create(buildScene, render, controls);
+    var interval = window.setInterval(function() {
+        if(DBZCCG.finishedLoading) {
+            window.clearInterval(interval);
+            $("#loadingText").remove();
+            scr.start();
+        }
+    }, 1000);
+};

@@ -52,6 +52,7 @@
         
     </head>
     <body id='body' style="margin: 0; overflow: hidden;" oncontextmenu="return false;">
+        <h1 id="loadingText">Loading!!!!</h1>
         <!--div id="card-description" style="padding: 20px; position: absolute; border: #000000 2px solid; border-radius:5px; background-color: #FFFFFF; width: 20%; height: 80%; margin-top: 0.75%; margin-left: 0.75%;">teste</div-->
     </body>
 </html>

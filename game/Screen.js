@@ -26,10 +26,12 @@ Screen.create = function (buildScene, render, controls) {
         var render = extRender;
         var running = false;
 
-        function animate() {
+        function animate () {
             requestAnimationFrame(animate);
             render(cameraControl, renderer, scene, camera);
         }
+
+        this.animate = animate;
 
         function initWebGL() {
             if (!running && buildScene instanceof Function && render instanceof Function) {
@@ -63,9 +65,6 @@ Screen.create = function (buildScene, render, controls) {
                 // Build scene
                 buildScene(scene, camera);
 
-                // animate
-                animate();
-
                 running = true;
             }
         }
@@ -76,5 +75,5 @@ Screen.create = function (buildScene, render, controls) {
     var gfx = new GFX(buildScene, render, controls);
     gfx.init();
     
-    return this;
+    return { start: gfx.animate };
 };

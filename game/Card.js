@@ -53,7 +53,6 @@ Card.create = function(dataObject) {
             var card = new THREE.Object3D();
             var cardGeo = new THREE.CylinderGeometry(Card.cornerWidth, Card.cornerWidth, Card.cardWidth - Card.cornerWidth, 32, 16, true);
             var backTexture = THREE.ImageUtils.loadTexture("images/DBZCCG/back.jpg");
-            var cardLightMap = THREE.ImageUtils.loadTexture("images/DBZCCG/lightmapcard.jpg");
             var frontTexture = THREE.ImageUtils.loadTexture(texturePath);
             var borderTexture = THREE.ImageUtils.loadTexture("images/DBZCCG/border_low.jpg");
             var cornerTexture = THREE.ImageUtils.loadTexture("images/DBZCCG/corner_low.jpg");
