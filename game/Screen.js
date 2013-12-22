@@ -1,5 +1,22 @@
 // http://github.com/csiqueirasilva
-function Screen(buildScene, render, controls) {
+
+Screen = {};
+
+Screen.findCallbackObject = function (object, callback) {
+    var parent;
+    if (object instanceof THREE.Mesh || object instanceof THREE.Object3D) {
+        parent = object;
+        while(parent && !(parent.parent instanceof THREE.Scene)) {
+            parent = parent.parent;
+            if(parent[callback] instanceof Function) {
+                break;
+            }
+        }
+    }
+    return parent;
+};
+
+Screen.create = function (buildScene, render, controls) {
     function GFX(extBuildScene, extRender, extControls) {
         var renderer;
         var scene;
@@ -32,13 +49,10 @@ function Screen(buildScene, render, controls) {
                 camera.position.set(0, 0, 0);
                 scene.add(camera);
 
-                // resize
                 window.addEventListener('resize', function() {
                     var WIDTH = window.innerWidth,
                             HEIGHT = window.innerHeight;
                     renderer.setSize(WIDTH, HEIGHT);
-                    camera.aspect = WIDTH / HEIGHT;
-                    camera.updateProjectionMatrix();
                 });
 
                 // camera control
@@ -47,7 +61,7 @@ function Screen(buildScene, render, controls) {
                 }
 
                 // Build scene
-                buildScene(scene);
+                buildScene(scene, camera);
 
                 // animate
                 animate();
@@ -62,4 +76,5 @@ function Screen(buildScene, render, controls) {
     var gfx = new GFX(buildScene, render, controls);
     gfx.init();
     
-}
+    return this;
+};

@@ -4,7 +4,7 @@ Player.Field = {};
 
 Player.Field.cornerWidth = 0.2;
 Player.Field.Height = 30;
-Player.Field.Width = Player.Field.Height;
+Player.Field.Width = 50;
 
 Player.create = function(dataObject, vec) {
 
@@ -15,7 +15,7 @@ Player.create = function(dataObject, vec) {
 
         this.loadPlayerSpace = function(scene) {
             this.field = new THREE.Object3D();
-
+            this.field.name = "campo";
             var mainPersonalityPos = this.dirVector.clone();
             mainPersonalityPos.multiplyScalar(Player.Field.Height/5 + this.distanceFromCenter);
 
@@ -35,7 +35,7 @@ Player.create = function(dataObject, vec) {
             // Bottom row
             var inferiorRow = new THREE.Mesh(geo, material);
             inferiorRow.position = this.dirVector.clone().multiplyScalar(this.distanceFromCenter);
-            var bottomRowPosition = this.dirVector.clone().multiplyScalar(Player.Field.Width);
+            var bottomRowPosition = this.dirVector.clone().multiplyScalar(Player.Field.Height);
             inferiorRow.position.add(bottomRowPosition);
             inferiorRow.rotation.z = Math.PI / 2;
             this.surroundingArea.add(inferiorRow);

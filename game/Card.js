@@ -53,17 +53,18 @@ Card.create = function(dataObject) {
             var card = new THREE.Object3D();
             var cardGeo = new THREE.CylinderGeometry(Card.cornerWidth, Card.cornerWidth, Card.cardWidth - Card.cornerWidth, 32, 16, true);
             var backTexture = THREE.ImageUtils.loadTexture("images/DBZCCG/back.jpg");
+            var cardLightMap = THREE.ImageUtils.loadTexture("images/DBZCCG/lightmapcard.jpg");
             var frontTexture = THREE.ImageUtils.loadTexture(texturePath);
             var borderTexture = THREE.ImageUtils.loadTexture("images/DBZCCG/border_low.jpg");
             var cornerTexture = THREE.ImageUtils.loadTexture("images/DBZCCG/corner_low.jpg");
-            var cardMaterial = new THREE.MeshBasicMaterial({color: 0x000000, side: THREE.FrontSide});
+            var cardMaterial = new THREE.MeshLambertMaterial({color: 0x000000, side: THREE.FrontSide});
 
-            var cornerMaterial = new THREE.MeshBasicMaterial({
+            var cornerMaterial = new THREE.MeshLambertMaterial({
                 side: THREE.FrontSide,
                 map: cornerTexture
             });
 
-            var borderMaterial = new THREE.MeshBasicMaterial({
+            var borderMaterial = new THREE.MeshLambertMaterial({
                 side: THREE.FrontSide,
                 map: borderTexture
             });
@@ -145,6 +146,21 @@ Card.create = function(dataObject) {
         this.saga = dataObject.saga;
         this.number = dataObject.number;
         this.display = createCard(dataObject.texturePath);
+        this.display.name = this.name;
+        var card = this;
+        card.display.mouseOver = function() {
+            DBZCCG.selectionEffect(DBZCCG.selectionColor, card.display.children);
+            DBZCCG.flyToPosition(card.display.position, card.display.position.clone().normalize());
+            DBZCCG.selectionParticles.position.copy(card.display.position);
+            DBZCCG.selectionParticles.visible = true;
+            // format card text
+//            return "Current anger level: " + mp.currentAngerLevel;
+        };
+
+        card.display.mouseOut = function() {
+            DBZCCG.selectionEffect(DBZCCG.clearSelectionColor, card.display.children);
+            DBZCCG.selectionParticles.visible = false;
+        };
     }
     
     return new CardObject(dataObject);

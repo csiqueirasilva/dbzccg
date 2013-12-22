@@ -7,6 +7,60 @@ DBZCCG.mainPlayer = null;
 DBZCCG.finishedLoading = false;
 DBZCCG.currentTip = null;
 DBZCCG.objects = [];
+DBZCCG.selectionColor = 0xDD4444;
+DBZCCG.clearSelectionColor = 0x000000;
+DBZCCG.flyOverCamera = new THREE.PerspectiveCamera(45, (window.innerWidth * 0.25) / (window.innerHeight), 1, 100);
+DBZCCG.selectionParticles = null;
+
+
+DBZCCG.selectionEffect = function (color, objects) {
+    if(objects instanceof Array) {
+        for(var key in objects){
+            // For face material
+            if(objects[key].material.materials instanceof Array) {
+                DBZCCG.selectionEffect(color, objects[key]);
+            } else {
+                objects[key].material.emissive.setHex(color);
+            }
+        }
+    }
+};
+
+DBZCCG.updateParticles = function() {
+    DBZCCG.selectionParticles.rotation.y += 10 * Math.PI / 180;
+}
+
+DBZCCG.startSelectionParticles = function() {
+    var geo = new THREE.Geometry();
+    for (var z = -Card.cardWidth / 4; z < Card.cardWidth / 4; z = z + 0.01) {
+        var x = Math.pow(Math.pow(Card.cardWidth / 2, 2) - Math.pow(z, 2), 0.5);
+        geo.vertices.push(new THREE.Vector3(x, 0.6, z));
+    }
+
+    var colors = [];
+    for (var i = 0; i < geo.vertices.length; i++) {
+        colors[i] = new THREE.Color();
+        colors[i].setHSL(i / 1000, 1.0, 0.5);
+    }
+
+    geo.colors = colors;
+
+    // Later: Add custom shaders
+    DBZCCG.selectionParticles = new THREE.ParticleSystem(geo, new THREE.ParticleSystemMaterial({
+        size: 0.2,
+        vertexColors: true
+    }));
+    
+    DBZCCG.selectionParticles.visible = false;
+}
+
+DBZCCG.flyToPosition = function(position, direction) {
+    var flyPosition = position.clone();
+    DBZCCG.flyOverCamera.position.copy(flyPosition.multiplyScalar(0.73));
+    DBZCCG.flyOverCamera.position.y = 15;
+    var flyLookAt = flyPosition.clone().add(direction.clone().multiplyScalar(-0.1));
+    DBZCCG.flyOverCamera.lookAt(flyLookAt);
+};
 
 DBZCCG.quickMessage = function(msg) {
     if (DBZCCG.finishedLoading) {
@@ -67,7 +121,7 @@ DBZCCG.create = function() {
         scene.add(skybox);
     }
 
-    function buildScene(scene) {
+    function buildScene(scene, camera) {
         var light = new THREE.PointLight(0xF0F0F0); // soft white light
         light.position.set(0, 100, 0);
         scene.add(light);
@@ -98,6 +152,15 @@ DBZCCG.create = function() {
             player.loadPlayerSpace(scene);
             DBZCCG.quickMessage("Player " + (i + 1) + " loaded.");
         }
+
+        var position = table.players[0].dirVector.clone();
+        camera.position.z = position.z * Table.basePlayerDistance * 50;
+        camera.position.y = 40;
+        camera.position.x = position.x;
+        camera.lookAt(new THREE.Vector3(position.x, -10, -position.z));
+
+        // Start hovering at the player 1 main personality
+        DBZCCG.flyToPosition(table.players[0].mainPersonality.personalities[0].display.position, position);
 
         DBZCCG.finishedLoading = true;
 
@@ -159,7 +222,7 @@ DBZCCG.create = function() {
                     DBZCCG.performingAction = table.players[0];
                     table.players[0].mainPersonality.changeAnger(-3);
                 });
-                
+
                 listActions.push(function() {
                     DBZCCG.performingAction = table.players[1];
                     table.players[1].mainPersonality.changeAnger(-3);
@@ -169,7 +232,7 @@ DBZCCG.create = function() {
                     DBZCCG.performingAction = table.players[1];
                     table.players[1].mainPersonality.changeAnger(-3);
                 });
-                
+
                 listActions.push(function() {
                     DBZCCG.performingAction = table.players[1];
                     table.players[1].mainPersonality.changeAnger(5);
@@ -181,7 +244,7 @@ DBZCCG.create = function() {
         window.setTimeout(checkLoad, 500);
 
         function checkAction() {
-            if (DBZCCG.performingAnimation == false && listActions.length > 0 && $(".alertify-log").length == 0) {
+            if (DBZCCG.performingAnimation == false && listActions.length > 0 && $(".alertify-log:visible").length == 0 && $(".alertify-dialog:visible").length == 0) {
                 listActions.shift()();
             }
         }
@@ -189,7 +252,10 @@ DBZCCG.create = function() {
         window.setInterval(checkAction, 150);
 
         // debug
-        scene.add(MathHelper.buildAxes(1000));
+        // scene.add(MathHelper.buildAxes(1000));
+
+        DBZCCG.startSelectionParticles();
+        scene.add(DBZCCG.selectionParticles);
 
         /*
          function formatnumber(n) {
@@ -319,74 +385,119 @@ DBZCCG.create = function() {
 
     function render(cameraControl, renderer, scene, camera) {
         var delta = clock.getDelta();
-        cameraControl.update(delta);
 
         TWEEN.update();
 
-        // Render the scene
+        // Update Particles
+        DBZCCG.updateParticles();
+
+        // Render main screen
+        renderer.setViewport(window.innerWidth * 0.25, 0, window.innerWidth * 0.75, window.innerHeight);
+        renderer.setScissor(window.innerWidth * 0.25, 0, window.innerWidth * 0.75, window.innerHeight);
+        renderer.enableScissorTest(true);
         renderer.render(scene, camera);
+
+        // Render zoom screen
+        renderer.setViewport(0, window.innerHeight * 0.40, window.innerWidth * 0.25, window.innerHeight);
+        renderer.setScissor(0, window.innerHeight * 0.40, window.innerWidth * 0.25, window.innerHeight);
+        renderer.enableScissorTest(true);
+        renderer.render(scene, DBZCCG.flyOverCamera);
     }
 
     function controls(camera, element, scene) {
-        var control = new THREE.OrbitControls(camera, element);
-        control.target.z = Table.basePlayerDistance / 2;
-        camera.position.z = Table.basePlayerDistance * 2.7;
-        camera.position.y = 28;
-        // control.maxPolarAngle = 45 * Math.PI/180;
-        // control.minPolarAngle = 10 * Math.PI/180;
-//        control.maxDistance = 40;
-        // control.minDistance = 10;
+        camera.aspect = window.innerWidth * 0.75 / window.innerHeight;
+        camera.updateProjectionMatrix();
+
         projector = new THREE.Projector();
 
         function onDocumentMouseMove(event) {
-
             event.preventDefault();
 
-            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+            if (event.clientX >= window.innerWidth * 0.25) {
+                mouse.x = ((event.clientX - window.innerWidth * 0.25 / 2) / window.innerWidth) * 2 - 1;
+                mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
-            var vector = new THREE.Vector3(mouse.x, mouse.y, 0.5);
-            projector.unprojectVector(vector, camera);
+                var vector = new THREE.Vector3(mouse.x, mouse.y, 0.5);
+                projector.unprojectVector(vector, camera);
 
-            var raycaster = new THREE.Raycaster(camera.position, vector.sub(camera.position).normalize());
-            var intersections = raycaster.intersectObjects(DBZCCG.objects, true);
+                var raycaster = new THREE.Raycaster(camera.position, vector.sub(camera.position).normalize());
+                var intersections = raycaster.intersectObjects(DBZCCG.objects, true);
 
-            if (intersections.length > 0) {
-                if (intersected != intersections[ 0 ].object) {
+                if (intersections.length > 0) {
+                    if (intersected != intersections[ 0 ].object) {
+                        if (intersected) {
+                            var parent = Screen.findCallbackObject(intersected, "mouseOut");
+                            if (parent.mouseOut instanceof Function) {
+                                parent.mouseOut();
+                            }
+                        }
+                        intersected = intersections[ 0 ].object;
+                    }
 
-                    //if (intersected)
-                    //    intersected.material.color.setHex(baseColor);
-                    intersected = intersections[ 0 ].object;
-                    //intersected.material.color.setHex(intersectColor);
+                    var parent = Screen.findCallbackObject(intersected, "mouseOver");
+                    if (parent.mouseOver instanceof Function) {
+                        parent.mouseOver();
+                    }
                 }
+                else if (intersected) {
+                    var parent = Screen.findCallbackObject(intersected, "mouseOut");
+                    if (parent.mouseOut instanceof Function) {
+                        parent.mouseOut();
+                    }
 
-                control.enabled = false;
-                document.body.style.cursor = intersected.cursor;
-
-                if (intersected.parent.mouseOver instanceof Function) {
-                    intersected.parent.mouseOver();
+                    intersected = null;
                 }
-
-            }
-            else if (intersected) {
-                //intersected.material.color.setHex(baseColor);
-                if (intersected.parent.mouseOut instanceof Function) {
-                    intersected.parent.mouseOut();
-                }
-
-                intersected = null;
-
-                control.enabled = true;
-                document.body.style.cursor = 'auto';
-
             }
         }
 
         element.addEventListener('mousemove', onDocumentMouseMove, false);
 
-        return control;
+        function documentOnMouseDown(event) {
+            if (intersected) {
+                var parent = Screen.findCallbackObject(intersected, "mouseDown");
+                if (parent.mouseDown instanceof Function) {
+                    parent.mouseDown();
+                }
+            }
+        }
+
+        element.addEventListener('mousedown', documentOnMouseDown);
+
+        function documentOnClick(event) {
+            if (intersected) {
+                var parent = Screen.findCallbackObject(intersected, "click");
+                if (parent.click instanceof Function) {
+                    parent.click();
+                }
+            }
+        }
+
+        element.addEventListener('click', documentOnClick);
+
+        function documentOnMouseUp(event) {
+            if (intersected) {
+                var parent = Screen.findCallbackObject(intersected, "mouseUp");
+                if (parent.mouseUp instanceof Function) {
+                    parent.mouseUp();
+                }
+            }
+        }
+
+        element.addEventListener('mouseup', documentOnMouseUp);
+
+        // resize
+        window.addEventListener('resize', function() {
+            var WIDTH = window.innerWidth,
+                    HEIGHT = window.innerHeight;
+            camera.aspect = WIDTH * 0.75 / HEIGHT;
+            camera.updateProjectionMatrix();
+            DBZCCG.flyOverCamera.aspect = (WIDTH * 0.25) / (HEIGHT);
+            DBZCCG.flyOverCamera.updateProjectionMatrix();
+        });
+
+        return null;
     }
 
-    var scr = new Screen(buildScene, render, controls);
+    var scr = Screen.create(buildScene, render, controls);
 
 }

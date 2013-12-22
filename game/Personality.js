@@ -62,7 +62,6 @@ Personality.create = function(data) {
                     zScouter.position.z = startPos.z;
                 });
                 
-                
                 var card = this;
                 moveAnimation.onComplete(function() {
                     DBZCCG.performingAnimation = false;
@@ -98,7 +97,10 @@ Personality.create = function(data) {
             var personality = this;
 
             loader.load("model/zscouter.js", function(geometry) {
-                personality.zScouter = new THREE.Mesh(geometry, new THREE.MeshLambertMaterial({shading: THREE.FlatShading, color: 0xFF2233}));
+                personality.zScouter = new THREE.Object3D();
+                personality.zScouter.name = 'zScouter'+personality.name;
+                var meshZScouter = new THREE.Mesh(geometry, new THREE.MeshLambertMaterial({shading: THREE.FlatShading, color: 0xFF2233}));
+                personality.zScouter.add(meshZScouter);
                 personality.zScouter.rotation.y = Math.PI;
                 personality.zScouter.rotation.z = Math.PI / 2;
 
@@ -108,6 +110,20 @@ Personality.create = function(data) {
                 personality.zScouter.dirVector = dirVector;
                 personality.zScouter.receiveShadow = true;
                 personality.moveZScouter(personality.currentPowerStageAboveZero || 0, true, true);
+                
+                personality.zScouter.mouseOver = function () {
+                    var flyToPosition = personality.zScouter.position.clone();
+                    flyToPosition.add(MathHelper.rotateVector(personality.display.position.clone()).normalize().multiplyScalar(-2));
+                    DBZCCG.flyToPosition(flyToPosition, personality.display.position.clone().normalize());
+                    DBZCCG.flyOverCamera.position.y = 8;
+                    return "Current power stage: " + personality.currentPowerStageAboveZero;
+                };
+
+                personality.zScouter.mouseOut = function () {
+                    DBZCCG.flyOverCamera.position.y = 15;
+                };
+                
+                DBZCCG.objects.push(personality.zScouter);
                 field.add(personality.zScouter);
             });
         };
