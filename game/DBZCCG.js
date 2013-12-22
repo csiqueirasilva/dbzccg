@@ -11,13 +11,14 @@ DBZCCG.selectionColor = 0xDD4444;
 DBZCCG.clearSelectionColor = 0x000000;
 DBZCCG.flyOverCamera = new THREE.PerspectiveCamera(45, (window.innerWidth * 0.25) / (window.innerHeight), 1, 100);
 DBZCCG.selectionParticles = null;
+DBZCCG.clock = new THREE.Clock();
 
 
-DBZCCG.selectionEffect = function (color, objects) {
-    if(objects instanceof Array) {
-        for(var key in objects){
+DBZCCG.selectionEffect = function(color, objects) {
+    if (objects instanceof Array) {
+        for (var key in objects) {
             // For face material
-            if(objects[key].material.materials instanceof Array) {
+            if (objects[key].material.materials instanceof Array) {
                 DBZCCG.selectionEffect(color, objects[key]);
             } else {
                 objects[key].material.emissive.setHex(color);
@@ -26,21 +27,23 @@ DBZCCG.selectionEffect = function (color, objects) {
     }
 };
 
-DBZCCG.updateParticles = function() {
-    DBZCCG.selectionParticles.rotation.y += 10 * Math.PI / 180;
-}
-
 DBZCCG.startSelectionParticles = function() {
     var geo = new THREE.Geometry();
-    for (var z = -Card.cardWidth / 4; z < Card.cardWidth / 4; z = z + 0.01) {
+    for (var z = -Card.cardWidth /2 ; z < Card.cardWidth /2 ; z = z + 0.01) {
         var x = Math.pow(Math.pow(Card.cardWidth / 2, 2) - Math.pow(z, 2), 0.5);
-        geo.vertices.push(new THREE.Vector3(x, 0.6, z));
+        var particle = new THREE.Vector3(x, 0.6, z);
+        particle.basePos = particle.clone();
+        geo.vertices.push(particle);
+        particle = new THREE.Vector3(-x, 0.6, z);
+        particle.basePos = particle.clone();
+        geo.vertices.push(particle);
     }
 
     var colors = [];
-    for (var i = 0; i < geo.vertices.length; i++) {
+    var particleCount = geo.vertices.length;
+    for (var i = 0; i < particleCount; i++) {
         colors[i] = new THREE.Color();
-        colors[i].setHSL(i / 1000, 1.0, 0.5);
+        colors[i].setHSL(i / 4000, 1.0, 0.5);
     }
 
     geo.colors = colors;
@@ -48,10 +51,35 @@ DBZCCG.startSelectionParticles = function() {
     // Later: Add custom shaders
     DBZCCG.selectionParticles = new THREE.ParticleSystem(geo, new THREE.ParticleSystemMaterial({
         size: 0.2,
-        vertexColors: true
+        vertexColors: true,
+        map: THREE.ImageUtils.loadTexture("images/gfx/particles/particle.png"),
+        blending: THREE.AdditiveBlending,
+        transparent: true
     }));
-    
+
+    DBZCCG.selectionParticles.sortParticles = true;
     DBZCCG.selectionParticles.visible = false;
+
+    DBZCCG.updateParticles = function() {
+        if(DBZCCG.selectionParticles.visible) {
+
+            DBZCCG.selectionParticles.rotation.y += 10 * Math.PI / 180;
+
+            var pCount = particleCount ;
+            while (pCount--) {
+
+                // get the particle
+                var particle = geo.vertices[pCount];
+
+                var icrVector = new THREE.Vector3(Math.cos(pCount)*0.1, 0.6 + Math.sin(DBZCCG.clock.elapsedTime)*0.15, Math.cos(pCount)*0.1);
+                particle.copy(particle.basePos.clone().multiplyScalar(Math.abs(Math.cos(DBZCCG.clock.elapsedTime))*0.5 + 0.5).add(icrVector));
+            }
+
+            DBZCCG.selectionParticles.
+                    geometry.
+                    __dirtyVertices = true;
+        }
+    }
 }
 
 DBZCCG.flyToPosition = function(position, direction) {
@@ -80,7 +108,6 @@ DBZCCG.quickMessage = function(msg) {
 DBZCCG.create = function() {
 
     /* Three related */
-    var clock = new THREE.Clock();
     var mouse = new THREE.Vector2();
     var projector;
     var intersected;
@@ -89,7 +116,7 @@ DBZCCG.create = function() {
     var table = null;
     var listActions = [];
     var scr = null;
-    
+
     function createSkybox(scene) {
         var urlPrefix = "images/bg/skybox_carro/";
         var urls = [urlPrefix + "posx.jpg", urlPrefix + "negx.jpg",
@@ -385,7 +412,7 @@ DBZCCG.create = function() {
     }
 
     function render(cameraControl, renderer, scene, camera) {
-        var delta = clock.getDelta();
+        var delta = DBZCCG.clock.getDelta();
 
         TWEEN.update();
 
@@ -501,7 +528,7 @@ DBZCCG.create = function() {
 
     scr = Screen.create(buildScene, render, controls);
     var interval = window.setInterval(function() {
-        if(DBZCCG.finishedLoading) {
+        if (DBZCCG.finishedLoading) {
             window.clearInterval(interval);
             $("#loadingText").remove();
             scr.start();
