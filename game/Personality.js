@@ -41,6 +41,7 @@ Personality.create = function(data) {
         var cardDescription = this.descriptionBox;
         this.descriptionBox = function() {
             var cardDesc = cardDescription();
+            cardDesc = cardDesc.replace(/%type%/g, "Personality");
             var elements = $(cardDesc).not(".card-saga-label");
             var sagaLabel = $(cardDesc).filter(".card-saga-label")[0].outerHTML;
             var content = '';
@@ -52,7 +53,7 @@ Personality.create = function(data) {
             content+= "<div class='personality-pur-label'>Personality Level: "+this.level+"</div>";
             content+= "<div class='personality-pur-label'>Power-Up Rating: "+this.PUR+"</div>";
             content+= "<div class='personality-alignment-label'>Alignment: "+getKeyByValue(Personality.alignment, this.alignment)+"</div>";
-            content+= "<div class='personality-powerstage-label'>Power Stages: <br />"+this.powerStages.toString().replace(/,/g,'<br />')+"</div>";
+            content+= "<div class='personality-powerstage-label'>Power Stages ("+(+this.powerStages.length - 1)+" total stages above zero): <br />"+this.powerStages.slice(0).reverse().toString().replace(/,/g,'<br />')+"</div>";
 
             content+= sagaLabel;
                         

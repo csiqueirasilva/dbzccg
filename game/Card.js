@@ -166,6 +166,7 @@ Card.create = function(dataObject) {
         
         card.descriptionBox = function () {
             var content = "<div class='card-name'>"+card.name+"</div>\
+                            <div class='card-type'>[%type%]</div>\
                             <div class='card-description'>"+card.description+"</div>";
             if(card.personality) {
                 content += "<div class='card-personality'>Personality: "+getKeyByValue(Personality, card.personality)+"</div>";

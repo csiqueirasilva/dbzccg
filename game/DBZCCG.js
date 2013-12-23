@@ -13,11 +13,11 @@ DBZCCG.flyOverCamera = new THREE.PerspectiveCamera(45, (window.innerWidth * 0.25
 DBZCCG.selectionParticles = null;
 DBZCCG.clock = new THREE.Clock();
 
-DBZCCG.descriptionBox = function (content) {
+DBZCCG.descriptionBox = function(content) {
     document.getElementById('descriptionBoxContent').innerHTML = content;
 };
 
-DBZCCG.clearDescriptionBox = function () {
+DBZCCG.clearDescriptionBox = function() {
     document.getElementById('descriptionBoxContent').innerHTML = '';
 };
 
@@ -36,7 +36,7 @@ DBZCCG.selectionEffect = function(color, objects) {
 
 DBZCCG.startSelectionParticles = function() {
     var geo = new THREE.Geometry();
-    for (var z = -Card.cardWidth /2 ; z < Card.cardWidth /2 ; z = z + 0.01) {
+    for (var z = -Card.cardWidth / 2; z < Card.cardWidth / 2; z = z + 0.01) {
         var x = Math.pow(Math.pow(Card.cardWidth / 2, 2) - Math.pow(z, 2), 0.5);
         var particle = new THREE.Vector3(x, 0.6, z);
         particle.basePos = particle.clone();
@@ -68,18 +68,18 @@ DBZCCG.startSelectionParticles = function() {
     DBZCCG.selectionParticles.visible = false;
 
     DBZCCG.updateParticles = function() {
-        if(DBZCCG.selectionParticles.visible) {
+        if (DBZCCG.selectionParticles.visible) {
 
             DBZCCG.selectionParticles.rotation.y += 10 * Math.PI / 180;
 
-            var pCount = particleCount ;
+            var pCount = particleCount;
             while (pCount--) {
 
                 // get the particle
                 var particle = geo.vertices[pCount];
 
-                var icrVector = new THREE.Vector3(Math.cos(pCount)*0.1, 0.6 + Math.sin(DBZCCG.clock.elapsedTime)*0.15, Math.cos(pCount)*0.1);
-                particle.copy(particle.basePos.clone().multiplyScalar(Math.abs(Math.cos(DBZCCG.clock.elapsedTime))*0.5 + 0.5).add(icrVector));
+                var icrVector = new THREE.Vector3(Math.cos(pCount) * 0.1, 0.6 + Math.sin(DBZCCG.clock.elapsedTime) * 0.15, Math.cos(pCount) * 0.1);
+                particle.copy(particle.basePos.clone().multiplyScalar(Math.abs(Math.cos(DBZCCG.clock.elapsedTime)) * 0.5 + 0.5).add(icrVector));
             }
 
             DBZCCG.selectionParticles.
@@ -156,11 +156,82 @@ DBZCCG.create = function() {
         scene.add(skybox);
     }
 
+    function loadDefaultBackground() {
+        var geometry = new THREE.CylinderGeometry(0.1, 0.2, 100, 64, 32, true);
+
+        function createBar() {
+            var mat = new THREE.MeshLambertMaterial({transparent: true, opacity: 0, color: 0x0000CC, shading: THREE.SmoothShading});
+            var mesh = new THREE.Mesh(geometry, mat);
+            mesh.rotation.x = Math.PI / 2;
+            mesh.position.set(Math.pow(-1, parseInt(Math.random() * 10) % 2) * Math.random() * 40, Math.pow(-1, parseInt(Math.random() * 10) % 2) * Math.random() * 40, 100);
+            return mesh;
+        }
+
+        var mesh = [];
+        for (var i = 0; i < 225; i++) {
+            mesh[i] = createBar();
+            mesh[i].position.z -= Math.pow(-1, parseInt(Math.random() * 10)%2)*(Math.random()*100%25);
+            DBZCCG.background.scene.add(mesh[i]);
+        }
+        DBZCCG.background.camera.position.z = -100;
+        DBZCCG.background.camera.far = 100;
+        DBZCCG.background.camera.lookAt(new THREE.Vector3(0, 0, 1000));
+        DBZCCG.background.camera.fov = 360;
+
+        var light = new THREE.PointLight(0xFFF0F0, 1, 1000);
+        light.position.z = 50;
+        DBZCCG.background.scene.add(light);
+
+        DBZCCG.background.update = function() {
+            var camera = DBZCCG.background.camera;
+            for (var i = 0; i < mesh.length; i++) {
+                mesh[i].position.z -= 0.5;
+                mesh[i].material.color.b = (204 - Math.sin(Math.random())*20)/255;
+                mesh[i].material.color.g = Math.abs(Math.sin(DBZCCG.clock.elapsedTime))*0.8;
+                mesh[i].material.color.r = Math.abs(Math.cos(DBZCCG.clock.elapsedTime))*0.8;
+
+                if (mesh[i].position.z < -30) {
+                    DBZCCG.background.scene.remove(mesh[i]);
+                    mesh[i] = createBar();
+                    DBZCCG.background.scene.add(mesh[i]);
+                } else if (mesh[i].position.z < 0) {
+                    mesh[i].material.opacity -= 0.02 ;
+                } else if (mesh[i].position.z > 25 && mesh[i].material.opacity < 1) {
+                    mesh[i].material.opacity += 0.02 ;
+                }
+            }
+        };
+    }
+
+    function createBackground(scene, camera) {
+        DBZCCG.background = {};
+        var sizeX = window.innerWidth * 0.75;
+        var sizeY = window.innerHeight;
+
+        DBZCCG.background.scene = new THREE.Scene();
+
+        DBZCCG.background.texture = new THREE.WebGLRenderTarget(sizeX, sizeY, {minFilter: THREE.LinearFilter, magFilter: THREE.NearestFilter, format: THREE.RGBFormat});
+        DBZCCG.background.camera = new THREE.PerspectiveCamera(45, sizeX / sizeY, 0.01, 10000);
+
+        var plane = new THREE.PlaneGeometry(sizeX * 1.4, sizeY * 1.4);
+        var planeMaterial = new THREE.MeshBasicMaterial({map: DBZCCG.background.texture});
+
+        loadDefaultBackground();
+
+        DBZCCG.background.plane = new THREE.Mesh(plane, planeMaterial);
+        DBZCCG.background.plane.rotation.x = -45 * Math.PI / 180;
+        DBZCCG.background.plane.position.z = -Math.cos(-45) * 1000 - sizeY / 2;
+        DBZCCG.background.plane.position.y = Math.sin(-45) * 1000 - sizeX / 16;
+
+        scene.add(DBZCCG.background.plane);
+    }
+
     function buildScene(scene, camera) {
         var light = new THREE.PointLight(0xF0F0F0); // soft white light
         light.position.set(0, 100, 0);
         scene.add(light);
-        createSkybox(scene);
+        createBackground(scene, camera);
+        //createSkybox(scene);
         table = Table.create([
             /*P1*/
             {mainPersonality: {alignment: Personality.alignment.Hero, currentMainPersonalityLevel: 1, currentPowerStageAboveZero: 6, currentAngerLevel: 1,
@@ -171,7 +242,7 @@ DBZCCG.create = function() {
                         {style: Card.Style.Freestyle, PUR: 3, alignment: Personality.alignment.Hero, description: "Power: Once per combat, reduces the damage of an energy attack by 2 life cards.", level: 3, name: "GOKU", highTech: false, number: 160, texturePath: "images/DBZCCG/saiyan/160.jpg",
                             personality: Personality.GOKU, saga: Card.Saga.SAIYAN, powerStages: [0, 8000, 8500, 9000, 9500, 10000, 10500, 11000, 11500, 12000, 12500]}]}},
             /*P2*/
-            {mainPersonality: {alignment: Personality.alignment.Villain,  currentMainPersonalityLevel: 1, currentPowerStageAboveZero: 2, currentAngerLevel: 1,
+            {mainPersonality: {alignment: Personality.alignment.Villain, currentMainPersonalityLevel: 1, currentPowerStageAboveZero: 2, currentAngerLevel: 1,
                     angerLevelNeededToLevel: 5, personalities: [{style: Card.Style.Freestyle, PUR: 2, alignment: Personality.alignment.Rogue, description: "Power: Once per combat, reduces the damage of an energy attack by 2 life cards.", level: 1, name: "VEGETA", highTech: false, number: 173, texturePath: "images/DBZCCG/saiyan/173.jpg",
                             personality: Personality.VEGETA, saga: Card.Saga.SAIYAN, powerStages: [0, 2000, 2200, 2400, 2600, 2800, 3000, 3200, 3400, 3600, 3800]},
                         {style: Card.Style.Freestyle, PUR: 4, alignment: Personality.alignment.Rogue, description: "Power: Energy attack doing 3 life cards of damage. Costs 1 power stage.", level: 2, name: "VEGETA", highTech: false, number: 174, texturePath: "images/DBZCCG/saiyan/174.jpg",
@@ -426,6 +497,14 @@ DBZCCG.create = function() {
         // Update Particles
         DBZCCG.updateParticles();
 
+        // Update background
+        DBZCCG.background.update();
+
+        // Render background screen
+        renderer.enableScissorTest(false);
+        renderer.setClearColor(0x000000);
+        renderer.render(DBZCCG.background.scene, DBZCCG.background.camera, DBZCCG.background.texture, true);
+
         // Render main screen
         renderer.setViewport(window.innerWidth * 0.25, 0, window.innerWidth * 0.75, window.innerHeight);
         renderer.setScissor(window.innerWidth * 0.25, 0, window.innerWidth * 0.75, window.innerHeight);
@@ -436,6 +515,7 @@ DBZCCG.create = function() {
         renderer.setViewport(0, window.innerHeight * 0.40, window.innerWidth * 0.25, window.innerHeight);
         renderer.setScissor(0, window.innerHeight * 0.40, window.innerWidth * 0.25, window.innerHeight);
         renderer.enableScissorTest(true);
+        renderer.setClearColor(0xCCCCCD);
         renderer.render(scene, DBZCCG.flyOverCamera);
     }
 

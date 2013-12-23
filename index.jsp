@@ -7,7 +7,7 @@
         <link rel="stylesheet" href="css/alertify.css" />
         <link rel="stylesheet" href="css/alertify.dbzccg.css" />
         <link rel="stylesheet" href="css/dbzccg.css" />
-
+        
         <script id="skybox_vertex_shader" type="x-shader/x-fragment">
             <%@include file="game/skyboxvertexshader.glsl"%>
         </script>
@@ -15,8 +15,6 @@
             <%@include file="game/skyboxfragmentshader.glsl"%>
         </script>
         <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-        <script type="text/javascript" src="lib/opentip.js"></script>
-        <script type="text/javascript" src="lib/adapter-jquery.js"></script>
         <script type="text/javascript" src="lib/alertify.min.js"></script>
         <script type="text/javascript" src="lib/three.min.js"></script>
         <script type="text/javascript" src="lib/JSONLoader.js"></script>
@@ -41,8 +39,6 @@
 
             $(document).ready(function() {
 
-                Opentip.defaultStyle = 'dark';
-
                 DBZCCG.create();
 
             });
@@ -58,8 +54,7 @@
         </div>
         
         <div id='descriptionBoxContent'>
-            POSITION TEST
         </div>
-        <!--div id="card-description" style="padding: 20px; position: absolute; border: #000000 2px solid; border-radius:5px; background-color: #FFFFFF; width: 20%; height: 80%; margin-top: 0.75%; margin-left: 0.75%;">teste</div-->
+
     </body>
 </html>
