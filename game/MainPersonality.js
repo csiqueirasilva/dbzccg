@@ -50,7 +50,10 @@ MainPersonality.create = function(data) {
                         flyToPosition.add(MathHelper.rotateVector(mp.zSword.position.clone()).normalize().multiplyScalar(2.8));
                         DBZCCG.flyToPosition(flyToPosition, mp.zSword.position.clone().normalize());
                         DBZCCG.flyOverCamera.position.y = 5;
-                        return "Current anger level: " + mp.currentAngerLevel;
+                        var descriptionBoxText = "<div><b>"+mp.personalities[mp.currentMainPersonalityLevel - 1].displayName() + "</b> current anger level: " + mp.currentAngerLevel + "</div><div>("+
+                                (mp.currentMainPersonalityLevel != mp.personalities.length ? "Levels up" : "Goes to highest power stage")
+                                +" with "+mp.angerLevelNeededToLevel+" anger)</div>";
+                        DBZCCG.descriptionBox(descriptionBoxText);
                     };
 
                     mp.zSwordComplete.mouseOut = function() {
@@ -278,7 +281,17 @@ MainPersonality.create = function(data) {
                         flyToPosition.add(MathHelper.rotateVector(rp[1].display.position.clone()).normalize().multiplyScalar(-2));
                         DBZCCG.flyToPosition(flyToPosition, rp[1].display.position.clone().normalize());
                         DBZCCG.flyOverCamera.position.y = 8;
-                        return "Current power stage: " + rp[1].currentPowerStageAboveZero;
+                        var descriptionBoxText = "<div><b>"+rp[1].displayName() + "</b> current power stage level: " + rp[1].powerStages[rp[1].currentPowerStageAboveZero];
+
+                        if(rp[1].currentPowerStageAboveZero == rp[1].powerStages.length - 1) {
+                            descriptionBoxText += " (max)";
+                        } else if (rp[1].currentPowerStageAboveZero != 0) {
+                            descriptionBoxText += " ("+rp[1].currentPowerStageAboveZero+" above 0)";
+                        }
+
+                        descriptionBoxText += ".</div>"
+
+                        DBZCCG.descriptionBox(descriptionBoxText);
                     };
 
                     rp[1].zScouter.mouseOut = function () {
@@ -329,6 +342,7 @@ MainPersonality.create = function(data) {
                 DBZCCG.flyToPosition(card.display.position, card.display.position.clone().normalize());
                 DBZCCG.selectionParticles.position.copy(card.display.position);
                 DBZCCG.selectionParticles.visible = true;
+                DBZCCG.descriptionBox(card.descriptionBox());
                 // add card description
     //            return "Current anger level: " + mp.currentAngerLevel;
             };
@@ -355,6 +369,7 @@ MainPersonality.create = function(data) {
         this.currentPowerStageAboveZero = data.currentPowerStageAboveZero;
         this.currentMainPersonalityLevel = data.currentMainPersonalityLevel;
         this.personalities[this.currentMainPersonalityLevel - 1].currentPowerStageAboveZero = data.currentPowerStageAboveZero;
+        this.alignment = data.alignment;
     }
 
     return new MainPersonalityObject(data);

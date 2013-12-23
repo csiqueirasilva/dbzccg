@@ -2,7 +2,7 @@ var Card = {};
 
 // SAGA
 Card.Saga = {};
-Card.Saga.Saiyan = 1;
+Card.Saga.SAIYAN = 1;
 
 
 // GFX Parameters
@@ -16,9 +16,9 @@ Card.cornerWidth = 0.10;
 Card.cornerHeight = Card.cornerWidth;
 Card.cardThicknessScale = 0.1;
 Card.personalityNameDiff = {};
-Card.personalityNameDiff[Card.Saga.Saiyan] = Card.cardHeight/10;
+Card.personalityNameDiff[Card.Saga.SAIYAN] = Card.cardHeight/10;
 Card.personalityPowerStageDiff = {};
-Card.personalityPowerStageDiff[Card.Saga.Saiyan] = { "regular": {"Zero": Card.cardHeight*0.61, "diff": 0.3845} };
+Card.personalityPowerStageDiff[Card.Saga.SAIYAN] = { "regular": {"Zero": Card.cardHeight*0.61, "diff": 0.3845} };
 
 // TYPES
 Card.Type = {};
@@ -143,6 +143,9 @@ Card.create = function(dataObject) {
         this.name = dataObject.name;
         this.highTech = dataObject.highTech;
         this.saga = dataObject.saga;
+        this.personality = dataObject.personality;
+        this.style = dataObject.style;
+        this.description = dataObject.description;
         this.number = dataObject.number;
         this.display = createCard(dataObject.texturePath);
         this.display.name = this.name;
@@ -160,6 +163,20 @@ Card.create = function(dataObject) {
             DBZCCG.selectionEffect(DBZCCG.clearSelectionColor, card.display.children);
             DBZCCG.selectionParticles.visible = false;
         };
+        
+        card.descriptionBox = function () {
+            var content = "<div class='card-name'>"+card.name+"</div>\
+                            <div class='card-description'>"+card.description+"</div>";
+            if(card.personality) {
+                content += "<div class='card-personality'>Personality: "+getKeyByValue(Personality, card.personality)+"</div>";
+            }
+            
+            content += "<div class='card-style'>Style: "+getKeyByValue(Card.Style, card.style)+"</div>\
+                        <div class='card-saga-label'>"+getKeyByValue(Card.Saga, card.saga)+" SAGA (#"+card.number+")</div>";
+
+            return content;
+        };
+
     }
     
     return new CardObject(dataObject);

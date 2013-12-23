@@ -1,4 +1,49 @@
 body, html {
     overflow-y:hidden;
     height:100%;
+    font-family: Verdana;
+    font-size: .9em;
+}
+
+#hud {
+    margin: 0px; 
+    background: url('../images/gfx/hud/hud1.png'); 
+    display: none; 
+    background-size: 100% 100%; 
+    width: 100%; 
+    height: 100%; 
+    position: absolute;
+    z-index: 1000;
+}
+
+#descriptionBox {
+    position: absolute;
+    background-color: #CCCCCD;
+    width: 25%;
+    height: 40%;
+    display: none;
+    margin: 0px;
+    top: 60%;
+    z-index: 2;
+}
+
+#descriptionBoxContent div {
+    margin-bottom: 4%;
+}
+
+#descriptionBoxContent {
+    overflow: auto;
+    position: absolute;
+    top: 68.8%;
+    left: 4%;
+    width: 18%;
+    height: 25%;
+    z-index: 10000;
+}
+
+.card-name {
+    font-weight: bold;
+}
+
+.card-saga-label {
 }

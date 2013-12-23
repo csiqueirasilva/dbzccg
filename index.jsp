@@ -7,7 +7,7 @@
         <link rel="stylesheet" href="css/alertify.css" />
         <link rel="stylesheet" href="css/alertify.dbzccg.css" />
         <link rel="stylesheet" href="css/dbzccg.css" />
-        
+
         <script id="skybox_vertex_shader" type="x-shader/x-fragment">
             <%@include file="game/skyboxvertexshader.glsl"%>
         </script>
@@ -32,27 +32,34 @@
         <script type="text/javascript" src="game/Screen.js"></script>
         <script type="text/javascript" src="game/DBZCCG.js"></script>
         <script type="text/javascript">
-            $(document).ready(function(){
-
-                function getKeyByValue ( object, value ) {
-                    for( var prop in object ) {
-                        if( this.hasOwnProperty( prop ) ) {
-                             if( object[ prop ] === value )
-                                 return prop;
-                        }
-                    }
+            function getKeyByValue(object, value) {
+                for (var prop in object) {
+                    if (object[ prop ] === value)
+                        return prop;
                 }
+            }
+
+            $(document).ready(function() {
 
                 Opentip.defaultStyle = 'dark';
 
                 DBZCCG.create();
 
-        });
+            });
         </script>
-        
+
     </head>
     <body id='body' style="margin: 0; overflow: hidden;" oncontextmenu="return false;">
         <h1 id="loadingText">Loading!!!!</h1>
+        <div id='hud'>
+        </div>
+        
+        <div id='descriptionBox'>
+        </div>
+        
+        <div id='descriptionBoxContent'>
+            POSITION TEST
+        </div>
         <!--div id="card-description" style="padding: 20px; position: absolute; border: #000000 2px solid; border-radius:5px; background-color: #FFFFFF; width: 20%; height: 80%; margin-top: 0.75%; margin-left: 0.75%;">teste</div-->
     </body>
 </html>

@@ -13,6 +13,13 @@ DBZCCG.flyOverCamera = new THREE.PerspectiveCamera(45, (window.innerWidth * 0.25
 DBZCCG.selectionParticles = null;
 DBZCCG.clock = new THREE.Clock();
 
+DBZCCG.descriptionBox = function (content) {
+    document.getElementById('descriptionBoxContent').innerHTML = content;
+};
+
+DBZCCG.clearDescriptionBox = function () {
+    document.getElementById('descriptionBoxContent').innerHTML = '';
+};
 
 DBZCCG.selectionEffect = function(color, objects) {
     if (objects instanceof Array) {
@@ -156,21 +163,21 @@ DBZCCG.create = function() {
         createSkybox(scene);
         table = Table.create([
             /*P1*/
-            {mainPersonality: {currentMainPersonalityLevel: 1, currentPowerStageAboveZero: 6, currentAngerLevel: 1,
-                    angerLevelNeededToLevel: 5, personalities: [{level: 1, name: "GOKU", highTech: false, number: 158, texturePath: "images/DBZCCG/saiyan/158.jpg",
-                            personality: Personality.GOKU, saga: Card.Saga.Saiyan, powerStages: [0, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1400]},
-                        {level: 2, name: "GOKU", highTech: false, number: 159, texturePath: "images/DBZCCG/saiyan/159.jpg",
-                            personality: Personality.GOKU, saga: Card.Saga.Saiyan, powerStages: [0, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1400]},
-                        {level: 3, name: "GOKU", highTech: false, number: 160, texturePath: "images/DBZCCG/saiyan/160.jpg",
-                            personality: Personality.GOKU, saga: Card.Saga.Saiyan, powerStages: [0, 8000, 8500, 9000, 9500, 10000, 10500, 11000, 11500, 12000, 12500]}]}},
+            {mainPersonality: {alignment: Personality.alignment.Hero, currentMainPersonalityLevel: 1, currentPowerStageAboveZero: 6, currentAngerLevel: 1,
+                    angerLevelNeededToLevel: 5, personalities: [{style: Card.Style.Freestyle, PUR: 1, alignment: Personality.alignment.Hero, description: "Power: Energy attack doing 3 life cards of damage. Costs 1 power stage.", level: 1, name: "GOKU", highTech: false, number: 158, texturePath: "images/DBZCCG/saiyan/158.jpg",
+                            personality: Personality.GOKU, saga: Card.Saga.SAIYAN, powerStages: [0, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1400]},
+                        {style: Card.Style.Freestyle, PUR: 2, alignment: Personality.alignment.Hero, description: "Power: Physical attack doing 4 power stages of damage.", level: 2, name: "GOKU", highTech: false, number: 159, texturePath: "images/DBZCCG/saiyan/159.jpg",
+                            personality: Personality.GOKU, saga: Card.Saga.SAIYAN, powerStages: [0, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1400]},
+                        {style: Card.Style.Freestyle, PUR: 3, alignment: Personality.alignment.Hero, description: "Power: Once per combat, reduces the damage of an energy attack by 2 life cards.", level: 3, name: "GOKU", highTech: false, number: 160, texturePath: "images/DBZCCG/saiyan/160.jpg",
+                            personality: Personality.GOKU, saga: Card.Saga.SAIYAN, powerStages: [0, 8000, 8500, 9000, 9500, 10000, 10500, 11000, 11500, 12000, 12500]}]}},
             /*P2*/
-            {mainPersonality: {currentMainPersonalityLevel: 1, currentPowerStageAboveZero: 2, currentAngerLevel: 1,
-                    angerLevelNeededToLevel: 5, personalities: [{level: 1, name: "VEGETA", highTech: false, number: 173, texturePath: "images/DBZCCG/saiyan/173.jpg",
-                            personality: Personality.VEGETA, saga: Card.Saga.Saiyan, powerStages: [0, 2000, 2200, 2400, 2600, 2800, 3000, 3200, 3400, 3600, 3800]},
-                        {level: 2, name: "VEGETA", highTech: false, number: 174, texturePath: "images/DBZCCG/saiyan/174.jpg",
-                            personality: Personality.VEGETA, saga: Card.Saga.Saiyan, powerStages: [0, 2000, 2200, 2400, 2600, 2800, 3000, 3200, 3400, 3600, 3800]},
-                        {level: 3, name: "VEGETA", highTech: false, number: 175, texturePath: "images/DBZCCG/saiyan/175.jpg",
-                            personality: Personality.VEGETA, saga: Card.Saga.Saiyan, powerStages: [0, 9000, 10000, 11000, 12000, 13000, 14000, 15000, 16000, 17000, 18000]}]}}
+            {mainPersonality: {alignment: Personality.alignment.Villain,  currentMainPersonalityLevel: 1, currentPowerStageAboveZero: 2, currentAngerLevel: 1,
+                    angerLevelNeededToLevel: 5, personalities: [{style: Card.Style.Freestyle, PUR: 2, alignment: Personality.alignment.Rogue, description: "Power: Once per combat, reduces the damage of an energy attack by 2 life cards.", level: 1, name: "VEGETA", highTech: false, number: 173, texturePath: "images/DBZCCG/saiyan/173.jpg",
+                            personality: Personality.VEGETA, saga: Card.Saga.SAIYAN, powerStages: [0, 2000, 2200, 2400, 2600, 2800, 3000, 3200, 3400, 3600, 3800]},
+                        {style: Card.Style.Freestyle, PUR: 4, alignment: Personality.alignment.Rogue, description: "Power: Energy attack doing 3 life cards of damage. Costs 1 power stage.", level: 2, name: "VEGETA", highTech: false, number: 174, texturePath: "images/DBZCCG/saiyan/174.jpg",
+                            personality: Personality.VEGETA, saga: Card.Saga.SAIYAN, powerStages: [0, 2000, 2200, 2400, 2600, 2800, 3000, 3200, 3400, 3600, 3800]},
+                        {style: Card.Style.Freestyle, PUR: 4, alignment: Personality.alignment.Rogue, description: "Power: Once per game, after performing a successful energy attack, steal a Dragon Ball. After this effect, the combat ends.", level: 3, name: "VEGETA", highTech: false, number: 175, texturePath: "images/DBZCCG/saiyan/175.jpg",
+                            personality: Personality.VEGETA, saga: Card.Saga.SAIYAN, powerStages: [0, 9000, 10000, 11000, 12000, 13000, 14000, 15000, 16000, 17000, 18000]}]}}
         ]);
 
         DBZCCG.mainPlayer = table.players[0];
@@ -435,7 +442,7 @@ DBZCCG.create = function() {
     function controls(camera, element, scene) {
         camera.aspect = window.innerWidth * 0.75 / window.innerHeight;
         camera.updateProjectionMatrix();
-
+        var display = document.getElementById('hud');
         projector = new THREE.Projector();
 
         function onDocumentMouseMove(event) {
@@ -478,7 +485,7 @@ DBZCCG.create = function() {
             }
         }
 
-        element.addEventListener('mousemove', onDocumentMouseMove, false);
+        display.addEventListener('mousemove', onDocumentMouseMove, false);
 
         function documentOnMouseDown(event) {
             if (intersected) {
@@ -489,7 +496,7 @@ DBZCCG.create = function() {
             }
         }
 
-        element.addEventListener('mousedown', documentOnMouseDown);
+        display.addEventListener('mousedown', documentOnMouseDown);
 
         function documentOnClick(event) {
             if (intersected) {
@@ -500,7 +507,7 @@ DBZCCG.create = function() {
             }
         }
 
-        element.addEventListener('click', documentOnClick);
+        display.addEventListener('click', documentOnClick);
 
         function documentOnMouseUp(event) {
             if (intersected) {
@@ -511,7 +518,7 @@ DBZCCG.create = function() {
             }
         }
 
-        element.addEventListener('mouseup', documentOnMouseUp);
+        display.addEventListener('mouseup', documentOnMouseUp);
 
         // resize
         window.addEventListener('resize', function() {
@@ -530,7 +537,12 @@ DBZCCG.create = function() {
     var interval = window.setInterval(function() {
         if (DBZCCG.finishedLoading) {
             window.clearInterval(interval);
+            // Remove loading screen
             $("#loadingText").remove();
+            //show HUD
+            DBZCCG.clearDescriptionBox();
+            document.getElementById("hud").style.display = "block";
+            document.getElementById("descriptionBox").style.display = "block";
             scr.start();
         }
     }, 1000);
