@@ -17,6 +17,8 @@
         <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
         <script type="text/javascript" src="lib/alertify.min.js"></script>
         <script type="text/javascript" src="lib/three.min.js"></script>
+        <script type="text/javascript" src="lib/MTLLoader.js"></script>
+        <script type="text/javascript" src="lib/OBJMTLLoader.js"></script>
         <script type="text/javascript" src="lib/JSONLoader.js"></script>
         <script type="text/javascript" src="lib/OrbitControls.js"></script>
         <script type="text/javascript" src="lib/tween.min.js"></script>
@@ -50,11 +52,16 @@
         <div id='hud'>
         </div>
         
-        <div id='descriptionBox'>
-        </div>
-        
-        <div id='descriptionBoxContent'>
+        <div id="leftBar">
+            <div id='descriptionBox'>
+            </div>
+
+            <div id='descriptionBoxContent'>
+            </div>
         </div>
 
+        <div id="leftBarWindow">
+        </div>
+        
     </body>
 </html>

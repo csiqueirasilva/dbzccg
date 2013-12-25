@@ -59,7 +59,7 @@ Screen.create = function (buildScene, render, controls) {
 
                 // camera control
                 if (extControls instanceof Function) {
-                    cameraControl = extControls(camera, renderer.domElement, scene);
+                    cameraControl = extControls(camera, renderer, scene);
                 }
 
                 // Build scene

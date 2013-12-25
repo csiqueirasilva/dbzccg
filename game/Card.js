@@ -152,7 +152,8 @@ Card.create = function(dataObject) {
         var card = this;
         card.display.mouseOver = function() {
             DBZCCG.selectionEffect(DBZCCG.selectionColor, card.display.children);
-            DBZCCG.flyToPosition(card.display.position, card.display.position.clone().normalize());
+            DBZCCG.leftScreen.focusElement(card.display, card.display.position);
+
             DBZCCG.selectionParticles.position.copy(card.display.position);
             DBZCCG.selectionParticles.visible = true;
             // format card text

@@ -142,10 +142,7 @@ Personality.create = function(data) {
                 personality.moveZScouter(personality.currentPowerStageAboveZero || 0, true, true);
 
                 personality.zScouter.mouseOver = function() {
-                    var flyToPosition = personality.zScouter.position.clone();
-                    flyToPosition.add(MathHelper.rotateVector(personality.display.position.clone()).normalize().multiplyScalar(-2));
-                    DBZCCG.flyToPosition(flyToPosition, personality.display.position.clone().normalize());
-                    DBZCCG.flyOverCamera.position.y = 8;
+                    DBZCCG.leftScreen.focusElement(personality.zScouter, personality.zScouter.position);
                     var descriptionBoxText = "<div><b>"+personality.displayName() + "</b> current power stage level: " + personality.powerStages[personality.currentPowerStageAboveZero];
     
                     if(personality.currentPowerStageAboveZero == personality.powerStages.length - 1) {
@@ -158,10 +155,6 @@ Personality.create = function(data) {
                     
                     DBZCCG.descriptionBox(descriptionBoxText);
                };
-
-                personality.zScouter.mouseOut = function() {
-                    DBZCCG.flyOverCamera.position.y = 15;
-                };
 
                 DBZCCG.objects.push(personality.zScouter);
                 field.add(personality.zScouter);

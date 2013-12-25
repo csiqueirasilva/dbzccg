@@ -11,10 +11,11 @@ MainPersonality.create = function(data) {
         }
 
         this.neutralPositionScabbard = function(dirVector) {
+            var dirVector = dirVector.clone();
             this.zScabbard.rotation.copy(this.zSword.rotation);
             this.zScabbard.position.copy(this.zSword.position);
+            this.zScabbard.position.add(dirVector.multiplyScalar(0.075));
             this.zScabbard.position.y += -0.075;
-            this.zScabbard.position.add(MathHelper.rotateVector(dirVector).normalize().multiplyScalar(-0.49));
             this.zScabbard.scale.copy(this.zSword.scale);
         }
 
@@ -31,10 +32,9 @@ MainPersonality.create = function(data) {
 
             loader.load("model/zsword.js", function(geometry) {
                 mp.zSword = new THREE.Mesh(geometry, new THREE.MeshLambertMaterial({side: THREE.DoubleSide, shading: THREE.SmoothShading, color: 0x777777}));
-                mp.zSword.rotation.z = -Math.PI / 2;
-                mp.zSword.rotation.y += MathHelper.angleVectors(new THREE.Vector3(0, 0, -1), dirVector);
+                mp.zSword.rotation.x = dirVector.clone().cross(new THREE.Vector3(0,1,0)).x > 0 ? -Math.PI/2 : Math.PI/2;
+                mp.zSword.rotation.y = MathHelper.angleVectors(new THREE.Vector3(0, 0, 1), dirVector) - Math.PI/2;
                 mp.zSword.position.copy(dirVector);
-                mp.zSword.position.multiplyScalar(0.34);
                 mp.zSword.scale = new THREE.Vector3(3, 3, 3);
                 mp.zSword.position.y = 0.2;
                 mp.zSwordComplete.add(mp.zSword);
@@ -43,21 +43,15 @@ MainPersonality.create = function(data) {
                     mp.zScabbard = new THREE.Mesh(geometry, new THREE.MeshLambertMaterial({side: THREE.DoubleSide, shading: THREE.SmoothShading, color: 0x777777}));
                     mp.zSwordComplete.add(mp.zScabbard);
                     mp.neutralPositionScabbard(dirVector);
+                    mp.zSwordComplete.position.add(MathHelper.rotateVector(dirVector).multiplyScalar(-0.54));
                     DBZCCG.objects.push(mp.zSwordComplete);
-                    mp.zSwordComplete.cursor = 'auto';
+                    mp.zSwordComplete.cursor = 'pointer';
                     mp.zSwordComplete.mouseOver = function() {
-                        var flyToPosition = mp.zScabbard.position.clone();
-                        flyToPosition.add(MathHelper.rotateVector(mp.zSword.position.clone()).normalize().multiplyScalar(2.8));
-                        DBZCCG.flyToPosition(flyToPosition, mp.zSword.position.clone().normalize());
-                        DBZCCG.flyOverCamera.position.y = 5;
+                        DBZCCG.leftScreen.focusElement(mp.zSwordComplete, mp.zScabbard.position);
                         var descriptionBoxText = "<div><b>"+mp.personalities[mp.currentMainPersonalityLevel - 1].displayName() + "</b> current anger level: " + mp.currentAngerLevel + "</div><div>("+
                                 (mp.currentMainPersonalityLevel != mp.personalities.length ? "Levels up" : "Goes to highest power stage")
                                 +" with "+mp.angerLevelNeededToLevel+" anger)</div>";
                         DBZCCG.descriptionBox(descriptionBoxText);
-                    };
-
-                    mp.zSwordComplete.mouseOut = function() {
-                        DBZCCG.flyOverCamera.position.y = 15;
                     };
 
                     var anger = mp.currentAngerLevel;
@@ -277,10 +271,8 @@ MainPersonality.create = function(data) {
                     rp[1].zScouter = rp[0].zScouter;
                     
                     rp[1].zScouter.mouseOver = function () {
-                        var flyToPosition = rp[1].zScouter.position.clone();
-                        flyToPosition.add(MathHelper.rotateVector(rp[1].display.position.clone()).normalize().multiplyScalar(-2));
-                        DBZCCG.flyToPosition(flyToPosition, rp[1].display.position.clone().normalize());
-                        DBZCCG.flyOverCamera.position.y = 8;
+                        DBZCCG.leftScreen.focusElement(rp[1].zScouter, rp[1].zScouter.position);
+                        
                         var descriptionBoxText = "<div><b>"+rp[1].displayName() + "</b> current power stage level: " + rp[1].powerStages[rp[1].currentPowerStageAboveZero];
 
                         if(rp[1].currentPowerStageAboveZero == rp[1].powerStages.length - 1) {
@@ -294,10 +286,6 @@ MainPersonality.create = function(data) {
                         DBZCCG.descriptionBox(descriptionBoxText);
                     };
 
-                    rp[1].zScouter.mouseOut = function () {
-                        DBZCCG.flyOverCamera.position.y = 15;
-                    };
-                    
                     rp[0].currentPowerStageAboveZero = rp[0].zScouter = undefined;
                     mp.currentMainPersonalityLevel++;
                     currentLevelStepAside.start();
@@ -318,6 +306,7 @@ MainPersonality.create = function(data) {
         };
 
         this.addToField = function(position, field) {
+            this.surroundingArea = Table.createSurroundingArea(position.clone().multiplyScalar(0.125), 9.75, 12.5, 0.1) ;
             this.display = new THREE.Object3D();
             this.display.name = "mp";
             for (var i = 0; i < this.personalities.length; i++) {
@@ -338,23 +327,22 @@ MainPersonality.create = function(data) {
             var mp = this ;
             mp.display.mouseOver = function() {
                 var card = mp.personalities[mp.currentMainPersonalityLevel - 1];
+                DBZCCG.leftScreen.focusElement(card.display, card.display.position);
                 DBZCCG.selectionEffect(DBZCCG.selectionColor, card.display.children);
-                DBZCCG.flyToPosition(card.display.position, card.display.position.clone().normalize());
                 DBZCCG.selectionParticles.position.copy(card.display.position);
                 DBZCCG.selectionParticles.visible = true;
                 DBZCCG.descriptionBox(card.descriptionBox());
                 // add card description
     //            return "Current anger level: " + mp.currentAngerLevel;
             };
-
             mp.display.mouseOut = function() {
                 var card = mp.personalities[mp.currentMainPersonalityLevel - 1];
                 DBZCCG.selectionEffect(DBZCCG.clearSelectionColor, card.display.children);
                 DBZCCG.selectionParticles.visible = false;
             };
 
-            
-            field.add(this.display);
+            this.surroundingArea.add(this.display);
+            field.add(this.surroundingArea);
         };
 
         this.personalities = [];
