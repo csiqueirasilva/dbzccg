@@ -7,7 +7,7 @@
         <link rel="stylesheet" href="css/alertify.css" />
         <link rel="stylesheet" href="css/alertify.dbzccg.css" />
         <link rel="stylesheet" href="css/dbzccg.css" />
-        
+
         <script id="skybox_vertex_shader" type="x-shader/x-fragment">
             <%@include file="game/skyboxvertexshader.glsl"%>
         </script>
@@ -15,6 +15,7 @@
             <%@include file="game/skyboxfragmentshader.glsl"%>
         </script>
         <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+        <script type="text/javascript" src="lib/jquery.nicescroll.min.js"></script>
         <script type="text/javascript" src="lib/alertify.min.js"></script>
         <script type="text/javascript" src="lib/three.min.js"></script>
         <script type="text/javascript" src="lib/MTLLoader.js"></script>
@@ -33,16 +34,15 @@
         <script type="text/javascript" src="game/DBZCCG.js"></script>
         <script type="text/javascript">
             function getKeyByValue(object, value) {
-                for (var prop in object) {
-                    if (object[ prop ] === value)
-                        return prop;
-                }
+            for (var prop in object) {
+            if (object[ prop ] === value)
+            return prop;
+            }
             }
 
             $(document).ready(function() {
-
-                DBZCCG.create();
-
+            $('.niceScrollBar').niceScroll();
+            DBZCCG.create();
             });
         </script>
 
@@ -51,17 +51,50 @@
         <h1 id="loadingText">Loading!!!!</h1>
         <div id='hud'>
         </div>
+
+        <div id="toolbar">
+            <div id="log-btn" class="btn">
+            </div>
+        </div>
         
+        <div id="rightBar">
+            <div class='btn close-btn' title='Close' id='closeRightBar'>
+            </div>
+            
+            <div id="logBox" class="niceScrollBar">
+            </div>
+            
+        </div>
+
+        <div id="turnCounter">
+            <div id="turnOrder">
+                <span title="Draw Phase" id="drawPhase">Draw</span> > 
+                <span title="Non-Combat Phase" id="nonCombatPhase">N-CMB</span> > 
+                <span title="Power-Up Phase" id="PURPhase">PUR</span> >
+                <span title="Declare Phase" id="declarePhase">DCLR</span> > 
+                <span title="Combat Phase" id="combatPhase">CMB</span> >
+                <span title="Discard Phase" id="discardPhase">DCRD</span> >
+                <span title="Rejuvenation Phase" id="rejuvenationPhase">RJV</span> </div>
+            <div id="turnTitle">TURN</div>
+            <div id="turnCounterNumber">0</div>
+        </div>
+
         <div id="leftBar">
+            <div class='btn close-btn' title='Close' id='closeLeftBar'>
+            </div>
+
             <div id='descriptionBox'>
             </div>
 
-            <div id='descriptionBoxContent'>
+            <div id='descriptionBoxContent' class="niceScrollBar">
             </div>
         </div>
 
         <div id="leftBarWindow">
         </div>
-        
+
+        <div id="rightBarWindow">
+        </div>
+
     </body>
 </html>

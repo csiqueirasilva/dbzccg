@@ -28,7 +28,7 @@ Personality.Villain = [Personality.SAIBAIMEN, Personality.RADITZ, Personality.PI
 Personality.create = function(data) {
 
     function PersonalityObject(data) {
-        card = Card.create(data);
+        var card = Card.create(data);
 
         for (var key in card) {
             this[key] = card[key];
@@ -38,9 +38,10 @@ Personality.create = function(data) {
             return "LV" + this.level + " " + this.name;
         }
 
-        var cardDescription = this.descriptionBox;
-        this.descriptionBox = function() {
-            var cardDesc = cardDescription();
+        var cardDescription = this.display.descriptionBox;
+        var card = this;
+        this.display.descriptionBox = function() {
+            var cardDesc = cardDescription(); 
             cardDesc = cardDesc.replace(/%type%/g, "Personality");
             var elements = $(cardDesc).not(".card-saga-label");
             var sagaLabel = $(cardDesc).filter(".card-saga-label")[0].outerHTML;
@@ -50,10 +51,10 @@ Personality.create = function(data) {
                 content+=value.outerHTML;
             });
             
-            content+= "<div class='personality-pur-label'>Personality Level: "+this.level+"</div>";
-            content+= "<div class='personality-pur-label'>Power-Up Rating: "+this.PUR+"</div>";
-            content+= "<div class='personality-alignment-label'>Alignment: "+getKeyByValue(Personality.alignment, this.alignment)+"</div>";
-            content+= "<div class='personality-powerstage-label'>Power Stages ("+(+this.powerStages.length - 1)+" total stages above zero): <br />"+this.powerStages.slice(0).reverse().toString().replace(/,/g,'<br />')+"</div>";
+            content+= "<div class='personality-pur-label'>Personality Level: "+card.level+"</div>";
+            content+= "<div class='personality-pur-label'>Power-Up Rating: "+card.PUR+"</div>";
+            content+= "<div class='personality-alignment-label'>Alignment: "+getKeyByValue(Personality.alignment, card.alignment)+"</div>";
+            content+= "<div class='personality-powerstage-label'>Power Stages ("+(+card.powerStages.length - 1)+" total stages above zero): <br />"+card.powerStages.slice(0).reverse().toString().replace(/,/g,'<br />')+"</div>";
 
             content+= sagaLabel;
                         
@@ -128,6 +129,19 @@ Personality.create = function(data) {
 
             loader.load("model/zscouter.js", function(geometry) {
                 personality.zScouter = new THREE.Object3D();
+                
+                personality.zScouter.leftScreenCallback = function (source, created) {
+                    var obj = new THREE.Object3D();
+                    created.rotation.set(0,0,0);
+                    created.position.set(0,0,0);
+                    created.rotation.z = -Math.PI/2;
+                    created.rotation.x = Math.PI;
+                    obj.add(created);
+                    created.position.z += 1.4;
+                    created.position.x += 1.1;
+                    return obj;
+                };
+                
                 personality.zScouter.name = 'zScouter' + personality.name;
                 var meshZScouter = new THREE.Mesh(geometry, new THREE.MeshLambertMaterial({shading: THREE.FlatShading, color: 0xFF2233}));
                 personality.zScouter.add(meshZScouter);
@@ -141,8 +155,7 @@ Personality.create = function(data) {
                 personality.zScouter.receiveShadow = true;
                 personality.moveZScouter(personality.currentPowerStageAboveZero || 0, true, true);
 
-                personality.zScouter.mouseOver = function() {
-                    DBZCCG.leftScreen.focusElement(personality.zScouter, personality.zScouter.position);
+                personality.zScouter.descriptionBox = function() {
                     var descriptionBoxText = "<div><b>"+personality.displayName() + "</b> current power stage level: " + personality.powerStages[personality.currentPowerStageAboveZero];
     
                     if(personality.currentPowerStageAboveZero == personality.powerStages.length - 1) {

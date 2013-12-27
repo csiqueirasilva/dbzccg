@@ -12,6 +12,21 @@ DBZCCG.clearSelectionColor = 0x000000;
 DBZCCG.selectionParticles = null;
 DBZCCG.clock = new THREE.Clock();
 
+DBZCCG.resizeToolbar = function (rendererWidth, left, right) {
+    var elem = document.getElementById('toolbar');
+    elem.style.left = Math.ceil(rendererWidth*0.62)+parseInt(left)+'px';
+    elem.style.right = right+'px';
+    elem.style.width = rendererWidth*0.2 + 'px';
+};
+
+DBZCCG.resizeTurnCounter = function (rendererWidth, left, right) {
+    var elem = document.getElementById('turnCounter');
+    elem.style.left = Math.ceil(rendererWidth*0.394)+parseInt(left)+'px';
+    elem.style.right = right+'px';
+    elem.style.width = rendererWidth*0.214 + 'px';
+    elem.style['font-size'] = rendererWidth/window.innerWidth + 'em';
+};
+
 DBZCCG.descriptionBox = function(content) {
     document.getElementById('descriptionBoxContent').innerHTML = content;
 };
@@ -100,6 +115,10 @@ DBZCCG.quickMessage = function(msg) {
         } else {
             alertify.log(msg);
         }
+        var log = document.createElement('div');
+        log.innerHTML = "[" + new Date().toLocaleString() + "] " + msg;
+        document.getElementById("logBox").appendChild(log);
+        $('#logBox').animate({ scrollTop: $('#logBox').height() }, 50);
     }
 };
 
@@ -344,36 +363,36 @@ DBZCCG.create = function() {
             if (table.players[0].mainPersonality.personalities[0].zScouter == undefined) {
                 window.setTimeout(checkLoad, 500);
             } else /*Begin code after everything was loaded */ {
-                /*
-                 listActions.push(function() {
-                 DBZCCG.performingAction = table.players[0];
-                 table.players[0].mainPersonality.advanceLevels(2);
-                 });
-                 
-                 listActions.push(function() {
-                 DBZCCG.performingAction = table.players[1];
-                 table.players[1].mainPersonality.advanceLevels(8);
-                 });
-                 
-                 listActions.push(function() {
-                 DBZCCG.performingAction = table.players[0];
-                 table.players[0].mainPersonality.moveZScouter(0);
-                 });
-                 
-                 listActions.push(function() {
-                 DBZCCG.performingAction = table.players[0];
-                 table.players[0].mainPersonality.moveZScouter(5);
-                 });
-                 
-                 listActions.push(function() {
-                 DBZCCG.performingAction = table.players[0];
-                 table.players[0].mainPersonality.moveZScouter(12);
-                 });
-                 
-                 listActions.push(function() {
-                 DBZCCG.performingAction = table.players[0];
-                 table.players[0].mainPersonality.moveZScouter(1);
-                 });
+//                
+//                 listActions.push(function() {
+//                 DBZCCG.performingAction = table.players[0];
+//                 table.players[0].mainPersonality.advanceLevels(2);
+//                 });
+//                 
+//                 listActions.push(function() {
+//                 DBZCCG.performingAction = table.players[1];
+//                 table.players[1].mainPersonality.advanceLevels(8);
+//                 });
+//                 
+//                 listActions.push(function() {
+//                 DBZCCG.performingAction = table.players[0];
+//                 table.players[0].mainPersonality.moveZScouter(0);
+//                 });
+//                 
+//                 listActions.push(function() {
+//                 DBZCCG.performingAction = table.players[0];
+//                 table.players[0].mainPersonality.moveZScouter(5);
+//                 });
+//                 
+//                 listActions.push(function() {
+//                 DBZCCG.performingAction = table.players[0];
+//                 table.players[0].mainPersonality.moveZScouter(12);
+//                 });
+//                 
+//                 listActions.push(function() {
+//                 DBZCCG.performingAction = table.players[0];
+//                 table.players[0].mainPersonality.moveZScouter(1);
+//                 });
                  
                  listActions.push(function() {
                  DBZCCG.performingAction = table.players[0];
@@ -413,7 +432,6 @@ DBZCCG.create = function() {
                  DBZCCG.performingAction = table.players[1];
                  table.players[1].mainPersonality.changeAnger(5);
                  });
-                 */
             }
         }
 
@@ -593,6 +611,20 @@ DBZCCG.create = function() {
         /*
          * Callbacks for the main screen
          */
+        // KEYBOARD
+        DBZCCG.keys = {};
+        function onKeyUp(event) {
+            // TODO: Create function to check if it is possible to close all active windows
+            if (document.activeElement.tagName != 'INPUT' && event.keyCode == 27) {
+                $('#rightBar').hide();
+                $('#leftBar').hide();
+                window.onresize();
+            }
+        }
+
+        document.body.onkeyup = onKeyUp;
+
+        // MOUSE
         function onDocumentMouseMove(event) {
             event.preventDefault();
 
@@ -652,13 +684,22 @@ DBZCCG.create = function() {
                 $('#leftBar').show();
                 window.onresize();
 
-                var parent = Screen.findCallbackObject(intersected, "click");
+                var parent = Screen.findCallbackObject(intersected, "descriptionBox");
+
+                if (parent.descriptionBox instanceof Function) {
+                    
+                    var display = parent;
+                    if(parent.displayObject instanceof Function) {
+                        display = parent.displayObject();
+                    }
+                    
+                    DBZCCG.leftScreen.focusElement(display, display.leftScreenCallback);
+                    parent.descriptionBox();
+                }
+
                 if (parent.click instanceof Function) {
                     parent.click();
                 }
-            } else {
-                $('#leftBar').hide();
-                window.onresize();
             }
         }
 
@@ -679,16 +720,62 @@ DBZCCG.create = function() {
          * End of callbacks for the main screen
          */
 
+         /*
+          * Toolbar
+          */
+
+        document.getElementById('log-btn').onclick = function(event) {
+            if (event.button == 0) {
+                $('#rightBar').show();
+                window.onresize();
+            }
+        };
+
+
+        /*
+         * Adding right screen
+         */
+
+        document.getElementById('closeRightBar').onclick = function(event) {
+            if (event.button == 0) {
+                $('#rightBar').hide();
+                window.onresize();
+            }
+        };
+
+        DBZCCG.rightScreen = {};
+        DBZCCG.rightScreen.hideScreen = function() {
+            $('#rightBarWindow').hide();
+        }
+        DBZCCG.rightScreen.showScreen = function() {
+            $('#rightBarWindow').show();
+        }
+
+        $('#rightBarWindow').hide();
+        document.getElementById('rightBarWindow').style.position = 'absolute';
+        document.getElementById('rightBarWindow').style.top = '6%';
+        document.getElementById('rightBarWindow').style.right = '0%';
+        document.getElementById('rightBarWindow').style.width = '20%';
+        document.getElementById('rightBarWindow').style['z-index'] = '1300';
+        document.getElementById('rightBarWindow').style.height = '51%';
+
+        document.getElementById('closeLeftBar').onclick = function(event) {
+            if (event.button == 0) {
+                $('#leftBar').hide();
+                window.onresize();
+            }
+        };
+
         /*
          * Adding left screen          
          */
-        
+
         DBZCCG.leftScreen = {};
 
         DBZCCG.leftScreen.render = function() {
             var delta = DBZCCG.clock.getDelta();
-            
-            if($('#leftBar').is(':visible')) {
+
+            if ($('#leftBar').is(':visible')) {
                 this.control.update(delta);
                 this.light.position.copy(this.camera.position);
                 this.renderer.render(this.scene, this.camera);
@@ -699,9 +786,9 @@ DBZCCG.create = function() {
         DBZCCG.leftScreen.renderer.setClearColor(0x000000, 1);
         DBZCCG.leftScreen.light = new THREE.PointLight(0xF0F0F0, 1, 1000);
         DBZCCG.leftScreen.scene.add(DBZCCG.leftScreen.light);
-        DBZCCG.leftScreen.renderer.setSize(window.innerWidth * 0.25, window.innerHeight * 0.5 );
-        DBZCCG.leftScreen.camera = new THREE.PerspectiveCamera(45, (window.innerWidth*0.25) / (window.innerHeight*0.5), 0.001, 1000);
-        DBZCCG.leftScreen.control = new THREE.OrbitControls( DBZCCG.leftScreen.camera );
+        DBZCCG.leftScreen.renderer.setSize(window.innerWidth * 0.25, window.innerHeight * 0.5);
+        DBZCCG.leftScreen.camera = new THREE.PerspectiveCamera(45, (window.innerWidth * 0.25) / (window.innerHeight * 0.5), 0.001, 1000);
+        DBZCCG.leftScreen.control = new THREE.OrbitControls(DBZCCG.leftScreen.camera);
         DBZCCG.leftScreen.control.enabled = false;
 
         $('#leftBarWindow').hide();
@@ -711,131 +798,169 @@ DBZCCG.create = function() {
         document.getElementById('leftBarWindow').style.width = '20%';
         document.getElementById('leftBarWindow').style['z-index'] = '1300';
         document.getElementById('leftBarWindow').style.height = '51%';
-        
-        document.getElementById('leftBarWindow').onmouseover = function () {
+
+
+        document.getElementById('closeLeftBar').onclick = function(event) {
+            if (event.button == 0) {
+                $('#leftBar').hide();
+                window.onresize();
+            }
+        };
+
+        document.getElementById('leftBarWindow').onmouseover = function() {
             DBZCCG.leftScreen.control.enabled = true;
         };
-        
-        document.getElementById('leftBarWindow').onmouseout = function () {
+
+        document.getElementById('leftBarWindow').onmouseout = function() {
             DBZCCG.leftScreen.control.enabled = false;
         };
-        
-        DBZCCG.leftScreen.focusElement = function(target, position) {
-            if(this.targetElement != target && $(this.renderer.domElement).is(':visible')) {
+
+        DBZCCG.leftScreen.focusElement = function(target, positionElement) {
+            if (this.targetElement != target) {
                 /* Cloning */
                 var obj = new THREE.Object3D();
-                var position = position.clone();
-                function traverseChild( elem ) {
-                    if(elem.children instanceof Array && elem.children.length > 0) {
-                        for(var k in elem.children) {
-                            traverseChild(elem.children[k]);
+                function traverseChild(elem, father) {
+                    if (elem.children instanceof Array && elem.children.length > 0) {
+                        for (var k in elem.children) {
+                            traverseChild(elem.children[k], elem);
                         }
-                    } 
-
-                    if (elem instanceof THREE.Mesh) {
+                    } else if (elem instanceof THREE.Mesh) {
                         var material;
 
-                        if(elem.material instanceof THREE.MeshFaceMaterial) {
+                        if (elem.material instanceof THREE.MeshFaceMaterial) {
                             materials = [];
-                            for(var i = 0; i < elem.material.materials.length; i++) {
-                                materials.push(new THREE.MeshLambertMaterial({ 
-                                    map: (elem.material.materials[i].map ? 
-                                        THREE.ImageUtils.loadTexture(elem.material.materials[i].map.sourceFile) : null)
+                            for (var i = 0; i < elem.material.materials.length; i++) {
+                                materials.push(new THREE.MeshLambertMaterial({
+                                    map: (elem.material.materials[i].map ?
+                                            THREE.ImageUtils.loadTexture(elem.material.materials[i].map.sourceFile) : null)
                                 }));
                             }
                             material = new THREE.MeshFaceMaterial(materials);
-                       } else if (!elem.material.map) {
+                        } else if (!elem.material.map) {
                             material = elem.material.clone();
                         } else {
                             material = new THREE.MeshLambertMaterial();
-                            if(elem.material.color) {
-                               material.color = elem.material.color;
+                            if (elem.material.color) {
+                                material.color = elem.material.color;
                             }
 
                             material.blending = elem.material.blending;
 
-                            if(elem.material.map) {
+                            if (elem.material.map) {
                                 material.map = THREE.ImageUtils.loadTexture(elem.material.map.sourceFile);
                             }
                         }
-
-                        var mesh = new THREE.Mesh(elem.geometry.clone(), material);
+                        
+                        var geometry = elem.geometry.clone();
+                        var mesh = new THREE.Mesh(geometry, material);
                         mesh.scale.copy(elem.scale);
                         mesh.rotation.copy(elem.rotation);
                         mesh.position.copy(elem.position);
+                        if (father) {
+                            mesh.scale.multiply(father.scale);
+                        }
                         obj.add(mesh);
                     }
                 }
 
                 traverseChild(target);
-               /* End of Cloning */
+                /* End of Cloning */
 
-                if(this.focusedElement) {
+                if (this.focusedElement) {
                     this.scene.remove(this.focusedElement);
                 }
-
-                this.focusedElement = obj ;
-                this.targetElement = target;
-
+                
                 obj.scale.copy(target.scale);
                 obj.rotation.copy(target.rotation);
                 obj.position.copy(target.position);
 
-                this.scene.add(obj);
-                this.camera.position.copy(position);
-                this.camera.rotation.set(0,0,0);
+                this.camera.position.set(0, 0, 0);
+                this.camera.rotation.set(0, 0, 0);
                 this.camera.position.y += 10;
-                this.camera.lookAt(position);
-                this.control.center.copy(position);
+
+                if(positionElement instanceof Function) {
+                    var ret = positionElement(target, obj);
+                    if(ret) {
+                        obj = ret;
+                    }
+                }
+
+                this.focusedElement = obj;
+                this.targetElement = target;
+                
+                this.scene.add(obj);
+                this.camera.lookAt(obj.position);
+                this.control.center.copy(obj.position);
             }
         }
-        
-        DBZCCG.leftScreen.showScreen = function () {
+
+        DBZCCG.leftScreen.showScreen = function() {
             $(this.renderer.domElement).show();
             $('#leftBarWindow').show();
         }
-        
-        DBZCCG.leftScreen.hideScreen = function () {
+
+        DBZCCG.leftScreen.hideScreen = function() {
             $('#leftBarWindow').hide();
             $(this.renderer.domElement).hide();
         }
-        
+
         // debug
         //DBZCCG.leftScreen.focusElement(new THREE.Mesh(new THREE.SphereGeometry(1, 64,32), new THREE.MeshLambertMaterial({shading: THREE.SmoothShading, side: THREE.DoubleSide, color: 0xFFFFFF})));
-        
+
         DBZCCG.leftScreen.renderer.domElement.style['z-index'] = 900;
         $(DBZCCG.leftScreen.renderer.domElement).hide();
-        document.body.appendChild(DBZCCG.leftScreen.renderer.domElement);    
-        
+        document.body.appendChild(DBZCCG.leftScreen.renderer.domElement);
+
         /*
          * End of Adding left screen          
          */
-        
+
         // resize
         window.onresize = function() {
             // RESIZE Main Screen
             var WIDTH = ($('#leftBar').is(':visible') ? window.innerWidth * 0.75 : window.innerWidth),
                     HEIGHT = window.innerHeight;
+            WIDTH -= $('#rightBar').is(':visible') ? window.innerWidth * 0.25 : 0;
             camera.aspect = WIDTH / HEIGHT;
             camera.updateProjectionMatrix();
 
             if (WIDTH == window.innerWidth) {
-                renderer.domElement.style.left = '0px';
-                DBZCCG.leftScreen.hideScreen();
-            } else {
+            } 
+            
+            if ($('#leftBar').is(':visible')) {
                 renderer.domElement.style.left = window.innerWidth * 0.25 + 'px';
                 DBZCCG.leftScreen.showScreen();
+            } else {
+                renderer.domElement.style.left = '0px';                
+                DBZCCG.leftScreen.hideScreen();
+            }
+
+            if ($('#rightBar').is(':visible')) {
+                renderer.domElement.style.right = window.innerWidth * 0.25 + 'px';
+                DBZCCG.rightScreen.showScreen();
+            } else {
+                renderer.domElement.style.right = '0px';
+                DBZCCG.rightScreen.hideScreen();
             }
 
             if (DBZCCG.background.resize instanceof Function) {
                 DBZCCG.background.resize();
             }
 
-            DBZCCG.leftScreen.renderer.setSize(window.innerWidth * 0.25, window.innerHeight * 0.6 );
+            DBZCCG.leftScreen.renderer.setSize(window.innerWidth * 0.25, window.innerHeight * 0.6);
             renderer.setSize(WIDTH, HEIGHT);
 
-            DBZCCG.leftScreen.camera.aspect = (WIDTH * 0.25) / (HEIGHT * 0.5);
+            DBZCCG.leftScreen.camera.aspect = (window.innerWidth * 0.25) / (HEIGHT * 0.6);
             DBZCCG.leftScreen.camera.updateProjectionMatrix();
+            
+            var right = renderer.domElement.style.right.replace(/px/g, '');
+            var left = renderer.domElement.style.left.replace(/px/g, '');
+
+            DBZCCG.resizeToolbar(WIDTH, left, right);
+            DBZCCG.resizeTurnCounter(WIDTH, left, right);
+            
+            // Resize Scrollbars
+            $('.niceScrollBar').getNiceScroll().resize();
         };
 
         return null;
@@ -851,6 +976,8 @@ DBZCCG.create = function() {
             DBZCCG.clearDescriptionBox();
             document.getElementById("hud").style.display = "block";
             document.getElementById("descriptionBox").style.display = "block";
+            $('#turnCounter').show();
+            $('#toolbar').show();
             scr.start();
         }
     }, 1000);

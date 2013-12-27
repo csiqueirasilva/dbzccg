@@ -30,10 +30,35 @@ MainPersonality.create = function(data) {
             mp.zSwordComplete = new THREE.Object3D();
             mp.zSwordComplete.name = 'zSwordComplete';
 
+            mp.zSwordComplete.leftScreenCallback = function(source, created) {
+                var rotate = false;
+                var zTranslate = created.position.z;
+                if (created.position.z < 0) {
+                    rotate = true;
+                }
+                created.position.set(0, 0, 0);
+                var obj = new THREE.Object3D();
+
+                obj.add(created);
+                obj.position.copy(source.position);
+                obj.position.y -= 1;
+
+                if (rotate) {
+                    obj.rotation.y = Math.PI;
+                    created.rotation.y = Math.PI;
+                }
+
+                created.position.y = 6;
+                created.position.x = -2;
+                created.position.z = 4.5 + mp.currentAngerLevel * 0.8 ;
+
+                return obj;
+            };
+
             loader.load("model/zsword.js", function(geometry) {
                 mp.zSword = new THREE.Mesh(geometry, new THREE.MeshLambertMaterial({side: THREE.DoubleSide, shading: THREE.SmoothShading, color: 0x777777}));
-                mp.zSword.rotation.x = dirVector.clone().cross(new THREE.Vector3(0,1,0)).x > 0 ? -Math.PI/2 : Math.PI/2;
-                mp.zSword.rotation.y = MathHelper.angleVectors(new THREE.Vector3(0, 0, 1), dirVector) - Math.PI/2;
+                mp.zSword.rotation.x = dirVector.clone().cross(new THREE.Vector3(0, 1, 0)).x > 0 ? -Math.PI / 2 : Math.PI / 2;
+                mp.zSword.rotation.y = MathHelper.angleVectors(new THREE.Vector3(0, 0, 1), dirVector) - Math.PI / 2;
                 mp.zSword.position.copy(dirVector);
                 mp.zSword.scale = new THREE.Vector3(3, 3, 3);
                 mp.zSword.position.y = 0.2;
@@ -46,11 +71,11 @@ MainPersonality.create = function(data) {
                     mp.zSwordComplete.position.add(MathHelper.rotateVector(dirVector).multiplyScalar(-0.54));
                     DBZCCG.objects.push(mp.zSwordComplete);
                     mp.zSwordComplete.cursor = 'pointer';
-                    mp.zSwordComplete.mouseOver = function() {
-                        DBZCCG.leftScreen.focusElement(mp.zSwordComplete, mp.zScabbard.position);
-                        var descriptionBoxText = "<div><b>"+mp.personalities[mp.currentMainPersonalityLevel - 1].displayName() + "</b> current anger level: " + mp.currentAngerLevel + "</div><div>("+
+
+                    mp.zSwordComplete.descriptionBox = function() {
+                        var descriptionBoxText = "<div><b>" + mp.personalities[mp.currentMainPersonalityLevel - 1].displayName() + "</b> current anger level: " + mp.currentAngerLevel + "</div><div>(" +
                                 (mp.currentMainPersonalityLevel != mp.personalities.length ? "Levels up" : "Goes to highest power stage")
-                                +" with "+mp.angerLevelNeededToLevel+" anger)</div>";
+                                + " with " + mp.angerLevelNeededToLevel + " anger)</div>";
                         DBZCCG.descriptionBox(descriptionBoxText);
                     };
 
@@ -74,11 +99,11 @@ MainPersonality.create = function(data) {
             if (anger < this.angerLevelNeededToLevel && anger >= 0 && anger != this.currentAngerLevel) {
                 var oldAnger = this.currentAngerLevel;
                 var position = this.zScabbard.position.clone();
-                var moveAxis = MathHelper.rotateVector(this.personalities[0].display.position).normalize();
+                var moveAxis = this.personalities[0].display.position.clone().normalize();
 
                 var target = this.zSword.position.clone();
                 target.y += -0.075;
-                target.add(moveAxis.clone().multiplyScalar(-0.49));
+                target.add(moveAxis.clone().multiplyScalar(0.49));
                 target.add(moveAxis.multiplyScalar(-1 * ((anger - oldAnger) / Math.abs(anger - oldAnger)) * 0.785 * anger));
 
                 var animation = new TWEEN.Tween(position).to(target, 600 + 50 * Math.abs(anger - oldAnger));
@@ -127,18 +152,18 @@ MainPersonality.create = function(data) {
             }
 
             var position = this.zScabbard.position.clone();
-            var moveAxis = MathHelper.rotateVector(this.personalities[0].display.position).normalize();
+            var moveAxis = this.personalities[0].display.position.clone().normalize();
 
             var target;
 
             target = this.zSword.position.clone();
             target.y += -0.075;
-            target.add(moveAxis.clone().multiplyScalar(-0.49));
+            target.add(moveAxis.clone().multiplyScalar(0.49));
 
             if (n > 0) {
-                target.add(moveAxis.multiplyScalar(-1 * 0.785 * anger));
-            } else {
                 target.add(moveAxis.multiplyScalar(0.785 * anger));
+            } else {
+                target.add(moveAxis.multiplyScalar(-1 * 0.785 * anger));
             }
 
             var animation = new TWEEN.Tween(position).to(target, 600 + 50 * Math.abs(anger - oldAnger));
@@ -269,16 +294,14 @@ MainPersonality.create = function(data) {
 
                     rp[1].currentPowerStageAboveZero = rp[0].currentPowerStageAboveZero;
                     rp[1].zScouter = rp[0].zScouter;
-                    
-                    rp[1].zScouter.mouseOver = function () {
-                        DBZCCG.leftScreen.focusElement(rp[1].zScouter, rp[1].zScouter.position);
-                        
-                        var descriptionBoxText = "<div><b>"+rp[1].displayName() + "</b> current power stage level: " + rp[1].powerStages[rp[1].currentPowerStageAboveZero];
 
-                        if(rp[1].currentPowerStageAboveZero == rp[1].powerStages.length - 1) {
+                    rp[1].zScouter.descriptionBox = function() {
+                        var descriptionBoxText = "<div><b>" + rp[1].displayName() + "</b> current power stage level: " + rp[1].powerStages[rp[1].currentPowerStageAboveZero];
+
+                        if (rp[1].currentPowerStageAboveZero == rp[1].powerStages.length - 1) {
                             descriptionBoxText += " (max)";
                         } else if (rp[1].currentPowerStageAboveZero != 0) {
-                            descriptionBoxText += " ("+rp[1].currentPowerStageAboveZero+" above 0)";
+                            descriptionBoxText += " (" + rp[1].currentPowerStageAboveZero + " above 0)";
                         }
 
                         descriptionBoxText += ".</div>"
@@ -306,7 +329,7 @@ MainPersonality.create = function(data) {
         };
 
         this.addToField = function(position, field) {
-            this.surroundingArea = Table.createSurroundingArea(position.clone().multiplyScalar(0.125), 9.75, 12.5, 0.1) ;
+            this.surroundingArea = Table.createSurroundingArea(position.clone().multiplyScalar(0.125), 9.75, 12.5, 0.1);
             this.display = new THREE.Object3D();
             this.display.name = "mp";
             for (var i = 0; i < this.personalities.length; i++) {
@@ -323,22 +346,17 @@ MainPersonality.create = function(data) {
             this.personalities[0].addZScouter(field, this.personalities[0].display.position, this.personalities.length);
             this.personalities[0].moveZScouter(this.currentPowerStageAboveZero, true, true);
             this.addZSword(field, position);
-            
-            var mp = this ;
-            mp.display.mouseOver = function() {
+
+            var mp = this;
+            mp.display.displayObject = function() {
                 var card = mp.personalities[mp.currentMainPersonalityLevel - 1];
-                DBZCCG.leftScreen.focusElement(card.display, card.display.position);
-                DBZCCG.selectionEffect(DBZCCG.selectionColor, card.display.children);
-                DBZCCG.selectionParticles.position.copy(card.display.position);
-                DBZCCG.selectionParticles.visible = true;
-                DBZCCG.descriptionBox(card.descriptionBox());
-                // add card description
-    //            return "Current anger level: " + mp.currentAngerLevel;
+                return card.display;
             };
-            mp.display.mouseOut = function() {
+
+
+            mp.display.descriptionBox = function() {
                 var card = mp.personalities[mp.currentMainPersonalityLevel - 1];
-                DBZCCG.selectionEffect(DBZCCG.clearSelectionColor, card.display.children);
-                DBZCCG.selectionParticles.visible = false;
+                DBZCCG.descriptionBox(card.descriptionBox());
             };
 
             this.surroundingArea.add(this.display);
@@ -348,8 +366,8 @@ MainPersonality.create = function(data) {
         this.personalities = [];
         for (var i = 0; i < data.personalities.length; i++) {
             this.personalities.push(Personality.create(data.personalities[i]));
-            delete this.personalities[i].display.mouseOver;
-            delete this.personalities[i].display.mouseOut;
+            this.personalities[i].descriptionBox = this.personalities[i].display.descriptionBox;
+            this.personalities[i].display.descriptionBox = undefined;
         }
 
         this.angerLevelNeededToLevel = data.angerLevelNeededToLevel;

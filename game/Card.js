@@ -150,22 +150,41 @@ Card.create = function(dataObject) {
         this.display = createCard(dataObject.texturePath);
         this.display.name = this.name;
         var card = this;
-        card.display.mouseOver = function() {
-            DBZCCG.selectionEffect(DBZCCG.selectionColor, card.display.children);
-            DBZCCG.leftScreen.focusElement(card.display, card.display.position);
 
-            DBZCCG.selectionParticles.position.copy(card.display.position);
-            DBZCCG.selectionParticles.visible = true;
-            // format card text
-//            return "Current anger level: " + mp.currentAngerLevel;
+        card.display.leftScreenCallback = function(source, created) {
+            var obj = new THREE.Object3D();
+            var rotate = false;
+            if(created.position.z < 0) {
+                rotate = true;
+            }
+            
+            obj.add(created);
+            created.position.set(0,0,0);
+            
+            if(rotate) {
+                obj.rotation.y = Math.PI;
+                obj.rotation.z = -Math.PI;
+            } else {
+                obj.rotation.z = Math.PI;                
+            }
+            
+            var firstRotation = obj.rotation.clone();
+            firstRotation.z = 0;
+            var rotation = obj.rotation;
+            var animation = new TWEEN.Tween(rotation).to(firstRotation, 400);  
+            animation.easing(TWEEN.Easing.Circular.In);
+            
+            // It just wasnt working without this. I tried to pass directly created.rotation to Tween, but it just wasnt working.
+            // I know this is code is a bit messy. Sorry :-(
+            animation.onUpdate(function(){
+                created.rotation.y = rotation.z;
+            });
+            
+            animation.start();
+            return obj;
         };
 
-        card.display.mouseOut = function() {
-            DBZCCG.selectionEffect(DBZCCG.clearSelectionColor, card.display.children);
-            DBZCCG.selectionParticles.visible = false;
-        };
-        
-        card.descriptionBox = function () {
+        card.display.descriptionBox = function () {
             var content = "<div class='card-name'>"+card.name+"</div>\
                             <div class='card-type'>[%type%]</div>\
                             <div class='card-description'>"+card.description+"</div>";
