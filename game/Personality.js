@@ -25,6 +25,8 @@ Personality.NamekianHeritage = [Personality.PICCOLO];
 Personality.Hero = [Personality.GOKU, Personality.VEGETA, Personality.PICCOLO, Personality.CHIAOTZU, Personality.TIEN, Personality.KRILLIN, Personality.GOHAN, Personality.YAMCHA, Personality.YAJIROBI, Personality.BULMA, Personality.CHICHI];
 Personality.Villain = [Personality.SAIBAIMEN, Personality.RADITZ, Personality.PICCOLO, Personality.VEGETA, Personality.NAPPA];
 
+Personality.zScouterMaterial = new THREE.MeshLambertMaterial({shading: THREE.SmoothShading, color: 0xFF2233});
+
 Personality.create = function(data) {
 
     function PersonalityObject(data) {
@@ -41,23 +43,23 @@ Personality.create = function(data) {
         var cardDescription = this.display.descriptionBox;
         var card = this;
         this.display.descriptionBox = function() {
-            var cardDesc = cardDescription(); 
+            var cardDesc = cardDescription();
             cardDesc = cardDesc.replace(/%type%/g, "Personality");
             var elements = $(cardDesc).not(".card-saga-label");
             var sagaLabel = $(cardDesc).filter(".card-saga-label")[0].outerHTML;
             var content = '';
-            
-            $.each(elements, function(key, value) {
-                content+=value.outerHTML;
-            });
-            
-            content+= "<div class='personality-pur-label'>Personality Level: "+card.level+"</div>";
-            content+= "<div class='personality-pur-label'>Power-Up Rating: "+card.PUR+"</div>";
-            content+= "<div class='personality-alignment-label'>Alignment: "+getKeyByValue(Personality.alignment, card.alignment)+"</div>";
-            content+= "<div class='personality-powerstage-label'>Power Stages ("+(+card.powerStages.length - 1)+" total stages above zero): <br />"+card.powerStages.slice(0).reverse().toString().replace(/,/g,'<br />')+"</div>";
 
-            content+= sagaLabel;
-                        
+            $.each(elements, function(key, value) {
+                content += value.outerHTML;
+            });
+
+            content += "<div class='personality-pur-label'>Personality Level: " + card.level + "</div>";
+            content += "<div class='personality-pur-label'>Power-Up Rating: " + card.PUR + "</div>";
+            content += "<div class='personality-alignment-label'>Alignment: " + getKeyByValue(Personality.alignment, card.alignment) + "</div>";
+            content += "<div class='personality-powerstage-label'>Power Stages (" + (+card.powerStages.length - 1) + " total stages above zero): <br />" + card.powerStages.slice(0).reverse().toString().replace(/,/g, '<br />') + "</div>";
+
+            content += sagaLabel;
+
             return content;
         }
 
@@ -124,26 +126,29 @@ Personality.create = function(data) {
                 console.log(item, loaded, total);
             };
 
-            var loader = new THREE.JSONLoader(manager);
             var personality = this;
+            personality.zScouter = new THREE.Object3D();
+            personality.zScouter.dirVector = dirVector;
 
-            loader.load("model/zscouter.js", function(geometry) {
-                personality.zScouter = new THREE.Object3D();
-                
-                personality.zScouter.leftScreenCallback = function (source, created) {
+            function loadZScouter(geometry, field) {
+                personality.zScouter.leftScreenCallback = function(source, created) {
                     var obj = new THREE.Object3D();
-                    created.rotation.set(0,0,0);
-                    created.position.set(0,0,0);
-                    created.rotation.z = -Math.PI/2;
+                    created.rotation.set(0, 0, 0);
+                    created.position.set(0, 0, 0);
+                    created.rotation.z = -Math.PI / 2;
                     created.rotation.x = Math.PI;
                     obj.add(created);
                     created.position.z += 1.4;
                     created.position.x += 1.1;
                     return obj;
                 };
-                
+
                 personality.zScouter.name = 'zScouter' + personality.name;
-                var meshZScouter = new THREE.Mesh(geometry, new THREE.MeshLambertMaterial({shading: THREE.FlatShading, color: 0xFF2233}));
+                personality.zScouter.displayName = function() {
+                    return 'Z-Scouter: ' + personality.displayName();
+                };
+
+                var meshZScouter = new THREE.Mesh(geometry, Personality.zScouterMaterial);
                 personality.zScouter.add(meshZScouter);
                 personality.zScouter.rotation.y = Math.PI;
                 personality.zScouter.rotation.z = Math.PI / 2;
@@ -151,27 +156,36 @@ Personality.create = function(data) {
                 personality.zScouter.rotation.y = MathHelper.angleVectors(new THREE.Vector3(0, 0, -1), personality.display.position);
 
                 personality.zScouter.position.y += Card.cornerWidth * Card.cardThicknessScale * distanceFromY * 2;
-                personality.zScouter.dirVector = dirVector;
                 personality.zScouter.receiveShadow = true;
                 personality.moveZScouter(personality.currentPowerStageAboveZero || 0, true, true);
 
                 personality.zScouter.descriptionBox = function() {
-                    var descriptionBoxText = "<div><b>"+personality.displayName() + "</b> current power stage level: " + personality.powerStages[personality.currentPowerStageAboveZero];
-    
-                    if(personality.currentPowerStageAboveZero == personality.powerStages.length - 1) {
+                    var descriptionBoxText = "<div><b>" + personality.displayName() + "</b> current power stage level: " + personality.powerStages[personality.currentPowerStageAboveZero];
+
+                    if (personality.currentPowerStageAboveZero == personality.powerStages.length - 1) {
                         descriptionBoxText += " (max)";
                     } else if (personality.currentPowerStageAboveZero != 0) {
-                        descriptionBoxText += " ("+personality.currentPowerStageAboveZero+" above 0)";
+                        descriptionBoxText += " (" + personality.currentPowerStageAboveZero + " above 0)";
                     }
 
                     descriptionBoxText += ".</div>"
-                    
+
                     DBZCCG.descriptionBox(descriptionBoxText);
-               };
+                };
 
                 DBZCCG.objects.push(personality.zScouter);
                 field.add(personality.zScouter);
-            });
+            }
+
+            if (!Personality.zScouterModel) {
+                var loader = new THREE.JSONLoader(manager);
+                loader.load("model/zscouter.js", function(geometry) {
+                    Personality.zScouterModel = geometry;
+                    loadZScouter(Personality.zScouterModel, field);
+                });
+            } else {
+                loadZScouter(Personality.zScouterModel, field);
+            }
         };
 
         this.level = data.level;

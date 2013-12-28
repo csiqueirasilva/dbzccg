@@ -150,6 +150,48 @@ canvas {
     height: 50%;
 }
 
+.tooltip {
+    width: 24px;
+    height: 24px;
+    float: left;
+    margin-right: 2px;
+}
+
+.tooltip:hover {
+    cursor: pointer;
+}
+
+.tooltipEffectEnabled {
+    background: url('../images/icons/lock.png') no-repeat;
+    background-size: 100% 100%;
+}
+
+.tooltipEffectEnabled:hover {
+    background: url('../images/icons/lock-selected.png') no-repeat;
+    background-size: 100% 100%;
+}
+
+.tooltipEffectDisabled {
+    background: url('../images/icons/lock-disabled.png') no-repeat;
+    background-size: 100% 100%;
+}
+
+.tooltipEffectDisabled:hover {
+    background: url('../images/icons/lock-disabled.png') no-repeat;
+    background-size: 100% 100%;
+    cursor: auto;
+}
+
+#tooltipDescription {
+    background: url('../images/icons/description.png') no-repeat;
+    background-size: 100% 100%;
+}
+
+#tooltipDescription:hover {
+    background: url('../images/icons/description-selected.png') no-repeat;
+    background-size: 100% 100%;
+}
+
 .selectedTurn {
     font-weight: bold;
     color: #FF0000;

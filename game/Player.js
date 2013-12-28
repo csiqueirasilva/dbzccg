@@ -19,9 +19,13 @@ Player.create = function(dataObject, vec) {
             this.field.name = "campo";
             var mainPersonalityPos = this.dirVector.clone();
             mainPersonalityPos.multiplyScalar(Player.Field.Height/5 + this.distanceFromCenter);
-
+            var lifeDeckPos = mainPersonalityPos.clone();
+            lifeDeckPos.add(MathHelper.rotateVector(this.dirVector.clone().normalize().multiplyScalar(Player.Field.Width/2.5)));
+            
             this.mainPersonality.addToField(mainPersonalityPos, this.field);
-
+            this.lifeDeck.addToField(lifeDeckPos, this.field);
+            this.lifeDeck.turnThisWay(this.dirVector);
+            this.lifeDeck.setOwnerCallback(this.mainPersonality.displayName);
             this.surroundingArea = Table.createSurroundingArea(this.posVector, Player.Field.Width, Player.Field.Height, Player.Field.cornerWidth);
 
             this.field.add(this.surroundingArea);
@@ -32,37 +36,6 @@ Player.create = function(dataObject, vec) {
             var cards = [];
             for (var i = 0; i < cardList.length; i++) {
                 var card = cardList[i];
-                switch (card.type) {
-                    case Card.Type.Personality:
-                        card.add(Personality.create(card));
-                        break;
-                    case Card.Type.NonCombat:
-                        card.add(NonCombat.create(card));
-                        break;
-                    case Card.Type.Combat:
-                        card.add(Combat.create(card));
-                        break;
-                    case Card.Type.PhysicalCombat:
-                        card.add(PhysicalCombat.create(card));
-                        break;
-                    case Card.Type.EnergyCombat:
-                        card.add(EnergyCombat.create(card));
-                        break;
-                    case Card.Type.Dragonball:
-                        card.add(Dragonball.create(card));
-                        break;
-//                        case Card.Type.Battleground:
-//                            card.add(Battleground.create(card));
-//                            break;
-//                        case Card.Type.Location:
-//                            card.add(Location.create(card));
-//                            break;
-//                        case Card.Type.Fusion:
-//                            card.add(Fusion.create(card));
-//                            break;
-                    case Card.Type.Drill:
-                        card.add(Drill.create(card));
-                }
             }
             return cards;
         }
@@ -75,7 +48,7 @@ Player.create = function(dataObject, vec) {
 
         this.mainPersonality = MainPersonality.create(dataObject.mainPersonality);
 //            this.mastery = Mastery.create(dataObject.mastery);
-//            this.lifeDeck = loadCards(dataObject.lifeDeck);
+        this.lifeDeck = LifeDeck.create(dataObject.lifeDeck);
 //            this.sensei = Sensei.create(dataObject.sensei);
 
         if (this.sensei) {

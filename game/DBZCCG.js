@@ -12,19 +12,19 @@ DBZCCG.clearSelectionColor = 0x000000;
 DBZCCG.selectionParticles = null;
 DBZCCG.clock = new THREE.Clock();
 
-DBZCCG.resizeToolbar = function (rendererWidth, left, right) {
+DBZCCG.resizeToolbar = function(rendererWidth, left, right) {
     var elem = document.getElementById('toolbar');
-    elem.style.left = Math.ceil(rendererWidth*0.62)+parseInt(left)+'px';
-    elem.style.right = right+'px';
-    elem.style.width = rendererWidth*0.2 + 'px';
+    elem.style.left = Math.ceil(rendererWidth * 0.62) + parseInt(left) + 'px';
+    elem.style.right = right + 'px';
+    elem.style.width = rendererWidth * 0.2 + 'px';
 };
 
-DBZCCG.resizeTurnCounter = function (rendererWidth, left, right) {
+DBZCCG.resizeTurnCounter = function(rendererWidth, left, right) {
     var elem = document.getElementById('turnCounter');
-    elem.style.left = Math.ceil(rendererWidth*0.394)+parseInt(left)+'px';
-    elem.style.right = right+'px';
-    elem.style.width = rendererWidth*0.214 + 'px';
-    elem.style['font-size'] = rendererWidth/window.innerWidth + 'em';
+    elem.style.left = Math.ceil(rendererWidth * 0.394) + parseInt(left) + 'px';
+    elem.style.right = right + 'px';
+    elem.style.width = rendererWidth * 0.214 + 'px';
+    elem.style['font-size'] = rendererWidth / window.innerWidth + 'em';
 };
 
 DBZCCG.descriptionBox = function(content) {
@@ -118,7 +118,7 @@ DBZCCG.quickMessage = function(msg) {
         var log = document.createElement('div');
         log.innerHTML = "[" + new Date().toLocaleString() + "] " + msg;
         document.getElementById("logBox").appendChild(log);
-        $('#logBox').animate({ scrollTop: $('#logBox').height() }, 50);
+        $('#logBox').animate({scrollTop: $('#logBox').height()}, 50);
     }
 };
 
@@ -216,12 +216,12 @@ DBZCCG.create = function() {
             camera.rotation.z += 0.0009 * DBZCCG.background.velocity;
             for (var i = 0; i < mesh.length; i++) {
                 if (DBZCCG.playerLowLife) {
-                    mesh[i].position.z -= 0.05 * DBZCCG.background.velocity;
+                    mesh[i].position.z -= 0.1 * DBZCCG.background.velocity;
                     mesh[i].material.color.r = (204 - Math.sin(Math.random()) * 20) / 255;
                     mesh[i].material.color.g = Math.abs(Math.sin(DBZCCG.clock.elapsedTime)) * 0.2;
                     mesh[i].material.color.b = Math.abs(Math.cos(DBZCCG.clock.elapsedTime)) * 0.1;
                 } else {
-                    mesh[i].position.z -= 0.5;
+                    mesh[i].position.z -= 1;
                     mesh[i].material.color.b = (204 - Math.sin(Math.random()) * 20) / 255;
                     mesh[i].material.color.g = Math.abs(Math.sin(DBZCCG.clock.elapsedTime)) * 0.8;
                     mesh[i].material.color.r = Math.abs(Math.cos(DBZCCG.clock.elapsedTime)) * 0.8;
@@ -357,6 +357,9 @@ DBZCCG.create = function() {
         camera.position.x = position.x;
         camera.lookAt(new THREE.Vector3(position.x, -10, -position.z));
 
+        DBZCCG.startSelectionParticles();
+        scene.add(DBZCCG.selectionParticles);
+
         DBZCCG.finishedLoading = true;
 
         function checkLoad() {
@@ -393,45 +396,45 @@ DBZCCG.create = function() {
 //                 DBZCCG.performingAction = table.players[0];
 //                 table.players[0].mainPersonality.moveZScouter(1);
 //                 });
-                 
-                 listActions.push(function() {
-                 DBZCCG.performingAction = table.players[0];
-                 table.players[0].mainPersonality.changeAnger(1);
-                 });
-                 listActions.push(function() {
-                 DBZCCG.performingAction = table.players[0];
-                 table.players[0].mainPersonality.changeAnger(-1);
-                 });
-                 
-                 listActions.push(function() {
-                 DBZCCG.performingAction = table.players[0];
-                 table.players[0].mainPersonality.changeAnger(2);
-                 });
-                 
-                 listActions.push(function() {
-                 DBZCCG.performingAction = table.players[0];
-                 table.players[0].mainPersonality.changeAnger(5);
-                 });
-                 
-                 listActions.push(function() {
-                 DBZCCG.performingAction = table.players[0];
-                 table.players[0].mainPersonality.changeAnger(-3);
-                 });
-                 
-                 listActions.push(function() {
-                 DBZCCG.performingAction = table.players[1];
-                 table.players[1].mainPersonality.changeAnger(-3);
-                 });
-                 
-                 listActions.push(function() {
-                 DBZCCG.performingAction = table.players[1];
-                 table.players[1].mainPersonality.changeAnger(-3);
-                 });
-                 
-                 listActions.push(function() {
-                 DBZCCG.performingAction = table.players[1];
-                 table.players[1].mainPersonality.changeAnger(5);
-                 });
+
+                listActions.push(function() {
+                    DBZCCG.performingAction = table.players[0];
+                    table.players[0].mainPersonality.changeAnger(1);
+                });
+                listActions.push(function() {
+                    DBZCCG.performingAction = table.players[0];
+                    table.players[0].mainPersonality.changeAnger(-1);
+                });
+
+                listActions.push(function() {
+                    DBZCCG.performingAction = table.players[0];
+                    table.players[0].mainPersonality.changeAnger(2);
+                });
+
+                listActions.push(function() {
+                    DBZCCG.performingAction = table.players[0];
+                    table.players[0].mainPersonality.changeAnger(5);
+                });
+
+                listActions.push(function() {
+                    DBZCCG.performingAction = table.players[0];
+                    table.players[0].mainPersonality.changeAnger(-3);
+                });
+
+                listActions.push(function() {
+                    DBZCCG.performingAction = table.players[1];
+                    table.players[1].mainPersonality.changeAnger(-3);
+                });
+
+                listActions.push(function() {
+                    DBZCCG.performingAction = table.players[1];
+                    table.players[1].mainPersonality.changeAnger(-3);
+                });
+
+                listActions.push(function() {
+                    DBZCCG.performingAction = table.players[1];
+                    table.players[1].mainPersonality.changeAnger(5);
+                });
             }
         }
 
@@ -447,9 +450,6 @@ DBZCCG.create = function() {
 
         // debug
         // scene.add(MathHelper.buildAxes(1000));
-
-        DBZCCG.startSelectionParticles();
-        scene.add(DBZCCG.selectionParticles);
 
         /*
          function formatnumber(n) {
@@ -471,7 +471,7 @@ DBZCCG.create = function() {
          scene.add(addcard);
          }
          
-         card = Card.create("images/DBZCCG/saiyan/002.jpg");
+         
          
          // deck 2
          for (var i = 1; i <= 30; i++) {
@@ -495,70 +495,6 @@ DBZCCG.create = function() {
          addcard.position.z -= 20;
          scene.add(addcard);
          }
-         
-         // MP1
-         goku1 = Card.create("images/DBZCCG/saiyan/158.jpg");
-         goku2 = Card.create("images/DBZCCG/saiyan/159.jpg");
-         goku3 = Card.create("images/DBZCCG/saiyan/160.jpg");
-         
-         goku1.rotation.x += -90 * Math.PI / 180;
-         goku1.rotation.y += -180 * Math.PI / 180;
-         goku1.position.z -= 5 + personalityNameDiff;
-         goku1.position.y = cornerWidth * cardThicknessScale * 1 * 2;
-         goku1.position.x -= 14.5;
-         
-         goku2.rotation.x += -90 * Math.PI / 180;
-         goku2.rotation.y += -180 * Math.PI / 180;
-         goku2.position.z -= 5 + 2 * personalityNameDiff;
-         goku2.position.y = cornerWidth * cardThicknessScale * 0 * 2;
-         goku2.position.x -= 14.5;
-         
-         goku3.rotation.x += -90 * Math.PI / 180;
-         goku3.rotation.y += -180 * Math.PI / 180;
-         goku3.position.z -= 5;
-         goku3.position.y = cornerWidth * cardThicknessScale * 3 * 2;
-         goku3.position.x -= 14.5;
-         
-         // MP2
-         vegeta1 = Card.create("images/DBZCCG/saiyan/173.jpg");
-         vegeta2 = Card.create("images/DBZCCG/saiyan/174.jpg");
-         vegeta3 = Card.create("images/DBZCCG/saiyan/175.jpg");
-         
-         vegeta1.rotation.x += -90 * Math.PI / 180;
-         vegeta1.rotation.y += -180 * Math.PI / 180;
-         vegeta1.rotation.z += -180 * Math.PI / 180;
-         vegeta1.position.z -= 15 - personalityNameDiff;
-         vegeta1.position.y = cornerWidth * cardThicknessScale * 1 * 2;
-         vegeta1.position.x -= 14.5;
-         
-         vegeta2.rotation.z += -180 * Math.PI / 180;
-         vegeta2.rotation.x += -90 * Math.PI / 180;
-         vegeta2.rotation.y += -180 * Math.PI / 180;
-         vegeta2.position.z -= 15 - 2 * personalityNameDiff;
-         vegeta2.position.y = cornerWidth * cardThicknessScale * 0 * 2;
-         vegeta2.position.x -= 14.5;
-         
-         vegeta3.rotation.z += -180 * Math.PI / 180;
-         vegeta3.rotation.x += -90 * Math.PI / 180;
-         vegeta3.rotation.y += -180 * Math.PI / 180;
-         vegeta3.position.z -= 15;
-         vegeta3.position.y = cornerWidth * cardThicknessScale * 3 * 2;
-         vegeta3.position.x -= 14.5;
-         
-         var mp1 = new THREE.Object3D();
-         mp1.add(goku1);
-         mp1.add(goku2);
-         mp1.add(goku3);
-         scene.add(mp1);
-         
-         var mp2 = new THREE.Object3D();
-         mp2.add(vegeta1);
-         mp2.add(vegeta2);
-         mp2.add(vegeta3);
-         scene.add(mp2);
-         
-         objects.push(mp1);
-         objects.push(mp2);
          
          // Removed from the game
          card = Card.create("images/DBZCCG/saiyan/250.jpg");
@@ -608,9 +544,12 @@ DBZCCG.create = function() {
         var display = document.getElementById('hud');
         projector = new THREE.Projector();
 
+        var tooltipOptions = document.createElement('div');
+
         /*
          * Callbacks for the main screen
          */
+        
         // KEYBOARD
         DBZCCG.keys = {};
         function onKeyUp(event) {
@@ -678,28 +617,26 @@ DBZCCG.create = function() {
         }
 
         display.addEventListener('mousedown', documentOnMouseDown);
-
+        DBZCCG.toolTip = {};
         function documentOnClick(event) {
+            $('#hud').qtip('hide');
+            $(DBZCCG.toolTip.content).children('#tooltipEffect').hide();
+
             if (intersected) {
-                $('#leftBar').show();
-                window.onresize();
-
                 var parent = Screen.findCallbackObject(intersected, "descriptionBox");
-
-                if (parent.descriptionBox instanceof Function) {
-                    
-                    var display = parent;
-                    if(parent.displayObject instanceof Function) {
-                        display = parent.displayObject();
-                    }
-                    
-                    DBZCCG.leftScreen.focusElement(display, display.leftScreenCallback);
-                    parent.descriptionBox();
+                
+                if(parent.effect) {
+                    $(DBZCCG.toolTip.content).children('#tooltipEffect').show();
                 }
+                
+                DBZCCG.toolTip.parent = parent;
+                DBZCCG.toolTip.title = parent.displayName instanceof Function ? parent.displayName() : "OBJECT";
 
                 if (parent.click instanceof Function) {
                     parent.click();
                 }
+
+                $('#hud').qtip('show');
             }
         }
 
@@ -720,12 +657,60 @@ DBZCCG.create = function() {
          * End of callbacks for the main screen
          */
 
-         /*
-          * Toolbar
-          */
+        /* Tooltip for the renderer */
+        $('#hud').qtip({
+            content: {
+                title: function(event, api) {
+                    return DBZCCG.toolTip.title;
+                },
+                text: function(event, api) {
+                    return DBZCCG.toolTip.content;
+                }
+            },
+            position: {
+                my: 'bottom center',
+                at: 'center',
+                target: 'mouse',
+                adjust: {mouse: false},
+                viewport: $(window)
+            },
+            style: {
+                classes: "qtip-rounded qtip-tipsy"
+            },
+            show: false,
+            hide: {
+                effect: false
+            }
+        });
+
+        DBZCCG.toolTip.showDescription = function () {
+            var parent = DBZCCG.toolTip.parent;
+
+            if (parent.descriptionBox instanceof Function) {
+                var display = parent;
+                if (parent.displayObject instanceof Function) {
+                    display = parent.displayObject();
+                }
+
+                DBZCCG.leftScreen.focusElement(display, display.leftScreenCallback);
+
+                parent.descriptionBox();
+            }
+
+            $('#leftBar').show();
+            window.onresize(); 
+        };
+
+        DBZCCG.toolTip.content = document.createElement('div');
+        DBZCCG.toolTip.content.innerHTML = '<div id="tooltipEffect" title="Effect" class="tooltip tooltipEffectDisabled"></div><div title="Description" onclick="DBZCCG.toolTip.showDescription();" id="tooltipDescription" class="tooltip"></div>';
+
+        /*
+         * Toolbar
+         */
 
         document.getElementById('log-btn').onclick = function(event) {
             if (event.button == 0) {
+                $('#hud').qtip('hide');
                 $('#rightBar').show();
                 window.onresize();
             }
@@ -832,7 +817,8 @@ DBZCCG.create = function() {
                             for (var i = 0; i < elem.material.materials.length; i++) {
                                 materials.push(new THREE.MeshLambertMaterial({
                                     map: (elem.material.materials[i].map ?
-                                            THREE.ImageUtils.loadTexture(elem.material.materials[i].map.sourceFile) : null)
+                                            THREE.ImageUtils.loadTexture(elem.material.materials[i].map.sourceFile) : null),
+                                    color: elem.material.materials[i].color
                                 }));
                             }
                             material = new THREE.MeshFaceMaterial(materials);
@@ -850,7 +836,7 @@ DBZCCG.create = function() {
                                 material.map = THREE.ImageUtils.loadTexture(elem.material.map.sourceFile);
                             }
                         }
-                        
+
                         var geometry = elem.geometry.clone();
                         var mesh = new THREE.Mesh(geometry, material);
                         mesh.scale.copy(elem.scale);
@@ -869,7 +855,7 @@ DBZCCG.create = function() {
                 if (this.focusedElement) {
                     this.scene.remove(this.focusedElement);
                 }
-                
+
                 obj.scale.copy(target.scale);
                 obj.rotation.copy(target.rotation);
                 obj.position.copy(target.position);
@@ -878,16 +864,16 @@ DBZCCG.create = function() {
                 this.camera.rotation.set(0, 0, 0);
                 this.camera.position.y += 10;
 
-                if(positionElement instanceof Function) {
+                if (positionElement instanceof Function) {
                     var ret = positionElement(target, obj);
-                    if(ret) {
+                    if (ret) {
                         obj = ret;
                     }
                 }
 
                 this.focusedElement = obj;
                 this.targetElement = target;
-                
+
                 this.scene.add(obj);
                 this.camera.lookAt(obj.position);
                 this.control.center.copy(obj.position);
@@ -917,6 +903,9 @@ DBZCCG.create = function() {
 
         // resize
         window.onresize = function() {
+            // Hide tooltips
+            $('#hud').qtip('hide');
+
             // RESIZE Main Screen
             var WIDTH = ($('#leftBar').is(':visible') ? window.innerWidth * 0.75 : window.innerWidth),
                     HEIGHT = window.innerHeight;
@@ -924,14 +913,11 @@ DBZCCG.create = function() {
             camera.aspect = WIDTH / HEIGHT;
             camera.updateProjectionMatrix();
 
-            if (WIDTH == window.innerWidth) {
-            } 
-            
             if ($('#leftBar').is(':visible')) {
                 renderer.domElement.style.left = window.innerWidth * 0.25 + 'px';
                 DBZCCG.leftScreen.showScreen();
             } else {
-                renderer.domElement.style.left = '0px';                
+                renderer.domElement.style.left = '0px';
                 DBZCCG.leftScreen.hideScreen();
             }
 
@@ -952,13 +938,13 @@ DBZCCG.create = function() {
 
             DBZCCG.leftScreen.camera.aspect = (window.innerWidth * 0.25) / (HEIGHT * 0.6);
             DBZCCG.leftScreen.camera.updateProjectionMatrix();
-            
+
             var right = renderer.domElement.style.right.replace(/px/g, '');
             var left = renderer.domElement.style.left.replace(/px/g, '');
 
             DBZCCG.resizeToolbar(WIDTH, left, right);
             DBZCCG.resizeTurnCounter(WIDTH, left, right);
-            
+
             // Resize Scrollbars
             $('.niceScrollBar').getNiceScroll().resize();
         };

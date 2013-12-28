@@ -2,13 +2,16 @@ MainPersonality = {};
 
 MainPersonality.maxLevel = 5;
 
+// Globals for the zSword Model
+MainPersonality.zSwordMaterial = new THREE.MeshLambertMaterial({side: THREE.DoubleSide, shading: THREE.SmoothShading, color: 0x777777});
+
 MainPersonality.create = function(data) {
 
     function MainPersonalityObject(data) {
 
         this.moveZScouter = function(toPowerStage) {
             this.personalities[this.currentMainPersonalityLevel - 1].moveZScouter(toPowerStage);
-        }
+        };
 
         this.neutralPositionScabbard = function(dirVector) {
             var dirVector = dirVector.clone();
@@ -17,7 +20,7 @@ MainPersonality.create = function(data) {
             this.zScabbard.position.add(dirVector.multiplyScalar(0.075));
             this.zScabbard.position.y += -0.075;
             this.zScabbard.scale.copy(this.zSword.scale);
-        }
+        };
 
         this.addZSword = function(field, dirVector) {
             var manager = new THREE.LoadingManager();
@@ -25,10 +28,12 @@ MainPersonality.create = function(data) {
                 console.log(item, loaded, total);
             };
 
-            var loader = new THREE.JSONLoader(manager);
             var mp = this;
             mp.zSwordComplete = new THREE.Object3D();
             mp.zSwordComplete.name = 'zSwordComplete';
+            mp.zSwordComplete.displayName = function() {
+                return 'Z-Sword: ' + mp.personalities[mp.currentMainPersonalityLevel - 1].displayName();
+            };
 
             mp.zSwordComplete.leftScreenCallback = function(source, created) {
                 var rotate = false;
@@ -50,13 +55,13 @@ MainPersonality.create = function(data) {
 
                 created.position.y = 6;
                 created.position.x = -2;
-                created.position.z = 4.5 + mp.currentAngerLevel * 0.8 ;
+                created.position.z = 4.5 + mp.currentAngerLevel * 0.8;
 
                 return obj;
             };
 
-            loader.load("model/zsword.js", function(geometry) {
-                mp.zSword = new THREE.Mesh(geometry, new THREE.MeshLambertMaterial({side: THREE.DoubleSide, shading: THREE.SmoothShading, color: 0x777777}));
+            function loadZSwordComplete(geometrySword, geometryScabbard, field) {
+                mp.zSword = new THREE.Mesh(geometrySword, MainPersonality.zSwordMaterial);
                 mp.zSword.rotation.x = dirVector.clone().cross(new THREE.Vector3(0, 1, 0)).x > 0 ? -Math.PI / 2 : Math.PI / 2;
                 mp.zSword.rotation.y = MathHelper.angleVectors(new THREE.Vector3(0, 0, 1), dirVector) - Math.PI / 2;
                 mp.zSword.position.copy(dirVector);
@@ -64,31 +69,43 @@ MainPersonality.create = function(data) {
                 mp.zSword.position.y = 0.2;
                 mp.zSwordComplete.add(mp.zSword);
 
-                loader.load("model/zswordcover.js", function(geometry) {
-                    mp.zScabbard = new THREE.Mesh(geometry, new THREE.MeshLambertMaterial({side: THREE.DoubleSide, shading: THREE.SmoothShading, color: 0x777777}));
-                    mp.zSwordComplete.add(mp.zScabbard);
-                    mp.neutralPositionScabbard(dirVector);
-                    mp.zSwordComplete.position.add(MathHelper.rotateVector(dirVector).multiplyScalar(-0.54));
-                    DBZCCG.objects.push(mp.zSwordComplete);
-                    mp.zSwordComplete.cursor = 'pointer';
+                mp.zScabbard = new THREE.Mesh(geometryScabbard, MainPersonality.zSwordMaterial);
+                mp.zSwordComplete.add(mp.zScabbard);
+                mp.neutralPositionScabbard(dirVector);
+                mp.zSwordComplete.position.add(MathHelper.rotateVector(dirVector).multiplyScalar(-0.54));
+                DBZCCG.objects.push(mp.zSwordComplete);
+                mp.zSwordComplete.cursor = 'pointer';
 
-                    mp.zSwordComplete.descriptionBox = function() {
-                        var descriptionBoxText = "<div><b>" + mp.personalities[mp.currentMainPersonalityLevel - 1].displayName() + "</b> current anger level: " + mp.currentAngerLevel + "</div><div>(" +
-                                (mp.currentMainPersonalityLevel != mp.personalities.length ? "Levels up" : "Goes to highest power stage")
-                                + " with " + mp.angerLevelNeededToLevel + " anger)</div>";
-                        DBZCCG.descriptionBox(descriptionBoxText);
-                    };
+                mp.zSwordComplete.descriptionBox = function() {
+                    var descriptionBoxText = "<div><b>" + mp.personalities[mp.currentMainPersonalityLevel - 1].displayName() + "</b> current anger level: " + mp.currentAngerLevel + "</div><div>(" +
+                            (mp.currentMainPersonalityLevel != mp.personalities.length ? "Levels up" : "Goes to highest power stage")
+                            + " with " + mp.angerLevelNeededToLevel + " anger)</div>";
+                    DBZCCG.descriptionBox(descriptionBoxText);
+                };
 
-                    var anger = mp.currentAngerLevel;
-                    mp.zScabbard.position.add(
-                            MathHelper
-                            .rotateVector(mp.personalities[0].display.position)
-                            .normalize()
-                            .multiplyScalar(-1 * 0.785 * anger));
+                var anger = mp.currentAngerLevel;
+                mp.zScabbard.position.add(
+                        MathHelper
+                        .rotateVector(mp.personalities[0].display.position)
+                        .normalize()
+                        .multiplyScalar(-1 * 0.785 * anger));
 
-                    field.add(mp.zSwordComplete);
+                field.add(mp.zSwordComplete);
+            }
+
+            if (!MainPersonality.zSwordModel) {
+                var loader = new THREE.JSONLoader(manager);
+                loader.load("model/zsword.js", function(geometry) {
+                    MainPersonality.zSwordModel = geometry;
+
+                    loader.load("model/zswordcover.js", function(geometry) {
+                        MainPersonality.zScabbardModel = geometry;
+                        loadZSwordComplete(MainPersonality.zSwordModel, MainPersonality.zScabbardModel, field);
+                    });
                 });
-            });
+            } else {
+                loadZSwordComplete(MainPersonality.zSwordModel, MainPersonality.zScabbardModel, field);
+            }
         };
 
         this.setAnger = function(n, noDelay, noMessage) {
@@ -295,6 +312,10 @@ MainPersonality.create = function(data) {
                     rp[1].currentPowerStageAboveZero = rp[0].currentPowerStageAboveZero;
                     rp[1].zScouter = rp[0].zScouter;
 
+                    rp[1].zScouter.displayName = function() {
+                        return 'Z-Scouter: ' + rp[1].displayName();
+                    };
+
                     rp[1].zScouter.descriptionBox = function() {
                         var descriptionBoxText = "<div><b>" + rp[1].displayName() + "</b> current power stage level: " + rp[1].powerStages[rp[1].currentPowerStageAboveZero];
 
@@ -331,7 +352,12 @@ MainPersonality.create = function(data) {
         this.addToField = function(position, field) {
             this.surroundingArea = Table.createSurroundingArea(position.clone().multiplyScalar(0.125), 9.75, 12.5, 0.1);
             this.display = new THREE.Object3D();
-            this.display.name = "mp";
+            this.display.name = 'mp';
+            var mp = this;
+            this.display.displayName = function() {
+                return 'Main Personality: ' + mp.personalities[mp.currentMainPersonalityLevel - 1].displayName();
+            };
+
             for (var i = 0; i < this.personalities.length; i++) {
                 var card = this.personalities[i];
                 card.faceup();
@@ -347,7 +373,6 @@ MainPersonality.create = function(data) {
             this.personalities[0].moveZScouter(this.currentPowerStageAboveZero, true, true);
             this.addZSword(field, position);
 
-            var mp = this;
             mp.display.displayObject = function() {
                 var card = mp.personalities[mp.currentMainPersonalityLevel - 1];
                 return card.display;
@@ -361,6 +386,15 @@ MainPersonality.create = function(data) {
 
             this.surroundingArea.add(this.display);
             field.add(this.surroundingArea);
+        };
+
+        var mp = this;
+        mp.currentPersonality = function() {
+            return mp.personalities[mp.currentMainPersonalityLevel - 1];
+        };
+
+        mp.displayName = function() {
+            return mp.currentPersonality().displayName();
         };
 
         this.personalities = [];
