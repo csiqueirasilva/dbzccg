@@ -203,3 +203,23 @@ canvas {
 
 .card-saga-label {
 }
+
+#card-list .ui-selecting { background: #FF6A40; }
+#card-list .ui-selected { background: #FF2814; color: white; }
+#card-list{ list-style-type: none; margin: 0; padding: 0; width: 100%; }
+#card-list li { margin: 3px; padding: 0.4em; font-size: 1em; height: 18px; }
+#card-list li:hover { cursor: pointer; }
+
+#mainDialog {
+}
+
+#dialog-wrapper-div {
+    height: 20em;
+}
+
+/* DEBUG */
+#stats {
+    display: none;
+    margin-top: 10%;
+    margin-left: 45%;
+}

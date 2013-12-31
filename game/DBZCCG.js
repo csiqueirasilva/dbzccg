@@ -1,5 +1,52 @@
 // http://github.com/csiqueirasilva/dbzccg.js
-DBZCCG = {};
+var DBZCCG = {};
+
+/* Dialogs */
+DBZCCG.createDialog = function(title, content) {
+    var elem = document.createElement('div');
+    elem.id = 'mainDialog';
+    elem.innerHTML = '';
+    elem.appendChild(content);
+    elem.style.display = 'none';
+    document.getElementById('hud').appendChild(elem);
+
+    // TODO: Add nicescrollbar to the Dialog. It is tricky.
+    $(elem).dialog({resizable: false, title: title, autoOpen: false, height: window.innerHeight * 0.5, width: window.innerWidth * 0.333});
+};
+
+DBZCCG.browseCardList = function(cards, title) {
+    var descriptionBoxContent = document.getElementById('descriptionBoxContent');
+    var content = document.createElement('div');
+    descriptionBoxContent.innerHTML = content.innerHTML = title;
+
+    var selectList = document.createElement('ol');
+    selectList.id = 'card-list';
+
+    for (var i = cards.length - 1; i >= 0; i--) {
+        var option = document.createElement('li');
+        option.innerHTML = (i + 101).toString().substring(1) + ' - ' + cards[i].name;
+        option.value = i;
+        option.selectCallback = function() {
+            var card = cards[this.value];
+            descriptionBoxContent.innerHTML = card.display.offDescriptionBox();
+            DBZCCG.leftScreen.focusElement(card.display, card.display.offLeftScreenCallback);
+        };
+        selectList.appendChild(option);
+    }
+
+    var wrapperDiv = document.createElement('div');
+    wrapperDiv.id = 'dialog-wrapper-div';
+    wrapperDiv.appendChild(selectList);
+    DBZCCG.createDialog(content.innerHTML, wrapperDiv);
+
+    $(selectList).selectable({selected: function(event, ui) {
+            ui.selected.selectCallback();
+        }});
+
+    $('#mainDialog').dialog('open');
+};
+/* End of dialog */
+
 
 DBZCCG.performingAnimation = false;
 DBZCCG.performingAction = null;
@@ -50,8 +97,8 @@ DBZCCG.selectionEffect = function(color, objects) {
 
 DBZCCG.startSelectionParticles = function() {
     var geo = new THREE.Geometry();
-    for (var z = -Card.cardWidth / 2; z < Card.cardWidth / 2; z = z + 0.01) {
-        var x = Math.pow(Math.pow(Card.cardWidth / 2, 2) - Math.pow(z, 2), 0.5);
+    for (var z = -DBZCCG.Card.cardWidth / 2; z < DBZCCG.Card.cardWidth / 2; z = z + 0.01) {
+        var x = Math.pow(Math.pow(DBZCCG.Card.cardWidth / 2, 2) - Math.pow(z, 2), 0.5);
         var particle = new THREE.Vector3(x, 0.6, z);
         particle.basePos = particle.clone();
         geo.vertices.push(particle);
@@ -216,12 +263,12 @@ DBZCCG.create = function() {
             camera.rotation.z += 0.0009 * DBZCCG.background.velocity;
             for (var i = 0; i < mesh.length; i++) {
                 if (DBZCCG.playerLowLife) {
-                    mesh[i].position.z -= 0.1 * DBZCCG.background.velocity;
+                    mesh[i].position.z -= 0.05 * DBZCCG.background.velocity;
                     mesh[i].material.color.r = (204 - Math.sin(Math.random()) * 20) / 255;
                     mesh[i].material.color.g = Math.abs(Math.sin(DBZCCG.clock.elapsedTime)) * 0.2;
                     mesh[i].material.color.b = Math.abs(Math.cos(DBZCCG.clock.elapsedTime)) * 0.1;
                 } else {
-                    mesh[i].position.z -= 1;
+                    mesh[i].position.z -= 0.5;
                     mesh[i].material.color.b = (204 - Math.sin(Math.random()) * 20) / 255;
                     mesh[i].material.color.g = Math.abs(Math.sin(DBZCCG.clock.elapsedTime)) * 0.8;
                     mesh[i].material.color.r = Math.abs(Math.cos(DBZCCG.clock.elapsedTime)) * 0.8;
@@ -324,39 +371,26 @@ DBZCCG.create = function() {
         scene.add(light);
         createBackground(scene, camera);
         //createSkybox(scene);
-        table = Table.create([
+        table = DBZCCG.Table.create([
             /*P1*/
-            {mainPersonality: {alignment: Personality.alignment.Hero, currentMainPersonalityLevel: 1, currentPowerStageAboveZero: 6, currentAngerLevel: 0,
-                    angerLevelNeededToLevel: 5, personalities: [{style: Card.Style.Freestyle, PUR: 1, alignment: Personality.alignment.Hero, description: "Power: Energy attack doing 3 life cards of damage. Costs 1 power stage.", level: 1, name: "GOKU", highTech: false, number: 158, texturePath: "images/DBZCCG/saiyan/158.jpg",
-                            personality: Personality.GOKU, saga: Card.Saga.SAIYAN, powerStages: [0, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1400]},
-                        {style: Card.Style.Freestyle, PUR: 2, alignment: Personality.alignment.Hero, description: "Power: Physical attack doing 4 power stages of damage.", level: 2, name: "GOKU", highTech: false, number: 159, texturePath: "images/DBZCCG/saiyan/159.jpg",
-                            personality: Personality.GOKU, saga: Card.Saga.SAIYAN, powerStages: [0, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1400]},
-                        {style: Card.Style.Freestyle, PUR: 3, alignment: Personality.alignment.Hero, description: "Power: Once per combat, reduces the damage of an energy attack by 2 life cards.", level: 3, name: "GOKU", highTech: false, number: 160, texturePath: "images/DBZCCG/saiyan/160.jpg",
-                            personality: Personality.GOKU, saga: Card.Saga.SAIYAN, powerStages: [0, 8000, 8500, 9000, 9500, 10000, 10500, 11000, 11500, 12000, 12500]}]}},
+            {mainPersonality: {alignment: DBZCCG.Personality.alignment.Hero, currentMainPersonalityLevel: 1, currentPowerStageAboveZero: 6, currentAngerLevel: 0,
+                    angerLevelNeededToLevel: 5, personalities: [{style: DBZCCG.Card.Style.Freestyle, PUR: 1, alignment: DBZCCG.Personality.alignment.Hero, description: "Power: Energy attack doing 3 life cards of damage. Costs 1 power stage.", level: 1, name: "GOKU", highTech: false, number: 158, texturePath: "images/DBZCCG/saiyan/158.jpg",
+                            personality: DBZCCG.Personality.GOKU, saga: DBZCCG.Card.Saga.SAIYAN, powerStages: [0, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1400]},
+                        {style: DBZCCG.Card.Style.Freestyle, PUR: 2, alignment: DBZCCG.Personality.alignment.Hero, description: "Power: Physical attack doing 4 power stages of damage.", level: 2, name: "GOKU", highTech: false, number: 159, texturePath: "images/DBZCCG/saiyan/159.jpg",
+                            personality: DBZCCG.Personality.GOKU, saga: DBZCCG.Card.Saga.SAIYAN, powerStages: [0, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1400]},
+                        {style: DBZCCG.Card.Style.Freestyle, PUR: 3, alignment: DBZCCG.Personality.alignment.Hero, description: "Power: Once per combat, reduces the damage of an energy attack by 2 life cards.", level: 3, name: "GOKU", highTech: false, number: 160, texturePath: "images/DBZCCG/saiyan/160.jpg",
+                            personality: DBZCCG.Personality.GOKU, saga: DBZCCG.Card.Saga.SAIYAN, powerStages: [0, 8000, 8500, 9000, 9500, 10000, 10500, 11000, 11500, 12000, 12500]}]}},
             /*P2*/
-            {mainPersonality: {alignment: Personality.alignment.Villain, currentMainPersonalityLevel: 1, currentPowerStageAboveZero: 2, currentAngerLevel: 0,
-                    angerLevelNeededToLevel: 5, personalities: [{style: Card.Style.Freestyle, PUR: 2, alignment: Personality.alignment.Rogue, description: "Power: Once per combat, reduces the damage of an energy attack by 2 life cards.", level: 1, name: "VEGETA", highTech: false, number: 173, texturePath: "images/DBZCCG/saiyan/173.jpg",
-                            personality: Personality.VEGETA, saga: Card.Saga.SAIYAN, powerStages: [0, 2000, 2200, 2400, 2600, 2800, 3000, 3200, 3400, 3600, 3800]},
-                        {style: Card.Style.Freestyle, PUR: 4, alignment: Personality.alignment.Rogue, description: "Power: Energy attack doing 3 life cards of damage. Costs 1 power stage.", level: 2, name: "VEGETA", highTech: false, number: 174, texturePath: "images/DBZCCG/saiyan/174.jpg",
-                            personality: Personality.VEGETA, saga: Card.Saga.SAIYAN, powerStages: [0, 2000, 2200, 2400, 2600, 2800, 3000, 3200, 3400, 3600, 3800]},
-                        {style: Card.Style.Freestyle, PUR: 4, alignment: Personality.alignment.Rogue, description: "Power: Once per game, after performing a successful energy attack, steal a Dragon Ball. After this effect, the combat ends.", level: 3, name: "VEGETA", highTech: false, number: 175, texturePath: "images/DBZCCG/saiyan/175.jpg",
-                            personality: Personality.VEGETA, saga: Card.Saga.SAIYAN, powerStages: [0, 9000, 10000, 11000, 12000, 13000, 14000, 15000, 16000, 17000, 18000]}]}}
-        ]);
+            {mainPersonality: {alignment: DBZCCG.Personality.alignment.Villain, currentMainPersonalityLevel: 1, currentPowerStageAboveZero: 2, currentAngerLevel: 0,
+                    angerLevelNeededToLevel: 5, personalities: [{style: DBZCCG.Card.Style.Freestyle, PUR: 2, alignment: DBZCCG.Personality.alignment.Rogue, description: "Power: Once per combat, reduces the damage of an energy attack by 2 life cards.", level: 1, name: "VEGETA", highTech: false, number: 173, texturePath: "images/DBZCCG/saiyan/173.jpg",
+                            personality: DBZCCG.Personality.VEGETA, saga: DBZCCG.Card.Saga.SAIYAN, powerStages: [0, 2000, 2200, 2400, 2600, 2800, 3000, 3200, 3400, 3600, 3800]},
+                        {style: DBZCCG.Card.Style.Freestyle, PUR: 4, alignment: DBZCCG.Personality.alignment.Rogue, description: "Power: Energy attack doing 3 life cards of damage. Costs 1 power stage.", level: 2, name: "VEGETA", highTech: false, number: 174, texturePath: "images/DBZCCG/saiyan/174.jpg",
+                            personality: DBZCCG.Personality.VEGETA, saga: DBZCCG.Card.Saga.SAIYAN, powerStages: [0, 2000, 2200, 2400, 2600, 2800, 3000, 3200, 3400, 3600, 3800]},
+                        {style: DBZCCG.Card.Style.Freestyle, PUR: 4, alignment: DBZCCG.Personality.alignment.Rogue, description: "Power: Once per game, after performing a successful energy attack, steal a Dragon Ball. After this effect, the combat ends.", level: 3, name: "VEGETA", highTech: false, number: 175, texturePath: "images/DBZCCG/saiyan/175.jpg",
+                            personality: DBZCCG.Personality.VEGETA, saga: DBZCCG.Card.Saga.SAIYAN, powerStages: [0, 9000, 10000, 11000, 12000, 13000, 14000, 15000, 16000, 17000, 18000]}]}}
+        ], camera, scene);
 
-        DBZCCG.mainPlayer = table.players[0];
-
-        for (var i = 0; i < table.players.length; i++) {
-            var player = table.players[i];
-            player.loadPlayerSpace(scene);
-            DBZCCG.quickMessage("Player " + (i + 1) + " loaded.");
-        }
-
-        var position = table.players[0].dirVector.clone();
-        camera.position.z = position.z * Table.basePlayerDistance * 50;
-        camera.position.y = 40;
-        camera.position.x = position.x;
-        camera.lookAt(new THREE.Vector3(position.x, -10, -position.z));
-
+        // Actually there should be an entire control for all the models, and one of them should be a particle system
         DBZCCG.startSelectionParticles();
         scene.add(DBZCCG.selectionParticles);
 
@@ -396,45 +430,45 @@ DBZCCG.create = function() {
 //                 DBZCCG.performingAction = table.players[0];
 //                 table.players[0].mainPersonality.moveZScouter(1);
 //                 });
-
-                listActions.push(function() {
-                    DBZCCG.performingAction = table.players[0];
-                    table.players[0].mainPersonality.changeAnger(1);
-                });
-                listActions.push(function() {
-                    DBZCCG.performingAction = table.players[0];
-                    table.players[0].mainPersonality.changeAnger(-1);
-                });
-
-                listActions.push(function() {
-                    DBZCCG.performingAction = table.players[0];
-                    table.players[0].mainPersonality.changeAnger(2);
-                });
-
-                listActions.push(function() {
-                    DBZCCG.performingAction = table.players[0];
-                    table.players[0].mainPersonality.changeAnger(5);
-                });
-
-                listActions.push(function() {
-                    DBZCCG.performingAction = table.players[0];
-                    table.players[0].mainPersonality.changeAnger(-3);
-                });
-
-                listActions.push(function() {
-                    DBZCCG.performingAction = table.players[1];
-                    table.players[1].mainPersonality.changeAnger(-3);
-                });
-
-                listActions.push(function() {
-                    DBZCCG.performingAction = table.players[1];
-                    table.players[1].mainPersonality.changeAnger(-3);
-                });
-
-                listActions.push(function() {
-                    DBZCCG.performingAction = table.players[1];
-                    table.players[1].mainPersonality.changeAnger(5);
-                });
+//
+//                listActions.push(function() {
+//                    DBZCCG.performingAction = table.players[0];
+//                    table.players[0].mainPersonality.changeAnger(1);
+//                });
+//                listActions.push(function() {
+//                    DBZCCG.performingAction = table.players[0];
+//                    table.players[0].mainPersonality.changeAnger(-1);
+//                });
+//
+//                listActions.push(function() {
+//                    DBZCCG.performingAction = table.players[0];
+//                    table.players[0].mainPersonality.changeAnger(2);
+//                });
+//
+//                listActions.push(function() {
+//                    DBZCCG.performingAction = table.players[0];
+//                    table.players[0].mainPersonality.changeAnger(5);
+//                });
+//
+//                listActions.push(function() {
+//                    DBZCCG.performingAction = table.players[0];
+//                    table.players[0].mainPersonality.changeAnger(-3);
+//                });
+//
+//                listActions.push(function() {
+//                    DBZCCG.performingAction = table.players[1];
+//                    table.players[1].mainPersonality.changeAnger(-3);
+//                });
+//
+//                listActions.push(function() {
+//                    DBZCCG.performingAction = table.players[1];
+//                    table.players[1].mainPersonality.changeAnger(-3);
+//                });
+//
+//                listActions.push(function() {
+//                    DBZCCG.performingAction = table.players[1];
+//                    table.players[1].mainPersonality.changeAnger(5);
+//                });
             }
         }
 
@@ -497,14 +531,14 @@ DBZCCG.create = function() {
          }
          
          // Removed from the game
-         card = Card.create("images/DBZCCG/saiyan/250.jpg");
+         card = DBZCCG.Card.create("images/DBZCCG/saiyan/250.jpg");
          card.rotation.x += 90 * Math.PI / 180;
          card.rotation.z += 90 * Math.PI / 180;
          card.position.x -= 0.75;
          card.position.z -= 5.5;
          scene.add(card);
          
-         card = Card.create("images/DBZCCG/saiyan/028.jpg");
+         card = DBZCCG.Card.create("images/DBZCCG/saiyan/028.jpg");
          card.rotation.x += 90 * Math.PI / 180;
          card.rotation.z += -90 * Math.PI / 180;
          card.position.x -= 28.25;
@@ -513,7 +547,7 @@ DBZCCG.create = function() {
 
     }
 
-    function render(cameraControl, renderer, scene, camera) {
+    function render(cameraControl, renderer, scene, camera, stats) {
         TWEEN.update();
 
         // Update Particles
@@ -532,12 +566,17 @@ DBZCCG.create = function() {
         renderer.render(scene, camera);
 
         DBZCCG.leftScreen.render();
+        stats.update();
     }
 
-    function controls(camera, renderer, scene) {
+    function controls(camera, renderer, scene, stats) {
         camera.aspect = window.innerWidth / window.innerHeight;
         camera.updateProjectionMatrix();
         renderer.setSize(window.innerWidth, window.innerHeight);
+
+        // DEBUG
+        document.body.appendChild(stats.domElement);
+        stats.domElement.id = 'stats';
 
         var element = renderer.domElement;
 
@@ -549,7 +588,7 @@ DBZCCG.create = function() {
         /*
          * Callbacks for the main screen
          */
-        
+
         // KEYBOARD
         DBZCCG.keys = {};
         function onKeyUp(event) {
@@ -579,23 +618,27 @@ DBZCCG.create = function() {
                 if (intersections.length > 0) {
                     if (intersected != intersections[ 0 ].object) {
                         if (intersected) {
-                            var parent = Screen.findCallbackObject(intersected, "mouseOut");
+                            var parent = DBZCCG.Screen.findCallbackObject(intersected, "mouseOut");
                             if (parent.mouseOut instanceof Function) {
                                 parent.mouseOut();
                             }
                         }
-                        intersected = intersections[ 0 ].object;
+                        if ($('.ui-dialog:visible').length == 0) {
+                            intersected = intersections[ 0 ].object;
+                        }
                     }
 
-                    var parent = Screen.findCallbackObject(intersected, "mouseOver");
-                    document.getElementById('body').style.cursor = parent.cursor || 'pointer';
+                    if ($('.ui-dialog:visible').length == 0) {
+                        var parent = DBZCCG.Screen.findCallbackObject(intersected, "mouseOver");
+                        document.getElementById('body').style.cursor = parent.cursor || 'pointer';
 
-                    if (parent.mouseOver instanceof Function) {
-                        parent.mouseOver();
+                        if (parent.mouseOver instanceof Function) {
+                            parent.mouseOver();
+                        }
                     }
                 }
                 else if (intersected) {
-                    var parent = Screen.findCallbackObject(intersected, "mouseOut");
+                    var parent = DBZCCG.Screen.findCallbackObject(intersected, "mouseOut");
                     if (parent.mouseOut instanceof Function) {
                         parent.mouseOut();
                     }
@@ -609,7 +652,7 @@ DBZCCG.create = function() {
 
         function documentOnMouseDown(event) {
             if (intersected) {
-                var parent = Screen.findCallbackObject(intersected, "mouseDown");
+                var parent = DBZCCG.Screen.findCallbackObject(intersected, "mouseDown");
                 if (parent.mouseDown instanceof Function) {
                     parent.mouseDown();
                 }
@@ -623,12 +666,12 @@ DBZCCG.create = function() {
             $(DBZCCG.toolTip.content).children('#tooltipEffect').hide();
 
             if (intersected) {
-                var parent = Screen.findCallbackObject(intersected, "descriptionBox");
-                
-                if(parent.effect) {
+                var parent = DBZCCG.Screen.findCallbackObject(intersected, "descriptionBox");
+
+                if (parent.effect) {
                     $(DBZCCG.toolTip.content).children('#tooltipEffect').show();
                 }
-                
+
                 DBZCCG.toolTip.parent = parent;
                 DBZCCG.toolTip.title = parent.displayName instanceof Function ? parent.displayName() : "OBJECT";
 
@@ -644,7 +687,7 @@ DBZCCG.create = function() {
 
         function documentOnMouseUp(event) {
             if (intersected) {
-                var parent = Screen.findCallbackObject(intersected, "mouseUp");
+                var parent = DBZCCG.Screen.findCallbackObject(intersected, "mouseUp");
                 if (parent.mouseUp instanceof Function) {
                     parent.mouseUp();
                 }
@@ -683,7 +726,7 @@ DBZCCG.create = function() {
             }
         });
 
-        DBZCCG.toolTip.showDescription = function () {
+        DBZCCG.toolTip.showDescription = function() {
             var parent = DBZCCG.toolTip.parent;
 
             if (parent.descriptionBox instanceof Function) {
@@ -698,7 +741,7 @@ DBZCCG.create = function() {
             }
 
             $('#leftBar').show();
-            window.onresize(); 
+            window.onresize();
         };
 
         DBZCCG.toolTip.content = document.createElement('div');
@@ -801,7 +844,7 @@ DBZCCG.create = function() {
         };
 
         DBZCCG.leftScreen.focusElement = function(target, positionElement) {
-            if (this.targetElement != target) {
+            if (this.targetElement !== target) {
                 /* Cloning */
                 var obj = new THREE.Object3D();
                 function traverseChild(elem, father) {
@@ -849,16 +892,18 @@ DBZCCG.create = function() {
                     }
                 }
 
-                traverseChild(target);
-                /* End of Cloning */
+                if (target instanceof THREE.Mesh || target instanceof THREE.Object3D) {
+                    traverseChild(target);
+                    /* End of Cloning */
+
+                    obj.scale.copy(target.scale);
+                    obj.rotation.copy(target.rotation);
+                    obj.position.copy(target.position);
+                }
 
                 if (this.focusedElement) {
                     this.scene.remove(this.focusedElement);
                 }
-
-                obj.scale.copy(target.scale);
-                obj.rotation.copy(target.rotation);
-                obj.position.copy(target.position);
 
                 this.camera.position.set(0, 0, 0);
                 this.camera.rotation.set(0, 0, 0);
@@ -952,7 +997,7 @@ DBZCCG.create = function() {
         return null;
     }
 
-    scr = Screen.create(buildScene, render, controls);
+    scr = DBZCCG.Screen.create(buildScene, render, controls);
     var interval = window.setInterval(function() {
         if (DBZCCG.finishedLoading) {
             window.clearInterval(interval);

@@ -1,12 +1,12 @@
-Player = {};
+DBZCCG.Player = {};
 
-Player.Field = {};
+DBZCCG.Player.Field = {};
 
-Player.Field.cornerWidth = 0.1;
-Player.Field.Height = 30;
-Player.Field.Width = 50;
+DBZCCG.Player.Field.cornerWidth = 0.1;
+DBZCCG.Player.Field.Height = 30;
+DBZCCG.Player.Field.Width = 100;
 
-Player.create = function(dataObject, vec) {
+DBZCCG.Player.create = function(dataObject, vec) {
 
     function PlayerObject(dataObject, vec) {
 
@@ -18,37 +18,52 @@ Player.create = function(dataObject, vec) {
             this.field = new THREE.Object3D();
             this.field.name = "campo";
             var mainPersonalityPos = this.dirVector.clone();
-            mainPersonalityPos.multiplyScalar(Player.Field.Height/5 + this.distanceFromCenter);
-            var lifeDeckPos = mainPersonalityPos.clone();
-            lifeDeckPos.add(MathHelper.rotateVector(this.dirVector.clone().normalize().multiplyScalar(Player.Field.Width/2.5)));
-            
+            mainPersonalityPos.multiplyScalar(DBZCCG.Player.Field.Height/5);
+            var lifeDeckPos = mainPersonalityPos.clone().multiplyScalar(1.75);
+            lifeDeckPos.add(MathHelper.rotateVector(this.dirVector.clone().normalize().multiplyScalar(DBZCCG.Card.cardWidth * -0.6)));
+            var discardPilePos = mainPersonalityPos.clone().multiplyScalar(1.75);
+            discardPilePos.add(MathHelper.rotateVector(this.dirVector.clone().normalize().multiplyScalar(DBZCCG.Card.cardWidth * 0.6)));
+            var removedFromTheGamePos = mainPersonalityPos.clone().multiplyScalar(0.75);
+            removedFromTheGamePos.add(MathHelper.rotateVector(this.dirVector.clone().normalize().multiplyScalar(DBZCCG.Card.cardWidth * -0.6)));
+
             this.mainPersonality.addToField(mainPersonalityPos, this.field);
-            this.lifeDeck.addToField(lifeDeckPos, this.field);
-            this.lifeDeck.turnThisWay(this.dirVector);
+            
+            this.deckArea = DBZCCG.Table.createSurroundingArea(this.posVector, DBZCCG.Card.cardWidth * 2.5, DBZCCG.Card.cardHeight * 2.5, DBZCCG.Player.Field.cornerWidth);
+
+            this.lifeDeck.addToField(lifeDeckPos, this.deckArea, this.dirVector);
             this.lifeDeck.setOwnerCallback(this.mainPersonality.displayName);
-            this.surroundingArea = Table.createSurroundingArea(this.posVector, Player.Field.Width, Player.Field.Height, Player.Field.cornerWidth);
+            
+            this.discardPile.addToField(discardPilePos, this.deckArea, this.dirVector);
+            this.discardPile.setOwnerCallback(this.mainPersonality.displayName);
+            
+            this.removedFromTheGame.addToField(removedFromTheGamePos, this.deckArea, this.dirVector);
+            this.removedFromTheGame.setOwnerCallback(this.mainPersonality.displayName);
+            
+            this.deckArea.position.x = MathHelper.rotateVector(this.dirVector).x * 14;
+            this.deckArea.position.z = this.dirVector.clone().multiplyScalar(1.1).z;
+            
+            this.mainPersonality.surroundingArea.position.z = this.dirVector.clone().multiplyScalar(1.1).z;
+
+            this.hand.addToField(this.field, this.posVector, this.dirVector);
+            
+            this.field.add(this.deckArea);
+            
+            this.surroundingArea = DBZCCG.Table.createSurroundingArea(this.posVector, DBZCCG.Player.Field.Width, DBZCCG.Player.Field.Height, DBZCCG.Player.Field.cornerWidth);
 
             this.field.add(this.surroundingArea);
             scene.add(this.field);
         };
 
-        function loadCards(cardList) {
-            var cards = [];
-            for (var i = 0; i < cardList.length; i++) {
-                var card = cardList[i];
-            }
-            return cards;
-        }
+        this.discardPile = DBZCCG.DiscardPile.create(dataObject.discardPile);
+        this.removedFromTheGame = DBZCCG.RemovedPile.create(dataObject.removedPile);
 
-        this.lifeDeck = null;
-        this.discardPile = null;
-        this.removedFromTheGame = null;
         this.allies = null;
         this.mastery = null;
+        this.hand = DBZCCG.Hand.create(dataObject.hand);
 
-        this.mainPersonality = MainPersonality.create(dataObject.mainPersonality);
+        this.mainPersonality = DBZCCG.MainPersonality.create(dataObject.mainPersonality);
 //            this.mastery = Mastery.create(dataObject.mastery);
-        this.lifeDeck = LifeDeck.create(dataObject.lifeDeck);
+        this.lifeDeck = DBZCCG.LifeDeck.create(dataObject.lifeDeck);
 //            this.sensei = Sensei.create(dataObject.sensei);
 
         if (this.sensei) {

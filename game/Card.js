@@ -1,108 +1,153 @@
-var Card = {};
+DBZCCG.Card = {};
 
 // SAGA
-Card.Saga = {};
-Card.Saga.SAIYAN = 1;
-
+DBZCCG.Card.Saga = {};
+DBZCCG.Card.Saga.SAIYAN = 1;
 
 // GFX Parameters
-Card.cardHeight = 5.5;
-Card.cardWidth = 4;
-Card.cornerWidth = 0.10;
-Card.cornerHeight = Card.cornerWidth;
-Card.cardHeight = 5.5;
-Card.cardWidth = 4;
-Card.cornerWidth = 0.10;
-Card.cornerHeight = Card.cornerWidth;
-Card.cardThicknessScale = 0.1;
-Card.personalityNameDiff = {};
-Card.personalityNameDiff[Card.Saga.SAIYAN] = Card.cardHeight / 10;
-Card.personalityPowerStageDiff = {};
-Card.personalityPowerStageDiff[Card.Saga.SAIYAN] = {"regular": {"Zero": Card.cardHeight * 0.61, "diff": 0.3845}};
+DBZCCG.Card.cardHeight = 5.5;
+DBZCCG.Card.cardWidth = 4;
+DBZCCG.Card.cornerWidth = 0.10;
+DBZCCG.Card.cornerHeight = DBZCCG.Card.cornerWidth;
+DBZCCG.Card.cardHeight = 5.5;
+DBZCCG.Card.cardWidth = 4;
+DBZCCG.Card.cornerWidth = 0.10;
+DBZCCG.Card.cornerHeight = DBZCCG.Card.cornerWidth;
+DBZCCG.Card.cardThicknessScale = 0.1;
+DBZCCG.Card.personalityNameDiff = {};
+DBZCCG.Card.personalityNameDiff[DBZCCG.Card.Saga.SAIYAN] = DBZCCG.Card.cardHeight / 10;
+DBZCCG.Card.personalityPowerStageDiff = {};
+DBZCCG.Card.personalityPowerStageDiff[DBZCCG.Card.Saga.SAIYAN] = {"regular": {"Zero": DBZCCG.Card.cardHeight * 0.61, "diff": 0.3845}};
 
 // TYPES
-Card.Type = {};
-Card.Type.Personality = 1;
-Card.Type.NonCombat = 2;
-Card.Type.Combat = 3;
-Card.Type.PhysicalCombat = 4;
-Card.Type.EnergyCombat = 5;
-Card.Type.Dragonball = 6;
-Card.Type.Mastery = 7;
-Card.Type.Battleground = 8;
-Card.Type.Location = 9;
-Card.Type.Sensei = 10;
-Card.Type.Fusion = 11;
-Card.Type.Drill = 12;
+DBZCCG.Card.Type = {};
+DBZCCG.Card.Type.Personality = 1;
+DBZCCG.Card.Type.NonCombat = 2;
+DBZCCG.Card.Type.Combat = 3;
+DBZCCG.Card.Type.PhysicalCombat = 4;
+DBZCCG.Card.Type.EnergyCombat = 5;
+DBZCCG.Card.Type.Dragonball = 6;
+DBZCCG.Card.Type.Mastery = 7;
+DBZCCG.Card.Type.Battleground = 8;
+DBZCCG.Card.Type.Location = 9;
+DBZCCG.Card.Type.Sensei = 10;
+DBZCCG.Card.Type.Fusion = 11;
+DBZCCG.Card.Type.Drill = 12;
 
 // STYLES
-Card.Style = {};
-Card.Style.Freestyle = 1;
-Card.Style.Red = 2;
-Card.Style.Saiyan = 3;
-Card.Style.Namekian = 4;
-Card.Style.Blue = 5;
-Card.Style.Orange = 6;
-Card.Style.Black = 7;
+DBZCCG.Card.Style = {};
+DBZCCG.Card.Style.Freestyle = 1;
+DBZCCG.Card.Style.Red = 2;
+DBZCCG.Card.Style.Saiyan = 3;
+DBZCCG.Card.Style.Namekian = 4;
+DBZCCG.Card.Style.Blue = 5;
+DBZCCG.Card.Style.Orange = 6;
+DBZCCG.Card.Style.Black = 7;
 
 /* To reduce load on card creation */
-Card.backTexture = THREE.ImageUtils.loadTexture("images/DBZCCG/back.jpg");
-Card.borderTexture = THREE.ImageUtils.loadTexture("images/DBZCCG/border_low.jpg");
-Card.cornerTexture = THREE.ImageUtils.loadTexture("images/DBZCCG/corner_low.jpg");
-Card.columnGeo = new THREE.CylinderGeometry(Card.cornerWidth, Card.cornerWidth, Card.cardHeight, 32, 16, true);
-Card.lineGeo = new THREE.CylinderGeometry(Card.cornerWidth, Card.cornerWidth, Card.cardWidth - Card.cornerWidth, 32, 16, true);
-Card.cardMaterial = new THREE.MeshLambertMaterial({shading: THREE.SmoothShading, color: 0x000000, side: THREE.FrontSide});
-Card.cornerMaterial = new THREE.MeshLambertMaterial({
-    side: THREE.FrontSide,
-    map: Card.cornerTexture
-});
+(function() {
+    DBZCCG.Card.backTexture = THREE.ImageUtils.loadTexture("images/DBZCCG/back.jpg");
+    borderTexture = THREE.ImageUtils.loadTexture("images/DBZCCG/border_low.jpg");
+    cornerTexture = THREE.ImageUtils.loadTexture("images/DBZCCG/corner_low.jpg");
+    columnGeo = new THREE.CylinderGeometry(DBZCCG.Card.cornerWidth, DBZCCG.Card.cornerWidth, DBZCCG.Card.cardHeight, 32, 16, true);
+    lineGeo = new THREE.CylinderGeometry(DBZCCG.Card.cornerWidth, DBZCCG.Card.cornerWidth, DBZCCG.Card.cardWidth - DBZCCG.Card.cornerWidth, 32, 16, true);
+    DBZCCG.Card.cardMaterial = new THREE.MeshLambertMaterial({shading: THREE.SmoothShading, color: 0x000000, side: THREE.FrontSide});
+    cornerMaterial = new THREE.MeshLambertMaterial({
+        side: THREE.FrontSide,
+        map: cornerTexture
+    });
 
-Card.borderMaterial = new THREE.MeshLambertMaterial({
-    side: THREE.FrontSide,
-    map: Card.borderTexture
-});
-Card.cornerGeo = new THREE.SphereGeometry(Card.cornerWidth, 32, 16);
-Card.cubeGeo = new THREE.CubeGeometry(Card.cardWidth - Card.cornerWidth, Card.cardHeight, Card.cornerWidth * 8 );
+    borderMaterial = new THREE.MeshLambertMaterial({
+        side: THREE.FrontSide,
+        map: borderTexture
+    });
+
+    cornerGeo = new THREE.SphereGeometry(DBZCCG.Card.cornerWidth, 32, 16);
+    DBZCCG.Card.cubeGeo = new THREE.CubeGeometry(DBZCCG.Card.cardWidth - DBZCCG.Card.cornerWidth, DBZCCG.Card.cardHeight, DBZCCG.Card.cornerWidth * 8);
+
+
+    DBZCCG.Card.basicCardGeo = new THREE.Geometry();
+    var top = new THREE.Mesh(lineGeo, borderMaterial);
+    var bot = top.clone();
+
+    var left = new THREE.Mesh(columnGeo, borderMaterial);
+    var right = left.clone();
+
+    top.rotation.z += 90 * Math.PI / 180;
+    top.position.y += DBZCCG.Card.cardHeight / 2;
+    bot.rotation.z += 90 * Math.PI / 180;
+    bot.position.y -= DBZCCG.Card.cardHeight / 2;
+    left.position.x -= (DBZCCG.Card.cardWidth - DBZCCG.Card.cornerWidth) / 2;
+    right.position.x += (DBZCCG.Card.cardWidth - DBZCCG.Card.cornerWidth) / 2;
+
+    THREE.GeometryUtils.merge(DBZCCG.Card.basicCardGeo, top);
+    THREE.GeometryUtils.merge(DBZCCG.Card.basicCardGeo, bot);
+    THREE.GeometryUtils.merge(DBZCCG.Card.basicCardGeo, left);
+    THREE.GeometryUtils.merge(DBZCCG.Card.basicCardGeo, right);
+
+    var baseCorner = new THREE.Mesh(cornerGeo, cornerMaterial);
+
+    // Add circles in borders
+    for (var i = -1; i <= 1; i = i + 2) {
+        for (var j = -1; j <= 1; j = j + 2) {
+            corner = baseCorner.clone();
+            corner.position.x += i * DBZCCG.Card.cardWidth / 2 + i * (-1) * DBZCCG.Card.cornerWidth / 2;
+            corner.position.y += j * DBZCCG.Card.cardHeight / 2;
+            THREE.GeometryUtils.merge(DBZCCG.Card.basicCardGeo, corner);
+        }
+    }
+
+    DBZCCG.Card.borderMaterial = borderMaterial;
+
+    delete baseCorner;
+})();
 
 /* End of required materials for the cards */
 
-Card.createCard = function(card) {
+DBZCCG.Card.generateRandom = function() {
+    // TODO: Generate a real random card. This only generates the image.
+    var card = {type: DBZCCG.Card.Type.Personality, style: DBZCCG.Card.Style.Freestyle, PUR: 2, alignment: DBZCCG.Personality.alignment.Rogue, description: "Power: Once per combat, reduces the damage of an energy attack by 2 life cards.", level: 1, name: "VEGETA", highTech: false, number: 173, texturePath: "images/DBZCCG/saiyan/" + (parseInt(Math.random() * 1000 % 250) + 1001).toString().substring(1) + ".jpg",
+        personality: DBZCCG.Personality.VEGETA, saga: DBZCCG.Card.Saga.SAIYAN, powerStages: [0, 2000, 2200, 2400, 2600, 2800, 3000, 3200, 3400, 3600, 3800]};
+    return DBZCCG.Card.createCard(card);
+}
+
+DBZCCG.Card.createCard = function(card) {
     var card;
     switch (card.type) {
-        case Card.Type.Personality:
-            card = Personality.create(card);
+        case DBZCCG.Card.Type.Personality:
+            card = DBZCCG.Personality.create(card);
             break;
-        case Card.Type.NonCombat:
+        case DBZCCG.Card.Type.NonCombat:
             card = NonCombat.create(card);
             break;
-        case Card.Type.Combat:
+        case DBZCCG.Card.Type.Combat:
             card = Combat.create(card);
             break;
-        case Card.Type.PhysicalCombat:
+        case DBZCCG.Card.Type.PhysicalCombat:
             card = PhysicalCombat.create(card);
             break;
-        case Card.Type.EnergyCombat:
+        case DBZCCG.Card.Type.EnergyCombat:
             card = EnergyCombat.create(card);
             break;
-        case Card.Type.Dragonball:
+        case DBZCCG.Card.Type.Dragonball:
             card = Dragonball.create(card);
             break;
-//                        case Card.Type.Battleground:
+//                        case DBZCCG.Card.Type.Battleground:
 //                            card.add(Battleground.create(card));
 //                            break;
-//                        case Card.Type.Location:
+//                        case DBZCCG.Card.Type.Location:
 //                            card.add(Location.create(card));
 //                            break;
-//                        case Card.Type.Fusion:
+//                        case DBZCCG.Card.Type.Fusion:
 //                            card.add(Fusion.create(card));
 //                            break;
-        case Card.Type.Drill:
+        case DBZCCG.Card.Type.Drill:
             card = Drill.create(card);
     }
     return card;
 }
 
-Card.create = function(dataObject) {
+DBZCCG.Card.create = function(dataObject) {
 
     function CardObject(dataObject) {
 
@@ -110,49 +155,19 @@ Card.create = function(dataObject) {
             var card = new THREE.Object3D();
             var frontTexture = texturePath ? THREE.ImageUtils.loadTexture(texturePath) : null;
 
-            var top = new THREE.Mesh(Card.lineGeo, Card.borderMaterial);
-            var bot = top.clone();
+            card.add(new THREE.Mesh(DBZCCG.Card.basicCardGeo, DBZCCG.Card.borderMaterial));
 
-            var left = new THREE.Mesh(Card.columnGeo, Card.borderMaterial);
-            var right = left.clone();
-
-            top.rotation.z += 90 * Math.PI / 180;
-            top.position.y += Card.cardHeight / 2;
-            bot.rotation.z += 90 * Math.PI / 180;
-            bot.position.y -= Card.cardHeight / 2;
-            left.position.x -= (Card.cardWidth - Card.cornerWidth) / 2;
-            right.position.x += (Card.cardWidth - Card.cornerWidth) / 2;
-
-            card.add(top);
-            card.add(bot);
-            card.add(right);
-            card.add(left);
-
-            var baseCorner = new THREE.Mesh(Card.cornerGeo, Card.cornerMaterial);
-
-            // Add circles in borders
-            for (var i = -1; i <= 1; i = i + 2) {
-                for (var j = -1; j <= 1; j = j + 2) {
-                    corner = baseCorner.clone();
-                    corner.position.x += i * Card.cardWidth / 2 + i * (-1) * Card.cornerWidth / 2;
-                    corner.position.y += j * Card.cardHeight / 2;
-                    card.add(corner);
-                }
-            }
-
-            cubeMaterials = [];
+            cardCoverBackMaterials = [];
             for (var i = 0; i < 4; i++) {
-                cubeMaterials.push(Card.cardMaterial.clone()); // sides
+                cardCoverBackMaterials.push(DBZCCG.Card.cardMaterial); // sides
             }
 
-            cubeMaterials[4] = new THREE.MeshBasicMaterial({map: Card.backTexture}); // back
-            cubeMaterials[5] = new THREE.MeshBasicMaterial({map: frontTexture}); // front
+            cardCoverBackMaterials[4] = new THREE.MeshBasicMaterial({map: DBZCCG.Card.backTexture}); // back
+            cardCoverBackMaterials[5] = new THREE.MeshBasicMaterial({map: frontTexture}); // front
 
-            var faceCubeMaterials = new THREE.MeshFaceMaterial(cubeMaterials);
-
-            var cube = new THREE.Mesh(Card.cubeGeo, faceCubeMaterials);
+            var cube = new THREE.Mesh(DBZCCG.Card.cubeGeo, new THREE.MeshFaceMaterial(cardCoverBackMaterials));
             card.add(cube);
-            card.scale.z = Card.cardThicknessScale;
+            card.scale.z = DBZCCG.Card.cardThicknessScale;
 
             return card;
         }
@@ -176,7 +191,7 @@ Card.create = function(dataObject) {
 
         this.moveY = function(n) {
             if (typeof n == "number") {
-                this.display.position.y = Card.cornerWidth * Card.cardThicknessScale * n * 2;
+                this.display.position.y = DBZCCG.Card.cornerWidth * DBZCCG.Card.cardThicknessScale * n * 2;
             }
         };
 
@@ -189,7 +204,22 @@ Card.create = function(dataObject) {
         this.number = dataObject.number;
         this.display = createCard(dataObject.texturePath);
         this.display.name = this.name;
+        this.display.parentCard = this;
         var card = this;
+
+        card.display.turnGameDisplay = function() {
+            if (card.display.leftScreenCallback === null) {
+                card.display.leftScreenCallback = card.display.offLeftScreenCallback;
+                card.display.offLeftScreenCallback = null;
+                card.display.descriptionBox = card.display.offDescriptionBox;
+                card.display.offDescriptionBox = null;
+            } else {
+                card.display.offLeftScreenCallback = card.display.leftScreenCallback;
+                card.display.leftScreenCallback = null;
+                card.display.offDescriptionBox = card.display.descriptionBox;
+                card.display.descriptionBox = null;
+            }
+        }
 
         card.display.leftScreenCallback = function(source, created) {
             var obj = new THREE.Object3D();
@@ -197,6 +227,9 @@ Card.create = function(dataObject) {
             if (created.position.z < 0) {
                 rotate = true;
             }
+
+            created.rotation.x = -Math.PI/2;
+            created.rotation.y = -Math.PI/2;
 
             obj.add(created);
             created.position.set(0, 0, 0);
@@ -229,17 +262,20 @@ Card.create = function(dataObject) {
                             <div class='card-type'>[%type%]</div>\
                             <div class='card-description'>" + card.description + "</div>";
             if (card.personality) {
-                content += "<div class='card-personality'>Personality: " + getKeyByValue(Personality, card.personality) + "</div>";
+                content += "<div class='card-personality'>Personality: " + getKeyByValue(DBZCCG.Personality, card.personality) + "</div>";
             }
 
-            content += "<div class='card-style'>Style: " + getKeyByValue(Card.Style, card.style) + "</div>\
-                        <div class='card-saga-label'>" + getKeyByValue(Card.Saga, card.saga) + " SAGA (#" + card.number + ")</div>";
+            content += "<div class='card-style'>Style: " + getKeyByValue(DBZCCG.Card.Style, card.style) + "</div>\
+                        <div class='card-saga-label'>" + getKeyByValue(DBZCCG.Card.Saga, card.saga) + " SAGA (#" + card.number + ")</div>";
 
             return content;
         };
 
     }
 
-    return new CardObject(dataObject || {});
-
+    if (dataObject === "random") {
+        return new CardObject(DBZCCG.Card.generateRandom());
+    } else {
+        return new CardObject(dataObject || {});
+    }
 };

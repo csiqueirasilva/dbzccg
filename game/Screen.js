@@ -1,8 +1,8 @@
 // http://github.com/csiqueirasilva
 
-Screen = {};
+DBZCCG.Screen = {};
 
-Screen.findCallbackObject = function (object, callback) {
+DBZCCG.Screen.findCallbackObject = function (object, callback) {
     var parent;
     if (object instanceof THREE.Mesh || object instanceof THREE.Object3D) {
         parent = object;
@@ -16,7 +16,7 @@ Screen.findCallbackObject = function (object, callback) {
     return parent;
 };
 
-Screen.create = function (buildScene, render, controls) {
+DBZCCG.Screen.create = function (buildScene, render, controls) {
     function GFX(extBuildScene, extRender, extControls) {
         var renderer;
         var scene;
@@ -25,10 +25,11 @@ Screen.create = function (buildScene, render, controls) {
         var buildScene = extBuildScene;
         var render = extRender;
         var running = false;
+        var stats = new Stats();
 
         function animate () {
             requestAnimationFrame(animate);
-            render(cameraControl, renderer, scene, camera);
+            render(cameraControl, renderer, scene, camera, stats);
         }
 
         this.animate = animate;
@@ -57,9 +58,9 @@ Screen.create = function (buildScene, render, controls) {
                     renderer.setSize(WIDTH, HEIGHT);
                 });
 
-                // camera control
+                // controls, return camera control if any
                 if (extControls instanceof Function) {
-                    cameraControl = extControls(camera, renderer, scene);
+                    cameraControl = extControls(camera, renderer, scene, stats);
                 }
 
                 // Build scene

@@ -1,40 +1,36 @@
-Personality = {};
+DBZCCG.Personality = {};
 
-Personality.GOKU = 1;
-Personality.NAPPA = 2;
-Personality.VEGETA = 3;
-Personality.RADITZ = 4;
-Personality.PICCOLO = 5;
-Personality.CHIAOTZU = 6;
-Personality.TIEN = 7;
-Personality.KRILLIN = 8;
-Personality.GOHAN = 9;
-Personality.YAMCHA = 10;
-Personality.YAJIROBI = 11;
-Personality.BULMA = 12;
-Personality.CHICHI = 13;
-Personality.SAIBAIMEN = 14;
+DBZCCG.Personality.GOKU = 1;
+DBZCCG.Personality.NAPPA = 2;
+DBZCCG.Personality.VEGETA = 3;
+DBZCCG.Personality.RADITZ = 4;
+DBZCCG.Personality.PICCOLO = 5;
+DBZCCG.Personality.CHIAOTZU = 6;
+DBZCCG.Personality.TIEN = 7;
+DBZCCG.Personality.KRILLIN = 8;
+DBZCCG.Personality.GOHAN = 9;
+DBZCCG.Personality.YAMCHA = 10;
+DBZCCG.Personality.YAJIROBI = 11;
+DBZCCG.Personality.BULMA = 12;
+DBZCCG.Personality.CHICHI = 13;
+DBZCCG.Personality.SAIBAIMEN = 14;
 
-Personality.alignment = {};
-Personality.alignment.Hero = 1;
-Personality.alignment.Villain = 2;
-Personality.alignment.Rogue = 3;
+DBZCCG.Personality.alignment = {};
+DBZCCG.Personality.alignment.Hero = 1;
+DBZCCG.Personality.alignment.Villain = 2;
+DBZCCG.Personality.alignment.Rogue = 3;
 
-Personality.SaiyanHeritage = [Personality.GOKU, Personality.NAPPA, Personality.VEGETA, Personality.RADITZ, Personality.GOHAN];
-Personality.NamekianHeritage = [Personality.PICCOLO];
-Personality.Hero = [Personality.GOKU, Personality.VEGETA, Personality.PICCOLO, Personality.CHIAOTZU, Personality.TIEN, Personality.KRILLIN, Personality.GOHAN, Personality.YAMCHA, Personality.YAJIROBI, Personality.BULMA, Personality.CHICHI];
-Personality.Villain = [Personality.SAIBAIMEN, Personality.RADITZ, Personality.PICCOLO, Personality.VEGETA, Personality.NAPPA];
+DBZCCG.Personality.SaiyanHeritage = [DBZCCG.Personality.GOKU, DBZCCG.Personality.NAPPA, DBZCCG.Personality.VEGETA, DBZCCG.Personality.RADITZ, DBZCCG.Personality.GOHAN];
+DBZCCG.Personality.NamekianHeritage = [DBZCCG.Personality.PICCOLO];
+DBZCCG.Personality.Hero = [DBZCCG.Personality.GOKU, DBZCCG.Personality.VEGETA, DBZCCG.Personality.PICCOLO, DBZCCG.Personality.CHIAOTZU, DBZCCG.Personality.TIEN, DBZCCG.Personality.KRILLIN, DBZCCG.Personality.GOHAN, DBZCCG.Personality.YAMCHA, DBZCCG.Personality.YAJIROBI, DBZCCG.Personality.BULMA, DBZCCG.Personality.CHICHI];
+DBZCCG.Personality.Villain = [DBZCCG.Personality.SAIBAIMEN, DBZCCG.Personality.RADITZ, DBZCCG.Personality.PICCOLO, DBZCCG.Personality.VEGETA, DBZCCG.Personality.NAPPA];
 
-Personality.zScouterMaterial = new THREE.MeshLambertMaterial({shading: THREE.SmoothShading, color: 0xFF2233});
+DBZCCG.Personality.zScouterMaterial = new THREE.MeshLambertMaterial({shading: THREE.SmoothShading, color: 0xFF2233});
 
-Personality.create = function(data) {
+DBZCCG.Personality.create = function(data) {
 
     function PersonalityObject(data) {
-        var card = Card.create(data);
-
-        for (var key in card) {
-            this[key] = card[key];
-        }
+        ClassHelper.extends(this, DBZCCG.Card.create(data));
 
         this.displayName = function() {
             return "LV" + this.level + " " + this.name;
@@ -55,7 +51,7 @@ Personality.create = function(data) {
 
             content += "<div class='personality-pur-label'>Personality Level: " + card.level + "</div>";
             content += "<div class='personality-pur-label'>Power-Up Rating: " + card.PUR + "</div>";
-            content += "<div class='personality-alignment-label'>Alignment: " + getKeyByValue(Personality.alignment, card.alignment) + "</div>";
+            content += "<div class='personality-alignment-label'>Alignment: " + getKeyByValue(DBZCCG.Personality.alignment, card.alignment) + "</div>";
             content += "<div class='personality-powerstage-label'>Power Stages (" + (+card.powerStages.length - 1) + " total stages above zero): <br />" + card.powerStages.slice(0).reverse().toString().replace(/,/g, '<br />') + "</div>";
 
             content += sagaLabel;
@@ -69,11 +65,11 @@ Personality.create = function(data) {
                 DBZCCG.performingAnimation = true;
                 var eastDir = this.zScouter.dirVector.clone().normalize();
                 var southDir = eastDir.clone();
-                eastDir.multiplyScalar(Card.cardWidth * 0.95);
+                eastDir.multiplyScalar(DBZCCG.Card.cardWidth * 0.95);
                 eastDir = MathHelper.rotateVector(eastDir);
                 var northDir = southDir.clone();
-                southDir.multiplyScalar(Card.cardHeight * 0.61);
-                northDir.multiplyScalar(-1 * Card.personalityPowerStageDiff[this.saga][this.powerStageType]['diff'] * toPowerStages);
+                southDir.multiplyScalar(DBZCCG.Card.cardHeight * 0.61);
+                northDir.multiplyScalar(-1 * DBZCCG.Card.personalityPowerStageDiff[this.saga][this.powerStageType]['diff'] * toPowerStages);
                 var startPos = this.zScouter.position.clone();
                 var endPos = new THREE.Vector3();
                 endPos.x = this.display.position.x;
@@ -148,14 +144,14 @@ Personality.create = function(data) {
                     return 'Z-Scouter: ' + personality.displayName();
                 };
 
-                var meshZScouter = new THREE.Mesh(geometry, Personality.zScouterMaterial);
+                var meshZScouter = new THREE.Mesh(geometry, DBZCCG.Personality.zScouterMaterial);
                 personality.zScouter.add(meshZScouter);
                 personality.zScouter.rotation.y = Math.PI;
                 personality.zScouter.rotation.z = Math.PI / 2;
 
                 personality.zScouter.rotation.y = MathHelper.angleVectors(new THREE.Vector3(0, 0, -1), personality.display.position);
 
-                personality.zScouter.position.y += Card.cornerWidth * Card.cardThicknessScale * distanceFromY * 2;
+                personality.zScouter.position.y += DBZCCG.Card.cornerWidth * DBZCCG.Card.cardThicknessScale * distanceFromY * 2;
                 personality.zScouter.receiveShadow = true;
                 personality.moveZScouter(personality.currentPowerStageAboveZero || 0, true, true);
 
@@ -177,14 +173,14 @@ Personality.create = function(data) {
                 field.add(personality.zScouter);
             }
 
-            if (!Personality.zScouterModel) {
+            if (!DBZCCG.Personality.zScouterModel) {
                 var loader = new THREE.JSONLoader(manager);
                 loader.load("model/zscouter.js", function(geometry) {
-                    Personality.zScouterModel = geometry;
-                    loadZScouter(Personality.zScouterModel, field);
+                    DBZCCG.Personality.zScouterModel = geometry;
+                    loadZScouter(DBZCCG.Personality.zScouterModel, field);
                 });
             } else {
-                loadZScouter(Personality.zScouterModel, field);
+                loadZScouter(DBZCCG.Personality.zScouterModel, field);
             }
         };
 

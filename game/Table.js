@@ -1,11 +1,12 @@
-Table = {}
+DBZCCG.Table = {}
 
-Table.basePlayerDistance = 1;
+DBZCCG.Table.basePlayerDistance = 1;
 
-Table.createSurroundingArea = function (direction, width, height, cornerWidth) {
+DBZCCG.Table.createSurroundingArea = function(direction, width, height, cornerWidth) {
     /* Surrounding area */
     var surroundingArea = new THREE.Object3D();
     var dir = direction.clone().normalize();
+    var reflectAxis = MathHelper.rotateVector(dir);
     var distanceFromCenter = direction.length();
     var geo = new THREE.CylinderGeometry(cornerWidth, cornerWidth, width, 32, 16, true);
     var material = new THREE.MeshBasicMaterial({color: 0x444444, side: THREE.DoubleSide});
@@ -26,7 +27,7 @@ Table.createSurroundingArea = function (direction, width, height, cornerWidth) {
 
     // Right and left rows
     geo = new THREE.CylinderGeometry(cornerWidth, cornerWidth, bottomRowPosition.length(), 32, 16, true);
-    var horizontalPos = MathHelper.rotateVector(dir, new THREE.Vector3(0, 1, 0), Math.PI / 2);
+    var horizontalPos = MathHelper.rotateVector(dir.clone(), new THREE.Vector3(0, 1, 0), Math.PI / 2);
     horizontalPos.multiplyScalar(width / 2);
 
     // Right column
@@ -37,23 +38,21 @@ Table.createSurroundingArea = function (direction, width, height, cornerWidth) {
 
     // Left column
     var leftColumn = new THREE.Mesh(geo, material);
-    leftColumn.position.copy(MathHelper.reflect(rightColumn.position, dir));
+    leftColumn.position.copy(MathHelper.reflect(rightColumn.position, reflectAxis));
     leftColumn.rotation.x = Math.PI / 2;
     surroundingArea.add(leftColumn);
 
     // Corners
     var topRightPos = rightColumn.position.clone().add(dir.clone().multiplyScalar(-height / 2));
     var bottomRightPos = rightColumn.position.clone().add(dir.clone().multiplyScalar(height / 2));
-    var bottomLeftPos = MathHelper.reflect(bottomRightPos, dir);
-    var topLeftPos = MathHelper.reflect(topRightPos, dir);
+    var bottomLeftPos = MathHelper.reflect(bottomRightPos, reflectAxis);
+    var topLeftPos = MathHelper.reflect(topRightPos, reflectAxis);
 
-    /*
-     // DEBUG 
-     scene.add(MathHelper.lineFromOrigin(topRightPos, 0xFFFF00));
-     scene.add(MathHelper.lineFromOrigin(bottomRightPos, 0xFFFF00));
-     scene.add(MathHelper.lineFromOrigin(topLeftPos, 0xFFFF00));
-     scene.add(MathHelper.lineFromOrigin(bottomLeftPos, 0xFFFF00));
-     */
+    // DEBUG 
+//     surroundingArea.add(MathHelper.lineFromOrigin(topRightPos, 0xFFFF00));
+//     surroundingArea.add(MathHelper.lineFromOrigin(bottomRightPos, 0xFFFF00));
+//     surroundingArea.add(MathHelper.lineFromOrigin(topLeftPos, 0xFFFF00));
+//     surroundingArea.add(MathHelper.lineFromOrigin(bottomLeftPos, 0xFFFF00));
 
     geo = new THREE.SphereGeometry(cornerWidth, 32, 16);
 
@@ -76,13 +75,13 @@ Table.createSurroundingArea = function (direction, width, height, cornerWidth) {
     var bottomRightCorner = topLeftCorner.clone();
     bottomRightCorner.position.copy(bottomRightPos);
     surroundingArea.add(bottomRightCorner);
-    
+
     return surroundingArea;
 }
 
-Table.create = function(extPlayers) {
+DBZCCG.Table.create = function(extPlayers, camera, scene) {
 
-    function TableObject(extPlayers) {
+    function TableObject(extPlayers, camera, scene) {
 
         this.players = [];
 
@@ -91,8 +90,8 @@ Table.create = function(extPlayers) {
 
         /* Special Case */
         if (qttPlayers == 2) {
-            var p1 = {data: extPlayers[0], pos: new THREE.Vector3(0, 0, Table.basePlayerDistance / 2)};
-            var p2 = {data: extPlayers[1], pos: new THREE.Vector3(0, 0, -Table.basePlayerDistance / 2)};
+            var p1 = {data: extPlayers[0], pos: new THREE.Vector3(0, 0, DBZCCG.Table.basePlayerDistance / 2)};
+            var p2 = {data: extPlayers[1], pos: new THREE.Vector3(0, 0, -DBZCCG.Table.basePlayerDistance / 2)};
 
             unparsedPlayers.push(p1);
             unparsedPlayers.push(p2);
@@ -100,14 +99,39 @@ Table.create = function(extPlayers) {
             for (var i = 0; i < qttPlayers; i++) {
                 var angleBetween = (qttPlayers - 2) * Math.PI / qttPlayers;
                 /* Use the regular polygon law and cosin law to find all position vectors of the players */
+                /* NYI */
             }
         }
 
         for (var i = 0; i < unparsedPlayers.length; i++) {
-            this.players.push(Player.create(unparsedPlayers[i].data, unparsedPlayers[i].pos));
+            this.players.push(DBZCCG.Player.create(unparsedPlayers[i].data, unparsedPlayers[i].pos));
+            this.players[i].loadPlayerSpace(scene);
         }
 
+        /* Adjust camera for P1 */
+        var position = this.players[0].dirVector.clone();
+        camera.position.z = position.z * DBZCCG.Table.basePlayerDistance * 70;
+        camera.position.y = 60;
+        camera.position.x = position.x;
+        camera.lookAt(new THREE.Vector3(position.x, -10, -position.z));
+
+        this.players[0].hand.display.rotation.x = camera.rotation.x;
+        this.players[0].hand.display.position.y = (camera.position.y + 10) * 0.5;
+        this.players[0].hand.display.position.z = (camera.position.z + position.z) * 0.78;
+
+        DBZCCG.mainPlayer = this.players[0];
+
+        for (var j = 0; j < this.players[0].hand.display.children.length; j++) {
+            console.log(this.players[0].hand.display.children[j].parentCard);
+        }
+
+        /* Hide player 2 hand */
+        for (var i = 1; i < this.players.length; i++) {
+            for (var j = 0; j < this.players[i].hand.display.children.length; j++) {
+                this.players[i].hand.display.children[j].turnGameDisplay();
+            }
+        }
     }
 
-    return new TableObject(extPlayers);
+    return new TableObject(extPlayers, camera, scene);
 };
