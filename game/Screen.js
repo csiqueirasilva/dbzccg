@@ -6,7 +6,7 @@ DBZCCG.Screen.findCallbackObject = function (object, callback) {
     var parent;
     if (object instanceof THREE.Mesh || object instanceof THREE.Object3D) {
         parent = object;
-        while(parent && !(parent.parent instanceof THREE.Scene)) {
+        while(parent && !parent.ownParent && !(parent.parent instanceof THREE.Scene)) {
             parent = parent.parent;
             if(parent[callback] instanceof Function) {
                 break;
@@ -28,7 +28,12 @@ DBZCCG.Screen.create = function (buildScene, render, controls) {
         var stats = new Stats();
 
         function animate () {
-            requestAnimationFrame(animate);
+            window.setTimeout( function() {
+
+                requestAnimationFrame( animate );
+
+            }, 33 - DBZCCG.clock.getDelta() * 1000 );
+
             render(cameraControl, renderer, scene, camera, stats);
         }
 

@@ -38,9 +38,11 @@ DBZCCG.MainPersonality.create = function(data) {
             mp.zSwordComplete.leftScreenCallback = function(source, created) {
                 var rotate = false;
                 var zTranslate = created.position.z;
+                
                 if (created.position.z < 0) {
                     rotate = true;
                 }
+                
                 created.position.set(0, 0, 0);
                 var obj = new THREE.Object3D();
 
@@ -56,7 +58,7 @@ DBZCCG.MainPersonality.create = function(data) {
                 created.position.y = 6;
                 created.position.x = -2;
                 created.position.z = 4.5 + mp.currentAngerLevel * 0.8;
-
+                
                 return obj;
             };
 
@@ -350,7 +352,7 @@ DBZCCG.MainPersonality.create = function(data) {
         };
 
         this.addToField = function(position, field) {
-            this.surroundingArea = DBZCCG.Table.createSurroundingArea(position.clone().multiplyScalar(0.125), 9.75, 12.5, 0.1);
+            this.surroundingArea = DBZCCG.Table.createSurroundingArea(position.clone().multiplyScalar(0.08), DBZCCG.Card.cardWidth * 2.5, DBZCCG.Card.cardHeight * 2.5, DBZCCG.Player.Field.cornerWidth );
             this.display = new THREE.Object3D();
             this.display.name = 'mp';
             var mp = this;

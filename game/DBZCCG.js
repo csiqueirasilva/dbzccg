@@ -11,7 +11,10 @@ DBZCCG.createDialog = function(title, content) {
     document.getElementById('hud').appendChild(elem);
 
     // TODO: Add nicescrollbar to the Dialog. It is tricky.
-    $(elem).dialog({resizable: false, title: title, autoOpen: false, height: window.innerHeight * 0.5, width: window.innerWidth * 0.333});
+    $(elem).dialog({resizable: false, title: title, autoOpen: false, height: window.innerHeight * 0.5, width: window.innerWidth * 0.333,
+        close: function() {
+            $(this).remove();
+        }});
 };
 
 DBZCCG.browseCardList = function(cards, title) {
@@ -47,17 +50,29 @@ DBZCCG.browseCardList = function(cards, title) {
 };
 /* End of dialog */
 
-
 DBZCCG.performingAnimation = false;
 DBZCCG.performingAction = null;
 DBZCCG.mainPlayer = null;
 DBZCCG.finishedLoading = false;
 DBZCCG.currentTip = null;
 DBZCCG.objects = [];
+DBZCCG.billboards = [];
 DBZCCG.selectionColor = 0xDD4444;
 DBZCCG.clearSelectionColor = 0x000000;
 DBZCCG.selectionParticles = null;
 DBZCCG.clock = new THREE.Clock();
+
+DBZCCG.updateBillboards = function (camera) {
+    
+    var obj;
+    while(DBZCCG.billboards.length != 0) {
+        obj = DBZCCG.billboards.pop();
+        obj.rotation = camera.rotation;
+        // TODO: fix the position coordinates to be added according to the camera
+        obj.position.z += 1;
+        obj.position.y += 0.5;
+    }
+}
 
 DBZCCG.resizeToolbar = function(rendererWidth, left, right) {
     var elem = document.getElementById('toolbar');
@@ -279,7 +294,7 @@ DBZCCG.create = function() {
                     mesh[i] = createElement();
                     DBZCCG.background.scene.add(mesh[i]);
                 } else if (mesh[i].position.z < 0) {
-                    if (mesh[i].position.z > -1 && mesh.length < 900) {
+                    if (mesh[i].position.z > -1 && mesh.length < 400) {
                         mesh.push(createElement());
                     }
                     mesh[i].material.opacity -= 0.02;
@@ -400,6 +415,33 @@ DBZCCG.create = function() {
             if (table.players[0].mainPersonality.personalities[0].zScouter == undefined) {
                 window.setTimeout(checkLoad, 500);
             } else /*Begin code after everything was loaded */ {
+//                DBZCCG.performingAction = table.players[0];
+//                listActions.push(function() {
+//                    var card = [];
+//                    var tam = table.players[0].lifeDeck.currentCards;
+//                    for (var i = 0; i < tam; i++) {
+//                        card.push(table.players[0].lifeDeck.removeTopCard());
+//                    }
+//                    table.players[0].nonCombats.addCard(card, true);
+//                });
+//
+//                DBZCCG.performingAction = table.players[1];
+//                listActions.push(function() {
+//                    var card = [];
+//                    var tam = table.players[1].lifeDeck.currentCards;
+//                    for (var i = 0; i < tam; i++) {
+//                        card.push(table.players[1].lifeDeck.removeTopCard());
+//                    }
+//                    table.players[1].nonCombats.addCard(card, true);
+//                });
+
+
+//                listActions.push(function () {
+//                    DBZCCG.performingAction = table.players[0];
+//                    var card = table.players[0].lifeDeck.removeTopCard();
+//                    table.players[0].hand.addCard(card);
+//                });
+
 //                
 //                 listActions.push(function() {
 //                 DBZCCG.performingAction = table.players[0];
@@ -550,7 +592,11 @@ DBZCCG.create = function() {
     function render(cameraControl, renderer, scene, camera, stats) {
         TWEEN.update();
 
+        // Update Billboards
+        DBZCCG.updateBillboards(camera);
+
         // Update Particles
+        // TODO: This should update all model animations, not only particles
         DBZCCG.updateParticles();
 
         // Update background (If it requires update)
@@ -559,14 +605,13 @@ DBZCCG.create = function() {
         }
 
         // Render background screen
-        renderer.enableScissorTest(false);
-        renderer.setClearColor(0x000000);
         renderer.render(DBZCCG.background.scene, DBZCCG.background.camera, DBZCCG.background.texture, true);
 
         renderer.render(scene, camera);
 
         DBZCCG.leftScreen.render();
         stats.update();
+
     }
 
     function controls(camera, renderer, scene, stats) {
@@ -606,7 +651,7 @@ DBZCCG.create = function() {
         function onDocumentMouseMove(event) {
             event.preventDefault();
 
-            if (event.clientX > window.innerWidth * 0.25) {
+            if ((event.clientX > window.innerWidth * 0.25 || !$('#leftBar').is(':visible')) && !DBZCCG.performingAnimation) {
                 mouse.x = ((event.clientX - element.offsetLeft) / element.offsetWidth) * 2 - 1;
                 mouse.y = -((event.clientY - element.offsetTop) / element.offsetHeight) * 2 + 1;
 
@@ -734,10 +779,13 @@ DBZCCG.create = function() {
                 if (parent.displayObject instanceof Function) {
                     display = parent.displayObject();
                 }
-
+                console.log(display);
                 DBZCCG.leftScreen.focusElement(display, display.leftScreenCallback);
 
-                parent.descriptionBox();
+                var textReturn = parent.descriptionBox();
+                if (typeof textReturn == "string") {
+                    DBZCCG.descriptionBox(textReturn);
+                }
             }
 
             $('#leftBar').show();
@@ -745,6 +793,7 @@ DBZCCG.create = function() {
         };
 
         DBZCCG.toolTip.content = document.createElement('div');
+        DBZCCG.toolTip.content.id = 'cardContextTooltip';
         DBZCCG.toolTip.content.innerHTML = '<div id="tooltipEffect" title="Effect" class="tooltip tooltipEffectDisabled"></div><div title="Description" onclick="DBZCCG.toolTip.showDescription();" id="tooltipDescription" class="tooltip"></div>';
 
         /*
@@ -817,6 +866,9 @@ DBZCCG.create = function() {
         DBZCCG.leftScreen.renderer.setSize(window.innerWidth * 0.25, window.innerHeight * 0.5);
         DBZCCG.leftScreen.camera = new THREE.PerspectiveCamera(45, (window.innerWidth * 0.25) / (window.innerHeight * 0.5), 0.001, 1000);
         DBZCCG.leftScreen.control = new THREE.OrbitControls(DBZCCG.leftScreen.camera);
+        DBZCCG.leftScreen.control.minDistance = DBZCCG.Card.cardHeight;
+        DBZCCG.leftScreen.control.maxDistance = DBZCCG.Card.cardHeight * 3;
+        DBZCCG.leftScreen.control.noPan = true;
         DBZCCG.leftScreen.control.enabled = false;
 
         $('#leftBarWindow').hide();
@@ -858,10 +910,10 @@ DBZCCG.create = function() {
                         if (elem.material instanceof THREE.MeshFaceMaterial) {
                             materials = [];
                             for (var i = 0; i < elem.material.materials.length; i++) {
-                                materials.push(new THREE.MeshLambertMaterial({
+                                materials.push(new THREE.MeshBasicMaterial({
                                     map: (elem.material.materials[i].map ?
                                             THREE.ImageUtils.loadTexture(elem.material.materials[i].map.sourceFile) : null),
-                                    color: elem.material.materials[i].color
+                                    vertexColors: elem.material.materials[i].vertexColors
                                 }));
                             }
                             material = new THREE.MeshFaceMaterial(materials);

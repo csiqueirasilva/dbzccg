@@ -83,6 +83,7 @@
         <script type="text/javascript" src="lib/OrbitControls.js"></script>
         <script type="text/javascript" src="lib/tween.min.js"></script>
         <script type="text/javascript" src="lib/MathHelper.js"></script>
+        <script type="text/javascript" src="lib/optimer_bold.typeface.js"></script>
         <!-- game -->
         <script type="text/javascript" src="game/DBZCCG.js"></script>
         <script type="text/javascript" src="game/Card.js"></script>
@@ -91,7 +92,7 @@
         <script type="text/javascript" src="game/Pile.js"></script>
         <script type="text/javascript" src="game/DiscardPile.js"></script>
         <script type="text/javascript" src="game/RemovedPile.js"></script>
-        <script type="text/javascript" src="game/Hand.js"></script>
+        <script type="text/javascript" src="game/CardGroup.js"></script>
         <script type="text/javascript" src="game/LifeDeck.js"></script>
         <script type="text/javascript" src="game/Player.js"></script>
         <script type="text/javascript" src="game/Table.js"></script>

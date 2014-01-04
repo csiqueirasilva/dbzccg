@@ -9,13 +9,51 @@ DBZCCG.Table.createSurroundingArea = function(direction, width, height, cornerWi
     var reflectAxis = MathHelper.rotateVector(dir);
     var distanceFromCenter = direction.length();
     var geo = new THREE.CylinderGeometry(cornerWidth, cornerWidth, width, 32, 16, true);
-    var material = new THREE.MeshBasicMaterial({color: 0x444444, side: THREE.DoubleSide});
-
+    var material = new THREE.MeshBasicMaterial({color: 0x444444, side: THREE.FrontSide});
+    var fontMaterial = new THREE.MeshBasicMaterial({color: 0xFFFFFF, side: THREE.FrontSide});
+    
     // Superior row
     var superiorRow = new THREE.Mesh(geo, material);
     superiorRow.position = direction.clone();
     superiorRow.rotation.z = Math.PI / 2;
     surroundingArea.add(superiorRow);
+
+    // Text
+    surroundingArea.removeLabelText = function() {
+        if(this.labelText instanceof THREE.Mesh) {
+            this.remove(this.labelText);
+            delete this.labelText;
+            this.labelText = undefined;
+        }
+    };
+    
+    surroundingArea.changeLabelText = function (text) {
+        if(text) {
+    
+            this.removeLabelText();
+
+            var textGeo = new THREE.TextGeometry( text , {
+                    size: 0.8,
+                    height: 0.1,
+                    curveSegments: 4,
+                    weight: "bold",
+                    font: "optimer"
+
+            });        
+
+            textGeo.computeBoundingBox();
+
+            var textMesh = new THREE.Mesh(textGeo, fontMaterial);
+            textMesh.position = superiorRow.position.clone();
+            textMesh.position.x -= (textGeo.boundingBox.max.x - textGeo.boundingBox.min.x)/2;
+            textMesh.position.y += 0.2;
+            this.add(textMesh);
+            this.labelText = textMesh;
+            DBZCCG.billboards.push(textMesh);
+        }
+    }; 
+
+    surroundingArea.changeLabelText("Area");
 
     // Bottom row
     var inferiorRow = new THREE.Mesh(geo, material);
@@ -103,11 +141,9 @@ DBZCCG.Table.create = function(extPlayers, camera, scene) {
             }
         }
 
-        for (var i = 0; i < unparsedPlayers.length; i++) {
-            this.players.push(DBZCCG.Player.create(unparsedPlayers[i].data, unparsedPlayers[i].pos));
-            this.players[i].loadPlayerSpace(scene);
-        }
-
+        /* Player 1 hand adjustments */
+        this.players.push(DBZCCG.Player.create(unparsedPlayers[0].data, unparsedPlayers[0].pos));
+        
         /* Adjust camera for P1 */
         var position = this.players[0].dirVector.clone();
         camera.position.z = position.z * DBZCCG.Table.basePlayerDistance * 70;
@@ -115,20 +151,23 @@ DBZCCG.Table.create = function(extPlayers, camera, scene) {
         camera.position.x = position.x;
         camera.lookAt(new THREE.Vector3(position.x, -10, -position.z));
 
-        this.players[0].hand.display.rotation.x = camera.rotation.x;
-        this.players[0].hand.display.position.y = (camera.position.y + 10) * 0.5;
-        this.players[0].hand.display.position.z = (camera.position.z + position.z) * 0.78;
-
         DBZCCG.mainPlayer = this.players[0];
 
-        for (var j = 0; j < this.players[0].hand.display.children.length; j++) {
-            console.log(this.players[0].hand.display.children[j].parentCard);
+        this.players[0].hand.rotation.x = camera.rotation.x;
+        this.players[0].hand.position.y = (camera.position.y + 10) * 0.5;
+        this.players[0].hand.position.z = (camera.position.z + position.z) * 0.78;
+        this.players[0].loadPlayerSpace(scene);
+
+        // Load other players
+        for (var i = 1; i < unparsedPlayers.length; i++) {
+            this.players.push(DBZCCG.Player.create(unparsedPlayers[i].data, unparsedPlayers[i].pos));
+            this.players[i].loadPlayerSpace(scene);
         }
 
         /* Hide player 2 hand */
         for (var i = 1; i < this.players.length; i++) {
-            for (var j = 0; j < this.players[i].hand.display.children.length; j++) {
-                this.players[i].hand.display.children[j].turnGameDisplay();
+            for (var j = 0; j < this.players[i].hand.cards.length; j++) {
+                this.players[i].hand.cards[j].display.turnGameDisplay();
             }
         }
     }

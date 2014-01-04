@@ -14,6 +14,7 @@ DBZCCG.Card.cardWidth = 4;
 DBZCCG.Card.cornerWidth = 0.10;
 DBZCCG.Card.cornerHeight = DBZCCG.Card.cornerWidth;
 DBZCCG.Card.cardThicknessScale = 0.1;
+DBZCCG.Card.cardDepth = DBZCCG.Card.cornerWidth * 8 * DBZCCG.Card.cardThicknessScale;
 DBZCCG.Card.personalityNameDiff = {};
 DBZCCG.Card.personalityNameDiff[DBZCCG.Card.Saga.SAIYAN] = DBZCCG.Card.cardHeight / 10;
 DBZCCG.Card.personalityPowerStageDiff = {};
@@ -63,8 +64,8 @@ DBZCCG.Card.Style.Black = 7;
     });
 
     cornerGeo = new THREE.SphereGeometry(DBZCCG.Card.cornerWidth, 32, 16);
-    DBZCCG.Card.cubeGeo = new THREE.CubeGeometry(DBZCCG.Card.cardWidth - DBZCCG.Card.cornerWidth, DBZCCG.Card.cardHeight, DBZCCG.Card.cornerWidth * 8);
-
+//    DBZCCG.Card.cubeGeo = new THREE.CubeGeometry(DBZCCG.Card.cardWidth - DBZCCG.Card.cornerWidth, DBZCCG.Card.cardHeight, DBZCCG.Card.cornerWidth * 8);
+    DBZCCG.Card.cubeGeo = new THREE.CubeGeometry(DBZCCG.Card.cardWidth, DBZCCG.Card.cardHeight, DBZCCG.Card.cardDepth );
 
     DBZCCG.Card.basicCardGeo = new THREE.Geometry();
     var top = new THREE.Mesh(lineGeo, borderMaterial);
@@ -99,6 +100,61 @@ DBZCCG.Card.Style.Black = 7;
 
     DBZCCG.Card.borderMaterial = borderMaterial;
 
+    /* Vertex and face alterations */
+    var cube = DBZCCG.Card.cubeGeo;
+    var vertices = cube.vertices;
+    var faces = cube.faces;
+    
+    vertices.push(vertices[7].clone());
+    vertices.push(vertices[5].clone());
+    vertices.push(vertices[0].clone());
+    vertices.push(vertices[2].clone());
+    
+    vertices[5].color = vertices[0].color = vertices[2].color = vertices[7].color 
+            = new THREE.Color(0x777777);
+    
+    vertices[5].z = vertices[0].z = vertices[2].z = vertices[7].z = 0;
+    
+    faces[8].a = 9;
+    faces[8].b = 8;
+    faces[8].c = 10;
+    
+    faces[9].a = 8;
+    faces[9].b = 11;
+    faces[9].c = 10;
+    
+    faces.push(new THREE.Face3(9, 5, 7));
+    faces.push(new THREE.Face3(9, 7, 8));
+    
+    faces.push(new THREE.Face3(0, 10, 2));
+    faces.push(new THREE.Face3(10, 11, 2));
+    
+    faces.push(new THREE.Face3(8, 7, 2));
+    faces.push(new THREE.Face3(8, 2, 11));
+
+    faces.push(new THREE.Face3(5, 9, 0));
+    faces.push(new THREE.Face3(0, 9, 10));
+
+    for(var i = 0; i < faces.length; i++) {
+        if(vertices[faces[i].a].color === undefined) {
+            faces[i].vertexColors[0] = new THREE.Color(0x000000);
+        } else {
+            faces[i].vertexColors[0] = vertices[faces[i].a].color;
+        }
+        
+        if(vertices[faces[i].b].color === undefined) {
+            faces[i].vertexColors[1] = new THREE.Color(0x000000);
+        } else {
+            faces[i].vertexColors[1] = vertices[faces[i].b].color;
+        }
+        
+        if(vertices[faces[i].c].color === undefined) {
+            faces[i].vertexColors[2] = new THREE.Color(0x000000);
+        } else {
+            faces[i].vertexColors[2] = vertices[faces[i].c].color;
+        }
+    }
+    
     delete baseCorner;
 })();
 
@@ -155,19 +211,23 @@ DBZCCG.Card.create = function(dataObject) {
             var card = new THREE.Object3D();
             var frontTexture = texturePath ? THREE.ImageUtils.loadTexture(texturePath) : null;
 
-            card.add(new THREE.Mesh(DBZCCG.Card.basicCardGeo, DBZCCG.Card.borderMaterial));
+            //card.add(new THREE.Mesh(DBZCCG.Card.basicCardGeo, DBZCCG.Card.borderMaterial));
 
             cardCoverBackMaterials = [];
             for (var i = 0; i < 4; i++) {
-                cardCoverBackMaterials.push(DBZCCG.Card.cardMaterial); // sides
+                cardCoverBackMaterials.push(new THREE.MeshBasicMaterial({vertexColors: THREE.VertexColors})); // sides
             }
 
             cardCoverBackMaterials[4] = new THREE.MeshBasicMaterial({map: DBZCCG.Card.backTexture}); // back
             cardCoverBackMaterials[5] = new THREE.MeshBasicMaterial({map: frontTexture}); // front
 
+            for (var i = 0; i < 4; i++) {
+                cardCoverBackMaterials.push(new THREE.MeshBasicMaterial({wireframe: true})); // sides
+            }
+
             var cube = new THREE.Mesh(DBZCCG.Card.cubeGeo, new THREE.MeshFaceMaterial(cardCoverBackMaterials));
+            
             card.add(cube);
-            card.scale.z = DBZCCG.Card.cardThicknessScale;
 
             return card;
         }
@@ -207,6 +267,10 @@ DBZCCG.Card.create = function(dataObject) {
         this.display.parentCard = this;
         var card = this;
 
+        card.display.displayName = function () {
+            return card.name;
+        }
+
         card.display.turnGameDisplay = function() {
             if (card.display.leftScreenCallback === null) {
                 card.display.leftScreenCallback = card.display.offLeftScreenCallback;
@@ -224,25 +288,41 @@ DBZCCG.Card.create = function(dataObject) {
         card.display.leftScreenCallback = function(source, created) {
             var obj = new THREE.Object3D();
             var rotate = false;
+            var firstRotationReversed = false;
+            console.log(created.rotation);
             if (created.position.z < 0) {
                 rotate = true;
-            }
-
+                if(created.rotation.y === 0) {
+                    firstRotationReversed = true;
+                }
+            } 
+            
             created.rotation.x = -Math.PI/2;
             created.rotation.y = -Math.PI/2;
-
+            
             obj.add(created);
             created.position.set(0, 0, 0);
-
+            
             if (rotate) {
-                obj.rotation.y = Math.PI;
+                if(!firstRotationReversed) {
+                    obj.rotation.y = Math.PI;
+                } else {
+                    obj.rotation.y = 0;
+                }
+                
                 obj.rotation.z = -Math.PI;
             } else {
                 obj.rotation.z = Math.PI;
             }
 
             var firstRotation = obj.rotation.clone();
-            firstRotation.z = 0;
+            
+            if(!firstRotationReversed) {
+                firstRotation.z = 0;
+            } else {
+                firstRotation.z = -2 * Math.PI;
+            }
+            
             var rotation = obj.rotation;
             var animation = new TWEEN.Tween(rotation).to(firstRotation, 400);
             animation.easing(TWEEN.Easing.Circular.In);

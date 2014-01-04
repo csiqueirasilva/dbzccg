@@ -8,76 +8,8 @@
         <link rel="stylesheet" href="css/alertify.dbzccg.css" />
         <link rel="stylesheet" href="css/dbzccg.css" />
         <link rel="stylesheet" href="css/jquery.qtip.min.css" />
+        <link rel="stylesheet" href="css/jqueryui/theme-1.10.3.css" />
         
-        <script id="skybox_vertex_shader" type="x-shader/x-fragment">
-            varying vec3 vWorldPosition;
-            varying vec2 vUv;
-            varying vec3 vViewPosition;
-
-            void main() {
-            vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
-            vec4 worldPosition = modelMatrix * vec4( position, 1.0 );
-            vUv = uv;
-            vWorldPosition = worldPosition.xyz;
-            vViewPosition = -mvPosition.xyz;
-            gl_Position = (projectionMatrix * modelViewMatrix * vec4( position , 0.0 )).xyww;
-            }
-        </script>
-        <script id="skybox_fragment_shader" type="x-shader/x-fragment">
-            uniform samplerCube tCube;
-            uniform samplerCube tCube2;
-            uniform float tFlip;
-
-            varying vec3 vWorldPosition;
-            varying vec2 vUv;
-            varying vec3 vViewPosition;
-
-            float rand(vec2 co){
-            return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
-            }
-
-            void main() {
-            vec4 res1 = textureCube( tCube, vec3( tFlip * vWorldPosition.x, vWorldPosition.yz ) );
-            vec4 res2 = textureCube( tCube2, vec3( tFlip * vWorldPosition.x, vWorldPosition.yz ) );
-
-            gl_FragColor = vec4( vWorldPosition.x > 0.0 ? res1.x : res2.x, vWorldPosition.x > 0.0 ? res1.y : res2.y, vWorldPosition.x > 0.0 ? res1.z : res2.z, 1.0 ) ;
-            }
-        </script>
-        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-        <script type="text/javascript" src="lib/imagesloaded.pkg.min.js"></script>
-        <script type="text/javascript" src="lib/jquery.nicescroll.min.js"></script>
-        <script type="text/javascript" src="lib/jquery.qtip.min.js"></script>
-        <script type="text/javascript" src="lib/alertify.min.js"></script>
-        <script type="text/javascript" src="lib/three.min.js"></script>
-        <script type="text/javascript" src="lib/MTLLoader.js"></script>
-        <script type="text/javascript" src="lib/OBJMTLLoader.js"></script>
-        <script type="text/javascript" src="lib/JSONLoader.js"></script>
-        <script type="text/javascript" src="lib/OrbitControls.js"></script>
-        <script type="text/javascript" src="lib/tween.min.js"></script>
-        <script type="text/javascript" src="lib/MathHelper.js"></script>
-        <script type="text/javascript" src="game/Card.js"></script>
-        <script type="text/javascript" src="game/Personality.js"></script>
-        <script type="text/javascript" src="game/MainPersonality.js"></script>
-        <script type="text/javascript" src="game/Pile.js"></script>
-        <script type="text/javascript" src="game/LifeDeck.js"></script>
-        <script type="text/javascript" src="game/Player.js"></script>
-        <script type="text/javascript" src="game/Table.js"></script>
-        <script type="text/javascript" src="game/Screen.js"></script>
-        <script type="text/javascript" src="game/DBZCCG.js"></script>
-        <script type="text/javascript">
-            function getKeyByValue(object, value) {
-            for (var prop in object) {
-            if (object[ prop ] === value)
-            return prop;
-            }
-            }
-
-            $(document).ready(function() {
-                $('.niceScrollBar').niceScroll({autohidemode: false});
-                DBZCCG.create();
-            });
-        </script>
-
     </head>
     <body id='body' style="margin: 0; overflow: hidden;" oncontextmenu="return false;">
         <h1 id="loadingText">Loading!!!!</h1>
@@ -88,14 +20,14 @@
             <div id="log-btn" class="btn">
             </div>
         </div>
-
+        
         <div id="rightBar">
             <div class='btn close-btn' title='Close' id='closeRightBar'>
             </div>
-
+            
             <div id="logBox" class="niceScrollBar">
             </div>
-
+            
         </div>
 
         <div id="turnCounter">
@@ -128,5 +60,49 @@
         <div id="rightBarWindow">
         </div>
 
+        <!-- libs -->
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+        <script type="text/javascript" src="lib/jquery-ui-1.10.3.custom.min.js"></script>
+        <script type="text/javascript" src="lib/ClassHelper.js"></script>
+        <script type="text/javascript" src="lib/imagesloaded.pkg.min.js"></script>
+        <script type="text/javascript" src="lib/jquery.nicescroll.min.js"></script>
+        <script type="text/javascript" src="lib/jquery.qtip.min.js"></script>
+        <script type="text/javascript" src="lib/alertify.min.js"></script>
+        <script type="text/javascript" src="lib/three.min.js"></script>
+        <script type="text/javascript" src="lib/stats.min.js"></script>
+        <script type="text/javascript" src="lib/MTLLoader.js"></script>
+        <script type="text/javascript" src="lib/OBJMTLLoader.js"></script>
+        <script type="text/javascript" src="lib/JSONLoader.js"></script>
+        <script type="text/javascript" src="lib/OrbitControls.js"></script>
+        <script type="text/javascript" src="lib/tween.min.js"></script>
+        <script type="text/javascript" src="lib/MathHelper.js"></script>
+        <script type="text/javascript" src="lib/optimer_bold.typeface.js"></script>
+        <!-- game -->
+        <script type="text/javascript" src="game/DBZCCG.js"></script>
+        <script type="text/javascript" src="game/Card.js"></script>
+        <script type="text/javascript" src="game/Personality.js"></script>
+        <script type="text/javascript" src="game/MainPersonality.js"></script>
+        <script type="text/javascript" src="game/Pile.js"></script>
+        <script type="text/javascript" src="game/DiscardPile.js"></script>
+        <script type="text/javascript" src="game/RemovedPile.js"></script>
+        <script type="text/javascript" src="game/Hand.js"></script>
+        <script type="text/javascript" src="game/LifeDeck.js"></script>
+        <script type="text/javascript" src="game/Player.js"></script>
+        <script type="text/javascript" src="game/Table.js"></script>
+        <script type="text/javascript" src="game/Screen.js"></script>
+        <script type="text/javascript">
+            function getKeyByValue(object, value) {
+            for (var prop in object) {
+            if (object[ prop ] === value)
+            return prop;
+            }
+            }
+
+            $(document).ready(function() {
+                $('.niceScrollBar').niceScroll({autohidemode: false});
+                DBZCCG.create();
+            });
+        </script>
+        
     </body>
 </html>

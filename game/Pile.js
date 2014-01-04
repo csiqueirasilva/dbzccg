@@ -7,8 +7,9 @@ Pile.cardBase = DBZCCG.Card.create();
 Pile.create = function(data, faceUp) {
 
     function PileObject(data, faceUp) {
-        
+
         var pile = this;
+
         function createDisplay(number, faceUp) {
             var display = new THREE.Object3D();
             if (number > 0) {
@@ -26,7 +27,8 @@ Pile.create = function(data, faceUp) {
             }
 
             return display;
-        };
+        }
+        ;
 
         this.faceup = function() {
             this.display.rotation.z = Math.PI;
@@ -38,29 +40,73 @@ Pile.create = function(data, faceUp) {
             }
         };
 
-        function prepareCardRemoval (card, cardIdx) {
-            var cardPos = this.display.children[cardIdx].position.clone().add(this.display.position);
-            var cardRot = this.display.children[cardIdx].rotation.clone();
+        function prepareCardRemoval(cardIdx) {
+            var card = pile.display.children[cardIdx];
 
-            // Rotate the card to match the player
-            cardRot.z += this.display.rotation.y;
+            for (var i = 0; i < DBZCCG.objects.length; i++) {
+                if (DBZCCG.objects[i] === card) {
+                    DBZCCG.objects.splice(i, 1);
+                }
+            }
 
-            this.display.remove(this.display.children[cardIdx]);
+            for (var i = cardIdx + 1; i < pile.display.children.length; i++) {
+                pile.display.children[i].position.y = pile.display.children[i - 1].position.y;
+            }
+
+            pile.display.remove(pile.display.children[cardIdx]);
             // TODO: Load the right card properties, if it is random
 
-            card.display.rotation = cardRot;
-            card.display.position = cardPos;
-            this.display.parent.add(card.display);
-        };
+            // TODO: Ajax Load for the online version!
+            if (!card.parentCard) {
+                var rot = card.rotation.clone();
+                var pos = card.position.clone();
+                if (!(this.cards instanceof Array)) {
+                    delete card;
+                    card = DBZCCG.Card.generateRandom();
+                } else {
+                    card = this.cards[cardIdx];
+                    this.cards.splice(cardIdx, 1);
+                }
+                card.display.rotation = rot;
+                card.display.position = pos;
+            } else {
+                card = card.parentCard;
+            }
 
-        this.removeBottomCard = function (card) {
-            if(this.display.children.length > 0) {
+            card.display.position.add(pile.display.position);
+
+            // Rotate the card to match the player
+            card.display.rotation.z += pile.display.rotation.y;
+
+            var parent = pile.display.parent;
+            while (parent.name !== "field") {
+                card.display.position.add(parent.position);
+                card.display.rotation.x += parent.rotation.x;
+                card.display.rotation.y += parent.rotation.y;
+                card.display.rotation.z += parent.rotation.z;
+                parent = parent.parent;
+            }
+
+            parent.add(card.display);
+
+            if (pile.display.children.length > 0) {
+                DBZCCG.objects.push(pile.display.children[pile.display.children.length - 1]);
+            }
+
+            this.currentCards = pile.display.children.length;
+
+            return card;
+        }
+        ;
+
+        this.removeBottomCard = function() {
+            if (this.display.children.length > 0) {
                 var cardIdx = 0;
-                prepareCardRemoval(card, cardIdx);
+                return prepareCardRemoval(cardIdx);
             }
         };
 
-        this.firstCardFaceUp = function () {
+        this.firstCardFaceUp = function() {
             if (this.getTopCard instanceof Function) {
                 var card = this.getTopCard();
                 var cardIdx = this.display.children.length - 1;
@@ -79,13 +125,15 @@ Pile.create = function(data, faceUp) {
             }
         };
 
-        this.removeTopCard = function (card) {
-            if(this.display.children.length > 0) {
+        this.removeTopCard = function() {
+            if (this.display.children.length > 0) {
                 var cardIdx = this.display.children.length - 1;
-                prepareCardRemoval(card, cardIdx);
-                if(this.display.children.length > 0 && faceup) {
-                    firstCardFaceUp();
+                var card = prepareCardRemoval(cardIdx);
+                if (this.display.children.length > 0 && faceUp == true) {
+                    this.firstCardFaceUp();
                 }
+
+                return card;
             }
         };
 
@@ -103,25 +151,54 @@ Pile.create = function(data, faceUp) {
 
         this.display.leftScreenCallback = function(source, created) {
             var obj = new THREE.Object3D();
-            var insideGeo = new THREE.CubeGeometry(DBZCCG.Card.cardWidth + DBZCCG.Card.cornerWidth, DBZCCG.Card.cardHeight + DBZCCG.Card.cornerHeight*2, (DBZCCG.Card.cornerWidth * 2 * (pile.currentCards - 1)*DBZCCG.Card.cardThicknessScale) - 0.05);
-            
+            var insideGeo = new THREE.CubeGeometry(DBZCCG.Card.cardWidth + 0.002, DBZCCG.Card.cardHeight + 0.002, (DBZCCG.Card.cornerWidth * 2 * (pile.currentCards) * DBZCCG.Card.cardThicknessScale));
+
+            var faces = insideGeo.faces;
+            delete faces[8];
+            delete faces[9];
+            delete faces[10];
+            delete faces[11];
+            faces.splice(8, 4);
+
+            // Remove non-used faces
+            var aux;
+            faces[0].c = faces[0].a;
+            faces[0].a = faces[1].a;
+            faces[0].b = faces[1].b;
+            faces[1].a = faces[1].b;
+            faces[1].b = faces[0].c;
+            aux = faces[1].b;
+            faces[1].b = faces[1].c;
+            faces[1].c = aux;
+
+            faces[2].c = faces[2].a;
+            faces[2].a = faces[3].a;
+            faces[2].b = faces[3].b;
+            faces[3].a = faces[3].b;
+            faces[3].b = faces[2].c;
+
+            aux = faces[3].b;
+            faces[3].b = faces[3].c;
+            faces[3].c = aux;
+
             obj.add(created);
+
             if (pile.currentCards > 1) {
                 var clone = created.clone();
                 var texture = THREE.ImageUtils.loadTexture("images/DBZCCG/deck_side.png");
                 texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
-                texture.repeat.set(64,64);
-                var material = new THREE.MeshLambertMaterial({ side: THREE.FrontSide, 
-                map: texture });
+                texture.repeat.set(pile.currentCards - 2, pile.currentCards - 1);
+                var material = new THREE.MeshLambertMaterial({side: THREE.FrontSide,
+                    map: texture});
                 materials = [];
-                for (var i = 0; i < 6; i++) {
+                for (var i = 0; i < 4; i++) {
                     materials.push(material.clone()); // sides
                 }
                 var insides = new THREE.Mesh(insideGeo, new THREE.MeshFaceMaterial(materials));
                 insides.position.y = DBZCCG.Card.cornerWidth * DBZCCG.Card.cardThicknessScale * (pile.currentCards - 1);
-                insides.rotation.x = Math.PI/2;
+                insides.rotation.x = Math.PI / 2;
                 obj.add(insides);
-                if(faceUp) {
+                if (faceUp) {
                     clone.position.y = 0;
                 } else {
                     clone.position.y = DBZCCG.Card.cornerWidth * DBZCCG.Card.cardThicknessScale * (pile.currentCards - 1) * 2;
