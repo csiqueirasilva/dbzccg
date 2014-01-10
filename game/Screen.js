@@ -16,6 +16,36 @@ DBZCCG.Screen.findCallbackObject = function (object, callback) {
     return parent;
 };
 
+DBZCCG.Screen.customAddChild = function (pos, father, child) {
+    /* This is a custom routine to add a child element 
+     * This routine was implemented since I need to have control of the child index 
+     */
+    father.children.splice(pos, 0, child);
+    child.parent = father;
+
+    var scene = father.parent;
+
+    // find scene
+    while (scene.parent !== undefined) {
+        scene = scene.parent;
+    }
+
+    if (scene !== undefined && scene instanceof THREE.Scene) {
+        scene.__addObject(child);
+    }
+    /* End of the custom routine to add a child element */
+}
+
+DBZCCG.Screen.invalidIntersection = function (intersections) {
+    for(var i = 0; i < intersections.length; i++ ) {
+        if (intersections[i].object.parent instanceof THREE.Object3D && intersections[i].object.parent.parent) {
+            return i;
+        }
+    }
+    
+    return -1;
+}
+
 DBZCCG.Screen.create = function (buildScene, render, controls) {
     function GFX(extBuildScene, extRender, extControls) {
         var renderer;

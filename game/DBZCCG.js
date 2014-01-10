@@ -17,6 +17,15 @@ DBZCCG.createDialog = function(title, content) {
         }});
 };
 
+DBZCCG.removeObject = function (obj) {
+    for (var i = 0; i < DBZCCG.objects.length; i++) {
+        if (DBZCCG.objects[i] === obj) {
+            DBZCCG.objects.splice(i, 1);
+            break;
+        }
+    }
+}
+
 DBZCCG.browseCardList = function(cards, title) {
     var descriptionBoxContent = document.getElementById('descriptionBoxContent');
     var content = document.createElement('div');
@@ -62,10 +71,10 @@ DBZCCG.clearSelectionColor = 0x000000;
 DBZCCG.selectionParticles = null;
 DBZCCG.clock = new THREE.Clock();
 
-DBZCCG.updateBillboards = function (camera) {
-    
+DBZCCG.updateBillboards = function(camera) {
+
     var obj;
-    while(DBZCCG.billboards.length != 0) {
+    while (DBZCCG.billboards.length != 0) {
         obj = DBZCCG.billboards.pop();
         obj.rotation = camera.rotation;
         // TODO: fix the position coordinates to be added according to the camera
@@ -415,38 +424,31 @@ DBZCCG.create = function() {
             if (table.players[0].mainPersonality.personalities[0].zScouter == undefined) {
                 window.setTimeout(checkLoad, 500);
             } else /*Begin code after everything was loaded */ {
-//                DBZCCG.performingAction = table.players[0];
-//                listActions.push(function() {
-//                    var card = [];
-//                    var tam = table.players[0].lifeDeck.currentCards;
-//                    for (var i = 0; i < tam; i++) {
-//                        card.push(table.players[0].lifeDeck.removeTopCard());
-//                    }
-//                    table.players[0].nonCombats.addCard(card, true);
-//                });
-//
-//                DBZCCG.performingAction = table.players[1];
-//                listActions.push(function() {
-//                    var card = [];
-//                    var tam = table.players[1].lifeDeck.currentCards;
-//                    for (var i = 0; i < tam; i++) {
-//                        card.push(table.players[1].lifeDeck.removeTopCard());
-//                    }
-//                    table.players[1].nonCombats.addCard(card, true);
-//                });
+                DBZCCG.performingAction = table.players[0];
+                listActions.push(function() {
+                    DBZCCG.performingAction.transferCards("lifeDeck",[0],"discardPile");
+                });
 
+                listActions.push(function() {
+                    DBZCCG.performingAction.transferCards("hand",[0],"discardPile");
+                });
 
-//                listActions.push(function () {
-//                    DBZCCG.performingAction = table.players[0];
-//                    var card = table.players[0].lifeDeck.removeTopCard();
-//                    table.players[0].hand.addCard(card);
-//                });
+                listActions.push(function() {
+                    DBZCCG.performingAction.transferCards("hand",[0],"nonCombats");
+                });
+                
+                listActions.push(function() {
+                    DBZCCG.performingAction.transferCards("lifeDeck",[0],"hand");
+                });
+                
+                listActions.push(function () {
+                    DBZCCG.performingAction.drawBottomCards(3, "discardPile");
+                });
 
-//                
-//                 listActions.push(function() {
-//                 DBZCCG.performingAction = table.players[0];
-//                 table.players[0].mainPersonality.advanceLevels(2);
-//                 });
+                listActions.push(function() {
+                    DBZCCG.performingAction.drawTopCards(3, "lifeDeck");
+                });
+                
 //                 
 //                 listActions.push(function() {
 //                 DBZCCG.performingAction = table.players[1];
@@ -522,7 +524,7 @@ DBZCCG.create = function() {
             }
         }
 
-        window.setInterval(checkAction, 150);
+        window.setInterval(checkAction, 1000);
 
         // debug
         // scene.add(MathHelper.buildAxes(1000));
@@ -660,8 +662,10 @@ DBZCCG.create = function() {
                 var raycaster = new THREE.Raycaster(camera.position, vector.sub(camera.position).normalize());
                 var intersections = raycaster.intersectObjects(DBZCCG.objects, true);
 
-                if (intersections.length > 0) {
-                    if (intersected != intersections[ 0 ].object) {
+                var intersectionIndex = DBZCCG.Screen.invalidIntersection(intersections);
+
+                if (intersections.length > 0 && intersectionIndex !== -1) {
+                    if (intersected !== intersections[ intersectionIndex ].object) {
                         if (intersected) {
                             var parent = DBZCCG.Screen.findCallbackObject(intersected, "mouseOut");
                             if (parent.mouseOut instanceof Function) {
@@ -669,7 +673,7 @@ DBZCCG.create = function() {
                             }
                         }
                         if ($('.ui-dialog:visible').length == 0) {
-                            intersected = intersections[ 0 ].object;
+                            intersected = intersections[ intersectionIndex ].object;
                         }
                     }
 
@@ -779,7 +783,6 @@ DBZCCG.create = function() {
                 if (parent.displayObject instanceof Function) {
                     display = parent.displayObject();
                 }
-                console.log(display);
                 DBZCCG.leftScreen.focusElement(display, display.leftScreenCallback);
 
                 var textReturn = parent.descriptionBox();

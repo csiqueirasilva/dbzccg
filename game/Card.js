@@ -64,7 +64,6 @@ DBZCCG.Card.Style.Black = 7;
     });
 
     cornerGeo = new THREE.SphereGeometry(DBZCCG.Card.cornerWidth, 32, 16);
-//    DBZCCG.Card.cubeGeo = new THREE.CubeGeometry(DBZCCG.Card.cardWidth - DBZCCG.Card.cornerWidth, DBZCCG.Card.cardHeight, DBZCCG.Card.cornerWidth * 8);
     DBZCCG.Card.cubeGeo = new THREE.CubeGeometry(DBZCCG.Card.cardWidth, DBZCCG.Card.cardHeight, DBZCCG.Card.cardDepth );
 
     DBZCCG.Card.basicCardGeo = new THREE.Geometry();
@@ -211,8 +210,6 @@ DBZCCG.Card.create = function(dataObject) {
             var card = new THREE.Object3D();
             var frontTexture = texturePath ? THREE.ImageUtils.loadTexture(texturePath) : null;
 
-            //card.add(new THREE.Mesh(DBZCCG.Card.basicCardGeo, DBZCCG.Card.borderMaterial));
-
             cardCoverBackMaterials = [];
             for (var i = 0; i < 4; i++) {
                 cardCoverBackMaterials.push(new THREE.MeshBasicMaterial({vertexColors: THREE.VertexColors})); // sides
@@ -287,9 +284,9 @@ DBZCCG.Card.create = function(dataObject) {
 
         card.display.leftScreenCallback = function(source, created) {
             var obj = new THREE.Object3D();
+            created.scale.z = DBZCCG.Card.cardThicknessScale;
             var rotate = false;
             var firstRotationReversed = false;
-            console.log(created.rotation);
             if (created.position.z < 0) {
                 rotate = true;
                 if(created.rotation.y === 0) {

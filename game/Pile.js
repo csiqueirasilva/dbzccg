@@ -1,19 +1,32 @@
-var Pile = {};
+DBZCCG.Pile = {};
 
-Pile.Face = {};
+DBZCCG.Pile.Face = {};
 
-Pile.cardBase = DBZCCG.Card.create();
-/* TODO: Rename this object to Pile (OfCards) */
-Pile.create = function(data, faceUp) {
+DBZCCG.Pile.cardBase = DBZCCG.Card.create();
+/* TODO: Rename this object to DBZCCG.Pile (OfCards) */
+DBZCCG.Pile.create = function(data, faceUp) {
 
     function PileObject(data, faceUp) {
 
         var pile = this;
 
+        function addTopToObjectList() {
+            var idx = pile.display.children.length - 1;
+            var display = pile.display.children[idx];
+
+            var displayIdx = DBZCCG.objects.indexOf(display);
+
+            if (displayIdx !== -1) {
+                DBZCCG.objects[displayIdx] = display;
+            } else {
+                DBZCCG.objects.push(display);
+            }
+        }
+
         function createDisplay(number, faceUp) {
             var display = new THREE.Object3D();
             if (number > 0) {
-                var card = Pile.cardBase;
+                var card = DBZCCG.Pile.cardBase;
                 for (var i = 0; i < number; i++) {
                     card.display = card.display.clone();
                     if (faceUp) {
@@ -30,6 +43,114 @@ Pile.create = function(data, faceUp) {
         }
         ;
 
+        this.addCard = function(cardIdx, cards) {
+            if (cards instanceof Array && cards.length > 0) {
+                DBZCCG.performingAnimation = true;
+                var card = cards.shift();
+
+                if (!(card.display.offDescriptionBox instanceof Function)) {
+                    card.display.turnGameDisplay();
+                }
+
+                if(card.removePositionCallback instanceof Function) {
+                    card.removePositionCallback();
+                    card.removePositionCallback = undefined;
+                }
+
+                card.display.mouseOut = card.display.mouseOver = undefined;
+
+                var otherCards = pile.display.children;
+
+                card.display.position.y = DBZCCG.Card.cornerWidth * DBZCCG.Card.cardThicknessScale * (50 + card.display.parent.children.length + pile.display.children.length) * 2;
+
+                var target = pile.display.position.clone();
+                target.add(pile.display.parent.position);
+                target.y = DBZCCG.Card.cornerWidth * DBZCCG.Card.cardThicknessScale * cardIdx * 2;
+                var animation = new TWEEN.Tween(card.display.position).to(target, 150);
+
+                var newTopCard = false;
+
+                var increaseIndex = 0;
+
+                animation.onStart(function() {
+
+                    if (cardIdx === otherCards.length && otherCards.length > 0) {
+                        if (faceUp) {
+                            card.faceup();
+                        } else {
+                            card.facedown();
+                        }
+
+                        increaseIndex = 1;
+
+                        newTopCard = true;
+
+                    }
+
+                    // match player position
+                    card.display.rotation.z += pile.display.rotation.y;
+
+                    for (var i = cardIdx + 1; i < otherCards.length; i++) {
+                        DBZCCG.Pile.cardBase.display = otherCards[i];
+
+                        if (faceUp) {
+                            DBZCCG.Pile.cardBase.faceup();
+                        } else {
+                            DBZCCG.Pile.cardBase.facedown();
+                        }
+
+                        DBZCCG.Pile.cardBase.moveY(i);
+                    }
+
+                    if (card.beginRemoveCallback instanceof Function) {
+                        card.beginRemoveCallback();
+                        card.beginRemoveCallback = undefined;
+                    }
+
+                });
+
+                animation.onComplete(function() {
+
+                    var insertCard = DBZCCG.Pile.cardBase.display.clone();
+                    DBZCCG.Pile.cardBase.display = insertCard;
+                    insertCard.position.set(0, 0, 0);
+
+                    if (newTopCard) {
+                        card.display.position.set(0, 0, 0);
+                        card.display.ownParent = false;
+                        card.moveY(cardIdx);
+
+                        pile.display.add(card.display);
+                        pile.cards.push(card);
+
+                        addTopToObjectList();
+
+                    } else {
+                        DBZCCG.Pile.cardBase.moveY(cardIdx);
+
+                        DBZCCG.Screen.customAddChild(cardIdx, pile.display, DBZCCG.Pile.cardBase.display);
+
+                        pile.cards.splice(cardIdx, 0, card);
+                        card.display.parent.remove(card.display);
+                    }
+
+                    // Match the player
+                    card.display.rotation.z += pile.display.rotation.y;
+
+                    if (cards.length > 0) {
+                        pile.addCard(cardIdx + increaseIndex, cards);
+                    } else {
+                        DBZCCG.performingAnimation = false;
+                    }
+
+                    pile.currentCards = pile.display.children.length;
+
+                });
+
+                animation.start();
+            }
+        };
+
         this.faceup = function() {
             this.display.rotation.z = Math.PI;
         };
@@ -41,59 +162,79 @@ Pile.create = function(data, faceUp) {
         };
 
         function prepareCardRemoval(cardIdx) {
-            var card = pile.display.children[cardIdx];
 
-            for (var i = 0; i < DBZCCG.objects.length; i++) {
-                if (DBZCCG.objects[i] === card) {
-                    DBZCCG.objects.splice(i, 1);
-                }
-            }
-
-            for (var i = cardIdx + 1; i < pile.display.children.length; i++) {
-                pile.display.children[i].position.y = pile.display.children[i - 1].position.y;
-            }
-
-            pile.display.remove(pile.display.children[cardIdx]);
+            var removedCard = pile.display.children[cardIdx];
+            var card;
+            
             // TODO: Load the right card properties, if it is random
 
             // TODO: Ajax Load for the online version!
-            if (!card.parentCard) {
-                var rot = card.rotation.clone();
-                var pos = card.position.clone();
+            if (!removedCard.parentCard) {
+                var rot = removedCard.rotation.clone();
+                var pos = removedCard.position.clone();
                 if (!(this.cards instanceof Array)) {
-                    delete card;
+                    DBZCCG.removeObject(removedCard);
                     card = DBZCCG.Card.generateRandom();
                 } else {
                     card = this.cards[cardIdx];
-                    this.cards.splice(cardIdx, 1);
                 }
+
                 card.display.rotation = rot;
                 card.display.position = pos;
             } else {
-                card = card.parentCard;
+                card = removedCard.parentCard;
             }
 
-            card.display.position.add(pile.display.position);
+            card.removePositionCallback = function () {
 
-            // Rotate the card to match the player
-            card.display.rotation.z += pile.display.rotation.y;
+                card.display.position.add(pile.display.position);
 
-            var parent = pile.display.parent;
-            while (parent.name !== "field") {
-                card.display.position.add(parent.position);
-                card.display.rotation.x += parent.rotation.x;
-                card.display.rotation.y += parent.rotation.y;
-                card.display.rotation.z += parent.rotation.z;
-                parent = parent.parent;
-            }
+                // Rotate the card to match the player
+                card.display.rotation.z += pile.display.rotation.y;
 
-            parent.add(card.display);
+                var parent = pile.display.parent;
+                while (parent.name !== "field") {
+                    card.display.position.add(parent.position);
+                    card.display.rotation.x += parent.rotation.x;
+                    card.display.rotation.y += parent.rotation.y;
+                    card.display.rotation.z += parent.rotation.z;
+                    parent = parent.parent;
+                }
 
-            if (pile.display.children.length > 0) {
-                DBZCCG.objects.push(pile.display.children[pile.display.children.length - 1]);
-            }
+                parent.add(card.display);
+            };
+            
+            var otherCards = pile.display.children;
 
-            this.currentCards = pile.display.children.length;
+            card.beginRemoveCallback = function() {
+
+                /* Everyone above the removed card get down by 1 card (aka get the position of the card below it) */
+                for (var i = otherCards.length - 1; i > cardIdx; i--) {
+                    otherCards[i].position.y = otherCards[i - 1].position.y;
+                }
+
+                pile.display.remove(removedCard);
+                pile.cards.splice(cardIdx, 1);
+                
+                var idx;
+                for (var i = 0; i < otherCards.length; i++) {
+                    idx = DBZCCG.objects.indexOf(otherCards[i]);
+                    if (idx !== -1) {
+                        DBZCCG.objects.splice(idx, 1);
+                    }
+                }
+
+                pile.currentCards = pile.display.children.length;
+
+                if (cardIdx === pile.cards.length && otherCards.length > 0 && faceUp === true) {
+                    pile.firstCardFaceUp();
+                }
+
+                // Adjust top card object
+                if (otherCards.length > 0) {
+                    DBZCCG.objects.push(otherCards[otherCards.length - 1]);
+                }
+            };
 
             return card;
         }
@@ -106,22 +247,31 @@ Pile.create = function(data, faceUp) {
             }
         };
 
-        this.firstCardFaceUp = function() {
-            if (this.getTopCard instanceof Function) {
-                var card = this.getTopCard();
-                var cardIdx = this.display.children.length - 1;
-                var cardPos = this.display.children[cardIdx].position.clone().add(this.display.position);
-                var cardRot = this.display.children[cardIdx].rotation.clone();
+        this.firstCardFaceUp = function(idx) {
+            if (pile.cards.length > 0) {
+                var selectIdx = idx || pile.cards.length - 1;
+                var card = pile.cards[selectIdx];
+                var cardPos = pile.display.children[selectIdx].position.clone();
 
-                // Rotate the card to match the player
-                cardRot.z += this.display.rotation.y;
+                pile.display.remove(pile.display.children[selectIdx]);
 
-                this.display.remove(this.display.children[cardIdx]);
-                // TODO: Load the right card properties, if it is random
+                if (faceUp) {
+                    card.faceup();
+                } else {
+                    card.facedown();
+                }
 
-                card.display.rotation = cardRot;
                 card.display.position = cardPos;
-                this.display.add(card.display);
+
+                pile.display.add(card.display);
+            }
+        };
+
+        this.removeCardByIdx = function(idx) {
+            if (this.display.children.length > 0) {
+                var card = prepareCardRemoval(idx);
+
+                return card;
             }
         };
 
@@ -129,9 +279,6 @@ Pile.create = function(data, faceUp) {
             if (this.display.children.length > 0) {
                 var cardIdx = this.display.children.length - 1;
                 var card = prepareCardRemoval(cardIdx);
-                if (this.display.children.length > 0 && faceUp == true) {
-                    this.firstCardFaceUp();
-                }
 
                 return card;
             }
@@ -139,6 +286,7 @@ Pile.create = function(data, faceUp) {
 
         this.display = createDisplay(data.number, faceUp);
         this.currentCards = data.number;
+        this.cards = [];
 
         this.setOwnerCallback = function(callback) {
             this.display.owner = callback;
@@ -152,6 +300,8 @@ Pile.create = function(data, faceUp) {
         this.display.leftScreenCallback = function(source, created) {
             var obj = new THREE.Object3D();
             var insideGeo = new THREE.CubeGeometry(DBZCCG.Card.cardWidth + 0.002, DBZCCG.Card.cardHeight + 0.002, (DBZCCG.Card.cornerWidth * 2 * (pile.currentCards) * DBZCCG.Card.cardThicknessScale));
+
+            created.scale.z = DBZCCG.Card.cardThicknessScale;
 
             var faces = insideGeo.faces;
             delete faces[8];
@@ -209,13 +359,10 @@ Pile.create = function(data, faceUp) {
             return obj;
         }
 
-
         this.addToField = function(position, field, direction) {
             this.display.position.copy(position);
             if (this.display.children.length > 0) {
-                var idx = this.display.children.length - 1;
-                DBZCCG.objects.push(this.display.children[idx]);
-                this.objectIdx = DBZCCG.objects.length - 1;
+                addTopToObjectList();
             }
             this.turnThisWay(direction);
             field.add(this.display);

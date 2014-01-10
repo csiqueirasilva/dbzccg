@@ -14,11 +14,90 @@ DBZCCG.Player.create = function(dataObject, vec) {
         this.posVector = vec.clone();
         this.distanceFromCenter = vec.length();
 
+        /* Game variables */
+        this.handOnTable = false;
+
+        /* Game functions */
+
+        this.transferCards = function(src, srcCards, destiny, pilePosition) {
+
+            var card = [];
+
+            if (this[src].constructor.name === "cardGroupObject") {
+                var idx;
+                for (var i = 0; i < srcCards.length; i++) {
+                    idx = srcCards[i];
+                    card.push(this[src].cards[idx]);
+                    this[src].cards[idx] = undefined;
+                }
+
+                for (var i = 0; i < this[src].cards.length; i++) {
+                    if (!this[src].cards[idx]) {
+                        this[src].cards.splice(idx, 1);
+                    }
+                }
+                this[src].addCard([]);
+            } else /* From pile */ {
+                for (var i = 0; i < srcCards.length; i++) {
+                    card.push(this[src].removeCardByIdx(srcCards[i]));
+                }
+            }
+            
+            if("cardGroupObject" === this[destiny].constructor.name) {
+                this[destiny].addCard(card);
+            } else /* to Pile */ {
+                this[destiny].addCard(pilePosition ? pilePosition : this[destiny].cards.length, card);
+            }
+
+        };
+
+        this.drawBottomCards = function(n, sourcePile) {
+
+            var i;
+
+            if (n > this[sourcePile].cards.length) {
+                // trigger not enough cards
+                i = this[sourcePile].cards.length;
+            } else {
+                i = n;
+            }
+
+            var card = [];
+
+            for (var j = 0; j < i; j++) {
+                card.push(this[sourcePile].removeCardByIdx(j));
+            }
+
+            this.hand.addCard(card, (this === DBZCCG.performingAction || this.handOnTable) ? true : false);
+        };
+
+        this.drawTopCards = function(n, sourcePile) {
+
+            var i;
+
+            if (n > this[sourcePile].cards.length) {
+                // trigger not enough cards
+                i = 0;
+            } else {
+                i = this[sourcePile].cards.length - n;
+            }
+
+            var card = [];
+
+            for (var j = this[sourcePile].cards.length - 1; j >= i; j--) {
+                card.push(this[sourcePile].removeCardByIdx(j));
+            }
+
+            this.hand.addCard(card, (this === DBZCCG.performingAction || this.handOnTable) ? true : false);
+        };
+
+        /* End of game functions */
+
         this.loadPlayerSpace = function(scene) {
             this.field = new THREE.Object3D();
             this.field.name = "field";
             var mainPersonalityPos = this.dirVector.clone();
-            mainPersonalityPos.multiplyScalar(DBZCCG.Player.Field.Height/5);
+            mainPersonalityPos.multiplyScalar(DBZCCG.Player.Field.Height / 5);
             var discardPilePos = mainPersonalityPos.clone().multiplyScalar(1.75);
             discardPilePos.add(MathHelper.rotateVector(this.dirVector.clone().normalize().multiplyScalar(DBZCCG.Card.cardWidth * -0.6)));
             var lifeDeckPos = mainPersonalityPos.clone().multiplyScalar(1.75);
@@ -27,35 +106,35 @@ DBZCCG.Player.create = function(dataObject, vec) {
             removedFromTheGamePos.add(MathHelper.rotateVector(this.dirVector.clone().normalize().multiplyScalar(DBZCCG.Card.cardWidth * -0.6)));
 
             this.mainPersonality.addToField(mainPersonalityPos, this.field);
-            
+
             /* Beginning of area creation */
             this.deckArea = DBZCCG.Table.createSurroundingArea(this.posVector, DBZCCG.Card.cardWidth * 2.5, DBZCCG.Card.cardHeight * 2.5, DBZCCG.Player.Field.cornerWidth);
 
-            this.nonCombatArea = DBZCCG.Table.createSurroundingArea(this.posVector, DBZCCG.Card.cardWidth * DBZCCG.CardGroup.maxDisplaySize * 1.35, DBZCCG.Card.cardHeight * 1.2 , DBZCCG.Player.Field.cornerWidth);
-            this.nonCombatArea.position.x = MathHelper.rotateVector(this.dirVector).x * ( DBZCCG.Player.Field.Width/3.575 - DBZCCG.Card.cardWidth * 1.5 );
+            this.nonCombatArea = DBZCCG.Table.createSurroundingArea(this.posVector, DBZCCG.Card.cardWidth * DBZCCG.CardGroup.maxDisplaySize * 1.35, DBZCCG.Card.cardHeight * 1.2, DBZCCG.Player.Field.cornerWidth);
+            this.nonCombatArea.position.x = MathHelper.rotateVector(this.dirVector).x * (DBZCCG.Player.Field.Width / 3.575 - DBZCCG.Card.cardWidth * 1.5);
 
-            this.allyArea = DBZCCG.Table.createSurroundingArea(this.posVector, DBZCCG.Player.Field.Width * 0.432 , DBZCCG.Player.Field.Height * 0.94, DBZCCG.Player.Field.cornerWidth);
-            this.allyArea.position.x = -MathHelper.rotateVector(this.dirVector).x * ( DBZCCG.Player.Field.Width/3.65 );
+            this.allyArea = DBZCCG.Table.createSurroundingArea(this.posVector, DBZCCG.Player.Field.Width * 0.432, DBZCCG.Player.Field.Height * 0.94, DBZCCG.Player.Field.cornerWidth);
+            this.allyArea.position.x = -MathHelper.rotateVector(this.dirVector).x * (DBZCCG.Player.Field.Width / 3.65);
 
-            this.deckArea.position.x = MathHelper.rotateVector(this.dirVector).x * ( DBZCCG.Player.Field.Width/2 - DBZCCG.Card.cardWidth * 1.5 );
+            this.deckArea.position.x = MathHelper.rotateVector(this.dirVector).x * (DBZCCG.Player.Field.Width / 2 - DBZCCG.Card.cardWidth * 1.5);
             this.allyArea.position.z = this.nonCombatArea.position.z = this.mainPersonality.surroundingArea.position.z = this.deckArea.position.z = this.dirVector.clone().multiplyScalar(1.1).z;
-            
-            this.drillArea = DBZCCG.Table.createSurroundingArea(this.posVector, DBZCCG.Card.cardWidth * DBZCCG.CardGroup.maxDisplaySize * 1.35, DBZCCG.Card.cardHeight * 1.2 , DBZCCG.Player.Field.cornerWidth);
-            this.drillArea.position.x = MathHelper.rotateVector(this.dirVector).x * ( DBZCCG.Player.Field.Width/3.575 - DBZCCG.Card.cardWidth * 1.5 );
+
+            this.drillArea = DBZCCG.Table.createSurroundingArea(this.posVector, DBZCCG.Card.cardWidth * DBZCCG.CardGroup.maxDisplaySize * 1.35, DBZCCG.Card.cardHeight * 1.2, DBZCCG.Player.Field.cornerWidth);
+            this.drillArea.position.x = MathHelper.rotateVector(this.dirVector).x * (DBZCCG.Player.Field.Width / 3.575 - DBZCCG.Card.cardWidth * 1.5);
             this.drillArea.position.z = this.dirVector.clone().multiplyScalar(1.5 * DBZCCG.Card.cardHeight).z;
-            
-            this.dragonballArea = DBZCCG.Table.createSurroundingArea(this.posVector, DBZCCG.Card.cardWidth * DBZCCG.CardGroup.maxDisplaySize * 1.35, DBZCCG.Card.cardHeight * 1.2 , DBZCCG.Player.Field.cornerWidth);
-            this.dragonballArea.position.x = MathHelper.rotateVector(this.dirVector).x * ( DBZCCG.Player.Field.Width/3.575 - DBZCCG.Card.cardWidth * 1.5 );
+
+            this.dragonballArea = DBZCCG.Table.createSurroundingArea(this.posVector, DBZCCG.Card.cardWidth * DBZCCG.CardGroup.maxDisplaySize * 1.35, DBZCCG.Card.cardHeight * 1.2, DBZCCG.Player.Field.cornerWidth);
+            this.dragonballArea.position.x = MathHelper.rotateVector(this.dirVector).x * (DBZCCG.Player.Field.Width / 3.575 - DBZCCG.Card.cardWidth * 1.5);
             this.dragonballArea.position.z = this.dirVector.clone().multiplyScalar(1.5 * DBZCCG.Card.cardHeight).z * 1.875;
-            
-            this.cardsInPlayArea = DBZCCG.Table.createSurroundingArea(this.posVector, DBZCCG.Card.cardWidth * 2.5 , DBZCCG.Card.cardHeight * 1.2 , DBZCCG.Player.Field.cornerWidth);
+
+            this.cardsInPlayArea = DBZCCG.Table.createSurroundingArea(this.posVector, DBZCCG.Card.cardWidth * 2.5, DBZCCG.Card.cardHeight * 1.2, DBZCCG.Player.Field.cornerWidth);
             this.cardsInPlayArea.position.z = this.dirVector.clone().multiplyScalar(1.5 * 1.875 * DBZCCG.Card.cardHeight).z;
 
-            this.asideCardsArea = DBZCCG.Table.createSurroundingArea(this.posVector, DBZCCG.Card.cardWidth * 2.5 , DBZCCG.Card.cardHeight * 1.2 , DBZCCG.Player.Field.cornerWidth);
+            this.asideCardsArea = DBZCCG.Table.createSurroundingArea(this.posVector, DBZCCG.Card.cardWidth * 2.5, DBZCCG.Card.cardHeight * 1.2, DBZCCG.Player.Field.cornerWidth);
             this.asideCardsArea.position.z = this.dirVector.clone().multiplyScalar(1.5 * 1.875 * DBZCCG.Card.cardHeight).z;
             this.asideCardsArea.position.x = this.deckArea.position.x;
-            
-            this.locationCardsArea = DBZCCG.Table.createSurroundingArea(this.posVector, DBZCCG.Card.cardWidth * 2.5 , DBZCCG.Card.cardHeight * 1.2 , DBZCCG.Player.Field.cornerWidth);
+
+            this.locationCardsArea = DBZCCG.Table.createSurroundingArea(this.posVector, DBZCCG.Card.cardWidth * 2.5, DBZCCG.Card.cardHeight * 1.2, DBZCCG.Player.Field.cornerWidth);
             this.locationCardsArea.position.z = this.dirVector.clone().multiplyScalar(1.5 * 1.875 * DBZCCG.Card.cardHeight).z * 1.4675;
             this.locationCardsArea.position.x = this.deckArea.position.x;
 
@@ -78,48 +157,48 @@ DBZCCG.Player.create = function(dataObject, vec) {
             this.field.add(this.drillArea);
             this.field.add(this.deckArea);
             /* End of area creation */
-            
+
             /* Setting the positions */
-            this.fieldCardsRotation = new THREE.Euler(-this.dirVector.z * Math.PI/2, 0, 0);
-            
+            this.fieldCardsRotation = new THREE.Euler(-this.dirVector.z * Math.PI / 2, 0, 0);
+
             this.nonCombats.position = this.nonCombatArea.position.clone();
-            this.nonCombats.position.z *= DBZCCG.Card.cardHeight*0.825;
-            this.nonCombats.position.x *= 1.025 + MathHelper.rotateVector(this.dirVector).x*0.05;
+            this.nonCombats.position.z *= DBZCCG.Card.cardHeight * 0.825;
+            this.nonCombats.position.x *= 1.025 + MathHelper.rotateVector(this.dirVector).x * 0.05;
             this.nonCombats.rotation.x = this.fieldCardsRotation.x;
-            
+
             this.drills.position = this.drillArea.position.clone();
-            this.drills.position.z *= DBZCCG.Card.cardHeight*0.265;
-            this.drills.position.x *= 1.025 + MathHelper.rotateVector(this.dirVector).x*0.05;
+            this.drills.position.z *= DBZCCG.Card.cardHeight * 0.265;
+            this.drills.position.x *= 1.025 + MathHelper.rotateVector(this.dirVector).x * 0.05;
             this.drills.rotation.x = this.fieldCardsRotation.x;
-            
+
             this.dragonballs.position = this.dragonballArea.position.clone();
-            this.dragonballs.position.z *= DBZCCG.Card.cardHeight*0.225;
-            this.dragonballs.position.x *= 1.025 + MathHelper.rotateVector(this.dirVector).x*0.05;
+            this.dragonballs.position.z *= DBZCCG.Card.cardHeight * 0.225;
+            this.dragonballs.position.x *= 1.025 + MathHelper.rotateVector(this.dirVector).x * 0.05;
             this.dragonballs.rotation.x = this.fieldCardsRotation.x;
-            
+
             this.setAside.position = this.asideCardsArea.position.clone();
-            this.setAside.position.z *= DBZCCG.Card.cardHeight*0.225;
-            this.setAside.position.x *= 1 + MathHelper.rotateVector(this.dirVector).x*0.025;
+            this.setAside.position.z *= DBZCCG.Card.cardHeight * 0.225;
+            this.setAside.position.x *= 1 + MathHelper.rotateVector(this.dirVector).x * 0.025;
             this.setAside.rotation.x = this.fieldCardsRotation.x;
-            
+
             this.fieldCards.position = this.locationCardsArea.position.clone();
-            this.fieldCards.position.z *= DBZCCG.Card.cardHeight*0.21125;
-            this.fieldCards.position.x *= 1 + MathHelper.rotateVector(this.dirVector).x*0.025;
+            this.fieldCards.position.z *= DBZCCG.Card.cardHeight * 0.21125;
+            this.fieldCards.position.x *= 1 + MathHelper.rotateVector(this.dirVector).x * 0.025;
             this.fieldCards.rotation.x = this.fieldCardsRotation.x;
-            
+
             this.inPlay.position = this.cardsInPlayArea.position.clone();
-            this.inPlay.position.z *= DBZCCG.Card.cardHeight*0.225;
-            this.inPlay.position.x += 0.5 + MathHelper.rotateVector(this.dirVector).x*0.025;
+            this.inPlay.position.z *= DBZCCG.Card.cardHeight * 0.225;
+            this.inPlay.position.x += 0.5 + MathHelper.rotateVector(this.dirVector).x * 0.025;
             this.inPlay.rotation.x = this.fieldCardsRotation.x;
-            
+
             /* End of setting the positions */
-            
+
             this.lifeDeck.addToField(lifeDeckPos, this.deckArea, this.dirVector);
             this.lifeDeck.setOwnerCallback(this.mainPersonality.displayName);
-            
+
             this.discardPile.addToField(discardPilePos, this.deckArea, this.dirVector);
             this.discardPile.setOwnerCallback(this.mainPersonality.displayName);
-            
+
             this.removedFromTheGame.addToField(removedFromTheGamePos, this.deckArea, this.dirVector);
             this.removedFromTheGame.setOwnerCallback(this.mainPersonality.displayName);
 
@@ -147,7 +226,7 @@ DBZCCG.Player.create = function(dataObject, vec) {
         this.setAside = DBZCCG.CardGroup.create(dataObject.setAside);
         this.inPlay = DBZCCG.CardGroup.create(dataObject.inPlay);
         this.fieldCards = DBZCCG.CardGroup.create(dataObject.fieldCards);
-        
+
         this.inPlay.groupMaxWidth = this.fieldCards.groupMaxWidth = this.setAside.groupMaxWidth = 1.1 * DBZCCG.Card.cardWidth;
 
         this.allies = null;

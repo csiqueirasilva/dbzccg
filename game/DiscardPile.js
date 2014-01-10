@@ -2,17 +2,17 @@ DBZCCG.DiscardPile = {};
 
 DBZCCG.DiscardPile.create = function(discardPile) {
     function discardPileObject(discardPile) {
-        ClassHelper.extends(this, Pile.create(discardPile, true));
+        ClassHelper.extends(this, DBZCCG.Pile.create(discardPile, true));
 
         var discard = this;
 
         discard.display.descriptionBox = function() {
-            DBZCCG.browseCardList(discard.cards, 'Number of cards in discard pile: ' + discard.currentCards);
+            DBZCCG.browseCardList(discard.cards, 'Number of cards in discard pile: ' + discard.cards.length);
         };
 
         discard.display.displayName = function() {
             return this.owner() + ' Discard Pile';
-        };
+        }
 
         discard.display.displayObject = function() {
             var lastIndex = this.children.length - 1;
@@ -34,12 +34,10 @@ DBZCCG.DiscardPile.create = function(discardPile) {
         }
 
         this.getBottomCard = function () {
-            return cardList.shift();
+            return this.cards[0];
         };
 
         /* END OF DEMO CODE */
-        this.cards = [];
-
         for (var i = 0; i < discardPile.number; i++) {
             var card = DBZCCG.Card.generateRandom();
             card.display.turnGameDisplay();
@@ -47,6 +45,8 @@ DBZCCG.DiscardPile.create = function(discardPile) {
         }
 
         this.firstCardFaceUp();
+        
+        this.display.name = "Discard pile";
     }
 
     return new discardPileObject(discardPile || {number: 30});

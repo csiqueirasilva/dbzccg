@@ -7,11 +7,11 @@ DBZCCG.LifeDeck.namekianMaximumSize = 90;
 DBZCCG.LifeDeck.create = function(deckObject) {
 
     function LifeDeckObject(deckObject) {
-        ClassHelper.extends(this, Pile.create(deckObject));
+        ClassHelper.extends(this, DBZCCG.Pile.create(deckObject));
 
         var deck = this;
         this.display.descriptionBox = function() {
-            var content = "<div class='card-quantity'>Number of cards in life deck: " + deck.currentCards + "</div>";
+            var content = "<div class='card-quantity'>Number of cards in life deck: " + deck.cards.length + "</div>";
             
             DBZCCG.descriptionBox(content);
             return content;
@@ -22,20 +22,12 @@ DBZCCG.LifeDeck.create = function(deckObject) {
         }
         
         /* THIS IS THE DEMO CODE */
-        var cardList = [];
+        var cardList = this.cards;
         for(var i = 0; i < deckObject.number; i++) {
             var card = DBZCCG.Card.generateRandom();
             card.display.turnGameDisplay();
             cardList.push(card);
         }
-        
-        /*
-         * @position - Position of the card on the deck at time of removal (random, top or bottom).
-         */
-        
-        this.getTopCard = function () {
-            return cardList.pop();
-        };
 
         this.getRandomCard = function () {
             var random = Math.floor(Math.random() * 1000) % cardList.length ;
@@ -43,12 +35,9 @@ DBZCCG.LifeDeck.create = function(deckObject) {
             cardList.splice(random, 1);
             return card;
         }
-
-        this.getBottomCard = function () {
-            return cardList.shift();
-        };
         
-        /* END OF DEMO CODE */
+        this.display.name = "Life deck";
+        
     }
 
     return new LifeDeckObject(deckObject || {number: 50});
