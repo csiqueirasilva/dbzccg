@@ -22,7 +22,10 @@ DBZCCG.Player.create = function(dataObject, vec) {
         this.transferCards = function(src, srcCards, destiny, pilePosition) {
 
             var card = [];
-
+            var action;
+            var destinyString;
+            var sourceString;
+            
             if (this[src].constructor.name === "cardGroupObject") {
                 var idx;
                 for (var i = 0; i < srcCards.length; i++) {
@@ -37,17 +40,51 @@ DBZCCG.Player.create = function(dataObject, vec) {
                     }
                 }
                 this[src].addCard([]);
+                action = "placed";
+                
+                if(src === "hand") {
+                    sourceString = "hand";
+                } else {
+                    sourceString = "field";
+                }
+                
             } else /* From pile */ {
                 for (var i = 0; i < srcCards.length; i++) {
                     card.push(this[src].removeCardByIdx(srcCards[i]));
                 }
+                action = "sent";
+                sourceString = this[src].display.name;
+            }
+            
+            var cardString = "";
+            
+            cardString += card[0].name;
+            
+            if(card.length > 1) {
+                for(var i = 1; i < card.length - 1; i++) {
+                    cardString += ", " + card[i].name;
+                }
+                cardString += " and " + card[card.length - 1].name;
             }
             
             if("cardGroupObject" === this[destiny].constructor.name) {
                 this[destiny].addCard(card);
+            
+                if(destiny === "hand") {
+                    destinyString = "hand";
+                } else {
+                    destinyString = "field";
+                }
+
             } else /* to Pile */ {
                 this[destiny].addCard(pilePosition ? pilePosition : this[destiny].cards.length, card);
+                
+                destinyString = this[destiny].display.name;
             }
+
+            var msg = this.mainPersonality.displayName() + " " + action + " " + cardString + " from " + sourceString + " into his " + destinyString + ".";
+
+            DBZCCG.quickMessage(msg);
 
         };
 
@@ -67,8 +104,11 @@ DBZCCG.Player.create = function(dataObject, vec) {
             for (var j = 0; j < i; j++) {
                 card.push(this[sourcePile].removeCardByIdx(j));
             }
-
+            
             this.hand.addCard(card, (this === DBZCCG.performingAction || this.handOnTable) ? true : false);
+    
+            DBZCCG.quickMessage(this.mainPersonality.displayName() + " drew " + n + " card" + ((n > 1) ? "s" : "") + " from the bottom of the " + this[sourcePile].display.name + ".");
+
         };
 
         this.drawTopCards = function(n, sourcePile) {
@@ -89,6 +129,8 @@ DBZCCG.Player.create = function(dataObject, vec) {
             }
 
             this.hand.addCard(card, (this === DBZCCG.performingAction || this.handOnTable) ? true : false);
+            
+            DBZCCG.quickMessage(this.mainPersonality.displayName() + " drew " + n + " card" + ((n > 1) ? "s" : "") + " from the top of the " + this[sourcePile].display.name + ".");
         };
 
         /* End of game functions */

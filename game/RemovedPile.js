@@ -13,7 +13,7 @@ DBZCCG.RemovedPile.create = function (removedPile) {
             return this.owner() + ' Removed from the game';
         };
         
-        this.display.name = "Removed pile";
+        this.display.name = "Removed from the game";
     }
     
     return new removedPileObject(removedPile || {number: 10});
