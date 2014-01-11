@@ -2,9 +2,9 @@
 var DBZCCG = {};
 
 /* Dialogs */
-DBZCCG.createDialog = function(title, content) {
+DBZCCG.createDialog = function(title, content, id) {
     var elem = document.createElement('div');
-    elem.id = 'mainDialog';
+    elem.id = id || 'mainDialog';
     elem.innerHTML = '';
     elem.appendChild(content);
     elem.style.display = 'none';
@@ -17,7 +17,60 @@ DBZCCG.createDialog = function(title, content) {
         }});
 };
 
-DBZCCG.removeObject = function (obj) {
+DBZCCG.declareDialog = function() {
+    DBZCCG.confirmDialog('Declaring combat', 'Do you wish to declare combat?', null, 
+    {
+        "Declare combat": function() {
+            $('#combat-btn').hide();
+            DBZCCG.combat = true;
+            DBZCCG.performingTurn = false;
+            $(this).dialog('close');
+        },
+        "Skip combat": function() {
+            $('#combat-btn').hide();
+            DBZCCG.combat = false;
+            DBZCCG.performingTurn = false;
+            $(this).dialog('close');
+        }
+    });
+};
+
+DBZCCG.passDialog = function(msg) {
+    DBZCCG.confirmDialog('Passing', msg, function() {
+        $('#pass-btn').hide();
+        DBZCCG.performingTurn = false;
+    });
+};
+
+DBZCCG.confirmDialog = function(title, content, ok_cb, buttons) {
+
+    var wrapperDiv = document.createElement('div');
+    wrapperDiv.innerHTML = content;
+
+    DBZCCG.createDialog(title, wrapperDiv, 'confirmDialog');
+
+    $('#confirmDialog').dialog('option', 'height', window.innerHeight * 0.25);
+    $('#confirmDialog').dialog('option', 'width', window.innerWidth * 0.25);
+
+    if (!buttons) {
+        $('#confirmDialog').dialog('option', 'buttons', {
+            "OK": function() {
+                ok_cb();
+                $(this).dialog('close');
+            },
+            "Cancel": function() {
+                $(this).dialog('close');
+            }
+        });
+    } else {
+        $('#confirmDialog').dialog('option', 'buttons', buttons);
+    }
+
+    $('#confirmDialog').dialog('open');
+
+};
+
+DBZCCG.removeObject = function(obj) {
     for (var i = 0; i < DBZCCG.objects.length; i++) {
         if (DBZCCG.objects[i] === obj) {
             DBZCCG.objects.splice(i, 1);
@@ -59,7 +112,9 @@ DBZCCG.browseCardList = function(cards, title) {
 };
 /* End of dialog */
 
+DBZCCG.performingTurn = false;
 DBZCCG.performingAnimation = false;
+DBZCCG.combat = false;
 DBZCCG.performingAction = null;
 DBZCCG.mainPlayer = null;
 DBZCCG.finishedLoading = false;
@@ -74,7 +129,7 @@ DBZCCG.clock = new THREE.Clock();
 DBZCCG.updateBillboards = function(camera) {
 
     var obj;
-    while (DBZCCG.billboards.length != 0) {
+    while (DBZCCG.billboards.length !== 0) {
         obj = DBZCCG.billboards.pop();
         obj.rotation = camera.rotation;
         // TODO: fix the position coordinates to be added according to the camera
@@ -176,8 +231,8 @@ DBZCCG.startSelectionParticles = function() {
 
 DBZCCG.quickMessage = function(msg) {
     if (DBZCCG.finishedLoading) {
-        if (DBZCCG.performingAction != null) {
-            if (DBZCCG.performingAction == DBZCCG.mainPlayer) {
+        if (DBZCCG.performingAction !== null) {
+            if (DBZCCG.performingAction === DBZCCG.mainPlayer) {
                 alertify.custom = alertify.extend("player");
             } else {
                 alertify.custom = alertify.extend("enemy");
@@ -187,7 +242,7 @@ DBZCCG.quickMessage = function(msg) {
             alertify.log(msg);
         }
         var log = document.createElement('div');
-        log.innerHTML = "[" + new Date().toLocaleString() + "] " + msg;
+        log.innerHTML = "[" + new Date().toLocaleString() + "] <br />" + msg;
         document.getElementById("logBox").appendChild(log);
         $('#logBox').animate({scrollTop: $('#logBox').height()}, 50);
     }
@@ -397,7 +452,7 @@ DBZCCG.create = function() {
         //createSkybox(scene);
         table = DBZCCG.Table.create([
             /*P1*/
-            {mainPersonality: {alignment: DBZCCG.Personality.alignment.Hero, currentMainPersonalityLevel: 1, currentPowerStageAboveZero: 6, currentAngerLevel: 0,
+            {mainPersonality: {alignment: DBZCCG.Personality.alignment.Hero, currentMainPersonalityLevel: 1, currentPowerStageAboveZero: 5, currentAngerLevel: 0,
                     angerLevelNeededToLevel: 5, personalities: [{style: DBZCCG.Card.Style.Freestyle, PUR: 1, alignment: DBZCCG.Personality.alignment.Hero, description: "Power: Energy attack doing 3 life cards of damage. Costs 1 power stage.", level: 1, name: "GOKU", highTech: false, number: 158, texturePath: "images/DBZCCG/saiyan/158.jpg",
                             personality: DBZCCG.Personality.GOKU, saga: DBZCCG.Card.Saga.SAIYAN, powerStages: [0, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1400]},
                         {style: DBZCCG.Card.Style.Freestyle, PUR: 2, alignment: DBZCCG.Personality.alignment.Hero, description: "Power: Physical attack doing 4 power stages of damage.", level: 2, name: "GOKU", highTech: false, number: 159, texturePath: "images/DBZCCG/saiyan/159.jpg",
@@ -405,7 +460,7 @@ DBZCCG.create = function() {
                         {style: DBZCCG.Card.Style.Freestyle, PUR: 3, alignment: DBZCCG.Personality.alignment.Hero, description: "Power: Once per combat, reduces the damage of an energy attack by 2 life cards.", level: 3, name: "GOKU", highTech: false, number: 160, texturePath: "images/DBZCCG/saiyan/160.jpg",
                             personality: DBZCCG.Personality.GOKU, saga: DBZCCG.Card.Saga.SAIYAN, powerStages: [0, 8000, 8500, 9000, 9500, 10000, 10500, 11000, 11500, 12000, 12500]}]}},
             /*P2*/
-            {mainPersonality: {alignment: DBZCCG.Personality.alignment.Villain, currentMainPersonalityLevel: 1, currentPowerStageAboveZero: 2, currentAngerLevel: 0,
+            {mainPersonality: {alignment: DBZCCG.Personality.alignment.Villain, currentMainPersonalityLevel: 1, currentPowerStageAboveZero: 5, currentAngerLevel: 0,
                     angerLevelNeededToLevel: 5, personalities: [{style: DBZCCG.Card.Style.Freestyle, PUR: 2, alignment: DBZCCG.Personality.alignment.Rogue, description: "Power: Once per combat, reduces the damage of an energy attack by 2 life cards.", level: 1, name: "VEGETA", highTech: false, number: 173, texturePath: "images/DBZCCG/saiyan/173.jpg",
                             personality: DBZCCG.Personality.VEGETA, saga: DBZCCG.Card.Saga.SAIYAN, powerStages: [0, 2000, 2200, 2400, 2600, 2800, 3000, 3200, 3400, 3600, 3800]},
                         {style: DBZCCG.Card.Style.Freestyle, PUR: 4, alignment: DBZCCG.Personality.alignment.Rogue, description: "Power: Energy attack doing 3 life cards of damage. Costs 1 power stage.", level: 2, name: "VEGETA", highTech: false, number: 174, texturePath: "images/DBZCCG/saiyan/174.jpg",
@@ -418,37 +473,156 @@ DBZCCG.create = function() {
         DBZCCG.startSelectionParticles();
         scene.add(DBZCCG.selectionParticles);
 
+        // set onclick callback for pass
+        document.getElementById('pass-btn').onclick = function() {
+            DBZCCG.passDialog(DBZCCG.passMessage);
+        };
+
+        // set onclick callback for combat
+        document.getElementById('combat-btn').onclick = function() {
+            DBZCCG.declareDialog();
+        };
+
         DBZCCG.finishedLoading = true;
 
+        function displayPhaseMessage(id, callback) {
+            DBZCCG.performingAnimation = true;
+
+            $('#turnOrder').children().removeClass('selectedTurn');
+            $('#turnOrder').children(id.replace('-warn','')).addClass('selectedTurn');
+            
+            $(id).fadeIn(500);
+
+            window.setTimeout(function() {
+                $(id).fadeOut(500, function() {
+                    DBZCCG.performingAnimation = false;
+                    callback();
+                });
+            }, 1000);
+        }
+
+        function invokeTurn() {
+
+            document.getElementById('turnCounterNumber').innerHTML = 
+                    parseInt(document.getElementById('turnCounterNumber').innerHTML) + 1;
+
+            DBZCCG.combat = false;
+
+            if (!DBZCCG.performingAction) {
+                DBZCCG.performingAction = table.players[0];
+            } else {
+                // next player
+                DBZCCG.performingAction = table.players[(table.players.indexOf(DBZCCG.performingAction) + 1) % table.players.length];
+            }
+
+            var player = DBZCCG.performingAction;
+
+            listActions.push(function() {
+                if (player.drawPhaseEnabled) {
+                    displayPhaseMessage('#draw-phase-warn',
+                            function() {
+                                player.drawPhase();
+                            });
+                }
+
+                listActions.push(function() {
+                    if (player.nonCombatPhaseEnabled) {
+                        displayPhaseMessage('#noncombat-phase-warn',
+                                function() {
+                                    player.nonCombatPhase();
+                                });
+
+                    }
+
+                    listActions.push(function() {
+                        if (player.purPhaseEnabled) {
+                            displayPhaseMessage('#pur-phase-warn',
+                                    function() {
+                                        player.purPhase();
+                                    });
+                        }
+
+                        listActions.push(function() {
+                            if (player.declarePhaseEnabled) {
+                                displayPhaseMessage('#declare-phase-warn',
+                                        function() {
+                                            player.declarePhase();
+                                        });
+                            }
+
+                            listActions.push(function() {
+                                if (DBZCCG.combat && player.combatPhaseEnabled) {
+                                    displayPhaseMessage('#combat-phase-warn',
+                                            function() {
+                                                //player.combatPhase(combat.defending);
+                                            });
+                                }
+
+                                listActions.push(function() {
+                                    if (player.discardPhaseEnabled) {
+                                        displayPhaseMessage('#discard-phase-warn',
+                                                function() {
+                                                    player.discardPhase();                        
+                                                });
+                                    }
+
+                                    listActions.push(function() {
+                                        if (!DBZCCG.combat && player.rejuvenationPhaseEnabled) {
+                                            displayPhaseMessage('#rejuvenation-phase-warn',
+                                                function() {
+                                                    player.rejuvenationPhase();
+                                                });
+                                        }
+                                    });
+
+                                });
+
+                            });
+
+                        });
+
+                    });
+
+                });
+
+            });
+
+        }
+
         function checkLoad() {
-            if (table.players[0].mainPersonality.personalities[0].zScouter == undefined) {
+            if (table.players[0].mainPersonality.personalities[0].zScouter === undefined) {
                 window.setTimeout(checkLoad, 500);
             } else /*Begin code after everything was loaded */ {
-                DBZCCG.performingAction = table.players[0];
-                listActions.push(function() {
-                    DBZCCG.performingAction.transferCards("lifeDeck",[0],"discardPile");
-                });
+//                DBZCCG.performingAction = table.players[0];
+//                
 
                 listActions.push(function() {
-                    DBZCCG.performingAction.transferCards("hand",[0],"discardPile");
+                    invokeTurn();
                 });
+//                listActions.push(function() {
+//                    DBZCCG.performingAction.transferCards("lifeDeck",[0],"discardPile");
+//                });
+//
+//                listActions.push(function() {
+//                    DBZCCG.performingAction.transferCards("hand",[0],"discardPile");
+//                });
+//
+//                listActions.push(function() {
+//                    DBZCCG.performingAction.transferCards("hand",[0],"nonCombats");
+//                });
+//                
+//                listActions.push(function() {
+//                    DBZCCG.performingAction.transferCards("lifeDeck",[0],"hand");
+//                });
+//                
+//                listActions.push(function () {
+//                    DBZCCG.performingAction.drawBottomCards(3, "discardPile");
+//                });
+//
+//                listActions.push(function() {
+//                    DBZCCG.performingAction.drawTopCards(3, "lifeDeck");
+//                });
 
-                listActions.push(function() {
-                    DBZCCG.performingAction.transferCards("hand",[0],"nonCombats");
-                });
-                
-                listActions.push(function() {
-                    DBZCCG.performingAction.transferCards("lifeDeck",[0],"hand");
-                });
-                
-                listActions.push(function () {
-                    DBZCCG.performingAction.drawBottomCards(3, "discardPile");
-                });
-
-                listActions.push(function() {
-                    DBZCCG.performingAction.drawTopCards(3, "lifeDeck");
-                });
-                
 //                 
 //                 listActions.push(function() {
 //                 DBZCCG.performingAction = table.players[1];
@@ -519,12 +693,16 @@ DBZCCG.create = function() {
         window.setTimeout(checkLoad, 500);
 
         function checkAction() {
-            if (DBZCCG.performingAnimation == false && listActions.length > 0 && $(".alertify-log:visible").length == 0 && $(".alertify-dialog:visible").length == 0) {
+            if (!DBZCCG.performingTurn &&
+                    !DBZCCG.performingAnimation &&
+                    listActions.length > 0 &&
+                    $(".alertify-log:visible").length === 0 &&
+                    $(".alertify-dialog:visible").length === 0) {
                 listActions.shift()();
             }
         }
 
-        window.setInterval(checkAction, 1000);
+        window.setInterval(checkAction, 200);
 
         // debug
         // scene.add(MathHelper.buildAxes(1000));
@@ -710,6 +888,8 @@ DBZCCG.create = function() {
 
         display.addEventListener('mousedown', documentOnMouseDown);
         DBZCCG.toolTip = {};
+        DBZCCG.toolTip.callbacks = [];
+        
         function documentOnClick(event) {
             $('#hud').qtip('hide');
             $(DBZCCG.toolTip.content).children('#tooltipEffect').hide();
@@ -726,6 +906,12 @@ DBZCCG.create = function() {
 
                 if (parent.click instanceof Function) {
                     parent.click();
+                }
+
+                for(var i = 0; i < DBZCCG.toolTip.callbacks.length; i++) {
+                    if(DBZCCG.toolTip.callbacks[i] instanceof Function) {
+                        DBZCCG.toolTip.callbacks[i]();
+                    }
                 }
 
                 $('#hud').qtip('show');
@@ -797,7 +983,7 @@ DBZCCG.create = function() {
 
         DBZCCG.toolTip.content = document.createElement('div');
         DBZCCG.toolTip.content.id = 'cardContextTooltip';
-        DBZCCG.toolTip.content.innerHTML = '<div id="tooltipEffect" title="Effect" class="tooltip tooltipEffectDisabled"></div><div title="Description" onclick="DBZCCG.toolTip.showDescription();" id="tooltipDescription" class="tooltip"></div>';
+        DBZCCG.toolTip.content.innerHTML = '<div id="tooltipEffect" title="Effect" class="tooltip tooltipEffectDisabled"></div><div id="tooltipDiscard" title="Discard" class="tooltip"></div><div title="Description" onclick="DBZCCG.toolTip.showDescription();" id="tooltipDescription" class="tooltip"></div>';
 
         /*
          * Toolbar

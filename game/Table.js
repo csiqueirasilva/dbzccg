@@ -11,7 +11,7 @@ DBZCCG.Table.createSurroundingArea = function(direction, width, height, cornerWi
     var geo = new THREE.CylinderGeometry(cornerWidth, cornerWidth, width, 32, 16, true);
     var material = new THREE.MeshBasicMaterial({color: 0x444444, side: THREE.FrontSide});
     var fontMaterial = new THREE.MeshBasicMaterial({color: 0xFFFFFF, side: THREE.FrontSide});
-    
+
     // Superior row
     var superiorRow = new THREE.Mesh(geo, material);
     superiorRow.position = direction.clone();
@@ -20,38 +20,38 @@ DBZCCG.Table.createSurroundingArea = function(direction, width, height, cornerWi
 
     // Text
     surroundingArea.removeLabelText = function() {
-        if(this.labelText instanceof THREE.Mesh) {
+        if (this.labelText instanceof THREE.Mesh) {
             this.remove(this.labelText);
             delete this.labelText;
             this.labelText = undefined;
         }
     };
-    
-    surroundingArea.changeLabelText = function (text) {
-        if(text) {
-    
+
+    surroundingArea.changeLabelText = function(text) {
+        if (text) {
+
             this.removeLabelText();
 
-            var textGeo = new THREE.TextGeometry( text , {
-                    size: 0.8,
-                    height: 0.1,
-                    curveSegments: 4,
-                    weight: "bold",
-                    font: "optimer"
+            var textGeo = new THREE.TextGeometry(text, {
+                size: 0.8,
+                height: 0.1,
+                curveSegments: 4,
+                weight: "bold",
+                font: "optimer"
 
-            });        
+            });
 
             textGeo.computeBoundingBox();
 
             var textMesh = new THREE.Mesh(textGeo, fontMaterial);
             textMesh.position = superiorRow.position.clone();
-            textMesh.position.x -= (textGeo.boundingBox.max.x - textGeo.boundingBox.min.x)/2;
+            textMesh.position.x -= (textGeo.boundingBox.max.x - textGeo.boundingBox.min.x) / 2;
             textMesh.position.y += 0.2;
             this.add(textMesh);
             this.labelText = textMesh;
             DBZCCG.billboards.push(textMesh);
         }
-    }; 
+    };
 
     surroundingArea.changeLabelText("Area");
 
@@ -123,6 +123,8 @@ DBZCCG.Table.create = function(extPlayers, camera, scene) {
 
         this.players = [];
 
+        // Constructor:
+
         var unparsedPlayers = [];
         var qttPlayers = extPlayers.length;
 
@@ -143,7 +145,7 @@ DBZCCG.Table.create = function(extPlayers, camera, scene) {
 
         /* Player 1 hand adjustments */
         this.players.push(DBZCCG.Player.create(unparsedPlayers[0].data, unparsedPlayers[0].pos));
-        
+
         /* Adjust camera for P1 */
         var position = this.players[0].dirVector.clone();
         camera.position.z = position.z * DBZCCG.Table.basePlayerDistance * 70;

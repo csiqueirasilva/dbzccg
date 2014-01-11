@@ -92,13 +92,35 @@ canvas {
     background-size: 70% 50%;
 }
 
+#combat-btn {
+    background: url('../images/icons/combat.png') no-repeat;
+    width: 9%;
+    left: 10%;
+    height: 90%;
+    top: 25%;
+    position: absolute;
+    background-size: 100%;
+    display: none;
+}
+
+#pass-btn {
+    background: url('../images/icons/pass.png') no-repeat;
+    width: 9%;
+    height: 90%;
+    left: 10%;
+    top: 25%;
+    position: absolute;
+    background-size: 100%;
+    display: none;
+}
+
 #log-btn {
     background: url('../images/icons/log2.png') no-repeat;
-    width: 40%;
+    width: 9%;
     height: 90%;
-    top: 15%;
-    position: relative;
-    background-size: 32%;
+    top: 25%;
+    position: absolute;
+    background-size: 100%;
 }
 
 #toolbar {
@@ -129,6 +151,10 @@ canvas {
 
 #turnOrder {
     font-size: .7em;
+}
+
+.turnSelected {
+    font-weight: bold;
 }
 
 #turnTitle {
@@ -168,6 +194,17 @@ canvas {
 
 .tooltipEffectEnabled:hover {
     background: url('../images/icons/lock-selected.png') no-repeat;
+    background-size: 100% 100%;
+}
+
+#tooltipDiscard {
+    display: none;
+    background: url('../images/icons/trash.png') no-repeat;
+    background-size: 100% 100%;
+}
+
+#tooltipDiscard:hover {
+    background: url('../images/icons/trash-selected.png') no-repeat;
     background-size: 100% 100%;
 }
 
@@ -215,6 +252,45 @@ canvas {
 
 #dialog-wrapper-div {
     height: 20em;
+}
+
+#draw-phase-warn {
+    background: url('../images/gfx/text/drawphase.png') no-repeat;
+}
+
+#noncombat-phase-warn {
+    background: url('../images/gfx/text/noncombatstep.png') no-repeat;
+}
+
+#pur-phase-warn {
+    background: url('../images/gfx/text/powerupstep.png') no-repeat;
+}
+
+#declare-phase-warn {
+    background: url('../images/gfx/text/declarestep.png') no-repeat;
+}
+
+#combat-phase-warn {
+    background: url('../images/gfx/text/combatstep.png') no-repeat;
+}
+
+#discard-phase-warn {
+    background: url('../images/gfx/text/discardstep.png') no-repeat;
+}
+
+#rejuvenation-phase-warn {
+    background: url('../images/gfx/text/rejuvenationstep.png') no-repeat;
+}
+
+.phase-warn {
+    display: none;
+    position: absolute;
+    z-index: 12000;
+    left: 41%;
+    top: 35%;
+    width: 280px;
+    height: 70px;
+    background-size: 100% 100%;
 }
 
 /* DEBUG */

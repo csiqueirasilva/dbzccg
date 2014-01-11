@@ -10,22 +10,122 @@ DBZCCG.Player.create = function(dataObject, vec) {
 
     function PlayerObject(dataObject, vec) {
 
+        var pronome;
+
         this.dirVector = vec.clone().normalize();
         this.posVector = vec.clone();
         this.distanceFromCenter = vec.length();
 
         /* Game variables */
         this.handOnTable = false;
+        this.cardDiscardPhaseLimit = 1;
+
+        this.drawPhaseEnabled = true;
+        this.nonCombatPhaseEnabled = true;
+        this.purPhaseEnabled = true;
+        this.declarePhaseEnabled = true;
+        this.combatPhaseEnabled = true;
+        this.discardPhaseEnabled = true;
+        this.rejuvenationPhaseEnabled = true;
 
         /* Game functions */
 
-        this.transferCards = function(src, srcCards, destiny, pilePosition) {
+        this.rejuvenationPhase = function() {
+            DBZCCG.performingTurn = true;
+
+            var botPos = this.lifeDeck.display.position.clone();
+            var topPos = botPos.clone();
+            topPos.y = 5;
+
+            var animation = new TWEEN.Tween(this.lifeDeck.display.position).to(topPos, 200);
+            var secondAnimation = new TWEEN.Tween(this.lifeDeck.display.position).to(botPos, 200);
+
+            secondAnimation.delay(300);
+
+            var player = this;
+            animation.onComplete(function() {
+                var cardName = player.discardPile.cards[player.discardPile.cards.length - 1].name;
+                player.transferCards("discardPile", [player.discardPile.cards.length - 1], "lifeDeck", 0, true);
+                DBZCCG.quickMessage(player.mainPersonality.displayName() + " sent the top card of " + pronome + " Discard Pile (" + cardName + ") into the bottom of " + pronome + " Life Deck.");
+            });
+
+            animation.chain(secondAnimation);
+
+            secondAnimation.onComplete(function() {
+                DBZCCG.performingTurn = false;
+            });
+
+            animation.start();
+        };
+
+        this.discardPhase = function() {
+            if (this.hand.cards.length > this.cardDiscardPhaseLimit) {
+                DBZCCG.performingTurn = true;
+                var elem = $(DBZCCG.toolTip.content).children('#tooltipDiscard')[0];
+
+                DBZCCG.toolTip.callbacks.push(function() {
+
+                    $(DBZCCG.toolTip.content).children('#tooltipDiscard').hide();
+                    var clicked = DBZCCG.toolTip.parent;
+                    var i = 0;
+                    for (; i < player.hand.cards.length && clicked !== player.hand.cards[i].display; i++)
+                        ;
+
+                    if (i !== player.hand.cards.length) {
+                        DBZCCG.toolTip.idxHand = i;
+                        $(DBZCCG.toolTip.content).children('#tooltipDiscard').show();
+                    }
+                    
+                });
+                
+                var callbackIdx = DBZCCG.toolTip.callbacks.length - 1;
+                var player = this;
+                elem.onclick = function() {
+                    
+                    $(DBZCCG.toolTip.content).children('#tooltipDiscard').hide();
+                    $('#hud').qtip('hide');
+                    
+                    player.transferCards("hand", [DBZCCG.toolTip.idxHand], "discardPile", player.discardPile.cards.length);
+
+                    if (player.hand.cards.length === player.cardDiscardPhaseLimit) {
+                        elem.onclick = null;
+                        DBZCCG.performingTurn = false;
+                        DBZCCG.toolTip.callbacks.splice(callbackIdx, 1);
+                    }
+                    
+                    DBZCCG.toolTip.idxHand = undefined;
+                };
+            }
+        };
+
+        this.declarePhase = function() {
+            DBZCCG.performingTurn = true;
+            document.getElementById('combat-btn').onclick();
+            $('#combat-btn').show();
+        };
+
+        this.purPhase = function() {
+            var pur = this.mainPersonality.currentPersonality().PUR;
+            this.mainPersonality.raiseZScouter(pur);
+        };
+
+        this.nonCombatPhase = function() {
+            DBZCCG.performingTurn = true;
+            DBZCCG.passMessage = 'Advance to the Power UP Phase?';
+            $('#pass-btn').show();
+        };
+
+        this.drawPhase = function() {
+            DBZCCG.performingAction.drawTopCards(3, "lifeDeck");
+        };
+
+        this.transferCards = function(src, srcCards, destiny, pilePosition, noMessage) {
 
             var card = [];
             var action;
             var destinyString;
             var sourceString;
-            
+
             if (this[src].constructor.name === "cardGroupObject") {
                 var idx;
                 for (var i = 0; i < srcCards.length; i++) {
@@ -41,13 +141,13 @@ DBZCCG.Player.create = function(dataObject, vec) {
                 }
                 this[src].addCard([]);
                 action = "placed";
-                
-                if(src === "hand") {
+
+                if (src === "hand") {
                     sourceString = "hand";
                 } else {
                     sourceString = "field";
                 }
-                
+
             } else /* From pile */ {
                 for (var i = 0; i < srcCards.length; i++) {
                     card.push(this[src].removeCardByIdx(srcCards[i]));
@@ -55,22 +155,22 @@ DBZCCG.Player.create = function(dataObject, vec) {
                 action = "sent";
                 sourceString = this[src].display.name;
             }
-            
+
             var cardString = "";
-            
+
             cardString += card[0].name;
-            
-            if(card.length > 1) {
-                for(var i = 1; i < card.length - 1; i++) {
+
+            if (card.length > 1) {
+                for (var i = 1; i < card.length - 1; i++) {
                     cardString += ", " + card[i].name;
                 }
                 cardString += " and " + card[card.length - 1].name;
             }
-            
-            if("cardGroupObject" === this[destiny].constructor.name) {
+
+            if ("cardGroupObject" === this[destiny].constructor.name) {
                 this[destiny].addCard(card);
-            
-                if(destiny === "hand") {
+
+                if (destiny === "hand") {
                     destinyString = "hand";
                 } else {
                     destinyString = "field";
@@ -78,13 +178,15 @@ DBZCCG.Player.create = function(dataObject, vec) {
 
             } else /* to Pile */ {
                 this[destiny].addCard(pilePosition ? pilePosition : this[destiny].cards.length, card);
-                
+
                 destinyString = this[destiny].display.name;
             }
 
-            var msg = this.mainPersonality.displayName() + " " + action + " " + cardString + " from " + sourceString + " into his " + destinyString + ".";
+            if (!noMessage) {
+                var msg = this.mainPersonality.displayName() + " " + action + " " + cardString + " from " + pronome + " " + sourceString + " into " + pronome + " " + destinyString + ".";
 
-            DBZCCG.quickMessage(msg);
+                DBZCCG.quickMessage(msg);
+            }
 
         };
 
@@ -104,9 +206,9 @@ DBZCCG.Player.create = function(dataObject, vec) {
             for (var j = 0; j < i; j++) {
                 card.push(this[sourcePile].removeCardByIdx(j));
             }
-            
+
             this.hand.addCard(card, (this === DBZCCG.performingAction || this.handOnTable) ? true : false);
-    
+
             DBZCCG.quickMessage(this.mainPersonality.displayName() + " drew " + n + " card" + ((n > 1) ? "s" : "") + " from the bottom of the " + this[sourcePile].display.name + ".");
 
         };
@@ -129,7 +231,7 @@ DBZCCG.Player.create = function(dataObject, vec) {
             }
 
             this.hand.addCard(card, (this === DBZCCG.performingAction || this.handOnTable) ? true : false);
-            
+
             DBZCCG.quickMessage(this.mainPersonality.displayName() + " drew " + n + " card" + ((n > 1) ? "s" : "") + " from the top of the " + this[sourcePile].display.name + ".");
         };
 
@@ -277,8 +379,27 @@ DBZCCG.Player.create = function(dataObject, vec) {
 
         this.mainPersonality = DBZCCG.MainPersonality.create(dataObject.mainPersonality);
 //            this.mastery = Mastery.create(dataObject.mastery);
+
+        // To be shown in messages
+
+        pronome = 'his';
+
+        if (this.mainPersonality.currentPersonality().personality instanceof Array) {
+            for (var i = 0; i < this.mainPersonality.currentPersonality().personality.length; i++) {
+                if (DBZCCG.Personality.FemaleList.indexOf(this.mainPersonality.currentPersonality().personality[i]) !== -1) {
+                    pronome = 'her';
+                }
+            }
+        } else {
+            if (DBZCCG.Personality.FemaleList.indexOf(this.mainPersonality.currentPersonality().personality) !== -1) {
+                pronome = 'her';
+            }
+        }
+
         this.lifeDeck = DBZCCG.LifeDeck.create(dataObject.lifeDeck);
 //            this.sensei = Sensei.create(dataObject.sensei);
+
+
 
         if (this.sensei) {
             //              this.senseiDeck = loadCards(dataObject.senseiDeck);

@@ -15,6 +15,11 @@ DBZCCG.Personality.BULMA = 12;
 DBZCCG.Personality.CHICHI = 13;
 DBZCCG.Personality.SAIBAIMEN = 14;
 
+DBZCCG.Personality.FemaleList = [
+    DBZCCG.Personality.BULMA,
+    DBZCCG.Personality.CHICHI
+];
+
 DBZCCG.Personality.alignment = {};
 DBZCCG.Personality.alignment.Hero = 1;
 DBZCCG.Personality.alignment.Villain = 2;
@@ -57,6 +62,50 @@ DBZCCG.Personality.create = function(data) {
             content += sagaLabel;
 
             return content;
+        }
+
+        this.raiseZScouter = function (numberPowerStages, noDelay, noMessage) {
+            if(numberPowerStages === 0) {
+                return;
+            }
+
+            if(this.currentPowerStageAboveZero === 0 && numberPowerStages < 0) {
+                if(!noMessage) {
+                    DBZCCG.quickMessage(this.displayName() + ' already at 0.');
+                }
+                
+                return numberPowerStages;
+            } else if (this.currentPowerStageAboveZero === this.powerStages.length - 1 && numberPowerStages > 0) {
+                if(!noMessage) {
+                    DBZCCG.quickMessage(this.displayName() + ' already at maximum power stage level.');
+                }
+                
+                return numberPowerStages;
+            }
+            
+            var action = 'gained';
+            if(numberPowerStages < 0) {
+                action = 'lost';
+            }
+
+            var resultPowerStage = this.currentPowerStageAboveZero + numberPowerStages;
+            var diffPowerStage = resultPowerStage - this.currentPowerStageAboveZero;
+            var leftover;
+            
+            if(!this.powerStages[resultPowerStage]) {
+                leftover = resultPowerStage;
+                resultPowerStage = resultPowerStage > 0 ? this.powerStages.length - 1 : 0;
+                diffPowerStage = resultPowerStage - this.currentPowerStageAboveZero;
+            }
+            
+            this.moveZScouter(resultPowerStage, noDelay, true);
+            
+           if(!noMessage) {
+                var msg = this.displayName() + " " + action + " " + Math.abs(diffPowerStage) + " power stage" + (Math.abs(diffPowerStage) > 1 ? "s" : "") + ".";
+                DBZCCG.quickMessage(msg);
+            }
+            
+            return leftover;
         }
 
         this.moveZScouter = function(toPowerStages, noDelay, noMessage) {

@@ -9,8 +9,12 @@ DBZCCG.MainPersonality.create = function(data) {
 
     function MainPersonalityObject(data) {
 
-        this.moveZScouter = function(toPowerStage) {
-            this.personalities[this.currentMainPersonalityLevel - 1].moveZScouter(toPowerStage);
+        this.raiseZScouter = function(numberPowerStages, noDelay, noMessage) {
+            this.personalities[this.currentMainPersonalityLevel - 1].raiseZScouter(numberPowerStages, noDelay, noMessage);
+        };
+
+        this.moveZScouter = function(toPowerStage, noDelay, noMessage) {
+            this.personalities[this.currentMainPersonalityLevel - 1].moveZScouter(toPowerStage, noDelay, noMessage);
         };
 
         this.neutralPositionScabbard = function(dirVector) {

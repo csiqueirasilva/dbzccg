@@ -11,12 +11,26 @@
         <link rel="stylesheet" href="css/jqueryui/theme-1.10.3.css" />
         
     </head>
+    
     <body id='body' style="margin: 0; overflow: hidden;" oncontextmenu="return false;">
+        
+        <div class="phase-warn" id="draw-phase-warn"></div>
+        <div class="phase-warn" id="discard-phase-warn"></div>
+        <div class="phase-warn" id="declare-phase-warn"></div>
+        <div class="phase-warn" id="combat-phase-warn"></div>
+        <div class="phase-warn" id="rejuvenation-phase-warn"></div>
+        <div class="phase-warn" id="noncombat-phase-warn"></div>
+        <div class="phase-warn" id="pur-phase-warn"></div>
+        
         <h1 id="loadingText">Loading!!!!</h1>
         <div id='hud'>
         </div>
 
         <div id="toolbar">
+            <div id="combat-btn" class="btn">
+            </div>
+            <div id="pass-btn" class="btn">
+            </div>
             <div id="log-btn" class="btn">
             </div>
         </div>
@@ -27,18 +41,17 @@
             
             <div id="logBox" class="niceScrollBar">
             </div>
-            
         </div>
 
         <div id="turnCounter">
             <div id="turnOrder">
-                <span title="Draw Phase" id="drawPhase">Draw</span> > 
-                <span title="Non-Combat Phase" id="nonCombatPhase">N-CMB</span> > 
-                <span title="Power-Up Phase" id="PURPhase">PUR</span> >
-                <span title="Declare Phase" id="declarePhase">DCLR</span> > 
-                <span title="Combat Phase" id="combatPhase">CMB</span> >
-                <span title="Discard Phase" id="discardPhase">DCRD</span> >
-                <span title="Rejuvenation Phase" id="rejuvenationPhase">RJV</span> </div>
+                <span title="Draw Phase" id="draw-phase">Draw</span> > 
+                <span title="Non-Combat Phase" id="noncombat-phase">N-CMB</span> > 
+                <span title="Power-Up Phase" id="pur-phase">PUR</span> >
+                <span title="Declare Phase" id="declare-phase">DCLR</span> > 
+                <span title="Combat Phase" id="combat-phase">CMB</span> >
+                <span title="Discard Phase" id="discard-phase">DCRD</span> >
+                <span title="Rejuvenation Phase" id="rejuvenation-phase">RJV</span> </div>
             <div id="turnTitle">TURN</div>
             <div id="turnCounterNumber">0</div>
         </div>
@@ -60,6 +73,7 @@
         <div id="rightBarWindow">
         </div>
 
+        
         <!-- libs -->
         <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
         <script type="text/javascript" src="lib/jquery-ui-1.10.3.custom.min.js"></script>
