@@ -63,45 +63,66 @@ DBZCCG.Player.create = function(dataObject, vec) {
                 DBZCCG.performingTurn = true;
                 var elem = $(DBZCCG.toolTip.content).children('#tooltipDiscard')[0];
 
-                DBZCCG.toolTip.callbacks.push(function() {
+                var discardCallback = {f: function() {
+                        var clicked = DBZCCG.toolTip.parent;
+                        var i = 0;
+                        for (; i < player.hand.cards.length && clicked !== player.hand.cards[i].display; i++)
+                            ;
 
-                    $(DBZCCG.toolTip.content).children('#tooltipDiscard').hide();
-                    var clicked = DBZCCG.toolTip.parent;
-                    var i = 0;
-                    for (; i < player.hand.cards.length && clicked !== player.hand.cards[i].display; i++)
-                        ;
-
-                    if (i !== player.hand.cards.length) {
-                        DBZCCG.toolTip.idxHand = i;
+                        if (i !== player.hand.cards.length) {
+                            DBZCCG.toolTip.idxHand = i;
+                        }
                         $(DBZCCG.toolTip.content).children('#tooltipDiscard').show();
-                    }
-                    
-                });
-                
-                var callbackIdx = DBZCCG.toolTip.callbacks.length - 1;
+                    },
+                    priority: 1};
+
+                for(var i = 0; i < this.hand.cards.length; i++) {
+                    this.hand.cards[i].display.addCallback(discardCallback);
+                }
+
                 var player = this;
                 elem.onclick = function() {
-                    
-                    $(DBZCCG.toolTip.content).children('#tooltipDiscard').hide();
+
                     $('#hud').qtip('hide');
-                    
+
                     player.transferCards("hand", [DBZCCG.toolTip.idxHand], "discardPile", player.discardPile.cards.length);
 
                     if (player.hand.cards.length === player.cardDiscardPhaseLimit) {
                         elem.onclick = null;
                         DBZCCG.performingTurn = false;
-                        DBZCCG.toolTip.callbacks.splice(callbackIdx, 1);
+                        for(var i = 0; i < player.hand.cards.length; i++) {
+                            player.hand.cards[i].display.removeCallback(discardCallback);
+                        }
                     }
-                    
+
+                    DBZCCG.toolTip.parent.removeCallback(discardCallback);
                     DBZCCG.toolTip.idxHand = undefined;
                 };
+                
+                if(DBZCCG.mainPlayer !== this) {
+                    //TODO: AI OR P2
+                    var handSize = this.hand.cards.length;
+                    for(var i = handSize - 1; i > 0; i--) {
+                        window.setTimeout(function() {
+                            DBZCCG.toolTip.idxHand = i;
+                            DBZCCG.toolTip.parent = player.hand.cards[DBZCCG.toolTip.idxHand].display;
+                            elem.onclick();
+                        },i*200);
+                    }
+                }
             }
         };
 
         this.declarePhase = function() {
             DBZCCG.performingTurn = true;
-            document.getElementById('combat-btn').onclick();
-            $('#combat-btn').show();
+            if(DBZCCG.mainPlayer === this) {
+                document.getElementById('combat-btn').onclick();
+                $('#combat-btn').show();
+            } else {
+                // AI OR P2
+                DBZCCG.combat = true;
+                DBZCCG.performingTurn = false;
+            }
         };
 
         this.purPhase = function() {
@@ -111,13 +132,67 @@ DBZCCG.Player.create = function(dataObject, vec) {
 
         this.nonCombatPhase = function() {
             DBZCCG.performingTurn = true;
-            DBZCCG.passMessage = 'Advance to the Power UP Phase?';
-            $('#pass-btn').show();
+            if(DBZCCG.mainPlayer === this) {
+                DBZCCG.passMessage = 'Advance to the Power UP Phase?';
+                $('#pass-btn').show();
+            } else {
+                // TODO: AI OR P2
+                DBZCCG.performingTurn = false;
+            }
         };
 
         this.drawPhase = function() {
             DBZCCG.performingAction.drawTopCards(3, "lifeDeck");
         };
+
+        this.turnCallback = [];
+
+        this.removeTurnCallback = function(callback) {
+            var idx = turnCallback.indexOf(callback);
+            if(idx !== -1) {
+                turnCallback.splice(idx, 1);
+                turnCallback.sort(DBZCCG.compareCallbacks);
+            }
+        }
+
+        this.addTurnCallback = function(callback) {
+            var idx = turnCallback.indexOf(callback);
+            console.log(idx);
+            if(idx === -1) {
+                turnCallback.push(callback);
+                turnCallback.sort(DBZCCG.compareCallbacks);
+            }
+        }
+
+        var transferCallback = [];
+
+        this.removeTransferCallback = function(callback) {
+            var idx = transferCallback.indexOf(callback);
+            if(idx !== -1) {
+                transferCallback.splice(idx, 1);
+                transferCallback.sort(DBZCCG.compareCallbacks);
+            }
+        }
+
+        this.addTransferCallback = function(callback) {
+            var idx = transferCallback.indexOf(callback);
+            console.log(idx);
+            if(idx === -1) {
+                // add all the card group and piles of the player to the callback
+                callback.lifeDeck = this.lifeDeck;
+                callback.hand = this.hand;
+                callback.nonCombats = this.nonCombats;
+                callback.discardPile = this.discardPile;
+                callback.removedFromGame = this.removedFromGame;
+                callback.drills = this.drills;
+                callback.dragonballs = this.dragonballs;
+                callback.inPlay = this.inPlay;
+                callback.fieldCards = this.fieldCards;
+                
+                transferCallback.push(callback);
+                transferCallback.sort(DBZCCG.compareCallbacks);
+            }
+        }
 
         this.transferCards = function(src, srcCards, destiny, pilePosition, noMessage) {
 
@@ -126,68 +201,92 @@ DBZCCG.Player.create = function(dataObject, vec) {
             var destinyString;
             var sourceString;
 
-            if (this[src].constructor.name === "cardGroupObject") {
-                var idx;
-                for (var i = 0; i < srcCards.length; i++) {
-                    idx = srcCards[i];
-                    card.push(this[src].cards[idx]);
-                    this[src].cards[idx] = undefined;
-                }
-
-                for (var i = 0; i < this[src].cards.length; i++) {
-                    if (!this[src].cards[idx]) {
-                        this[src].cards.splice(idx, 1);
+            for (var i = 0; i < transferCallback.length; i++) {
+                if (transferCallback[i].f instanceof Function) {
+                    var ret = transferCallback[i].f(src, srcCards, destiny, pilePosition);
+                    if(ret instanceof Object) {
+                        if(ret.src !== undefined) {
+                            src = ret.src;
+                        } else if (ret.srcCards !== undefined) {
+                            srcCards = ret.srcCards;
+                        } else if (ret.destiny !== undefined) {
+                            destiny = ret.destiny;
+                        } else if (ret.pilePosition !== undefined) {
+                            pilePosition = ret.pilePosition;
+                        }
                     }
                 }
-                this[src].addCard([]);
-                action = "placed";
-
-                if (src === "hand") {
-                    sourceString = "hand";
-                } else {
-                    sourceString = "field";
-                }
-
-            } else /* From pile */ {
-                for (var i = 0; i < srcCards.length; i++) {
-                    card.push(this[src].removeCardByIdx(srcCards[i]));
-                }
-                action = "sent";
-                sourceString = this[src].display.name;
             }
 
-            var cardString = "";
+            if(srcCards.length > 0) {
 
-            cardString += card[0].name;
-
-            if (card.length > 1) {
-                for (var i = 1; i < card.length - 1; i++) {
-                    cardString += ", " + card[i].name;
-                }
-                cardString += " and " + card[card.length - 1].name;
-            }
-
-            if ("cardGroupObject" === this[destiny].constructor.name) {
-                this[destiny].addCard(card);
-
-                if (destiny === "hand") {
-                    destinyString = "hand";
-                } else {
-                    destinyString = "field";
+                // Avoid access to displays that no longer exists
+                if ($('.ui-dialog:visible').is(':visible')) {
+                    $($('.ui-dialog:visible').children('div')[1]).dialog('close');
                 }
 
-            } else /* to Pile */ {
-                this[destiny].addCard(pilePosition ? pilePosition : this[destiny].cards.length, card);
+                if (this[src].constructor.name === "cardGroupObject") {
+                    var idx;
+                    for (var i = 0; i < srcCards.length; i++) {
+                        idx = srcCards[i];
+                        card.push(this[src].cards[idx]);
+                        this[src].cards[idx] = undefined;
+                    }
 
-                destinyString = this[destiny].display.name;
+                    for (var i = 0; i < this[src].cards.length; i++) {
+                        if (!this[src].cards[idx]) {
+                            this[src].cards.splice(idx, 1);
+                        }
+                    }
+                    this[src].addCard([]);
+                    action = "placed";
+
+                    if (src === "hand") {
+                        sourceString = "hand";
+                    } else {
+                        sourceString = "field";
+                    }
+
+                } else /* From pile */ {
+                    for (var i = 0; i < srcCards.length; i++) {
+                        card.push(this[src].removeCardByIdx(srcCards[i]));
+                    }
+                    action = "sent";
+                    sourceString = this[src].display.name;
+                }
+
+                var cardString = "";
+
+                cardString += card[0].name;
+
+                if (card.length > 1) {
+                    for (var i = 1; i < card.length - 1; i++) {
+                        cardString += ", " + card[i].name;
+                    }
+                    cardString += " and " + card[card.length - 1].name;
+                }
+
+                if ("cardGroupObject" === this[destiny].constructor.name) {
+                    this[destiny].addCard(card);
+
+                    if (destiny === "hand") {
+                        destinyString = "hand";
+                    } else {
+                        destinyString = "field";
+                    }
+
+                } else /* to Pile */ {
+                    this[destiny].addCard(pilePosition !== undefined ? pilePosition : this[destiny].cards.length, card);
+
+                    destinyString = this[destiny].display.name;
+                }
+
+                if (!noMessage) {
+                    var msg = this.mainPersonality.displayName() + " " + action + " " + cardString + " from " + pronome + " " + sourceString + " into " + pronome + " " + destinyString + ".";
+
+                    DBZCCG.quickMessage(msg);
+                }
             }
-
-            if (!noMessage) {
-                var msg = this.mainPersonality.displayName() + " " + action + " " + cardString + " from " + pronome + " " + sourceString + " into " + pronome + " " + destinyString + ".";
-
-                DBZCCG.quickMessage(msg);
-            }
-
         };
 
         this.drawBottomCards = function(n, sourcePile) {
@@ -201,16 +300,27 @@ DBZCCG.Player.create = function(dataObject, vec) {
                 i = n;
             }
 
+            var cbIdx = [];
+            for (var j = 0; j < i; j++) {
+                cbIdx.push(j);
+            }
+
+            for (var j = 0; j < transferCallback.length; j++) {
+                if (transferCallback[j].f instanceof Function) {
+                    transferCallback[j].f("lifeDeck", cbIdx, "hand");
+                }
+            }
+
             var card = [];
 
             for (var j = 0; j < i; j++) {
-                card.push(this[sourcePile].removeCardByIdx(j));
+                var c = this[sourcePile].removeCardByIdx(j);
+                card.push(c);
             }
-
-            this.hand.addCard(card, (this === DBZCCG.performingAction || this.handOnTable) ? true : false);
+            
+            this.hand.addCard(card, (this === DBZCCG.mainPlayer || this.handOnTable) ? true : false);
 
             DBZCCG.quickMessage(this.mainPersonality.displayName() + " drew " + n + " card" + ((n > 1) ? "s" : "") + " from the bottom of the " + this[sourcePile].display.name + ".");
-
         };
 
         this.drawTopCards = function(n, sourcePile) {
@@ -224,13 +334,25 @@ DBZCCG.Player.create = function(dataObject, vec) {
                 i = this[sourcePile].cards.length - n;
             }
 
+            var cbIdx = [];
+            for (var j = this[sourcePile].cards.length - 1; j >= i; j--) {
+                cbIdx.push(j);
+            }
+
+            for (var j = 0; j < transferCallback.length; j++) {
+                if (transferCallback[j].f instanceof Function) {
+                    transferCallback[j].f("lifeDeck", cbIdx, "hand");
+                }
+            }
+
             var card = [];
 
             for (var j = this[sourcePile].cards.length - 1; j >= i; j--) {
-                card.push(this[sourcePile].removeCardByIdx(j));
+                var c = this[sourcePile].removeCardByIdx(j);
+                card.push(c);
             }
 
-            this.hand.addCard(card, (this === DBZCCG.performingAction || this.handOnTable) ? true : false);
+            this.hand.addCard(card, (this === DBZCCG.mainPlayer || this.handOnTable) ? true : false);
 
             DBZCCG.quickMessage(this.mainPersonality.displayName() + " drew " + n + " card" + ((n > 1) ? "s" : "") + " from the top of the " + this[sourcePile].display.name + ".");
         };

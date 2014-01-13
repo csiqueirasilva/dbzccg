@@ -110,6 +110,7 @@
         <script type="text/javascript" src="game/Player.js"></script>
         <script type="text/javascript" src="game/Table.js"></script>
         <script type="text/javascript" src="game/Screen.js"></script>
+        <script type="text/javascript" src="game/SaiyanSaga.js"></script>
         <script type="text/javascript">
             function getKeyByValue(object, value) {
             for (var prop in object) {

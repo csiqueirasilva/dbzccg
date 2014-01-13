@@ -10,6 +10,8 @@ DBZCCG.Pile.create = function(data, faceUp) {
 
         var pile = this;
 
+        this.number = data.number;
+
         function addTopToObjectList() {
             var idx = pile.display.children.length - 1;
             var display = pile.display.children[idx];
@@ -43,6 +45,25 @@ DBZCCG.Pile.create = function(data, faceUp) {
         }
         ;
 
+        var addCallback = [];
+
+        this.removeCallback = function(callback) {
+            var idx = addCallback.indexOf(callback);
+            if(idx !== -1) {
+                addCallback.splice(idx, 1);
+                addCallback.sort(DBZCCG.compareCallbacks);
+            }
+        }
+
+        this.addCallback = function(callback) {
+            var idx = addCallback.indexOf(callback);
+            console.log(idx);
+            if(idx === -1) {
+                addCallback.push(callback);
+                addCallback.sort(DBZCCG.compareCallbacks);
+            }
+        }
+
         this.addCard = function(cardIdx, cards) {
             if (cards instanceof Array && cards.length > 0) {
                 DBZCCG.performingAnimation = true;
@@ -50,6 +71,7 @@ DBZCCG.Pile.create = function(data, faceUp) {
 
                 if (!(card.display.offDescriptionBox instanceof Function)) {
                     card.display.turnGameDisplay();
+                    card.display.ownParent = false;
                 }
 
                 if(card.removePositionCallback instanceof Function) {
@@ -74,7 +96,7 @@ DBZCCG.Pile.create = function(data, faceUp) {
 
                 animation.onStart(function() {
 
-                    if (cardIdx === otherCards.length && otherCards.length > 0) {
+                    if (cardIdx === otherCards.length) {
                         if (faceUp) {
                             card.faceup();
                         } else {
@@ -137,13 +159,28 @@ DBZCCG.Pile.create = function(data, faceUp) {
                     // Match the player
                     card.display.rotation.z += pile.display.rotation.y;
 
+                    pile.currentCards = pile.display.children.length;
+
+                    for (var i = 0; i < addCallback.length; i++) {
+                        if (addCallback[i].f instanceof Function) {
+                            var ret = addCallback[i].f(cardIdx, increaseIndex, cards);
+                            if(ret instanceof Object) {
+                                if(ret.cardIdx !== undefined) {
+                                    cardIdx = ret.cardIdx;
+                                } else if (ret.increaseIndex !== undefined) {
+                                    increaseIndex = ret.increaseIndex;
+                                } else if (ret.cards !== undefined) {
+                                    destiny = ret.cards;
+                                }
+                            }
+                        }
+                    }
+
                     if (cards.length > 0) {
                         pile.addCard(cardIdx + increaseIndex, cards);
                     } else {
                         DBZCCG.performingAnimation = false;
                     }
-
-                    pile.currentCards = pile.display.children.length;
 
                 });
 
@@ -167,16 +204,16 @@ DBZCCG.Pile.create = function(data, faceUp) {
             var card;
             
             // TODO: Load the right card properties, if it is random
-
+            
             // TODO: Ajax Load for the online version!
             if (!removedCard.parentCard) {
                 var rot = removedCard.rotation.clone();
                 var pos = removedCard.position.clone();
-                if (!(this.cards instanceof Array)) {
+                if (!(pile.cards instanceof Array)) {
                     DBZCCG.removeObject(removedCard);
                     card = DBZCCG.Card.generateRandom();
                 } else {
-                    card = this.cards[cardIdx];
+                    card = pile.cards[cardIdx];
                 }
 
                 card.display.rotation = rot;
@@ -286,7 +323,7 @@ DBZCCG.Pile.create = function(data, faceUp) {
 
         this.display = createDisplay(data.number, faceUp);
         this.currentCards = data.number;
-        this.cards = [];
+        this.cards = data.cards || [];
 
         this.setOwnerCallback = function(callback) {
             this.display.owner = callback;

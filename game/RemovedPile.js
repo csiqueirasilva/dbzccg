@@ -16,5 +16,5 @@ DBZCCG.RemovedPile.create = function (removedPile) {
         this.display.name = "Removed from the game";
     }
     
-    return new removedPileObject(removedPile || {number: 10});
+    return new removedPileObject(removedPile || {number: 0});
 }

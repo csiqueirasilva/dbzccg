@@ -20,34 +20,18 @@ DBZCCG.DiscardPile.create = function(discardPile) {
             return this.children[lastIndex];
         };
 
-        /* DEMO CODE */
-
         this.getTopCard = function() {
             return this.cards[this.cards.length - 1];
         };
 
-        this.getRandomCard = function () {
-            var random = Math.floor(Math.random() * 1000) % cardList.length ;
-            var card = cardList[random];
-            cardList.splice(random, 1);
-            return card;
-        }
-
         this.getBottomCard = function () {
             return this.cards[0];
         };
-
-        /* END OF DEMO CODE */
-        for (var i = 0; i < discardPile.number; i++) {
-            var card = DBZCCG.Card.generateRandom();
-            card.display.turnGameDisplay();
-            this.cards.push(card);
-        }
 
         this.firstCardFaceUp();
         
         this.display.name = "Discard pile";
     }
 
-    return new discardPileObject(discardPile || {number: 30});
+    return new discardPileObject(discardPile || {number: 0});
 }

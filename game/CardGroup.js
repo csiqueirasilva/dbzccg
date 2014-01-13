@@ -93,11 +93,33 @@ DBZCCG.CardGroup.create = function(cardGroup) {
             }
         }
 
+        var addCallback = [];
+
+        this.removeCallback = function(callback) {
+            var idx = addCallback.indexOf(callback);
+            if(idx !== -1) {
+                addCallback.splice(idx, 1);
+                addCallback.sort(DBZCCG.compareCallbacks);
+            }
+        }
+
+        this.addCallback = function(callback) {
+            var idx = addCallback.indexOf(callback);
+            console.log(idx);
+            if(idx === -1) {
+                addCallback.push(callback);
+                addCallback.sort(DBZCCG.compareCallbacks);
+            }
+        }
+
         this.addCard = function(cardsToJoin, addToScene) {
             DBZCCG.performingAnimation = true;
             var card;
             if (cardsToJoin.length > 0) {
                 card = cardsToJoin.shift();
+                if (card.display.offDescriptionBox instanceof Function) {
+                    card.display.turnGameDisplay();
+                }
                 this.cards.push(card);
             }
 
@@ -232,16 +254,31 @@ DBZCCG.CardGroup.create = function(cardGroup) {
                 }
 
                 itAnimation.onComplete(function() {
+                    
+                    if ((DBZCCG.performingAction === DBZCCG.mainPlayer || addToScene) && card) {
+                        DBZCCG.objects.push(card.display);
+                        card.display.ownParent = true;
+                    }
+                    
+                    for (var i = 0; i < addCallback.length; i++) {
+                        if (addCallback[i].f instanceof Function) {
+                            var ret = addCallback[i].f(cardsToJoin, addToScene);
+                            if(ret instanceof Object) {
+                                if(ret.cardsToJoin !== undefined) {
+                                    cardsToJoin = ret.cardsToJoin;
+                                } else if (ret.addToScene !== undefined) {
+                                    addToScene = ret.addToScene;
+                                }
+                            }
+                        }
+                    }
+                    
                     if (cardsToJoin.length == 0) {
                         DBZCCG.performingAnimation = false;
                     } else {
                         cardGroup.addCard(cardsToJoin, addToScene);
                     }
 
-                    if ((DBZCCG.performingAction === DBZCCG.mainPlayer || addToScene) && card) {
-                        DBZCCG.objects.push(card.display);
-                        card.display.ownParent = true;
-                    }
                 });
 
                 firstAnimation.start();
@@ -256,5 +293,5 @@ DBZCCG.CardGroup.create = function(cardGroup) {
         cardGroup = this;
     }
 
-    return new cardGroupObject(cardGroup || [DBZCCG.Card.generateRandom(), DBZCCG.Card.generateRandom()]);
+    return new cardGroupObject(cardGroup || []);
 };

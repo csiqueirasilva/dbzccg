@@ -264,6 +264,24 @@ DBZCCG.Card.create = function(dataObject) {
         this.display.parentCard = this;
         var card = this;
 
+        card.display.callbacks = [];
+
+        card.display.removeCallback = function(callback) {
+            var idx = this.callbacks.indexOf(callback);
+            if(idx !== -1) {
+                this.callbacks.splice(idx, 1);
+                this.callbacks.sort(DBZCCG.compareCallbacks);
+            }
+        }
+
+        card.display.addCallback = function(callback) {
+            var idx = this.callbacks.indexOf(callback);
+            if(idx === -1) {
+                this.callbacks.push(callback);
+                this.callbacks.sort(DBZCCG.compareCallbacks);
+            }
+        }
+
         card.display.displayName = function () {
             return card.name;
         }

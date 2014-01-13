@@ -7,9 +7,53 @@ DBZCCG.LifeDeck.namekianMaximumSize = 90;
 DBZCCG.LifeDeck.create = function(deckObject) {
 
     function LifeDeckObject(deckObject) {
+
+        var cardList = [];
+        if(!deckObject.number) {
+            /* THIS IS THE DEMO CODE */
+            var allowedCards = 
+                    ['001', '002', '003', '004', '005', '006', '007', '008', '009', '010', '014', '017', '024', '027', '044', '046', '051', '055'];
+
+            while(cardList.length < this.number || allowedCards.length !== 0) {
+                var idx = Math.floor((Math.random()*1000)) % allowedCards.length;
+
+                var count = 0;
+                for(var i = 0; i < cardList.length; i++) {
+                    if(cardList[i].number === allowedCards[idx]) {
+                        count++;
+                    }
+                }
+
+                if(count === 3) {
+                    allowedCards.splice(idx, 1);
+                } else {
+                    var cardData = DBZCCG.SAIYAN[allowedCards[idx]];
+                    card = DBZCCG.Card.create(cardData);
+                    card.display.turnGameDisplay();
+                    cardList.push(card);
+                }
+            }
+
+            deckObject.number = cardList.length;
+            deckObject.cards = cardList;
+
+            /* End of demo code */
+        }
+        
         ClassHelper.extends(this, DBZCCG.Pile.create(deckObject));
 
         var deck = this;
+//        
+//        if(cardList.length > 0) {
+//            /* demo code */
+//            for(var i = 0; i < cardList.length; i++) {
+//                this.cards.push(cardList[i]);
+//            }
+//            /* end of demo code */
+//        } else {
+//            cardList = this.cards;
+//        }
+        
         this.display.descriptionBox = function() {
             var content = "<div class='card-quantity'>Number of cards in life deck: " + deck.cards.length + "</div>";
             
@@ -21,14 +65,6 @@ DBZCCG.LifeDeck.create = function(deckObject) {
             return this.owner() + ' Life Deck';
         }
         
-        /* THIS IS THE DEMO CODE */
-        var cardList = this.cards;
-        for(var i = 0; i < deckObject.number; i++) {
-            var card = DBZCCG.Card.generateRandom();
-            card.display.turnGameDisplay();
-            cardList.push(card);
-        }
-
         this.getRandomCard = function () {
             var random = Math.floor(Math.random() * 1000) % cardList.length ;
             var card = cardList[random];
@@ -37,9 +73,8 @@ DBZCCG.LifeDeck.create = function(deckObject) {
         }
         
         this.display.name = "Life deck";
-        
     }
 
-    return new LifeDeckObject(deckObject || {number: 50});
+    return new LifeDeckObject(deckObject || {});
 
 };

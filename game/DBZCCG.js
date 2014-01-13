@@ -1,6 +1,15 @@
 // http://github.com/csiqueirasilva/dbzccg.js
 var DBZCCG = {};
 
+/* Global function to compare callbacks */
+DBZCCG.compareCallbacks = function(a, b) {
+    if (a.priority < b.priority)
+        return -1;
+    if (a.priority > b.priority)
+        return 1;
+    return 0;
+};
+
 /* Dialogs */
 DBZCCG.createDialog = function(title, content, id) {
     var elem = document.createElement('div');
@@ -18,21 +27,21 @@ DBZCCG.createDialog = function(title, content, id) {
 };
 
 DBZCCG.declareDialog = function() {
-    DBZCCG.confirmDialog('Declaring combat', 'Do you wish to declare combat?', null, 
-    {
-        "Declare combat": function() {
-            $('#combat-btn').hide();
-            DBZCCG.combat = true;
-            DBZCCG.performingTurn = false;
-            $(this).dialog('close');
-        },
-        "Skip combat": function() {
-            $('#combat-btn').hide();
-            DBZCCG.combat = false;
-            DBZCCG.performingTurn = false;
-            $(this).dialog('close');
-        }
-    });
+    DBZCCG.confirmDialog('Declaring combat', 'Do you wish to declare combat?', null,
+            {
+                "Declare combat": function() {
+                    $('#combat-btn').hide();
+                    DBZCCG.combat = true;
+                    DBZCCG.performingTurn = false;
+                    $(this).dialog('close');
+                },
+                "Skip combat": function() {
+                    $('#combat-btn').hide();
+                    DBZCCG.combat = false;
+                    DBZCCG.performingTurn = false;
+                    $(this).dialog('close');
+                }
+            });
 };
 
 DBZCCG.passDialog = function(msg) {
@@ -318,14 +327,6 @@ DBZCCG.create = function() {
         var light = new THREE.PointLight(0xFFF0F0, 1.5, 1000);
         DBZCCG.background.scene.add(light);
 
-        window.setTimeout(function() {
-            DBZCCG.playerLowLife = true;
-        }, 30000);
-
-        window.setTimeout(function() {
-            DBZCCG.playerLowLife = false;
-        }, 45000);
-
         DBZCCG.background.velocity = 1;
         DBZCCG.background.update = function() {
             var camera = DBZCCG.background.camera;
@@ -483,14 +484,27 @@ DBZCCG.create = function() {
             DBZCCG.declareDialog();
         };
 
+        for (var i = 0; i < table.players.length; i++) {
+            table.players[i].addTransferCallback({f: function(src) {
+                    console.log(this);
+                if (!DBZCCG.playerLowLife && src === "lifeDeck" && Math.floor(this.lifeDeck.number * 0.4) > this.lifeDeck.cards.length) {
+                    DBZCCG.playerLowLife = true;
+                } else if (Math.floor(this.lifeDeck.number * 0.4) <= this.lifeDeck.cards.length) {
+                    DBZCCG.playerLowLife = false;
+                }
+            }, priority: 1 });
+        }
+        
+        DBZCCG.mainPlayer = table.players[0];
+
         DBZCCG.finishedLoading = true;
 
         function displayPhaseMessage(id, callback) {
             DBZCCG.performingAnimation = true;
 
             $('#turnOrder').children().removeClass('selectedTurn');
-            $('#turnOrder').children(id.replace('-warn','')).addClass('selectedTurn');
-            
+            $('#turnOrder').children(id.replace('-warn', '')).addClass('selectedTurn');
+
             $(id).fadeIn(500);
 
             window.setTimeout(function() {
@@ -503,7 +517,7 @@ DBZCCG.create = function() {
 
         function invokeTurn() {
 
-            document.getElementById('turnCounterNumber').innerHTML = 
+            document.getElementById('turnCounterNumber').innerHTML =
                     parseInt(document.getElementById('turnCounterNumber').innerHTML) + 1;
 
             DBZCCG.combat = false;
@@ -513,6 +527,15 @@ DBZCCG.create = function() {
             } else {
                 // next player
                 DBZCCG.performingAction = table.players[(table.players.indexOf(DBZCCG.performingAction) + 1) % table.players.length];
+            }
+
+            for (var j = 0; j < table.players.length; j++) {
+                var player = table.players[j];
+                for (var i = 0; i < player.turnCallback.length; i++) {
+                    if (player.turnCallback[i].f instanceof Function) {
+                        player.turnCallback[i].f(DBZCCG.performingAction, table.players);
+                    }
+                }
             }
 
             var player = DBZCCG.performingAction;
@@ -562,17 +585,21 @@ DBZCCG.create = function() {
                                     if (player.discardPhaseEnabled) {
                                         displayPhaseMessage('#discard-phase-warn',
                                                 function() {
-                                                    player.discardPhase();                        
+                                                    player.discardPhase();
                                                 });
                                     }
 
                                     listActions.push(function() {
                                         if (!DBZCCG.combat && player.rejuvenationPhaseEnabled) {
                                             displayPhaseMessage('#rejuvenation-phase-warn',
-                                                function() {
-                                                    player.rejuvenationPhase();
-                                                });
+                                                    function() {
+                                                        player.rejuvenationPhase();
+                                                    });
                                         }
+
+                                        listActions.push(function() {
+                                            invokeTurn();
+                                        });
                                     });
 
                                 });
@@ -593,12 +620,11 @@ DBZCCG.create = function() {
             if (table.players[0].mainPersonality.personalities[0].zScouter === undefined) {
                 window.setTimeout(checkLoad, 500);
             } else /*Begin code after everything was loaded */ {
-//                DBZCCG.performingAction = table.players[0];
-//                
 
                 listActions.push(function() {
                     invokeTurn();
                 });
+
 //                listActions.push(function() {
 //                    DBZCCG.performingAction.transferCards("lifeDeck",[0],"discardPile");
 //                });
@@ -706,67 +732,6 @@ DBZCCG.create = function() {
 
         // debug
         // scene.add(MathHelper.buildAxes(1000));
-
-        /*
-         function formatnumber(n) {
-         if (n < 10)
-         return "00" + n;
-         else if (n < 100)
-         return "0" + n;
-         else
-         return n.toString();
-         }
-         
-         // discard 1
-         for (var i = 1; i <= 10; i++) {
-         var addcard = card.clone();
-         addcard.rotation.x += -90 * Math.PI / 180;
-         addcard.rotation.y += -180 * Math.PI / 180;
-         addcard.position.y = cornerWidth * cardThicknessScale * i * 2;
-         addcard.position.x -= cardWidth + 1;
-         scene.add(addcard);
-         }
-         
-         
-         
-         // deck 2
-         for (var i = 1; i <= 30; i++) {
-         var addcard = card.clone();
-         addcard.rotation.x += -90 * Math.PI / 180;
-         addcard.rotation.z += 180 * Math.PI / 180;
-         addcard.rotation.y += -180 * Math.PI / 180;
-         addcard.position.y = cornerWidth * cardThicknessScale * i * 2;
-         addcard.position.x -= 29 - (cardWidth + 1);
-         addcard.position.z -= 20;
-         scene.add(addcard);
-         }
-         
-         // discard 2
-         for (var i = 80; i <= 120; i++) {
-         var addcard = card.clone();
-         addcard.rotation.x += -90 * Math.PI / 180;
-         addcard.rotation.z += 180 * Math.PI / 180;
-         addcard.position.y = cornerWidth * cardThicknessScale * (i - 79) * 2;
-         addcard.position.x -= 29;
-         addcard.position.z -= 20;
-         scene.add(addcard);
-         }
-         
-         // Removed from the game
-         card = DBZCCG.Card.create("images/DBZCCG/saiyan/250.jpg");
-         card.rotation.x += 90 * Math.PI / 180;
-         card.rotation.z += 90 * Math.PI / 180;
-         card.position.x -= 0.75;
-         card.position.z -= 5.5;
-         scene.add(card);
-         
-         card = DBZCCG.Card.create("images/DBZCCG/saiyan/028.jpg");
-         card.rotation.x += 90 * Math.PI / 180;
-         card.rotation.z += -90 * Math.PI / 180;
-         card.position.x -= 28.25;
-         card.position.z -= 15 - 0.5;
-         scene.add(card); */
-
     }
 
     function render(cameraControl, renderer, scene, camera, stats) {
@@ -808,8 +773,6 @@ DBZCCG.create = function() {
         var display = document.getElementById('hud');
         projector = new THREE.Projector();
 
-        var tooltipOptions = document.createElement('div');
-
         /*
          * Callbacks for the main screen
          */
@@ -818,7 +781,7 @@ DBZCCG.create = function() {
         DBZCCG.keys = {};
         function onKeyUp(event) {
             // TODO: Create function to check if it is possible to close all active windows
-            if (document.activeElement.tagName != 'INPUT' && event.keyCode == 27) {
+            if (document.activeElement.tagName !== 'INPUT' && event.keyCode === 27) {
                 $('#rightBar').hide();
                 $('#leftBar').hide();
                 window.onresize();
@@ -850,12 +813,12 @@ DBZCCG.create = function() {
                                 parent.mouseOut();
                             }
                         }
-                        if ($('.ui-dialog:visible').length == 0) {
+                        if ($('.ui-dialog:visible').length === 0) {
                             intersected = intersections[ intersectionIndex ].object;
                         }
                     }
 
-                    if ($('.ui-dialog:visible').length == 0) {
+                    if ($('.ui-dialog:visible').length === 0) {
                         var parent = DBZCCG.Screen.findCallbackObject(intersected, "mouseOver");
                         document.getElementById('body').style.cursor = parent.cursor || 'pointer';
 
@@ -865,11 +828,14 @@ DBZCCG.create = function() {
                     }
                 }
                 else if (intersected) {
-                    var parent = DBZCCG.Screen.findCallbackObject(intersected, "mouseOut");
-                    if (parent.mouseOut instanceof Function) {
-                        parent.mouseOut();
+                    // check if it is in the scene
+                    if (intersected.parent.parent) {
+                        var parent = DBZCCG.Screen.findCallbackObject(intersected, "mouseOut");
+                        if (parent.mouseOut instanceof Function) {
+                            parent.mouseOut();
+                        }
+                        document.getElementById('body').style.cursor = 'auto';
                     }
-                    document.getElementById('body').style.cursor = 'auto';
                     intersected = null;
                 }
             }
@@ -888,18 +854,14 @@ DBZCCG.create = function() {
 
         display.addEventListener('mousedown', documentOnMouseDown);
         DBZCCG.toolTip = {};
-        DBZCCG.toolTip.callbacks = [];
-        
+
         function documentOnClick(event) {
             $('#hud').qtip('hide');
+            $(DBZCCG.toolTip.content).children('#tooltipDiscard').hide();
             $(DBZCCG.toolTip.content).children('#tooltipEffect').hide();
 
             if (intersected) {
                 var parent = DBZCCG.Screen.findCallbackObject(intersected, "descriptionBox");
-
-                if (parent.effect) {
-                    $(DBZCCG.toolTip.content).children('#tooltipEffect').show();
-                }
 
                 DBZCCG.toolTip.parent = parent;
                 DBZCCG.toolTip.title = parent.displayName instanceof Function ? parent.displayName() : "OBJECT";
@@ -908,9 +870,11 @@ DBZCCG.create = function() {
                     parent.click();
                 }
 
-                for(var i = 0; i < DBZCCG.toolTip.callbacks.length; i++) {
-                    if(DBZCCG.toolTip.callbacks[i] instanceof Function) {
-                        DBZCCG.toolTip.callbacks[i]();
+                if (parent.callbacks instanceof Array) {
+                    for (var i = 0; i < parent.callbacks.length; i++) {
+                        if (parent.callbacks[i].f instanceof Function) {
+                            parent.callbacks[i].f();
+                        }
                     }
                 }
 
@@ -969,10 +933,11 @@ DBZCCG.create = function() {
                 if (parent.displayObject instanceof Function) {
                     display = parent.displayObject();
                 }
+
                 DBZCCG.leftScreen.focusElement(display, display.leftScreenCallback);
 
                 var textReturn = parent.descriptionBox();
-                if (typeof textReturn == "string") {
+                if (typeof textReturn === "string") {
                     DBZCCG.descriptionBox(textReturn);
                 }
             }
