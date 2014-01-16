@@ -57,12 +57,12 @@ DBZCCG.Pile.create = function(data, faceUp) {
 
         this.addCallback = function(callback) {
             var idx = addCallback.indexOf(callback);
-            console.log(idx);
             if(idx === -1) {
                 addCallback.push(callback);
+                callback.pile = this;
                 addCallback.sort(DBZCCG.compareCallbacks);
             }
-        }
+        };
 
         this.addCard = function(cardIdx, cards) {
             if (cards instanceof Array && cards.length > 0) {

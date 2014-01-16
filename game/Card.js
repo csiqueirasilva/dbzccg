@@ -282,6 +282,17 @@ DBZCCG.Card.create = function(dataObject) {
             }
         }
 
+        if(dataObject.effect) {
+            if(dataObject.effectType === DBZCCG.Combat.AttackerEffect) {
+                card.display.addCallback(DBZCCG.Combat.activateEffectCallback);
+                card.display.effect = dataObject.effect;
+                card.display.postEffect = dataObject.postEffect;
+                card.display.sucessfulEffect = dataObject.sucessfulEffect;
+            }
+        }
+
+        card.display.activable = dataObject.activable;
+
         card.display.displayName = function () {
             return card.name;
         }

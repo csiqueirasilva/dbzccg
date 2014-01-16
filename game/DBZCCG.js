@@ -3,9 +3,9 @@ var DBZCCG = {};
 
 /* Global function to compare callbacks */
 DBZCCG.compareCallbacks = function(a, b) {
-    if (a.priority < b.priority)
-        return -1;
     if (a.priority > b.priority)
+        return -1;
+    if (a.priority < b.priority)
         return 1;
     return 0;
 };
@@ -47,6 +47,15 @@ DBZCCG.declareDialog = function() {
 DBZCCG.passDialog = function(msg) {
     DBZCCG.confirmDialog('Passing', msg, function() {
         $('#pass-btn').hide();
+
+        if(DBZCCG.combat) {
+            DBZCCG.attackingPlayer.passed = true;
+        }
+        
+        if(DBZCCG.passLog) {
+            DBZCCG.quickMessage(DBZCCG.passLog);
+        }
+
         DBZCCG.performingTurn = false;
     });
 };
@@ -86,7 +95,7 @@ DBZCCG.removeObject = function(obj) {
             break;
         }
     }
-}
+};
 
 DBZCCG.browseCardList = function(cards, title) {
     var descriptionBoxContent = document.getElementById('descriptionBoxContent');
@@ -121,9 +130,21 @@ DBZCCG.browseCardList = function(cards, title) {
 };
 /* End of dialog */
 
+DBZCCG.checkObjectLoad = function () {
+    
+    // check if models are loaded
+    return ( DBZCCG.Combat.selectionArrow && DBZCCG.Combat.selectionParticles ? true : false ) ;
+};
+
+
+/* Enums */
+DBZCCG.cancelAction = 0x000001;
+
+/* Game variables */
 DBZCCG.performingTurn = false;
 DBZCCG.performingAnimation = false;
 DBZCCG.combat = false;
+DBZCCG.gameOver = false;
 DBZCCG.performingAction = null;
 DBZCCG.mainPlayer = null;
 DBZCCG.finishedLoading = false;
@@ -183,61 +204,6 @@ DBZCCG.selectionEffect = function(color, objects) {
     }
 };
 
-DBZCCG.startSelectionParticles = function() {
-    var geo = new THREE.Geometry();
-    for (var z = -DBZCCG.Card.cardWidth / 2; z < DBZCCG.Card.cardWidth / 2; z = z + 0.01) {
-        var x = Math.pow(Math.pow(DBZCCG.Card.cardWidth / 2, 2) - Math.pow(z, 2), 0.5);
-        var particle = new THREE.Vector3(x, 0.6, z);
-        particle.basePos = particle.clone();
-        geo.vertices.push(particle);
-        particle = new THREE.Vector3(-x, 0.6, z);
-        particle.basePos = particle.clone();
-        geo.vertices.push(particle);
-    }
-
-    var colors = [];
-    var particleCount = geo.vertices.length;
-    for (var i = 0; i < particleCount; i++) {
-        colors[i] = new THREE.Color();
-        colors[i].setHSL(i / 4000, 1.0, 0.5);
-    }
-
-    geo.colors = colors;
-
-    // Later: Add custom shaders
-    DBZCCG.selectionParticles = new THREE.ParticleSystem(geo, new THREE.ParticleSystemMaterial({
-        size: 0.2,
-        vertexColors: true,
-        map: THREE.ImageUtils.loadTexture("images/gfx/particles/particle.png"),
-        blending: THREE.AdditiveBlending,
-        transparent: true
-    }));
-
-    DBZCCG.selectionParticles.sortParticles = true;
-    DBZCCG.selectionParticles.visible = false;
-
-    DBZCCG.updateParticles = function() {
-        if (DBZCCG.selectionParticles.visible) {
-
-            DBZCCG.selectionParticles.rotation.y += 10 * Math.PI / 180;
-
-            var pCount = particleCount;
-            while (pCount--) {
-
-                // get the particle
-                var particle = geo.vertices[pCount];
-
-                var icrVector = new THREE.Vector3(Math.cos(pCount) * 0.1, 0.6 + Math.sin(DBZCCG.clock.elapsedTime) * 0.15, Math.cos(pCount) * 0.1);
-                particle.copy(particle.basePos.clone().multiplyScalar(Math.abs(Math.cos(DBZCCG.clock.elapsedTime)) * 0.5 + 0.5).add(icrVector));
-            }
-
-            DBZCCG.selectionParticles.
-                    geometry.
-                    __dirtyVertices = true;
-        }
-    }
-}
-
 DBZCCG.quickMessage = function(msg) {
     if (DBZCCG.finishedLoading) {
         if (DBZCCG.performingAction !== null) {
@@ -250,12 +216,27 @@ DBZCCG.quickMessage = function(msg) {
         } else {
             alertify.log(msg);
         }
-        var log = document.createElement('div');
-        log.innerHTML = "[" + new Date().toLocaleString() + "] <br />" + msg;
-        document.getElementById("logBox").appendChild(log);
-        $('#logBox').animate({scrollTop: $('#logBox').height()}, 50);
+
+        DBZCCG.logMessage(msg);
+
     }
 };
+
+DBZCCG.logMessage = function (msg) {
+    var log = document.createElement('div');
+    log.innerHTML = '';
+    if(DBZCCG.performingAction === DBZCCG.mainPlayer) {
+        log.innerHTML += '>> ';
+    } else {
+        log.innerHTML += '<< ';
+    }
+
+    log.innerHTML += DBZCCG.performingAction.displayName() + '@' + "[" + new Date().toLocaleString() + "]" + '<br />';
+    log.innerHTML += msg;
+
+    document.getElementById("logBox").appendChild(log);
+    $('#logBox').animate({scrollTop: $('#logBox')[0].scrollHeight}, 'slow');
+}
 
 DBZCCG.create = function() {
 
@@ -453,15 +434,15 @@ DBZCCG.create = function() {
         //createSkybox(scene);
         table = DBZCCG.Table.create([
             /*P1*/
-            {mainPersonality: {alignment: DBZCCG.Personality.alignment.Hero, currentMainPersonalityLevel: 1, currentPowerStageAboveZero: 5, currentAngerLevel: 0,
+            {name: 'Human', mainPersonality: {alignment: DBZCCG.Personality.alignment.Hero, currentMainPersonalityLevel: 1, currentPowerStageAboveZero: 5, currentAngerLevel: 0,
                     angerLevelNeededToLevel: 5, personalities: [{style: DBZCCG.Card.Style.Freestyle, PUR: 1, alignment: DBZCCG.Personality.alignment.Hero, description: "Power: Energy attack doing 3 life cards of damage. Costs 1 power stage.", level: 1, name: "GOKU", highTech: false, number: 158, texturePath: "images/DBZCCG/saiyan/158.jpg",
                             personality: DBZCCG.Personality.GOKU, saga: DBZCCG.Card.Saga.SAIYAN, powerStages: [0, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1400]},
                         {style: DBZCCG.Card.Style.Freestyle, PUR: 2, alignment: DBZCCG.Personality.alignment.Hero, description: "Power: Physical attack doing 4 power stages of damage.", level: 2, name: "GOKU", highTech: false, number: 159, texturePath: "images/DBZCCG/saiyan/159.jpg",
-                            personality: DBZCCG.Personality.GOKU, saga: DBZCCG.Card.Saga.SAIYAN, powerStages: [0, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1400]},
+                            personality: DBZCCG.Personality.GOKU, saga: DBZCCG.Card.Saga.SAIYAN, powerStages: [0, 3200, 3700, 4200, 4700, 5200, 5700, 6200, 6700, 7200, 7700]},
                         {style: DBZCCG.Card.Style.Freestyle, PUR: 3, alignment: DBZCCG.Personality.alignment.Hero, description: "Power: Once per combat, reduces the damage of an energy attack by 2 life cards.", level: 3, name: "GOKU", highTech: false, number: 160, texturePath: "images/DBZCCG/saiyan/160.jpg",
                             personality: DBZCCG.Personality.GOKU, saga: DBZCCG.Card.Saga.SAIYAN, powerStages: [0, 8000, 8500, 9000, 9500, 10000, 10500, 11000, 11500, 12000, 12500]}]}},
             /*P2*/
-            {mainPersonality: {alignment: DBZCCG.Personality.alignment.Villain, currentMainPersonalityLevel: 1, currentPowerStageAboveZero: 5, currentAngerLevel: 0,
+            {name: 'CPU', mainPersonality: {alignment: DBZCCG.Personality.alignment.Villain, currentMainPersonalityLevel: 1, currentPowerStageAboveZero: 5, currentAngerLevel: 0,
                     angerLevelNeededToLevel: 5, personalities: [{style: DBZCCG.Card.Style.Freestyle, PUR: 2, alignment: DBZCCG.Personality.alignment.Rogue, description: "Power: Once per combat, reduces the damage of an energy attack by 2 life cards.", level: 1, name: "VEGETA", highTech: false, number: 173, texturePath: "images/DBZCCG/saiyan/173.jpg",
                             personality: DBZCCG.Personality.VEGETA, saga: DBZCCG.Card.Saga.SAIYAN, powerStages: [0, 2000, 2200, 2400, 2600, 2800, 3000, 3200, 3400, 3600, 3800]},
                         {style: DBZCCG.Card.Style.Freestyle, PUR: 4, alignment: DBZCCG.Personality.alignment.Rogue, description: "Power: Energy attack doing 3 life cards of damage. Costs 1 power stage.", level: 2, name: "VEGETA", highTech: false, number: 174, texturePath: "images/DBZCCG/saiyan/174.jpg",
@@ -470,9 +451,7 @@ DBZCCG.create = function() {
                             personality: DBZCCG.Personality.VEGETA, saga: DBZCCG.Card.Saga.SAIYAN, powerStages: [0, 9000, 10000, 11000, 12000, 13000, 14000, 15000, 16000, 17000, 18000]}]}}
         ], camera, scene);
 
-        // Actually there should be an entire control for all the models, and one of them should be a particle system
-        DBZCCG.startSelectionParticles();
-        scene.add(DBZCCG.selectionParticles);
+        DBZCCG.mainScene = scene;
 
         // set onclick callback for pass
         document.getElementById('pass-btn').onclick = function() {
@@ -485,20 +464,32 @@ DBZCCG.create = function() {
         };
 
         for (var i = 0; i < table.players.length; i++) {
-            table.players[i].addTransferCallback({f: function(src) {
-                    console.log(this);
-                if (!DBZCCG.playerLowLife && src === "lifeDeck" && Math.floor(this.lifeDeck.number * 0.4) > this.lifeDeck.cards.length) {
-                    DBZCCG.playerLowLife = true;
-                } else if (Math.floor(this.lifeDeck.number * 0.4) <= this.lifeDeck.cards.length) {
-                    DBZCCG.playerLowLife = false;
-                }
+            table.players[i].addTransferCallback({f: function(src, elems, destiny) {
+                if(src === "lifeDeck") {
+                    var deckTotal = this.player.lifeDeck.number;
+                    var deckCards = this.player.lifeDeck.cards;
+                    var checkGameOver = {f: function () {
+                        if(deckCards.length === 0) { // TODO: check for infinite dragonball loop as well
+                            DBZCCG.gameOver = true;
+                        }
+                    }, priority: 1};
+                
+                    var checkLowLife = {
+                        f: function () {
+                           if (!DBZCCG.playerLowLife && Math.floor(deckTotal * 0.4) > deckCards.length) {
+                                DBZCCG.playerLowLife = true;
+                            } else if (Math.floor(deckTotal * 0.4) <= deckCards.length) {
+                                DBZCCG.playerLowLife = false;
+                            }
+                        }, priority: 2
+                    };
+                
+                    this.player[destiny].addCallback(checkGameOver);
+                    this.player[destiny].addCallback(checkLowLife);
+                }                
             }, priority: 1 });
         }
         
-        DBZCCG.mainPlayer = table.players[0];
-
-        DBZCCG.finishedLoading = true;
-
         function displayPhaseMessage(id, callback) {
             DBZCCG.performingAnimation = true;
 
@@ -521,6 +512,8 @@ DBZCCG.create = function() {
                     parseInt(document.getElementById('turnCounterNumber').innerHTML) + 1;
 
             DBZCCG.combat = false;
+            
+            var hadCombat = false;
 
             if (!DBZCCG.performingAction) {
                 DBZCCG.performingAction = table.players[0];
@@ -569,15 +562,26 @@ DBZCCG.create = function() {
                             if (player.declarePhaseEnabled) {
                                 displayPhaseMessage('#declare-phase-warn',
                                         function() {
-                                            player.declarePhase();
+                                            player.declarePhase(table.players);
                                         });
                             }
 
                             listActions.push(function() {
                                 if (DBZCCG.combat && player.combatPhaseEnabled) {
+                                    hadCombat = true;
                                     displayPhaseMessage('#combat-phase-warn',
                                             function() {
-                                                //player.combatPhase(combat.defending);
+                                                DBZCCG.attackingPlayer = player;
+                                                
+                                                // code for 2v2
+                                                if(DBZCCG.attackingPlayer === table.players[0]) {
+                                                    DBZCCG.defendingPlayer = table.players[1];
+                                                } else {
+                                                    DBZCCG.defendingPlayer = table.players[0];
+                                                }
+                                                
+                                                DBZCCG.defendingPlayer.passed = DBZCCG.attackingPlayer.passed = false;
+                                                player.combatPhase(listActions);
                                             });
                                 }
 
@@ -586,11 +590,24 @@ DBZCCG.create = function() {
                                         displayPhaseMessage('#discard-phase-warn',
                                                 function() {
                                                     player.discardPhase();
+                                                    DBZCCG.quickMessage(player.displayName() + " discard phase.");
                                                 });
+                                    }
+                                    
+                                    for(var i = 0; i < table.players.length; i++) {
+                                        if(table.players[i] !== player && table.players[i].hand.cards.length > table.players[i].cardDiscardPhaseLimit) {
+                                            var discardPlayer = table.players[i];
+                                            listActions.push(function () {
+                                                DBZCCG.performingAction = discardPlayer;
+                                                discardPlayer.discardPhase();
+                                                DBZCCG.quickMessage(discardPlayer.displayName() + " discard phase.");
+                                            });
+                                        }
                                     }
 
                                     listActions.push(function() {
-                                        if (!DBZCCG.combat && player.rejuvenationPhaseEnabled) {
+                                        DBZCCG.performingAction = player;
+                                        if (!hadCombat && player.rejuvenationPhaseEnabled) {
                                             displayPhaseMessage('#rejuvenation-phase-warn',
                                                     function() {
                                                         player.rejuvenationPhase();
@@ -615,12 +632,15 @@ DBZCCG.create = function() {
             });
 
         }
-
+        
+        DBZCCG.listActions = listActions;
+        
         function checkLoad() {
             if (table.players[0].mainPersonality.personalities[0].zScouter === undefined) {
                 window.setTimeout(checkLoad, 500);
             } else /*Begin code after everything was loaded */ {
-
+                DBZCCG.finishedLoading = true;
+                
                 listActions.push(function() {
                     invokeTurn();
                 });
@@ -724,26 +744,33 @@ DBZCCG.create = function() {
                     listActions.length > 0 &&
                     $(".alertify-log:visible").length === 0 &&
                     $(".alertify-dialog:visible").length === 0) {
+                DBZCCG.clearMouseOver();
                 listActions.shift()();
+            } else if (DBZCCG.gameOver) {
+                DBZCCG.clearMouseOver();
+                $('#modal-post-game').show();
+                window.clearInterval(mainLoopInterval);
             }
         }
 
-        window.setInterval(checkAction, 200);
-
+        var mainLoopInterval = window.setInterval(checkAction, 200);
+        
         // debug
         // scene.add(MathHelper.buildAxes(1000));
     }
 
     function render(cameraControl, renderer, scene, camera, stats) {
         TWEEN.update();
-
+ 
+        // Update selection arrows
+        DBZCCG.Combat.updateSelectionArrows();
+ 
+        // Update models
+        DBZCCG.Combat.selectionParticles.update();
+ 
         // Update Billboards
         DBZCCG.updateBillboards(camera);
-
-        // Update Particles
-        // TODO: This should update all model animations, not only particles
-        DBZCCG.updateParticles();
-
+        
         // Update background (If it requires update)
         if (DBZCCG.background.update instanceof Function) {
             DBZCCG.background.update();
@@ -756,7 +783,6 @@ DBZCCG.create = function() {
 
         DBZCCG.leftScreen.render();
         stats.update();
-
     }
 
     function controls(camera, renderer, scene, stats) {
@@ -843,6 +869,12 @@ DBZCCG.create = function() {
 
         display.addEventListener('mousemove', onDocumentMouseMove, false);
 
+        DBZCCG.clearMouseOver = function () {
+            $('#hud').qtip('hide');
+            intersected = null;
+            document.getElementById('body').style.cursor = 'auto';
+        };
+
         function documentOnMouseDown(event) {
             if (intersected) {
                 var parent = DBZCCG.Screen.findCallbackObject(intersected, "mouseDown");
@@ -859,6 +891,7 @@ DBZCCG.create = function() {
             $('#hud').qtip('hide');
             $(DBZCCG.toolTip.content).children('#tooltipDiscard').hide();
             $(DBZCCG.toolTip.content).children('#tooltipEffect').hide();
+            $(DBZCCG.toolTip.content).children('#tooltipEffect').addClass('tooltipEffectDisabled');
 
             if (intersected) {
                 var parent = DBZCCG.Screen.findCallbackObject(intersected, "descriptionBox");
@@ -979,6 +1012,7 @@ DBZCCG.create = function() {
             $('#rightBarWindow').hide();
         }
         DBZCCG.rightScreen.showScreen = function() {
+            $('#logBox').scrollTop($('#logBox')[0].scrollHeight);
             $('#rightBarWindow').show();
         }
 
@@ -1203,19 +1237,24 @@ DBZCCG.create = function() {
         return null;
     }
 
-    scr = DBZCCG.Screen.create(buildScene, render, controls);
-    var interval = window.setInterval(function() {
-        if (DBZCCG.finishedLoading) {
-            window.clearInterval(interval);
-            // Remove loading screen
-            $("#loadingText").remove();
-            //show HUD
-            DBZCCG.clearDescriptionBox();
-            document.getElementById("hud").style.display = "block";
-            document.getElementById("descriptionBox").style.display = "block";
-            $('#turnCounter').show();
-            $('#toolbar').show();
-            scr.start();
+    var loadModelInterval = window.setInterval (function () {
+        if (DBZCCG.checkObjectLoad()) {
+            window.clearInterval(loadModelInterval);
+            scr = DBZCCG.Screen.create(buildScene, render, controls);
+            var interval = window.setInterval(function() {
+                if (DBZCCG.finishedLoading) {
+                    window.clearInterval(interval);
+                    // Remove loading screen
+                    $("#loadingText").remove();
+                    //show HUD
+                    DBZCCG.clearDescriptionBox();
+                    document.getElementById("hud").style.display = "block";
+                    document.getElementById("descriptionBox").style.display = "block";
+                    $('#turnCounter').show();
+                    $('#toolbar').show();
+                    scr.start();
+                }
+            }, 1000);
         }
     }, 1000);
 };

@@ -26,6 +26,10 @@
         <div id='hud'>
         </div>
 
+        <div id='modal-post-game'>
+            <h2>GAME OVER</h2>
+        </div>
+        
         <div id="toolbar">
             <div id="combat-btn" class="btn">
             </div>
@@ -74,8 +78,14 @@
         </div>
 
         
+        <script id="skybox_vertex_shader" type="x-shader/x-fragment">
+            <%@include file="game/skyboxvertexshader.glsl"%>
+        </script>
+        <script id="skybox_fragment_shader" type="x-shader/x-fragment">
+            <%@include file="game/skyboxfragmentshader.glsl"%>
+        </script>
         <!-- libs -->
-        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+        <script type="text/javascript" src="lib/jquery.min.js"></script>
         <script type="text/javascript" src="lib/jquery-ui-1.10.3.custom.min.js"></script>
         <script type="text/javascript" src="lib/ClassHelper.js"></script>
         <script type="text/javascript" src="lib/imagesloaded.pkg.min.js"></script>
@@ -104,6 +114,8 @@
         <script type="text/javascript" src="game/Player.js"></script>
         <script type="text/javascript" src="game/Table.js"></script>
         <script type="text/javascript" src="game/Screen.js"></script>
+        <script type="text/javascript" src="game/Combat.js"></script>
+        <script type="text/javascript" src="game/SaiyanSaga.js"></script>
         <script type="text/javascript">
             function getKeyByValue(object, value) {
             for (var prop in object) {

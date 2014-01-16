@@ -6,7 +6,27 @@ DBZCCG.SAIYAN['001'] = {
     name: "Orange Standing Fist Punch",
     number: '001',
     texturePath: "images/DBZCCG/saiyan/001.jpg",
-    saga: DBZCCG.Card.Saga.SAIYAN
+    saga: DBZCCG.Card.Saga.SAIYAN,
+    activable: DBZCCG.Combat.defaultAttackerCheck,
+    effect: function () {
+        this.success = false;
+
+        DBZCCG.listActions.splice(0,0,function() {
+            DBZCCG.attackingPlayer.mainPersonality.changeAnger(1);
+        });
+        DBZCCG.performingTurn = false;
+    },
+    sucessfulEffect: function (defendingPlayer) {
+        var damage = DBZCCG.Combat.attack(true, null, DBZCCG.attackingPlayer.mainPersonality.currentPersonality().currentPowerLevel(), DBZCCG.defendingPlayer.mainPersonality.currentPersonality().currentPowerLevel());
+        defendingPlayer.takeDamage(damage);
+    },
+    postEffect: function (card) {
+        var cardIdx = DBZCCG.attackingPlayer.inPlay.getCardIdx(card);
+        DBZCCG.listActions.splice(0, 0, function() {
+            DBZCCG.attackingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
+        });
+    },
+    effectType: DBZCCG.Combat.AttackerEffect
 };
 
 DBZCCG.SAIYAN['002'] = {
@@ -16,7 +36,31 @@ DBZCCG.SAIYAN['002'] = {
     name: "Orange One Knuckle Punch",
     number: '002',
     texturePath: "images/DBZCCG/saiyan/002.jpg",
-    saga: DBZCCG.Card.Saga.SAIYAN
+    saga: DBZCCG.Card.Saga.SAIYAN,
+    activable: DBZCCG.Combat.defaultAttackerCheck,
+    effect: function () {
+        this.success = false;
+
+        DBZCCG.listActions.splice(0,0,function() {
+            DBZCCG.attackingPlayer.mainPersonality.changeAnger(1);
+        });
+        DBZCCG.performingTurn = false;
+    },
+    sucessfulEffect: function (defendingPlayer) {
+        var damage = DBZCCG.Combat.attack(true, function (damage) {
+            damage.stages += 1;
+            return damage;
+        }, DBZCCG.attackingPlayer.mainPersonality.currentPersonality().currentPowerLevel(), DBZCCG.defendingPlayer.mainPersonality.currentPersonality().currentPowerLevel());
+        defendingPlayer.takeDamage(damage);
+    },
+    postEffect: function (card) {
+        var cardIdx = DBZCCG.attackingPlayer.inPlay.getCardIdx(card);
+        DBZCCG.listActions.splice(0,0,function() {
+            DBZCCG.attackingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
+        });
+    },
+    effectType: DBZCCG.Combat.AttackerEffect
+
 };
 
 DBZCCG.SAIYAN['003'] = {
@@ -26,7 +70,30 @@ DBZCCG.SAIYAN['003'] = {
     name: "Orange Two Knuckle Punch",
     number: '003',
     texturePath: "images/DBZCCG/saiyan/003.jpg",
-    saga: DBZCCG.Card.Saga.SAIYAN
+    saga: DBZCCG.Card.Saga.SAIYAN,
+    activable: DBZCCG.Combat.defaultAttackerCheck,
+    effect: function () {
+        this.success = false;
+
+        DBZCCG.listActions.splice(0,0,function() {
+            DBZCCG.attackingPlayer.mainPersonality.changeAnger(1);
+        });
+        DBZCCG.performingTurn = false;
+    },
+    sucessfulEffect: function (defendingPlayer) {
+        var damage = DBZCCG.Combat.attack(true, function (damage) {
+            damage.stages += 1;
+            return damage;
+        }, DBZCCG.attackingPlayer.mainPersonality.currentPersonality().currentPowerLevel(), DBZCCG.defendingPlayer.mainPersonality.currentPersonality().currentPowerLevel());
+        defendingPlayer.takeDamage(damage);
+    },
+    postEffect: function (card) {
+        var cardIdx = DBZCCG.attackingPlayer.inPlay.getCardIdx(card);
+        DBZCCG.listActions.splice(0,0,function() {
+            DBZCCG.attackingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
+        });
+    },
+    effectType: DBZCCG.Combat.AttackerEffect
 };
 
 DBZCCG.SAIYAN['004'] = {
@@ -36,7 +103,27 @@ DBZCCG.SAIYAN['004'] = {
     name: "Orange Leg Sweep",
     number: '004',
     texturePath: "images/DBZCCG/saiyan/004.jpg",
-    saga: DBZCCG.Card.Saga.SAIYAN
+    saga: DBZCCG.Card.Saga.SAIYAN,
+    activable: DBZCCG.Combat.defaultAttackerCheck,
+    effect: function () {
+        this.success = false;
+
+        DBZCCG.listActions.splice(0,0,function() {
+            DBZCCG.attackingPlayer.mainPersonality.changeAnger(1);
+        });
+        DBZCCG.performingTurn = false;
+    },
+    sucessfulEffect: function (defendingPlayer) {
+        var damage = DBZCCG.Combat.attack(true, null, DBZCCG.attackingPlayer.mainPersonality.currentPersonality().currentPowerLevel(), DBZCCG.defendingPlayer.mainPersonality.currentPersonality().currentPowerLevel());
+        defendingPlayer.takeDamage(damage);
+    },
+    postEffect: function (card) {
+        var cardIdx = DBZCCG.attackingPlayer.inPlay.getCardIdx(card);
+        DBZCCG.listActions.splice(0,0,function() {
+            DBZCCG.attackingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
+        });
+    },
+    effectType: DBZCCG.Combat.AttackerEffect
 };
 
 DBZCCG.SAIYAN['005'] = {
@@ -46,7 +133,30 @@ DBZCCG.SAIYAN['005'] = {
     name: "Orange Arm Bar",
     number: '005',
     texturePath: "images/DBZCCG/saiyan/005.jpg",
-    saga: DBZCCG.Card.Saga.SAIYAN
+    saga: DBZCCG.Card.Saga.SAIYAN,
+    activable: DBZCCG.Combat.defaultAttackerCheck,
+    effect: function () {
+        this.success = false;
+
+        DBZCCG.listActions.splice(0,0,function() {
+            DBZCCG.attackingPlayer.mainPersonality.changeAnger(1);
+        });
+        DBZCCG.performingTurn = false;
+    },
+    sucessfulEffect: function (defendingPlayer) {
+        var damage = DBZCCG.Combat.attack(true, function (damage) {
+            damage.stages += 3;
+            return damage;
+        }, DBZCCG.attackingPlayer.mainPersonality.currentPersonality().currentPowerLevel(), DBZCCG.defendingPlayer.mainPersonality.currentPersonality().currentPowerLevel());
+        defendingPlayer.takeDamage(damage);
+    },
+    postEffect: function (card) {
+        var cardIdx = DBZCCG.attackingPlayer.inPlay.getCardIdx(card);
+        DBZCCG.listActions.splice(0,0,function() {
+            DBZCCG.attackingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
+        });
+    },
+    effectType: DBZCCG.Combat.AttackerEffect
 };
 
 DBZCCG.SAIYAN['006'] = {
@@ -56,7 +166,27 @@ DBZCCG.SAIYAN['006'] = {
     name: "Red Lunge Punch",
     number: '006',
     texturePath: "images/DBZCCG/saiyan/006.jpg",
-    saga: DBZCCG.Card.Saga.SAIYAN
+    saga: DBZCCG.Card.Saga.SAIYAN,
+    activable: DBZCCG.Combat.defaultAttackerCheck,
+    effect: function () {
+        this.success = false;
+
+        DBZCCG.listActions.splice(0,0,function() {
+            DBZCCG.attackingPlayer.mainPersonality.changeAnger(1);
+        });
+        DBZCCG.performingTurn = false;
+    },
+    sucessfulEffect: function (defendingPlayer) {
+        var damage = DBZCCG.Combat.attack(true, null, DBZCCG.attackingPlayer.mainPersonality.currentPersonality().currentPowerLevel(), DBZCCG.defendingPlayer.mainPersonality.currentPersonality().currentPowerLevel());
+        defendingPlayer.takeDamage(damage);
+    },
+    postEffect: function (card) {
+        var cardIdx = DBZCCG.attackingPlayer.inPlay.getCardIdx(card);
+        DBZCCG.listActions.splice(0, 0, function() {
+            DBZCCG.attackingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
+        });
+    },
+    effectType: DBZCCG.Combat.AttackerEffect
 };
 
 DBZCCG.SAIYAN['007'] = {
@@ -66,7 +196,30 @@ DBZCCG.SAIYAN['007'] = {
     name: "Red Reverse Punch",
     number: '007',
     texturePath: "images/DBZCCG/saiyan/007.jpg",
-    saga: DBZCCG.Card.Saga.SAIYAN
+    saga: DBZCCG.Card.Saga.SAIYAN,
+    activable: DBZCCG.Combat.defaultAttackerCheck,
+    effect: function () {
+        this.success = false;
+
+        DBZCCG.listActions.splice(0,0,function() {
+            DBZCCG.attackingPlayer.mainPersonality.changeAnger(1);
+        });
+        DBZCCG.performingTurn = false;
+    },
+    sucessfulEffect: function (defendingPlayer) {
+        var damage = DBZCCG.Combat.attack(true, function(damage) {
+            damage.stages += 3;
+            return damage;
+        }, DBZCCG.attackingPlayer.mainPersonality.currentPersonality().currentPowerLevel(), DBZCCG.defendingPlayer.mainPersonality.currentPersonality().currentPowerLevel());
+        defendingPlayer.takeDamage(damage);
+    },
+    postEffect: function (card) {
+        var cardIdx = DBZCCG.attackingPlayer.inPlay.getCardIdx(card);
+        DBZCCG.listActions.splice(0, 0, function() {
+            DBZCCG.attackingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
+        });
+    },
+    effectType: DBZCCG.Combat.AttackerEffect
 };
 
 DBZCCG.SAIYAN['008'] = {
@@ -76,7 +229,30 @@ DBZCCG.SAIYAN['008'] = {
     name: "Red Knife Hand",
     number: '008',
     texturePath: "images/DBZCCG/saiyan/008.jpg",
-    saga: DBZCCG.Card.Saga.SAIYAN
+    saga: DBZCCG.Card.Saga.SAIYAN,
+    activable: DBZCCG.Combat.defaultAttackerCheck,
+    effect: function () {
+        this.success = false;
+
+        DBZCCG.listActions.splice(0,0,function() {
+            DBZCCG.attackingPlayer.mainPersonality.changeAnger(1);
+        });
+        DBZCCG.performingTurn = false;
+    },
+    sucessfulEffect: function (defendingPlayer) {
+        var damage = DBZCCG.Combat.attack(true, function(damage) {
+            damage.stages += 3;
+            return damage;
+        }, DBZCCG.attackingPlayer.mainPersonality.currentPersonality().currentPowerLevel(), DBZCCG.defendingPlayer.mainPersonality.currentPersonality().currentPowerLevel());
+        defendingPlayer.takeDamage(damage);
+    },
+    postEffect: function (card) {
+        var cardIdx = DBZCCG.attackingPlayer.inPlay.getCardIdx(card);
+        DBZCCG.listActions.splice(0, 0, function() {
+            DBZCCG.attackingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
+        });
+    },
+    effectType: DBZCCG.Combat.AttackerEffect
 };
 
 DBZCCG.SAIYAN['009'] = {
@@ -86,7 +262,30 @@ DBZCCG.SAIYAN['009'] = {
     name: "Red Palm Heel Strike",
     number: '009',
     texturePath: "images/DBZCCG/saiyan/009.jpg",
-    saga: DBZCCG.Card.Saga.SAIYAN
+    saga: DBZCCG.Card.Saga.SAIYAN,
+    activable: DBZCCG.Combat.defaultAttackerCheck,
+    effect: function () {
+        this.success = false;
+
+        DBZCCG.listActions.splice(0,0,function() {
+            DBZCCG.attackingPlayer.mainPersonality.changeAnger(1);
+        });
+        DBZCCG.performingTurn = false;
+    },
+    sucessfulEffect: function (defendingPlayer) {
+        var damage = DBZCCG.Combat.attack(true, function(damage) {
+            damage.stages += 3;
+            return damage;
+        }, DBZCCG.attackingPlayer.mainPersonality.currentPersonality().currentPowerLevel(), DBZCCG.defendingPlayer.mainPersonality.currentPersonality().currentPowerLevel());
+        defendingPlayer.takeDamage(damage);
+    },
+    postEffect: function (card) {
+        var cardIdx = DBZCCG.attackingPlayer.inPlay.getCardIdx(card);
+        DBZCCG.listActions.splice(0, 0, function() {
+            DBZCCG.attackingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
+        });
+    },
+    effectType: DBZCCG.Combat.AttackerEffect
 };
 
 DBZCCG.SAIYAN['010'] = {
@@ -96,7 +295,27 @@ DBZCCG.SAIYAN['010'] = {
     name: "Red Elbow Strike",
     number: '010',
     texturePath: "images/DBZCCG/saiyan/010.jpg",
-    saga: DBZCCG.Card.Saga.SAIYAN
+    saga: DBZCCG.Card.Saga.SAIYAN,
+    activable: DBZCCG.Combat.defaultAttackerCheck,
+    effect: function () {
+        this.success = false;
+
+        DBZCCG.listActions.splice(0,0,function() {
+            DBZCCG.attackingPlayer.mainPersonality.changeAnger(1);
+        });
+        DBZCCG.performingTurn = false;
+    },
+    sucessfulEffect: function (defendingPlayer) {
+        var damage = DBZCCG.Combat.attack(true, null, DBZCCG.attackingPlayer.mainPersonality.currentPersonality().currentPowerLevel(), DBZCCG.defendingPlayer.mainPersonality.currentPersonality().currentPowerLevel());
+        defendingPlayer.takeDamage(damage);
+    },
+    postEffect: function (card) {
+        var cardIdx = DBZCCG.attackingPlayer.inPlay.getCardIdx(card);
+        DBZCCG.listActions.splice(0, 0, function() {
+            DBZCCG.attackingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
+        });
+    },
+    effectType: DBZCCG.Combat.AttackerEffect
 };
 
 DBZCCG.SAIYAN['014'] = {
@@ -106,7 +325,35 @@ DBZCCG.SAIYAN['014'] = {
     name: "Blue Shoulder Wheel",
     number: '014',
     texturePath: "images/DBZCCG/saiyan/014.jpg",
-    saga: DBZCCG.Card.Saga.SAIYAN
+    saga: DBZCCG.Card.Saga.SAIYAN,
+    activable: DBZCCG.Combat.defaultAttackerCheck,
+    effect: function () {
+        this.success = false;
+
+        DBZCCG.listActions.splice(0,0,function() {
+            DBZCCG.defendingPlayer.mainPersonality.changeAnger(-1);
+        });
+
+        DBZCCG.listActions.splice(0,0,function() {
+            DBZCCG.attackingPlayer.mainPersonality.changeAnger(1);
+        });
+        
+        DBZCCG.performingTurn = false;
+    },
+    sucessfulEffect: function (defendingPlayer) {
+        var damage = DBZCCG.Combat.attack(true, function(damage) {
+            damage.stages += 1;
+            return damage;
+        }, DBZCCG.attackingPlayer.mainPersonality.currentPersonality().currentPowerLevel(), DBZCCG.defendingPlayer.mainPersonality.currentPersonality().currentPowerLevel());
+        defendingPlayer.takeDamage(damage);
+    },
+    postEffect: function (card) {
+        var cardIdx = DBZCCG.attackingPlayer.inPlay.getCardIdx(card);
+        DBZCCG.listActions.splice(0, 0, function() {
+            DBZCCG.attackingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
+        });
+    },
+    effectType: DBZCCG.Combat.AttackerEffect
 };
 
 DBZCCG.SAIYAN['017'] = {
@@ -116,7 +363,28 @@ DBZCCG.SAIYAN['017'] = {
     name: "Hidden Power Level",
     number: '017',
     texturePath: "images/DBZCCG/saiyan/017.jpg",
-    saga: DBZCCG.Card.Saga.SAIYAN
+    saga: DBZCCG.Card.Saga.SAIYAN,
+    activable: DBZCCG.Combat.defaultAttackerCheck,
+    effect: function () {
+        this.success = false;
+
+        DBZCCG.listActions.splice(0,0,function() {
+            DBZCCG.attackingPlayer.mainPersonality.moveZScouter("max");
+        });
+        
+        DBZCCG.performingTurn = false;
+    },
+    sucessfulEffect: function (defendingPlayer) {
+        var damage = DBZCCG.Combat.attack(true, null, DBZCCG.attackingPlayer.mainPersonality.currentPersonality().currentPowerLevel(), DBZCCG.defendingPlayer.mainPersonality.currentPersonality().currentPowerLevel());
+        defendingPlayer.takeDamage(damage);
+    },
+    postEffect: function (card) {
+        var cardIdx = DBZCCG.attackingPlayer.inPlay.getCardIdx(card);
+        DBZCCG.listActions.splice(0, 0, function() {
+            DBZCCG.attackingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
+        });
+    },
+    effectType: DBZCCG.Combat.AttackerEffect
 };
 
 DBZCCG.SAIYAN['024'] = {
@@ -127,7 +395,27 @@ DBZCCG.SAIYAN['024'] = {
     name: "Goku's Surprise Attack",
     number: '024',
     texturePath: "images/DBZCCG/saiyan/024.jpg",
-    saga: DBZCCG.Card.Saga.SAIYAN
+    saga: DBZCCG.Card.Saga.SAIYAN,
+    activable: DBZCCG.Combat.defaultAttackerCheck,
+    effect: function () {
+        this.success = false;
+        
+        DBZCCG.performingTurn = false;
+    },
+    sucessfulEffect: function (defendingPlayer) {
+        var damage = DBZCCG.Combat.attack(false, function(damage) {
+            damage.stages = 5;
+            return damage;
+        }, DBZCCG.attackingPlayer.mainPersonality.currentPersonality().currentPowerLevel(), DBZCCG.defendingPlayer.mainPersonality.currentPersonality().currentPowerLevel());
+        defendingPlayer.takeDamage(damage);
+    },
+    postEffect: function (card) {
+        var cardIdx = DBZCCG.attackingPlayer.inPlay.getCardIdx(card);
+        DBZCCG.listActions.splice(0, 0, function() {
+            DBZCCG.attackingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
+        });
+    },
+    effectType: DBZCCG.Combat.AttackerEffect
 };
 
 DBZCCG.SAIYAN['027'] = {
@@ -138,18 +426,27 @@ DBZCCG.SAIYAN['027'] = {
     name: "Tien's Physical Attack",
     number: '027',
     texturePath: "images/DBZCCG/saiyan/027.jpg",
-    saga: DBZCCG.Card.Saga.SAIYAN
-};
-
-DBZCCG.SAIYAN['027'] = {
-    type: DBZCCG.Card.Type.PhysicalCombat,
-    style: DBZCCG.Card.Style.Freestyle,
-    personality: DBZCCG.Personality.TIEN,
-    description: "Physical attack doing 5 life cards of damage.",
-    name: "Tien's Physical Attack",
-    number: '027',
-    texturePath: "images/DBZCCG/saiyan/027.jpg",
-    saga: DBZCCG.Card.Saga.SAIYAN
+    saga: DBZCCG.Card.Saga.SAIYAN,
+    activable: DBZCCG.Combat.defaultAttackerCheck,
+    effect: function () {
+        this.success = false;
+        
+        DBZCCG.performingTurn = false;
+    },
+    sucessfulEffect: function (defendingPlayer) {
+        var damage = DBZCCG.Combat.attack(false, function(damage) {
+            damage.cards = 5;
+            return damage;
+        }, DBZCCG.attackingPlayer.mainPersonality.currentPersonality().currentPowerLevel(), DBZCCG.defendingPlayer.mainPersonality.currentPersonality().currentPowerLevel());
+        defendingPlayer.takeDamage(damage);
+    },
+    postEffect: function (card) {
+        var cardIdx = DBZCCG.attackingPlayer.inPlay.getCardIdx(card);
+        DBZCCG.listActions.splice(0, 0, function() {
+            DBZCCG.attackingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
+        });
+    },
+    effectType: DBZCCG.Combat.AttackerEffect
 };
 
 DBZCCG.SAIYAN['044'] = {
@@ -160,7 +457,27 @@ DBZCCG.SAIYAN['044'] = {
     name: "Goku's Body Throw",
     number: '044',
     texturePath: "images/DBZCCG/saiyan/044.jpg",
-    saga: DBZCCG.Card.Saga.SAIYAN
+    saga: DBZCCG.Card.Saga.SAIYAN,
+    activable: DBZCCG.Combat.defaultAttackerCheck,
+    effect: function () {
+        this.success = false;
+        
+        DBZCCG.performingTurn = false;
+    },
+    sucessfulEffect: function (defendingPlayer) {
+        var damage = DBZCCG.Combat.attack(false, function(damage) {
+            damage.cards = 1;
+            return damage;
+        }, DBZCCG.attackingPlayer.mainPersonality.currentPersonality().currentPowerLevel(), DBZCCG.defendingPlayer.mainPersonality.currentPersonality().currentPowerLevel());
+        defendingPlayer.takeDamage(damage);
+    },
+    postEffect: function (card) {
+        var cardIdx = DBZCCG.attackingPlayer.inPlay.getCardIdx(card);
+        DBZCCG.listActions.splice(0, 0, function() {
+            DBZCCG.attackingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
+        });
+    },
+    effectType: DBZCCG.Combat.AttackerEffect
 };
 
 DBZCCG.SAIYAN['046'] = {
@@ -171,7 +488,27 @@ DBZCCG.SAIYAN['046'] = {
     name: "Goku's Anger Attack",
     number: '046',
     texturePath: "images/DBZCCG/saiyan/046.jpg",
-    saga: DBZCCG.Card.Saga.SAIYAN
+    saga: DBZCCG.Card.Saga.SAIYAN,
+    activable: DBZCCG.Combat.defaultAttackerCheck,
+    effect: function () {
+        this.success = false;
+        
+        DBZCCG.performingTurn = false;
+    },
+    sucessfulEffect: function (defendingPlayer) {
+        var damage = DBZCCG.Combat.attack(true, function(damage) {
+            damage.stages *= 2;
+            return damage;
+        }, DBZCCG.attackingPlayer.mainPersonality.currentPersonality().currentPowerLevel(), DBZCCG.defendingPlayer.mainPersonality.currentPersonality().currentPowerLevel());
+        defendingPlayer.takeDamage(damage);
+    },
+    postEffect: function (card) {
+        var cardIdx = DBZCCG.attackingPlayer.inPlay.getCardIdx(card);
+        DBZCCG.listActions.splice(0, 0, function() {
+            DBZCCG.attackingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
+        });
+    },
+    effectType: DBZCCG.Combat.AttackerEffect
 };
 
 DBZCCG.SAIYAN['051'] = {
@@ -181,7 +518,30 @@ DBZCCG.SAIYAN['051'] = {
     name: "Orange Hip Throw",
     number: '051',
     texturePath: "images/DBZCCG/saiyan/051.jpg",
-    saga: DBZCCG.Card.Saga.SAIYAN
+    saga: DBZCCG.Card.Saga.SAIYAN,
+    activable: DBZCCG.Combat.defaultAttackerCheck,
+    effect: function () {
+        this.success = false;
+
+        DBZCCG.listActions.splice(0,0,function() {
+            DBZCCG.attackingPlayer.mainPersonality.changeAnger(1);
+        });
+        DBZCCG.performingTurn = false;
+    },
+    sucessfulEffect: function (defendingPlayer) {
+        var damage = DBZCCG.Combat.attack(true, function (damage) {
+            damage.stages += 2;
+            return damage;
+        }, DBZCCG.attackingPlayer.mainPersonality.currentPersonality().currentPowerLevel(), DBZCCG.defendingPlayer.mainPersonality.currentPersonality().currentPowerLevel());
+        defendingPlayer.takeDamage(damage);
+    },
+    postEffect: function (card) {
+        var cardIdx = DBZCCG.attackingPlayer.inPlay.getCardIdx(card);
+        DBZCCG.listActions.splice(0, 0, function() {
+            DBZCCG.attackingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
+        });
+    },
+    effectType: DBZCCG.Combat.AttackerEffect
 };
 
 DBZCCG.SAIYAN['055'] = {
@@ -191,5 +551,28 @@ DBZCCG.SAIYAN['055'] = {
     name: "Red Front Kick",
     number: '055',
     texturePath: "images/DBZCCG/saiyan/055.jpg",
-    saga: DBZCCG.Card.Saga.SAIYAN
+    saga: DBZCCG.Card.Saga.SAIYAN,
+    activable: DBZCCG.Combat.defaultAttackerCheck,
+    effect: function () {
+        this.success = false;
+
+        DBZCCG.listActions.splice(0,0,function() {
+            DBZCCG.attackingPlayer.mainPersonality.changeAnger(1);
+        });
+        DBZCCG.performingTurn = false;
+    },
+    sucessfulEffect: function (defendingPlayer) {
+        var damage = DBZCCG.Combat.attack(true, function (damage) {
+            damage.stages += 1;
+            return damage;
+        }, DBZCCG.attackingPlayer.mainPersonality.currentPersonality().currentPowerLevel(), DBZCCG.defendingPlayer.mainPersonality.currentPersonality().currentPowerLevel());
+        defendingPlayer.takeDamage(damage);
+    },
+    postEffect: function (card) {
+        var cardIdx = DBZCCG.attackingPlayer.inPlay.getCardIdx(card);
+        DBZCCG.listActions.splice(0, 0, function() {
+            DBZCCG.attackingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
+        });
+    },
+    effectType: DBZCCG.Combat.AttackerEffect
 };

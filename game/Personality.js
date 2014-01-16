@@ -233,6 +233,10 @@ DBZCCG.Personality.create = function(data) {
             }
         };
 
+        this.currentPowerLevel = function () {
+            return this.powerStages[this.currentPowerStageAboveZero];
+        };
+    
         this.level = data.level;
         this.powerStages = data.powerStages;
         this.powerStageType = data.powerStageType || 'regular';

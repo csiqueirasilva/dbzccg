@@ -67,6 +67,18 @@ DBZCCG.CardGroup.create = function(cardGroup) {
             }
         }
 
+        this.getCardIdx = function (card) {
+            var i = 0;
+            var ret = -1;
+            for (; i < this.cards.length && card !== this.cards[i].display; i++)
+                ;
+
+            if (i !== this.cards.length) {
+                ret = i;
+            }
+            return ret;
+        }
+
         function cardGroupCardMouseOver() {
             if (Math.abs(this.rotation.x / (Math.PI / 2)) !== 1) {
                 if (this.originalZ == undefined) {
@@ -105,9 +117,9 @@ DBZCCG.CardGroup.create = function(cardGroup) {
 
         this.addCallback = function(callback) {
             var idx = addCallback.indexOf(callback);
-            console.log(idx);
             if(idx === -1) {
                 addCallback.push(callback);
+                callback.cardgroup = this;
                 addCallback.sort(DBZCCG.compareCallbacks);
             }
         }
@@ -273,7 +285,7 @@ DBZCCG.CardGroup.create = function(cardGroup) {
                         }
                     }
                     
-                    if (cardsToJoin.length == 0) {
+                    if (cardsToJoin.length === 0) {
                         DBZCCG.performingAnimation = false;
                     } else {
                         cardGroup.addCard(cardsToJoin, addToScene);
