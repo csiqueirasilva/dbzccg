@@ -31,6 +31,33 @@ DBZCCG.Player.create = function(dataObject, vec) {
 
         /* Game functions */
 
+        // check passive effects
+        this.checkPassiveEffects = function() {
+            // check nonCombats
+            var passiveEffects = [];
+            var checkField = ['nonCombats', 'drills', 'inPlay', 'dragonballs',
+                'lifeDeck', 'discardPile', 'fieldCards'];
+
+            for (var j = 0; j < checkField.length; j++) {
+                for (var i = 0; i < this[checkField[j]].cards.length; i++) {
+                    if (this[checkField[j]].cards[i].passiveEffect && this[checkField[j]].cards[i].passiveEffect.f instanceof Function) {
+                        passiveEffects.push(this[checkField[j]].cards[i]);
+                    }
+                }
+            }
+
+            passiveEffects.sort(DBZCCG.compareCallbacks);
+
+            for (var i = 0; i < passiveEffects.length; i++) {
+                passiveEffects[i].f();
+            }
+        };
+
+        // Check if after an effect the player must discard a card to be in compliance to the rules
+        this.checkRulesCompliance = function() {
+
+        };
+
         this.usableCards = [];
 
         this.clearUsableCards = function() {
@@ -58,8 +85,8 @@ DBZCCG.Player.create = function(dataObject, vec) {
 
         this.checkUsableCards = function() {
             for (var i = 0; i < DBZCCG.objects.length; i++) {
-                if (DBZCCG.objects[i].activable instanceof Function) {
-                    if (DBZCCG.objects[i].activable(this)) {
+                if (DBZCCG.objects[i].parentCard && DBZCCG.objects[i].parentCard.activable instanceof Function) {
+                    if (DBZCCG.objects[i].parentCard.activable(this)) {
                         this.addUsableCard(DBZCCG.objects[i]);
                     } else {
                         this.removeUsableCard(DBZCCG.objects[i]);
@@ -68,20 +95,19 @@ DBZCCG.Player.create = function(dataObject, vec) {
             }
         };
 
-        this.takeDamage = function (damage) {
+        this.takeDamage = function(damage) {
             var powerStages = damage.stages;
             var lifeCards = damage.cards;
-            
-            if(powerStages > 0) {
-                if(powerStages > this.mainPersonality.currentPersonality().currentPowerStageAboveZero) {
+
+            if (powerStages > 0) {
+                if (powerStages > this.mainPersonality.currentPersonality().currentPowerStageAboveZero) {
                     lifeCards += damage.stages - this.mainPersonality.currentPersonality().currentPowerStageAboveZero;
                     damage.stages = this.mainPersonality.currentPersonality().currentPowerStageAboveZero;
                 }
-                
-                this.mainPersonality.currentPersonality().raiseZScouter(-damage.stages);
             }
-            
-            if(lifeCards > 0) {
+
+            var cbIdx = [];
+            if (lifeCards > 0) {
                 var i;
                 if (lifeCards > this.lifeDeck.cards.length) {
                     // trigger not enough cards
@@ -90,31 +116,61 @@ DBZCCG.Player.create = function(dataObject, vec) {
                     i = this.lifeDeck.cards.length - lifeCards;
                 }
 
-                var cbIdx = [];
                 for (var j = this.lifeDeck.cards.length - 1; j >= i; j--) {
                     cbIdx.push(j);
                 }
-                
-                this.transferCards('lifeDeck', cbIdx, 'discardPile', this.discardPile.cards.length);
+            }
+
+
+            var player = this;
+            DBZCCG.listActions.splice(0, 0, function() {
+                player.transferCards('lifeDeck', cbIdx, 'discardPile', player.discardPile.cards.length);
+            });
+
+            if (lifeCards !== 0) {
+                DBZCCG.Combat.hoverText("-" + lifeCards, this.lifeDeck.display, 0xFF0000);
+            }
+
+            if (damage.stages !== 0) {
+                this.mainPersonality.currentPersonality().raiseZScouter(-damage.stages);
             }
         };
 
         this.defenderDefends = function(card) {
+
             DBZCCG.performingTurn = true;
-            //debug
-            card.success = true;
-            
-            DBZCCG.passLog = this.displayName() + " passed the opportunity to defend the attack.";
-            if (DBZCCG.defendingPlayer === this) {
-                if (DBZCCG.mainPlayer === this) {
-                    DBZCCG.passMessage = 'Pass the opportunity to defend?';
-                    $('#pass-btn').show();
-                } else {
-                    // TODO: AI OR P2
-                    DBZCCG.quickMessage(DBZCCG.passLog);
-                    DBZCCG.performingTurn = false;
+
+            var player = this;
+            DBZCCG.listActions.splice(0, 0, function() {
+                DBZCCG.performingTurn = true;
+                DBZCCG.performingAction = DBZCCG.defendingPlayer;
+                //debug
+                card.success = true;
+
+                DBZCCG.passLog = player.displayName() + " passed the opportunity to defend the attack.";
+                if (DBZCCG.defendingPlayer === player) {
+                    if (DBZCCG.mainPlayer === player) {
+                        DBZCCG.passMessage = 'Pass the opportunity to defend?';
+                        $('#pass-btn').show();
+                    } else {
+                        // TODO: AI OR P2
+                        DBZCCG.logMessage(DBZCCG.passLog);
+                        DBZCCG.performingTurn = false;
+                    }
                 }
-            }
+            });
+            
+            DBZCCG.defendingPlayer.checkPassiveEffects();
+            DBZCCG.defendingPlayer.checkRulesCompliance();
+
+            DBZCCG.attackingPlayer.checkPassiveEffects();
+            DBZCCG.attackingPlayer.checkRulesCompliance();
+
+            DBZCCG.performingTurn = false;
+        };
+
+        this.getPersonalityInControl = function() {
+            return this.mainPersonality.currentPersonality();
         };
 
         this.combatPhase = function(listActions) {
@@ -157,38 +213,50 @@ DBZCCG.Player.create = function(dataObject, vec) {
             DBZCCG.defendingPlayer.drawTopCards(defenderQuantityDraw, defenderSourcePile);
 
             var attackerAttacks = function() {
+
                 DBZCCG.performingTurn = true;
-                DBZCCG.performingAction = DBZCCG.attackingPlayer;
 
-                listActions.splice(0, 0, swapPlayers);
+                DBZCCG.listActions.splice(0, 0, function() {
 
-                var attackingPlayer = DBZCCG.attackingPlayer;
-                var defendingPlayer = DBZCCG.defendingPlayer;
+                    DBZCCG.performingTurn = true;
+                    DBZCCG.performingAction = DBZCCG.attackingPlayer;
 
-                attackingPlayer.usableCards = [];
+                    listActions.splice(0, 0, swapPlayers);
 
-                attackingPlayer.checkUsableCards();
+                    var attackingPlayer = DBZCCG.attackingPlayer;
+                    var defendingPlayer = DBZCCG.defendingPlayer;
 
-                DBZCCG.passLog = attackingPlayer.displayName() + " has passed the chance to perform an action.";
+                    attackingPlayer.usableCards = [];
 
-                // TODO: run floating effects
-                if (attackingPlayer === DBZCCG.mainPlayer && !attackingPlayer.onlyFightBack) {
-                    DBZCCG.passMessage = 'Pass the chance to perform an action?';
-                    $('#pass-btn').show();
-                } else {
-                    // TODO: AI OR P2
-                    // AI just passes, for now
-                    attackingPlayer.passed = true;
-                    DBZCCG.quickMessage(DBZCCG.passLog);
-                    DBZCCG.performingTurn = false;
-                }
+                    attackingPlayer.checkUsableCards();
 
+                    DBZCCG.passLog = attackingPlayer.displayName() + " has passed the chance to perform an action.";
+
+                    // TODO: run floating effects
+                    if (attackingPlayer === DBZCCG.mainPlayer && !attackingPlayer.onlyFightBack) {
+                        DBZCCG.passMessage = 'Pass the chance to perform an action?';
+                        $('#pass-btn').show();
+                    } else {
+                        // TODO: AI OR P2
+                        // AI just passes, for now
+                        attackingPlayer.passed = true;
+                        DBZCCG.logMessage(DBZCCG.passLog);
+                        DBZCCG.performingTurn = false;
+                    }
+                });
+
+                DBZCCG.defendingPlayer.checkPassiveEffects();
+                DBZCCG.defendingPlayer.checkRulesCompliance();
+                DBZCCG.attackingPlayer.checkPassiveEffects();
+                DBZCCG.attackingPlayer.checkRulesCompliance();
+
+                DBZCCG.performingTurn = false;
             };
 
             var swapPlayers = function() {
                 if (DBZCCG.attackingPlayer.passed && DBZCCG.defendingPlayer.passed) {
                     DBZCCG.performingAction = player;
-                    DBZCCG.quickMessage("The combat is over.");
+                    DBZCCG.logMessage("The combat is over.");
 
                     // run leave from combat effects
                     for (var i = 0; i < DBZCCG.attackingPlayer.combatLeavingCallback.length; i++) {
@@ -239,7 +307,7 @@ DBZCCG.Player.create = function(dataObject, vec) {
             animation.onComplete(function() {
                 var cardName = player.discardPile.cards[player.discardPile.cards.length - 1].name;
                 player.transferCards("discardPile", [player.discardPile.cards.length - 1], "lifeDeck", 0, true);
-                DBZCCG.quickMessage(player.mainPersonality.displayName() + " sent the top card of " + pronome + " Discard Pile (" + cardName + ") into the bottom of " + pronome + " Life Deck.");
+                DBZCCG.logMessage(player.mainPersonality.displayName() + " sent the top card of " + pronome + " Discard Pile (" + cardName + ") into the bottom of " + pronome + " Life Deck.");
             });
 
             animation.chain(secondAnimation);
@@ -341,7 +409,9 @@ DBZCCG.Player.create = function(dataObject, vec) {
         };
 
         this.drawPhase = function() {
+            DBZCCG.performingTurn = true;
             DBZCCG.performingAction.drawTopCards(3, "lifeDeck");
+            DBZCCG.performingTurn = false;
         };
 
 
@@ -510,11 +580,9 @@ DBZCCG.Player.create = function(dataObject, vec) {
                     destinyString = this[destiny].display.name;
                 }
 
-                if (!noMessage) {
-                    var msg = this.mainPersonality.displayName() + " " + action + " " + cardString + " from " + pronome + " " + sourceString + " into " + pronome + " " + destinyString + ".";
 
-                    DBZCCG.quickMessage(msg);
-                }
+                var msg = this.mainPersonality.displayName() + " " + action + " " + cardString + " from " + pronome + " " + sourceString + " into " + pronome + " " + destinyString + ".";
+                DBZCCG.logMessage(msg);
             }
         };
 
@@ -536,7 +604,7 @@ DBZCCG.Player.create = function(dataObject, vec) {
 
             this.transferCards("lifeDeck", cbIdx, "hand", null, true, (this === DBZCCG.mainPlayer || this.handOnTable) ? true : false);
 
-            DBZCCG.quickMessage(this.mainPersonality.displayName() + " drew " + n + " card" + ((n > 1) ? "s" : "") + " from the bottom of the " + this[sourcePile].display.name + ".");
+            DBZCCG.logMessage(this.mainPersonality.displayName() + " drew " + n + " card" + ((n > 1) ? "s" : "") + " from the bottom of the " + this[sourcePile].display.name + ".");
         };
 
         this.drawTopCards = function(n, sourcePile) {
@@ -557,7 +625,7 @@ DBZCCG.Player.create = function(dataObject, vec) {
 
             this.transferCards("lifeDeck", cbIdx, "hand", null, true, (this === DBZCCG.mainPlayer || this.handOnTable) ? true : false);
 
-            DBZCCG.quickMessage(this.mainPersonality.displayName() + " drew " + n + " card" + ((n > 1) ? "s" : "") + " from the top of the " + this[sourcePile].display.name + ".");
+            DBZCCG.logMessage(this.mainPersonality.displayName() + " drew " + n + " card" + ((n > 1) ? "s" : "") + " from the top of the " + this[sourcePile].display.name + ".");
         };
 
         /* End of game functions */

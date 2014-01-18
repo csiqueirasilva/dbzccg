@@ -12,7 +12,8 @@ DBZCCG.LifeDeck.create = function(deckObject) {
         if(!deckObject.number) {
             /* THIS IS THE DEMO CODE */
             var allowedCards = 
-                    ['001', '002', '003', '004', '005', '006', '007', '008', '009', '010', '014', '017', '024', '027', '044', '046', '051', '055'];
+                    ['001', '002', '003', '004', '005', '006', '007', '008', '009', '010', 
+                '014', '017', '022', '023', '024', '027', '044', '046', '051', '055', '099'];
 
             while(cardList.length < this.number || allowedCards.length !== 0) {
                 var idx = Math.floor((Math.random()*1000)) % allowedCards.length;
@@ -28,9 +29,13 @@ DBZCCG.LifeDeck.create = function(deckObject) {
                     allowedCards.splice(idx, 1);
                 } else {
                     var cardData = DBZCCG.SAIYAN[allowedCards[idx]];
-                    card = DBZCCG.Card.create(cardData);
-                    card.display.turnGameDisplay();
-                    cardList.push(card);
+                    if(cardData.limit !== count) {
+                        card = DBZCCG.Card.create(cardData);
+                        card.display.turnGameDisplay();
+                        cardList.push(card);
+                    } else {
+                        allowedCards.splice(idx, 1);                        
+                    }
                 }
             }
 

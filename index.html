@@ -87,6 +87,7 @@
         <!-- libs -->
         <script type="text/javascript" src="lib/jquery.min.js"></script>
         <script type="text/javascript" src="lib/jquery-ui-1.10.3.custom.min.js"></script>
+        <script type="text/javascript" src="lib/mousetrap.min.js"></script>
         <script type="text/javascript" src="lib/ClassHelper.js"></script>
         <script type="text/javascript" src="lib/imagesloaded.pkg.min.js"></script>
         <script type="text/javascript" src="lib/jquery.nicescroll.min.js"></script>

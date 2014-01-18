@@ -173,10 +173,6 @@ canvas {
     font-size: .7em;
 }
 
-.turnSelected {
-    font-weight: bold;
-}
-
 #turnTitle {
     margin-top: .8em;
     font-size: 1.2em;

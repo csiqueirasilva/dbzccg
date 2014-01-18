@@ -71,13 +71,13 @@ DBZCCG.Personality.create = function(data) {
 
             if(this.currentPowerStageAboveZero === 0 && numberPowerStages < 0) {
                 if(!noMessage) {
-                    DBZCCG.quickMessage(this.displayName() + ' already at 0.');
+                    DBZCCG.logMessage(this.displayName() + ' already at 0.');
                 }
                 
                 return numberPowerStages;
             } else if (this.currentPowerStageAboveZero === this.powerStages.length - 1 && numberPowerStages > 0) {
                 if(!noMessage) {
-                    DBZCCG.quickMessage(this.displayName() + ' already at maximum power stage level.');
+                    DBZCCG.logMessage(this.displayName() + ' already at maximum power stage level.');
                 }
                 
                 return numberPowerStages;
@@ -98,11 +98,13 @@ DBZCCG.Personality.create = function(data) {
                 diffPowerStage = resultPowerStage - this.currentPowerStageAboveZero;
             }
             
+            DBZCCG.Combat.hoverText((diffPowerStage < 0 ? '' : '+')+diffPowerStage, this.zScouter, diffPowerStage > 0 ? 0x00FF00 : 0xFF0000);
+
             this.moveZScouter(resultPowerStage, noDelay, true);
             
            if(!noMessage) {
                 var msg = this.displayName() + " " + action + " " + Math.abs(diffPowerStage) + " power stage" + (Math.abs(diffPowerStage) > 1 ? "s" : "") + ".";
-                DBZCCG.quickMessage(msg);
+                DBZCCG.logMessage(msg);
             }
             
             return leftover;
@@ -110,7 +112,7 @@ DBZCCG.Personality.create = function(data) {
 
         this.moveZScouter = function(toPowerStages, noDelay, noMessage) {
             if (this.zScouter) {
-                toPowerStages = toPowerStages == "max" || toPowerStages > this.powerStages.length - 1 ? this.powerStages.length - 1 : toPowerStages;
+                toPowerStages = toPowerStages === "max" || toPowerStages > this.powerStages.length - 1 ? this.powerStages.length - 1 : toPowerStages;
                 DBZCCG.performingAnimation = true;
                 var eastDir = this.zScouter.dirVector.clone().normalize();
                 var southDir = eastDir.clone();
@@ -144,15 +146,15 @@ DBZCCG.Personality.create = function(data) {
                 moveAnimation.onComplete(function() {
                     DBZCCG.performingAnimation = false;
                     if (!noMessage) {
-                        var msg = card.displayName() + " power stages was set to " + card.powerStages[card.currentPowerStageAboveZero];
+                        var msg = card.displayName() +" power stage level set to " + card.powerStages[card.currentPowerStageAboveZero];
                         if (card.currentPowerStageAboveZero == card.powerStages.length - 1) {
                             msg += " (max)";
                         } else if (card.currentPowerStageAboveZero != 0) {
                             msg += " (" + card.currentPowerStageAboveZero + " " + (card.currentPowerStageAboveZero == 1 ? "stage" : "stages") + " above 0)";
                         }
 
-                        msg += ".";
-                        DBZCCG.quickMessage(msg);
+                        DBZCCG.Combat.hoverText("="+card.powerStages[card.currentPowerStageAboveZero], card.zScouter);
+                        DBZCCG.logMessage(msg);
                     }
                 });
 
@@ -163,7 +165,7 @@ DBZCCG.Personality.create = function(data) {
                 card.currentPowerStageAboveZero = toPowerStages;
                 moveAnimation.start();
             }
-        }
+        };
 
         this.addZScouter = function(field, dirVector, distanceFromY) {
             var manager = new THREE.LoadingManager();

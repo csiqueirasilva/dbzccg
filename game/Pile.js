@@ -251,6 +251,15 @@ DBZCCG.Pile.create = function(data, faceUp) {
                 }
 
                 pile.display.remove(removedCard);
+                
+                // find card idx, it might be changed
+                for(var i = 0; i < pile.cards.length; i++) {
+                    if(pile.cards[i].display === removedCard) {
+                        cardIdx = i;
+                        break;
+                    }
+                }
+                
                 pile.cards.splice(cardIdx, 1);
                 
                 var idx;

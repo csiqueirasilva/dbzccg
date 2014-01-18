@@ -259,6 +259,7 @@ DBZCCG.Card.create = function(dataObject) {
         this.style = dataObject.style;
         this.description = dataObject.description;
         this.number = dataObject.number;
+        this.type = dataObject.type;
         this.display = createCard(dataObject.texturePath);
         this.display.name = this.name;
         this.display.parentCard = this;
@@ -282,16 +283,17 @@ DBZCCG.Card.create = function(dataObject) {
             }
         }
 
-        if(dataObject.effect) {
-            if(dataObject.effectType === DBZCCG.Combat.AttackerEffect) {
-                card.display.addCallback(DBZCCG.Combat.activateEffectCallback);
-                card.display.effect = dataObject.effect;
-                card.display.postEffect = dataObject.postEffect;
-                card.display.sucessfulEffect = dataObject.sucessfulEffect;
-            }
+        if(!dataObject.playable && dataObject.effect) {
+            card.display.addCallback(DBZCCG.Combat.activateEffectCallback);
+        } else if (dataObject.playable) {
+            card.display.addCallback(DBZCCG.Combat.placeCardInField);            
         }
 
-        card.display.activable = dataObject.activable;
+        card.effect = dataObject.effect;
+        card.activable = dataObject.activable;
+        card.postEffect = dataObject.postEffect;
+        card.sucessfulEffect = dataObject.sucessfulEffect;
+        card.playable = dataObject.playable;
 
         card.display.displayName = function () {
             return card.name;

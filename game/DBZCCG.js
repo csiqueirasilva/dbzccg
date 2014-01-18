@@ -48,12 +48,12 @@ DBZCCG.passDialog = function(msg) {
     DBZCCG.confirmDialog('Passing', msg, function() {
         $('#pass-btn').hide();
 
-        if(DBZCCG.combat) {
+        if (DBZCCG.combat) {
             DBZCCG.attackingPlayer.passed = true;
         }
-        
-        if(DBZCCG.passLog) {
-            DBZCCG.quickMessage(DBZCCG.passLog);
+
+        if (DBZCCG.passLog) {
+            DBZCCG.logMessage(DBZCCG.passLog);
         }
 
         DBZCCG.performingTurn = false;
@@ -130,10 +130,10 @@ DBZCCG.browseCardList = function(cards, title) {
 };
 /* End of dialog */
 
-DBZCCG.checkObjectLoad = function () {
-    
+DBZCCG.checkObjectLoad = function() {
+
     // check if models are loaded
-    return ( DBZCCG.Combat.selectionArrow && DBZCCG.Combat.selectionParticles ? true : false ) ;
+    return (DBZCCG.Combat.selectionArrow && DBZCCG.Combat.selectionParticles ? true : false);
 };
 
 
@@ -204,28 +204,10 @@ DBZCCG.selectionEffect = function(color, objects) {
     }
 };
 
-DBZCCG.quickMessage = function(msg) {
-    if (DBZCCG.finishedLoading) {
-        if (DBZCCG.performingAction !== null) {
-            if (DBZCCG.performingAction === DBZCCG.mainPlayer) {
-                alertify.custom = alertify.extend("player");
-            } else {
-                alertify.custom = alertify.extend("enemy");
-            }
-            alertify.custom(msg);
-        } else {
-            alertify.log(msg);
-        }
-
-        DBZCCG.logMessage(msg);
-
-    }
-};
-
-DBZCCG.logMessage = function (msg) {
+DBZCCG.logMessage = function(msg) {
     var log = document.createElement('div');
     log.innerHTML = '';
-    if(DBZCCG.performingAction === DBZCCG.mainPlayer) {
+    if (DBZCCG.performingAction === DBZCCG.mainPlayer) {
         log.innerHTML += '>> ';
     } else {
         log.innerHTML += '<< ';
@@ -465,31 +447,39 @@ DBZCCG.create = function() {
 
         for (var i = 0; i < table.players.length; i++) {
             table.players[i].addTransferCallback({f: function(src, elems, destiny) {
-                if(src === "lifeDeck") {
-                    var deckTotal = this.player.lifeDeck.number;
-                    var deckCards = this.player.lifeDeck.cards;
-                    var checkGameOver = {f: function () {
-                        if(deckCards.length === 0) { // TODO: check for infinite dragonball loop as well
-                            DBZCCG.gameOver = true;
-                        }
-                    }, priority: 1};
-                
-                    var checkLowLife = {
-                        f: function () {
-                           if (!DBZCCG.playerLowLife && Math.floor(deckTotal * 0.4) > deckCards.length) {
-                                DBZCCG.playerLowLife = true;
-                            } else if (Math.floor(deckTotal * 0.4) <= deckCards.length) {
-                                DBZCCG.playerLowLife = false;
-                            }
-                        }, priority: 2
-                    };
-                
-                    this.player[destiny].addCallback(checkGameOver);
-                    this.player[destiny].addCallback(checkLowLife);
-                }                
-            }, priority: 1 });
+                    if (src === "lifeDeck") {
+                        var deckTotal;
+                        var deckCards = this.player.lifeDeck.cards;
+
+                        var checkGameOver = {f: function() {
+                                if (deckCards.length === 0) { // TODO: check for infinite dragonball loop as well
+                                    DBZCCG.gameOver = true;
+                                }
+                            }, priority: 1};
+
+                        var checkLowLife = {
+                            f: function() {
+                                var currentCards;
+                                for (var i = 0; i < table.players.length; i++) {
+                                    deckTotal = table.players[i].lifeDeck.number;
+                                    currentCards = table.players[i].lifeDeck.cards.length;
+
+                                    if (!DBZCCG.playerLowLife && Math.floor(deckTotal * 0.4) > currentCards) {
+                                        DBZCCG.playerLowLife = true;
+                                        return;
+                                    } else if (Math.floor(deckTotal * 0.4) <= currentCards) {
+                                        DBZCCG.playerLowLife = false;
+                                    }
+                                }
+                            }, priority: 2
+                        };
+
+                        this.player[destiny].addCallback(checkGameOver);
+                        this.player[destiny].addCallback(checkLowLife);
+                    }
+                }, priority: 1});
         }
-        
+
         function displayPhaseMessage(id, callback) {
             DBZCCG.performingAnimation = true;
 
@@ -512,7 +502,7 @@ DBZCCG.create = function() {
                     parseInt(document.getElementById('turnCounterNumber').innerHTML) + 1;
 
             DBZCCG.combat = false;
-            
+
             var hadCombat = false;
 
             if (!DBZCCG.performingAction) {
@@ -540,199 +530,113 @@ DBZCCG.create = function() {
                                 player.drawPhase();
                             });
                 }
+            });
 
-                listActions.push(function() {
-                    if (player.nonCombatPhaseEnabled) {
-                        displayPhaseMessage('#noncombat-phase-warn',
-                                function() {
-                                    player.nonCombatPhase();
-                                });
-
-                    }
-
-                    listActions.push(function() {
-                        if (player.purPhaseEnabled) {
-                            displayPhaseMessage('#pur-phase-warn',
-                                    function() {
-                                        player.purPhase();
-                                    });
-                        }
-
-                        listActions.push(function() {
-                            if (player.declarePhaseEnabled) {
-                                displayPhaseMessage('#declare-phase-warn',
-                                        function() {
-                                            player.declarePhase(table.players);
-                                        });
-                            }
-
-                            listActions.push(function() {
-                                if (DBZCCG.combat && player.combatPhaseEnabled) {
-                                    hadCombat = true;
-                                    displayPhaseMessage('#combat-phase-warn',
-                                            function() {
-                                                DBZCCG.attackingPlayer = player;
-                                                
-                                                // code for 2v2
-                                                if(DBZCCG.attackingPlayer === table.players[0]) {
-                                                    DBZCCG.defendingPlayer = table.players[1];
-                                                } else {
-                                                    DBZCCG.defendingPlayer = table.players[0];
-                                                }
-                                                
-                                                DBZCCG.defendingPlayer.passed = DBZCCG.attackingPlayer.passed = false;
-                                                player.combatPhase(listActions);
-                                            });
-                                }
-
-                                listActions.push(function() {
-                                    if (player.discardPhaseEnabled) {
-                                        displayPhaseMessage('#discard-phase-warn',
-                                                function() {
-                                                    player.discardPhase();
-                                                    DBZCCG.quickMessage(player.displayName() + " discard phase.");
-                                                });
-                                    }
-                                    
-                                    for(var i = 0; i < table.players.length; i++) {
-                                        if(table.players[i] !== player && table.players[i].hand.cards.length > table.players[i].cardDiscardPhaseLimit) {
-                                            var discardPlayer = table.players[i];
-                                            listActions.push(function () {
-                                                DBZCCG.performingAction = discardPlayer;
-                                                discardPlayer.discardPhase();
-                                                DBZCCG.quickMessage(discardPlayer.displayName() + " discard phase.");
-                                            });
-                                        }
-                                    }
-
-                                    listActions.push(function() {
-                                        DBZCCG.performingAction = player;
-                                        if (!hadCombat && player.rejuvenationPhaseEnabled) {
-                                            displayPhaseMessage('#rejuvenation-phase-warn',
-                                                    function() {
-                                                        player.rejuvenationPhase();
-                                                    });
-                                        }
-
-                                        listActions.push(function() {
-                                            invokeTurn();
-                                        });
-                                    });
-
-                                });
-
+            listActions.push(function() {
+                if (player.nonCombatPhaseEnabled) {
+                    displayPhaseMessage('#noncombat-phase-warn',
+                            function() {
+                                player.nonCombatPhase();
                             });
 
-                        });
-
-                    });
-
-                });
+                }
 
             });
 
+            listActions.push(function() {
+                if (player.purPhaseEnabled) {
+                    displayPhaseMessage('#pur-phase-warn',
+                            function() {
+                                player.purPhase();
+                            });
+                }
+
+            });
+
+
+            listActions.push(function() {
+                if (player.declarePhaseEnabled) {
+                    displayPhaseMessage('#declare-phase-warn',
+                            function() {
+                                player.declarePhase(table.players);
+                            });
+                }
+
+            });
+
+            listActions.push(function() {
+                if (DBZCCG.combat && player.combatPhaseEnabled) {
+                    hadCombat = true;
+                    displayPhaseMessage('#combat-phase-warn',
+                            function() {
+                                DBZCCG.attackingPlayer = player;
+
+                                // code for 2v2
+                                if (DBZCCG.attackingPlayer === table.players[0]) {
+                                    DBZCCG.defendingPlayer = table.players[1];
+                                } else {
+                                    DBZCCG.defendingPlayer = table.players[0];
+                                }
+
+                                DBZCCG.defendingPlayer.passed = DBZCCG.attackingPlayer.passed = false;
+                                player.combatPhase(listActions);
+                            });
+                }
+
+            });
+
+
+
+            listActions.push(function() {
+                if (player.discardPhaseEnabled) {
+                    displayPhaseMessage('#discard-phase-warn',
+                            function() {
+                                player.discardPhase();
+                                DBZCCG.logMessage(player.displayName() + " discard phase.");
+                            });
+                }
+
+                for (var i = 0; i < table.players.length; i++) {
+                    if (table.players[i] !== player && table.players[i].hand.cards.length > table.players[i].cardDiscardPhaseLimit) {
+                        var discardPlayer = table.players[i];
+                        listActions.push(function() {
+                            DBZCCG.performingAction = discardPlayer;
+                            discardPlayer.discardPhase();
+                            DBZCCG.logMessage(discardPlayer.displayName() + " discard phase.");
+                        });
+                    }
+                }
+
+            });
+
+
+            listActions.push(function() {
+                DBZCCG.performingAction = player;
+                if (!hadCombat && player.rejuvenationPhaseEnabled) {
+                    displayPhaseMessage('#rejuvenation-phase-warn',
+                            function() {
+                                player.rejuvenationPhase();
+                            });
+                }
+
+            });
+
+            listActions.push(function() {
+                invokeTurn();
+            });
         }
-        
+
         DBZCCG.listActions = listActions;
-        
+
         function checkLoad() {
             if (table.players[0].mainPersonality.personalities[0].zScouter === undefined) {
                 window.setTimeout(checkLoad, 500);
             } else /*Begin code after everything was loaded */ {
                 DBZCCG.finishedLoading = true;
-                
+
                 listActions.push(function() {
                     invokeTurn();
                 });
-
-//                listActions.push(function() {
-//                    DBZCCG.performingAction.transferCards("lifeDeck",[0],"discardPile");
-//                });
-//
-//                listActions.push(function() {
-//                    DBZCCG.performingAction.transferCards("hand",[0],"discardPile");
-//                });
-//
-//                listActions.push(function() {
-//                    DBZCCG.performingAction.transferCards("hand",[0],"nonCombats");
-//                });
-//                
-//                listActions.push(function() {
-//                    DBZCCG.performingAction.transferCards("lifeDeck",[0],"hand");
-//                });
-//                
-//                listActions.push(function () {
-//                    DBZCCG.performingAction.drawBottomCards(3, "discardPile");
-//                });
-//
-//                listActions.push(function() {
-//                    DBZCCG.performingAction.drawTopCards(3, "lifeDeck");
-//                });
-
-//                 
-//                 listActions.push(function() {
-//                 DBZCCG.performingAction = table.players[1];
-//                 table.players[1].mainPersonality.advanceLevels(8);
-//                 });
-//                 
-//                 listActions.push(function() {
-//                 DBZCCG.performingAction = table.players[0];
-//                 table.players[0].mainPersonality.moveZScouter(0);
-//                 });
-//                 
-//                 listActions.push(function() {
-//                 DBZCCG.performingAction = table.players[0];
-//                 table.players[0].mainPersonality.moveZScouter(5);
-//                 });
-//                 
-//                 listActions.push(function() {
-//                 DBZCCG.performingAction = table.players[0];
-//                 table.players[0].mainPersonality.moveZScouter(12);
-//                 });
-//                 
-//                 listActions.push(function() {
-//                 DBZCCG.performingAction = table.players[0];
-//                 table.players[0].mainPersonality.moveZScouter(1);
-//                 });
-//
-//                listActions.push(function() {
-//                    DBZCCG.performingAction = table.players[0];
-//                    table.players[0].mainPersonality.changeAnger(1);
-//                });
-//                listActions.push(function() {
-//                    DBZCCG.performingAction = table.players[0];
-//                    table.players[0].mainPersonality.changeAnger(-1);
-//                });
-//
-//                listActions.push(function() {
-//                    DBZCCG.performingAction = table.players[0];
-//                    table.players[0].mainPersonality.changeAnger(2);
-//                });
-//
-//                listActions.push(function() {
-//                    DBZCCG.performingAction = table.players[0];
-//                    table.players[0].mainPersonality.changeAnger(5);
-//                });
-//
-//                listActions.push(function() {
-//                    DBZCCG.performingAction = table.players[0];
-//                    table.players[0].mainPersonality.changeAnger(-3);
-//                });
-//
-//                listActions.push(function() {
-//                    DBZCCG.performingAction = table.players[1];
-//                    table.players[1].mainPersonality.changeAnger(-3);
-//                });
-//
-//                listActions.push(function() {
-//                    DBZCCG.performingAction = table.players[1];
-//                    table.players[1].mainPersonality.changeAnger(-3);
-//                });
-//
-//                listActions.push(function() {
-//                    DBZCCG.performingAction = table.players[1];
-//                    table.players[1].mainPersonality.changeAnger(5);
-//                });
             }
         }
 
@@ -742,8 +646,7 @@ DBZCCG.create = function() {
             if (!DBZCCG.performingTurn &&
                     !DBZCCG.performingAnimation &&
                     listActions.length > 0 &&
-                    $(".alertify-log:visible").length === 0 &&
-                    $(".alertify-dialog:visible").length === 0) {
+                    !$('.phase-warn').is(':visible')) {
                 DBZCCG.clearMouseOver();
                 listActions.shift()();
             } else if (DBZCCG.gameOver) {
@@ -754,23 +657,23 @@ DBZCCG.create = function() {
         }
 
         var mainLoopInterval = window.setInterval(checkAction, 200);
-        
+
         // debug
         // scene.add(MathHelper.buildAxes(1000));
     }
 
     function render(cameraControl, renderer, scene, camera, stats) {
         TWEEN.update();
- 
+
         // Update selection arrows
         DBZCCG.Combat.updateSelectionArrows();
- 
+
         // Update models
         DBZCCG.Combat.selectionParticles.update();
- 
+
         // Update Billboards
         DBZCCG.updateBillboards(camera);
-        
+
         // Update background (If it requires update)
         if (DBZCCG.background.update instanceof Function) {
             DBZCCG.background.update();
@@ -803,18 +706,35 @@ DBZCCG.create = function() {
          * Callbacks for the main screen
          */
 
-        // KEYBOARD
-        DBZCCG.keys = {};
-        function onKeyUp(event) {
-            // TODO: Create function to check if it is possible to close all active windows
-            if (document.activeElement.tagName !== 'INPUT' && event.keyCode === 27) {
-                $('#rightBar').hide();
-                $('#leftBar').hide();
-                window.onresize();
-            }
-        }
+        // KEYBOARD                
 
-        document.body.onkeyup = onKeyUp;
+        Mousetrap.bind('c', function() {
+            var elem = $('.alertify-log:visible').eq(0);
+            elem.fadeOut(150);
+            elem.remove();
+        });
+
+        Mousetrap.bind('x', function() {
+            if ($('#pass-btn').is(':visible')) {
+                $('#pass-btn').click();
+            } else if ($('#combat-btn').is(':visible')) {
+                $('#combat-btn').click();
+            }
+        });
+
+        Mousetrap.bind('esc', function() {
+            $('#rightBar').hide();
+            $('#leftBar').hide();
+            window.onresize();
+        });
+
+        Mousetrap.bind('l', function() {
+            if (!$('#rightBar').is(':visible')) {
+                document.getElementById('log-btn').onclick({button: 0});
+            } else {
+                document.getElementById('closeRightBar').onclick({button: 0});
+            }
+        });
 
         // MOUSE
         function onDocumentMouseMove(event) {
@@ -869,7 +789,7 @@ DBZCCG.create = function() {
 
         display.addEventListener('mousemove', onDocumentMouseMove, false);
 
-        DBZCCG.clearMouseOver = function () {
+        DBZCCG.clearMouseOver = function() {
             $('#hud').qtip('hide');
             intersected = null;
             document.getElementById('body').style.cursor = 'auto';
@@ -988,7 +908,7 @@ DBZCCG.create = function() {
          */
 
         document.getElementById('log-btn').onclick = function(event) {
-            if (event.button == 0) {
+            if (event.button === 0) {
                 $('#hud').qtip('hide');
                 $('#rightBar').show();
                 window.onresize();
@@ -1237,7 +1157,7 @@ DBZCCG.create = function() {
         return null;
     }
 
-    var loadModelInterval = window.setInterval (function () {
+    var loadModelInterval = window.setInterval(function() {
         if (DBZCCG.checkObjectLoad()) {
             window.clearInterval(loadModelInterval);
             scr = DBZCCG.Screen.create(buildScene, render, controls);
