@@ -454,6 +454,7 @@ DBZCCG.create = function() {
                         var checkGameOver = {f: function() {
                                 if (deckCards.length === 0) { // TODO: check for infinite dragonball loop as well
                                     DBZCCG.gameOver = true;
+                                    DBZCCG.listActions = [];
                                 }
                             }, priority: 1};
 
@@ -689,6 +690,8 @@ DBZCCG.create = function() {
     }
 
     function controls(camera, renderer, scene, stats) {
+        DBZCCG.playerCamera = camera;
+        
         camera.aspect = window.innerWidth / window.innerHeight;
         camera.updateProjectionMatrix();
         renderer.setSize(window.innerWidth, window.innerHeight);

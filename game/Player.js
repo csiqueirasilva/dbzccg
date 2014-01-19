@@ -141,7 +141,7 @@ DBZCCG.Player.create = function(dataObject, vec) {
             DBZCCG.performingTurn = true;
 
             var player = this;
-            DBZCCG.listActions.splice(0, 0, function() {
+            DBZCCG.listActions.splice(0, 0, function() {             console.log('defender defends');
                 DBZCCG.performingTurn = true;
                 DBZCCG.performingAction = DBZCCG.defendingPlayer;
                 //debug
@@ -155,11 +155,12 @@ DBZCCG.Player.create = function(dataObject, vec) {
                     } else {
                         // TODO: AI OR P2
                         DBZCCG.logMessage(DBZCCG.passLog);
+                        DBZCCG.Combat.speechBubble("I will not take action.", player.getPersonalityInControl().display);                            
                         DBZCCG.performingTurn = false;
                     }
                 }
             });
-            
+
             DBZCCG.defendingPlayer.checkPassiveEffects();
             DBZCCG.defendingPlayer.checkRulesCompliance();
 
@@ -241,6 +242,7 @@ DBZCCG.Player.create = function(dataObject, vec) {
                         // AI just passes, for now
                         attackingPlayer.passed = true;
                         DBZCCG.logMessage(DBZCCG.passLog);
+                        DBZCCG.Combat.speechBubble("I will pass.", attackingPlayer.getPersonalityInControl().display);
                         DBZCCG.performingTurn = false;
                     }
                 });
@@ -292,31 +294,33 @@ DBZCCG.Player.create = function(dataObject, vec) {
         };
 
         this.rejuvenationPhase = function() {
-            DBZCCG.performingTurn = true;
+            if (this.discardPile.cards.length > 0) {
+                DBZCCG.performingTurn = true;
 
-            var botPos = this.lifeDeck.display.position.clone();
-            var topPos = botPos.clone();
-            topPos.y = 5;
+                var botPos = this.lifeDeck.display.position.clone();
+                var topPos = botPos.clone();
+                topPos.y = 5;
 
-            var animation = new TWEEN.Tween(this.lifeDeck.display.position).to(topPos, 200);
-            var secondAnimation = new TWEEN.Tween(this.lifeDeck.display.position).to(botPos, 200);
+                var animation = new TWEEN.Tween(this.lifeDeck.display.position).to(topPos, 200);
+                var secondAnimation = new TWEEN.Tween(this.lifeDeck.display.position).to(botPos, 200);
 
-            secondAnimation.delay(300);
+                secondAnimation.delay(300);
 
-            var player = this;
-            animation.onComplete(function() {
-                var cardName = player.discardPile.cards[player.discardPile.cards.length - 1].name;
-                player.transferCards("discardPile", [player.discardPile.cards.length - 1], "lifeDeck", 0, true);
-                DBZCCG.logMessage(player.mainPersonality.displayName() + " sent the top card of " + pronome + " Discard Pile (" + cardName + ") into the bottom of " + pronome + " Life Deck.");
-            });
+                var player = this;
+                animation.onComplete(function() {
+                    var cardName = player.discardPile.cards[player.discardPile.cards.length - 1].name;
+                    player.transferCards("discardPile", [player.discardPile.cards.length - 1], "lifeDeck", 0, true);
+                    DBZCCG.logMessage(player.mainPersonality.displayName() + " sent the top card of " + pronome + " Discard Pile (" + cardName + ") into the bottom of " + pronome + " Life Deck.");
+                });
 
-            animation.chain(secondAnimation);
+                animation.chain(secondAnimation);
 
-            secondAnimation.onComplete(function() {
-                DBZCCG.performingTurn = false;
-            });
+                secondAnimation.onComplete(function() {
+                    DBZCCG.performingTurn = false;
+                });
 
-            animation.start();
+                animation.start();
+            }
         };
 
         this.displayName = function() {
@@ -387,6 +391,7 @@ DBZCCG.Player.create = function(dataObject, vec) {
             } else {
                 // AI OR P2
                 DBZCCG.combat = true;
+                DBZCCG.Combat.speechBubble("Declaring combat!", this.mainPersonality.currentPersonality().display);
                 DBZCCG.performingTurn = false;
             }
         };

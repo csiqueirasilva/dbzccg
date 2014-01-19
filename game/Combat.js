@@ -238,6 +238,7 @@ DBZCCG.Combat.setDefenderTurn = function(player) {
 
         DBZCCG.listActions.splice(0, 0, function() {
 
+            console.log('check success effect');
             if (DBZCCG.currentCard.success && DBZCCG.currentCard.sucessfulEffect instanceof Function) {
                 DBZCCG.currentCard.sucessfulEffect(player);
             }
@@ -403,98 +404,84 @@ DBZCCG.Combat.setDefenderTurn = function(player) {
     };
 })();
 
+DBZCCG.Combat.speechBubble = function(text, display) {
+    DBZCCG.performingAnimation = true;
+    var p = document.createElement('p');
+    document.body.appendChild(p);
+    p.id = 'card-speech';
+    var vector = DBZCCG.Screen.getWindowCoords(display);
+    p.style.left = (((vector.x - p.offsetWidth * 0.2) / window.innerWidth) * 100) + '%';
+    p.style.top = (((vector.y - p.offsetHeight * 1.5) / window.innerHeight) * 100) + '%';
+
+    var i = 0;
+    $(p).fadeIn(500, function() {
+
+        var intervalText = window.setInterval(function() {
+
+            if (i === text.length) {
+                window.clearInterval(intervalText);
+                window.setTimeout(function() {
+                    $(p).fadeOut(500, function() {
+                        $(p).remove();
+                        DBZCCG.performingAnimation = false;
+                    });
+                }, 2500);
+            } else {
+                p.innerHTML += text.charAt(i);
+                i++;
+            }
+
+        }, 66);
+    });
+
+};
+
 DBZCCG.Combat.hoverText = function(text, display, color) {
     if (text) {
         DBZCCG.listActions.splice(0, 0, function() {
             DBZCCG.performingAnimation = true;
 
-            var position = display.parent.localToWorld(display.position.clone());
+            var vector = DBZCCG.Screen.getWindowCoords(display);
 
-            var textGeo = new THREE.TextGeometry(text, {
-                size: 1.8,
-                height: 0.1,
-                curveSegments: 4,
-                weight: "bold",
-                font: "optimer"
+            if (color !== undefined) {
+                color = color.toString(16);
+                for (var i = color.length; i < 6; i++) {
+                    color = '0' + color;
+                }
+                color = '#' + color;
+            } else {
+                color = '#FFFFFF';
+            }
 
+            var span = document.createElement('span');
+            span.style.position = 'absolute';
+            span.style['z-index'] = 900;
+            span.style.color = color;
+            span.style['font-size'] = '2em';
+            span.style['font-weight'] = 'bold';
+            span.style['text-shadow'] = '-3px 0 black, 0 3px black, 3px 0 black, 0 -3px black';
+            span.innerHTML = text;
+            document.body.appendChild(span);
+            span.style.left = (((vector.x - span.offsetWidth / 2) / window.innerWidth) * 100) + '%';
+            span.style.top = (((vector.y - span.offsetHeight / 2) / window.innerHeight) * 100) + '%';
+
+            var i = 0;
+            var top = parseInt((span.style.top.replace('%', '')));
+            var dcr = top * 0.01;
+            var intervalRise = window.setInterval(function() {
+                span.style.top = (top - dcr * i) + '%';
+                i++;
+            }, 33);
+
+            $(span).fadeIn(500, function() {
+                window.setTimeout(function() {
+                    $(span).fadeOut(500, function() {
+                        window.clearInterval(intervalRise);
+                        $(span).remove();
+                        DBZCCG.performingAnimation = false;
+                    });
+                }, 1000);
             });
-
-            textGeo.computeBoundingBox();
-
-            var fontMaterial = new THREE.MeshBasicMaterial({color: color || 0xFFFFFF, side: THREE.FrontSide});
-
-            var textMesh = new THREE.Mesh(textGeo, fontMaterial);
-
-            textMesh.position.x -= (textGeo.boundingBox.max.x - textGeo.boundingBox.min.x) / 2;
-
-            var textObject = new THREE.Object3D();
-            
-            textObject.add(textMesh);
-            
-            textObject.position = position.clone();
-
-            DBZCCG.mainScene.add(textObject);
-            DBZCCG.billboards.push(textObject);
-
-            var targetPosition = textObject.position.clone();
-            targetPosition.y += 5;
-            var animation = new TWEEN.Tween(textObject.position).to(targetPosition, 1250);
-
-            animation.onComplete(function() {
-                DBZCCG.mainScene.remove(textObject);
-                delete textObject;
-                DBZCCG.performingAnimation = false;
-            });
-
-            animation.start();
-        });
-    }
-}
-
-DBZCCG.Combat.explodeText = function(text, display, color) {
-    if (text) {
-        DBZCCG.listActions.splice(0, 0, function() {
-            DBZCCG.performingAnimation = true;
-
-            var position = display.parent.localToWorld(display.position.clone());
-
-            var textGeo = new THREE.TextGeometry(text, {
-                size: 1.8,
-                height: 0.1,
-                curveSegments: 4,
-                weight: "bold",
-                font: "optimer"
-
-            });
-
-            textGeo.computeBoundingBox();
-
-            var fontMaterial = new THREE.MeshBasicMaterial({color: color || 0xFFFFFF, side: THREE.FrontSide});
-
-            var textMesh = new THREE.Mesh(textGeo, fontMaterial);
-
-            textMesh.position.x -= (textGeo.boundingBox.max.x - textGeo.boundingBox.min.x) / 2;
-
-            var textObject = new THREE.Object3D();
-            
-            textObject.add(textMesh);
-            
-            textObject.position = position.clone();
-
-            DBZCCG.mainScene.add(textObject);
-            DBZCCG.billboards.push(textObject);
-
-            var targetPosition = textObject.position.clone();
-            targetPosition.y += 5;
-            var animation = new TWEEN.Tween(textObject.position).to(targetPosition, 1250);
-
-            animation.onComplete(function() {
-                DBZCCG.mainScene.remove(textObject);
-                delete textObject;
-                DBZCCG.performingAnimation = false;
-            });
-
-            animation.start();
         });
     }
 }

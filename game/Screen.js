@@ -2,13 +2,13 @@
 
 DBZCCG.Screen = {};
 
-DBZCCG.Screen.findCallbackObject = function (object, callback) {
+DBZCCG.Screen.findCallbackObject = function(object, callback) {
     var parent;
     if (object instanceof THREE.Mesh || object instanceof THREE.Object3D) {
         parent = object;
-        while(parent && !parent.ownParent && !(parent.parent instanceof THREE.Scene)) {
+        while (parent && !parent.ownParent && !(parent.parent instanceof THREE.Scene)) {
             parent = parent.parent;
-            if(parent[callback] instanceof Function) {
+            if (parent[callback] instanceof Function) {
                 break;
             }
         }
@@ -16,7 +16,23 @@ DBZCCG.Screen.findCallbackObject = function (object, callback) {
     return parent;
 };
 
-DBZCCG.Screen.customAddChild = function (pos, father, child) {
+DBZCCG.Screen.getWindowCoords = function(display) {
+    
+    var width = window.innerWidth, height = window.innerHeight;
+    var widthHalf = width / 2, heightHalf = height / 2;
+
+    var vector = new THREE.Vector3();
+    var projector = new THREE.Projector();
+
+    projector.projectVector(vector.getPositionFromMatrix(display.matrixWorld), DBZCCG.playerCamera);
+
+    vector.x = (vector.x * widthHalf) + widthHalf;
+    vector.y = -(vector.y * heightHalf) + heightHalf;
+
+    return vector;
+};
+
+DBZCCG.Screen.customAddChild = function(pos, father, child) {
     /* This is a custom routine to add a child element 
      * This routine was implemented since I need to have control of the child index 
      */
@@ -36,17 +52,17 @@ DBZCCG.Screen.customAddChild = function (pos, father, child) {
     /* End of the custom routine to add a child element */
 }
 
-DBZCCG.Screen.invalidIntersection = function (intersections) {
-    for(var i = 0; i < intersections.length; i++ ) {
+DBZCCG.Screen.invalidIntersection = function(intersections) {
+    for (var i = 0; i < intersections.length; i++) {
         if (intersections[i].object.parent instanceof THREE.Object3D && intersections[i].object.parent.parent) {
             return i;
         }
     }
-    
+
     return -1;
 }
 
-DBZCCG.Screen.create = function (buildScene, render, controls) {
+DBZCCG.Screen.create = function(buildScene, render, controls) {
     function GFX(extBuildScene, extRender, extControls) {
         var renderer;
         var scene;
@@ -57,12 +73,12 @@ DBZCCG.Screen.create = function (buildScene, render, controls) {
         var running = false;
         var stats = new Stats();
 
-        function animate () {
-            window.setTimeout( function() {
+        function animate() {
+            window.setTimeout(function() {
 
-                requestAnimationFrame( animate );
+                requestAnimationFrame(animate);
 
-            }, 33 - DBZCCG.clock.getDelta() * 1000 );
+            }, 33 - DBZCCG.clock.getDelta() * 1000);
 
             render(cameraControl, renderer, scene, camera, stats);
         }
@@ -79,7 +95,7 @@ DBZCCG.Screen.create = function (buildScene, render, controls) {
                 renderer = new THREE.WebGLRenderer({antialias: true});
                 renderer.setClearColor(0x000000, 1);
                 renderer.setSize(w, h);
-                
+
                 document.body.appendChild(renderer.domElement);
 
                 // camera
@@ -110,6 +126,6 @@ DBZCCG.Screen.create = function (buildScene, render, controls) {
 
     var gfx = new GFX(buildScene, render, controls);
     gfx.init();
-    
-    return { start: gfx.animate };
+
+    return {start: gfx.animate};
 };
