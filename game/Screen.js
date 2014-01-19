@@ -93,10 +93,11 @@ DBZCCG.Screen.create = function(buildScene, render, controls) {
 
                 // renderer
                 renderer = new THREE.WebGLRenderer({antialias: true});
+                renderer.domElement.id = 'main-canvas';
                 renderer.setClearColor(0x000000, 1);
                 renderer.setSize(w, h);
-
-                document.body.appendChild(renderer.domElement);
+                
+                document.getElementById('renderer-wrapper').appendChild(renderer.domElement);
 
                 // camera
                 camera = new THREE.PerspectiveCamera(45, w / h, 1, 6000);

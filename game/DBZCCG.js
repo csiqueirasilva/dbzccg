@@ -647,7 +647,8 @@ DBZCCG.create = function() {
             if (!DBZCCG.performingTurn &&
                     !DBZCCG.performingAnimation &&
                     listActions.length > 0 &&
-                    !$('.phase-warn').is(':visible')) {
+                    !$('.phase-warn').is(':visible') &&
+                    !DBZCCG.displayingText) {
                 DBZCCG.clearMouseOver();
                 listActions.shift()();
             } else if (DBZCCG.gameOver) {
@@ -691,7 +692,7 @@ DBZCCG.create = function() {
 
     function controls(camera, renderer, scene, stats) {
         DBZCCG.playerCamera = camera;
-        
+
         camera.aspect = window.innerWidth / window.innerHeight;
         camera.updateProjectionMatrix();
         renderer.setSize(window.innerWidth, window.innerHeight);
@@ -1122,18 +1123,18 @@ DBZCCG.create = function() {
             camera.updateProjectionMatrix();
 
             if ($('#leftBar').is(':visible')) {
-                renderer.domElement.style.left = window.innerWidth * 0.25 + 'px';
+                document.getElementById('renderer-wrapper').style.left = window.innerWidth * 0.25 + 'px';
                 DBZCCG.leftScreen.showScreen();
             } else {
-                renderer.domElement.style.left = '0px';
+                document.getElementById('renderer-wrapper').style.left = '0px';
                 DBZCCG.leftScreen.hideScreen();
             }
 
             if ($('#rightBar').is(':visible')) {
-                renderer.domElement.style.right = window.innerWidth * 0.25 + 'px';
+                document.getElementById('renderer-wrapper').style.right = window.innerWidth * 0.25 + 'px';
                 DBZCCG.rightScreen.showScreen();
             } else {
-                renderer.domElement.style.right = '0px';
+                document.getElementById('renderer-wrapper').style.right = '0px';
                 DBZCCG.rightScreen.hideScreen();
             }
 
@@ -1143,12 +1144,14 @@ DBZCCG.create = function() {
 
             DBZCCG.leftScreen.renderer.setSize(window.innerWidth * 0.25, window.innerHeight * 0.6);
             renderer.setSize(WIDTH, HEIGHT);
-
+            document.getElementById('renderer-wrapper').style.width = WIDTH + 'px';
+            document.getElementById('renderer-wrapper').style.height = HEIGHT + 'px';
+            
             DBZCCG.leftScreen.camera.aspect = (window.innerWidth * 0.25) / (HEIGHT * 0.6);
             DBZCCG.leftScreen.camera.updateProjectionMatrix();
 
-            var right = renderer.domElement.style.right.replace(/px/g, '');
-            var left = renderer.domElement.style.left.replace(/px/g, '');
+            var right = document.getElementById('renderer-wrapper').style.right.replace(/px/g, '');
+            var left = document.getElementById('renderer-wrapper').style.left.replace(/px/g, '');
 
             DBZCCG.resizeToolbar(WIDTH, left, right);
             DBZCCG.resizeTurnCounter(WIDTH, left, right);

@@ -404,7 +404,6 @@ DBZCCG.SAIYAN['017'] = {
             DBZCCG.attackingPlayer.mainPersonality.moveZScouter("max");
         });
 
-
     },
     sucessfulEffect: function(defendingPlayer) {
         var damage = DBZCCG.Combat.attack(true, null, DBZCCG.attackingPlayer.getPersonalityInControl().currentPowerLevel(), DBZCCG.defendingPlayer.getPersonalityInControl().currentPowerLevel());

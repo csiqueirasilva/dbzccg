@@ -24,7 +24,7 @@ DBZCCG.Combat.defaultNonCombatCheck = function(player) {
 DBZCCG.Combat.defaultAttackerCheck = function(player) {
     var result = false;
     if (DBZCCG.combat && player === DBZCCG.performingAction && player === DBZCCG.attackingPlayer && !DBZCCG.Combat.effectHappening &&
-            $(".alertify-log:visible").length === 0) {
+            !DBZCCG.displayingText) {
         result = true;
         $(DBZCCG.toolTip.content).children('#tooltipEffect').show();
     }
@@ -34,7 +34,7 @@ DBZCCG.Combat.defaultAttackerCheck = function(player) {
 DBZCCG.Combat.defaultDefenderCheck = function(player) {
     var result = false;
     if (DBZCCG.combat && player === DBZCCG.performingAction && player === DBZCCG.defendingPlayer && !DBZCCG.Combat.effectHappening &&
-            $(".alertify-log:visible").length === 0) {
+            !DBZCCG.displayingText) {
         result = true;
         $(DBZCCG.toolTip.content).children('#tooltipEffect').show();
     }
@@ -405,41 +405,42 @@ DBZCCG.Combat.setDefenderTurn = function(player) {
 })();
 
 DBZCCG.Combat.speechBubble = function(text, display) {
-    DBZCCG.performingAnimation = true;
-    var p = document.createElement('p');
-    document.body.appendChild(p);
-    p.id = 'card-speech';
-    var vector = DBZCCG.Screen.getWindowCoords(display);
-    p.style.left = (((vector.x - p.offsetWidth * 0.2) / window.innerWidth) * 100) + '%';
-    p.style.top = (((vector.y - p.offsetHeight * 1.5) / window.innerHeight) * 100) + '%';
+    DBZCCG.listActions.splice(0, 0, function() {
+        DBZCCG.displayingText = true;
+        var p = document.createElement('p');
+        document.getElementById('renderer-wrapper').appendChild(p);
+        p.id = 'card-speech';
+        var vector = DBZCCG.Screen.getWindowCoords(display);
+        p.style.left = (((vector.x - p.offsetWidth * 0.2) / window.innerWidth) * 100) + '%';
+        p.style.top = (((vector.y - p.offsetHeight * 1.5) / window.innerHeight) * 100) + '%';
 
-    var i = 0;
-    $(p).fadeIn(500, function() {
+        var i = 0;
+        $(p).fadeIn(500, function() {
 
-        var intervalText = window.setInterval(function() {
+            var intervalText = window.setInterval(function() {
 
-            if (i === text.length) {
-                window.clearInterval(intervalText);
-                window.setTimeout(function() {
-                    $(p).fadeOut(500, function() {
-                        $(p).remove();
-                        DBZCCG.performingAnimation = false;
-                    });
-                }, 2500);
-            } else {
-                p.innerHTML += text.charAt(i);
-                i++;
-            }
+                if (i === text.length) {
+                    window.clearInterval(intervalText);
+                    window.setTimeout(function() {
+                        $(p).fadeOut(500, function() {
+                            $(p).remove();
+                            DBZCCG.displayingText = false;
+                        });
+                    }, 2500);
+                } else {
+                    p.innerHTML += text.charAt(i);
+                    i++;
+                }
 
-        }, 66);
+            }, 66);
+        });
     });
-
 };
 
 DBZCCG.Combat.hoverText = function(text, display, color) {
     if (text) {
         DBZCCG.listActions.splice(0, 0, function() {
-            DBZCCG.performingAnimation = true;
+            DBZCCG.displayingText = true;
 
             var vector = DBZCCG.Screen.getWindowCoords(display);
 
@@ -454,14 +455,15 @@ DBZCCG.Combat.hoverText = function(text, display, color) {
             }
 
             var span = document.createElement('span');
-            span.style.position = 'absolute';
+            span.id = 'hover-text';
+            span.style.position = 'relative';
             span.style['z-index'] = 900;
             span.style.color = color;
             span.style['font-size'] = '2em';
             span.style['font-weight'] = 'bold';
             span.style['text-shadow'] = '-3px 0 black, 0 3px black, 3px 0 black, 0 -3px black';
             span.innerHTML = text;
-            document.body.appendChild(span);
+            document.getElementById('renderer-wrapper').appendChild(span);
             span.style.left = (((vector.x - span.offsetWidth / 2) / window.innerWidth) * 100) + '%';
             span.style.top = (((vector.y - span.offsetHeight / 2) / window.innerHeight) * 100) + '%';
 
@@ -478,7 +480,7 @@ DBZCCG.Combat.hoverText = function(text, display, color) {
                     $(span).fadeOut(500, function() {
                         window.clearInterval(intervalRise);
                         $(span).remove();
-                        DBZCCG.performingAnimation = false;
+                        DBZCCG.displayingText = false;
                     });
                 }, 1000);
             });

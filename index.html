@@ -9,19 +9,21 @@
         <link rel="stylesheet" href="css/dbzccg.css" />
         <link rel="stylesheet" href="css/jquery.qtip.min.css" />
         <link rel="stylesheet" href="css/jqueryui/theme-1.10.3.css" />
-        
+
     </head>
-    
+
     <body id='body' style="margin: 0; overflow: hidden;" oncontextmenu="return false;">
-        
-        <div class="phase-warn" id="draw-phase-warn"></div>
-        <div class="phase-warn" id="discard-phase-warn"></div>
-        <div class="phase-warn" id="declare-phase-warn"></div>
-        <div class="phase-warn" id="combat-phase-warn"></div>
-        <div class="phase-warn" id="rejuvenation-phase-warn"></div>
-        <div class="phase-warn" id="noncombat-phase-warn"></div>
-        <div class="phase-warn" id="pur-phase-warn"></div>
-        
+
+        <div id="renderer-wrapper">
+            <div class="phase-warn" id="draw-phase-warn"></div>
+            <div class="phase-warn" id="discard-phase-warn"></div>
+            <div class="phase-warn" id="declare-phase-warn"></div>
+            <div class="phase-warn" id="combat-phase-warn"></div>
+            <div class="phase-warn" id="rejuvenation-phase-warn"></div>
+            <div class="phase-warn" id="noncombat-phase-warn"></div>
+            <div class="phase-warn" id="pur-phase-warn"></div>
+        </div>
+
         <h1 id="loadingText">Loading!!!!</h1>
         <div id='hud'>
         </div>
@@ -29,7 +31,7 @@
         <div id='modal-post-game'>
             <h2>GAME OVER</h2>
         </div>
-        
+
         <div id="toolbar">
             <div id="combat-btn" class="btn">
             </div>
@@ -38,11 +40,11 @@
             <div id="log-btn" class="btn">
             </div>
         </div>
-        
+
         <div id="rightBar">
             <div class='btn close-btn' title='Close' id='closeRightBar'>
             </div>
-            
+
             <div id="logBox" class="niceScrollBar">
             </div>
         </div>
@@ -77,7 +79,7 @@
         <div id="rightBarWindow">
         </div>
 
-        
+
         <script id="skybox_vertex_shader" type="x-shader/x-fragment">
             <%@include file="game/skyboxvertexshader.glsl"%>
         </script>
@@ -126,10 +128,10 @@
             }
 
             $(document).ready(function() {
-                $('.niceScrollBar').niceScroll({autohidemode: false});
-                DBZCCG.create();
+            $('.niceScrollBar').niceScroll({autohidemode: false});
+            DBZCCG.create();
             });
         </script>
-        
+
     </body>
 </html>
