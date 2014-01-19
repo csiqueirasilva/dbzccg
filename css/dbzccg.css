@@ -300,18 +300,17 @@ canvas {
 
 .phase-warn {
     display: none;
-    position: relative;
+    position: absolute;
     z-index: 12000;
     left: 41%;
     top: 35%;
-    margin-top: -70px;
     width: 280px;
     height: 70px;
     background-size: 100% 100%;
 }
 
 #card-speech {
-    position: relative;
+    position: absolute;
     width: 200px;
     height: 80px;
     padding-left: 40px;

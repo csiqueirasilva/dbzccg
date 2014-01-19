@@ -456,7 +456,7 @@ DBZCCG.Combat.hoverText = function(text, display, color) {
 
             var span = document.createElement('span');
             span.id = 'hover-text';
-            span.style.position = 'relative';
+            span.style.position = 'absolute';
             span.style['z-index'] = 900;
             span.style.color = color;
             span.style['font-size'] = '2em';
