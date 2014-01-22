@@ -265,6 +265,8 @@ DBZCCG.MainPersonality.create = function(data) {
             var desiredLevels = n;
             var previousLevel = mp.personalities[mp.currentMainPersonalityLevel - 1];
             DBZCCG.performingAnimation = true;
+            this.removePowerStageLabelText();
+
             function advanceLevel() {
                 if (mp.currentMainPersonalityLevel != mp.personalities.length && n > 0) {
                     // Reorder personalities array
@@ -402,6 +404,22 @@ DBZCCG.MainPersonality.create = function(data) {
             }
 
             this.personalities[0].addZScouter(this.surroundingArea, this.personalities[0].display.position, this.personalities.length);
+
+            this.personalities[0].zScouter.displayHoverText = function() {
+
+                var personality = mp.currentPersonality();
+                var msg = personality.powerStages[personality.currentPowerStageAboveZero];
+
+                if (personality.currentPowerStageAboveZero == personality.powerStages.length - 1) {
+                    msg += " (max)";
+                } else if (personality.currentPowerStageAboveZero != 0) {
+                    msg += " (" + personality.currentPowerStageAboveZero + " " + (personality.currentPowerStageAboveZero == 1 ? "stage" : "stages") + " above 0)";
+                }
+
+                return "<b>" + personality.displayName() + "</b> current power stage level: " + "<br />" +
+                        msg;
+            };
+
             this.personalities[0].moveZScouter(this.currentPowerStageAboveZero, true, true);
             this.addZSword(this.surroundingArea, position);
 
@@ -427,6 +445,31 @@ DBZCCG.MainPersonality.create = function(data) {
 
         mp.displayName = function() {
             return mp.currentPersonality().displayName();
+        };
+
+        this.removePowerStageLabelText = function() {
+            this.currentPersonality().removePowerStageLabelText();
+        };
+
+        this.changePowerStageLabelText = function(text) {
+            this.currentPersonality().changePowerStageLabelText(text);
+        };
+
+        this.removeAngerLabelText = function() {
+            if (this.angerLabelText) {
+                $(this.angerLabelText).remove();
+                this.angerLabelText = undefined;
+            }
+        };
+
+        this.changeAngerLabelText = function(text) {
+            this.removeAngerLabelText();
+
+            var position = DBZCCG.Screen.getWindowCoords(this.zSword);
+
+            if (!isNaN(position.x)) {
+                this.angerLabelText = DBZCCG.Combat.labelText(text || (this.currentAngerLevel+"/"+this.angerLevelNeededToLevel), position, 0xFFFFFF, 800, 1);
+            }
         };
 
         this.personalities = [];

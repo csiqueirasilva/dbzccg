@@ -3,11 +3,11 @@ DBZCCG.Combat = {};
 DBZCCG.Combat.effectHappening = false;
 DBZCCG.Combat.selectionArrow = null;
 
+// Effect types
 DBZCCG.Combat.Attack = {};
 DBZCCG.Combat.Attack.Physical = 0;
 DBZCCG.Combat.Attack.Energy = 1;
 
-DBZCCG.Combat.AttackerEffect = 0;
 DBZCCG.Combat.inUsePAT = DBZCCG.Card.Saga.SAIYAN;
 
 DBZCCG.Combat.defaultNonCombatCheck = function(player) {
@@ -88,14 +88,14 @@ DBZCCG.Combat.attack = function(table, tableModifier, sourcePowerLevel, destinat
     }
 
     return totalDamage;
-}
+};
 
 DBZCCG.Combat.targetGroup = function(card) {
     switch (card.type) {
         case DBZCCG.Card.Type.NonCombat:
             return 'nonCombats';
     }
-}
+};
 
 DBZCCG.Combat.placeCardInField = {
     f: function() {
@@ -170,6 +170,7 @@ DBZCCG.Combat.activateEffectCallback = {f: function() {
         var clicked = DBZCCG.toolTip.parent.parentCard;
 
         if (clicked.activable(DBZCCG.performingAction)) {
+
             DBZCCG.currentCard = clicked;
 
             var elem = $(DBZCCG.toolTip.content).children('#tooltipEffect')[0];
@@ -179,21 +180,15 @@ DBZCCG.Combat.activateEffectCallback = {f: function() {
             $(DBZCCG.toolTip.content).children('#tooltipEffect').removeClass('tooltipEffectDisabled');
 
             elem.onclick = function() {
+                if (DBZCCG.combat) {
+                    DBZCCG.waitingMainPlayerMouseCommand = false;
+                }
+
                 DBZCCG.Combat.effectHappening = true;
                 $('#pass-btn').hide();
                 $('#hud').qtip('hide');
 
                 clicked.display.removeCallback(DBZCCG.Combat.activateEffectCallback);
-
-                if (DBZCCG.toolTip.idxCard !== undefined && DBZCCG.performingAction !== undefined) {
-                    DBZCCG.Combat.addSelectionParticle(clicked.display.position);
-
-                    if (DBZCCG.toolTip.cardSource === 'hand') {
-                        DBZCCG.performingAction.transferCards("hand", [DBZCCG.toolTip.idxCard], "inPlay");
-                    }
-
-                    DBZCCG.toolTip.idxCard = undefined;
-                }
 
                 DBZCCG.clearMouseOver();
 
@@ -223,6 +218,27 @@ DBZCCG.Combat.activateEffectCallback = {f: function() {
                     }
                 });
 
+                // Display the card image
+                DBZCCG.listActions.splice(0, 0, function() {
+                    var content = '<img src ="' + clicked.display.children[0].material.materials[5].map.sourceFile + '" />';
+                    DBZCCG.Combat.flashContent(content, 'flash-card');
+                });
+
+                // Play the card
+                DBZCCG.listActions.splice(0, 0, function() {
+
+                    if (DBZCCG.toolTip.idxCard !== undefined && DBZCCG.performingAction !== undefined) {
+                        DBZCCG.Combat.addSelectionParticle(clicked.display.position);
+
+                        if (DBZCCG.toolTip.cardSource === 'hand') {
+                            DBZCCG.performingAction.transferCards("hand", [DBZCCG.toolTip.idxCard], "inPlay");
+                        }
+
+                        DBZCCG.toolTip.idxCard = undefined;
+                    }
+
+                });
+
                 DBZCCG.performingTurn = false;
             };
         }
@@ -238,7 +254,6 @@ DBZCCG.Combat.setDefenderTurn = function(player) {
 
         DBZCCG.listActions.splice(0, 0, function() {
 
-            console.log('check success effect');
             if (DBZCCG.currentCard.success && DBZCCG.currentCard.sucessfulEffect instanceof Function) {
                 DBZCCG.currentCard.sucessfulEffect(player);
             }
@@ -404,12 +419,37 @@ DBZCCG.Combat.setDefenderTurn = function(player) {
     };
 })();
 
+DBZCCG.Combat.flashContent = function(content, type) {
+    DBZCCG.displayingText = true;
+
+    var id = document.createElement('div');
+    document.getElementById('renderer-wrapper').appendChild(id);
+    id.id = type || 'flash-content';
+    id.innerHTML = content;
+
+    DBZCCG.flash = id;
+
+    $(id).fadeIn(500);
+
+    window.setTimeout(function() {
+        $(id).fadeOut(500, function() {
+            $(id).remove();
+            DBZCCG.displayingText = false;
+            DBZCCG.flash = null;
+        });
+    }, 1000);
+};
+
 DBZCCG.Combat.speechBubble = function(text, display) {
     DBZCCG.listActions.splice(0, 0, function() {
         DBZCCG.displayingText = true;
+        DBZCCG.typingSpeech = true;
         var p = document.createElement('p');
         document.getElementById('renderer-wrapper').appendChild(p);
         p.id = 'card-speech';
+        if (!display) {
+            alert('JESUS O QUE HOUVE');
+        }
         var vector = DBZCCG.Screen.getWindowCoords(display);
         p.style.left = (((vector.x - p.offsetWidth * 0.2) / window.innerWidth) * 100) + '%';
         p.style.top = (((vector.y - p.offsetHeight * 1.5) / window.innerHeight) * 100) + '%';
@@ -418,7 +458,6 @@ DBZCCG.Combat.speechBubble = function(text, display) {
         $(p).fadeIn(500, function() {
 
             var intervalText = window.setInterval(function() {
-
                 if (i === text.length) {
                     window.clearInterval(intervalText);
                     window.setTimeout(function() {
@@ -426,16 +465,113 @@ DBZCCG.Combat.speechBubble = function(text, display) {
                             $(p).remove();
                             DBZCCG.displayingText = false;
                         });
-                    }, 2500);
+                    }, 1500);
+                    DBZCCG.typingSpeech = false;
                 } else {
                     p.innerHTML += text.charAt(i);
                     i++;
                 }
 
-            }, 66);
+            }, 15);
         });
     });
 };
+
+DBZCCG.Combat.setMouseOverCallback = function(display, mouseMove) {
+    // Mouse over for ZScouter
+    display.mouseOver = function(event) {
+        if (!$('.qtip').is(':visible')) {
+            if (!this.localTooltip) {
+                if (display.parentCard && display.ownParent && display.parentCard.activable instanceof Function) {
+                    if (display.parentCard.activable(DBZCCG.performingAction) &&
+                            (display.parentCard.effectType.indexOf(DBZCCG.Combat.Attack.Physical) !== -1 ||
+                                    display.parentCard.effectType.indexOf(DBZCCG.Combat.Attack.Energy) !== -1)) {
+                        this.localTooltip = DBZCCG.Combat.mouseHoverTooltip(event);
+                        var coords = DBZCCG.Screen.getWindowCoords(display);
+
+                        this.localTooltip.style.top = parseInt(coords.y) * 0.75 + 'px';
+                        this.localTooltip.style.left = (coords.x - this.localTooltip.offsetWidth * 1.25) + 'px';
+                    }
+                } else {
+                    this.localTooltip = DBZCCG.Combat.mouseHoverTooltip(event);
+
+                    var top = event.clientY - this.localTooltip.offsetHeight * 2.25;
+                    var left = event.clientX - this.localTooltip.offsetWidth * 4;
+                    this.localTooltip.style.top = top + 'px';
+                    this.localTooltip.style.left = left + 'px';
+                }
+            } else if (mouseMove) {
+                var top = event.clientY - this.localTooltip.offsetHeight - 25;
+                var left = event.clientX - this.localTooltip.offsetWidth / 2;
+                this.localTooltip.style.top = top + 'px';
+                this.localTooltip.style.left = left + 'px';
+            }
+
+            if (this.localTooltip) {
+                this.localTooltip.innerHTML = this.displayHoverText();
+            }
+        }
+    };
+
+    display.click = display.mouseOut = function(event) {
+        if (this.localTooltip) {
+            var elem = this;
+            $(elem.localTooltip).fadeOut(250, function() {
+                $(elem.localTooltip).remove();
+                elem.localTooltip = undefined;
+            });
+        }
+    };
+};
+
+DBZCCG.Combat.mouseHoverTooltip = function(event) {
+    var element = document.createElement('div');
+    element.id = 'hover-tooltip';
+    element.style.display = 'none';
+    document.body.appendChild(element);
+    element.style['z-index'] = 850;
+    element.style.position = 'absolute';
+    element.style["-moz-border-radius"] = '10px';
+    element.style["-webkit-border-radius"] = '10px';
+    element.style["border-radius"] = '10px';
+    element.style["border"] = '8px solid #666';
+    element.style["padding"] = '10px';
+    element.style["background-color"] = '#FFF';
+    element.style["color"] = '#000';
+    var top = event.clientY - element.offsetHeight - 25;
+    var left = event.clientX - element.offsetWidth / 2;
+    element.style.top = top + 'px';
+    element.style.left = left + 'px';
+    $(element).fadeIn(250);
+    return element;
+}
+
+DBZCCG.Combat.labelText = function(text, position, color, zindex, size) {
+
+    if (color !== undefined) {
+        color = color.toString(16);
+        for (var i = color.length; i < 6; i++) {
+            color = '0' + color;
+        }
+        color = '#' + color;
+    } else {
+        color = '#FFFFFF';
+    }
+
+    var span = document.createElement('span');
+    span.id = 'hover-text';
+    span.style.position = 'absolute';
+    span.style['z-index'] = zindex || 900;
+    span.style.color = color;
+    span.style['font-size'] = (size || 2) + 'em';
+    span.style['font-weight'] = 'bold';
+    span.style['text-shadow'] = '-1px 0 black, 0 1px black, 1px 0 black, 0 -1px black';
+    span.innerHTML = text;
+    document.getElementById('renderer-wrapper').appendChild(span);
+    span.style.left = (((position.x - span.offsetWidth / 2) / window.innerWidth) * 100) + '%';
+    span.style.top = (((position.y - span.offsetHeight / 2) / window.innerHeight) * 100) + '%';
+    return span;
+}
 
 DBZCCG.Combat.hoverText = function(text, display, color) {
     if (text) {
@@ -444,36 +580,15 @@ DBZCCG.Combat.hoverText = function(text, display, color) {
 
             var vector = DBZCCG.Screen.getWindowCoords(display);
 
-            if (color !== undefined) {
-                color = color.toString(16);
-                for (var i = color.length; i < 6; i++) {
-                    color = '0' + color;
-                }
-                color = '#' + color;
-            } else {
-                color = '#FFFFFF';
-            }
-
-            var span = document.createElement('span');
-            span.id = 'hover-text';
-            span.style.position = 'absolute';
-            span.style['z-index'] = 900;
-            span.style.color = color;
-            span.style['font-size'] = '2em';
-            span.style['font-weight'] = 'bold';
-            span.style['text-shadow'] = '-3px 0 black, 0 3px black, 3px 0 black, 0 -3px black';
-            span.innerHTML = text;
-            document.getElementById('renderer-wrapper').appendChild(span);
-            span.style.left = (((vector.x - span.offsetWidth / 2) / window.innerWidth) * 100) + '%';
-            span.style.top = (((vector.y - span.offsetHeight / 2) / window.innerHeight) * 100) + '%';
+            var span = DBZCCG.Combat.labelText(text, vector, color);
 
             var i = 0;
             var top = parseInt((span.style.top.replace('%', '')));
-            var dcr = top * 0.01;
+            var dcr = top * 0.0009;
             var intervalRise = window.setInterval(function() {
                 span.style.top = (top - dcr * i) + '%';
                 i++;
-            }, 33);
+            }, 1);
 
             $(span).fadeIn(500, function() {
                 window.setTimeout(function() {

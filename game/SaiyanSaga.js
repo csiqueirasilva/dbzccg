@@ -16,8 +16,11 @@ DBZCCG.SAIYAN['001'] = {
             DBZCCG.attackingPlayer.mainPersonality.changeAnger(1);
         });
     },
+    damage: function() {
+        return DBZCCG.Combat.attack(true, null, DBZCCG.attackingPlayer.getPersonalityInControl().currentPowerLevel(), DBZCCG.defendingPlayer.getPersonalityInControl().currentPowerLevel());
+    },
     sucessfulEffect: function(defendingPlayer) {
-        var damage = DBZCCG.Combat.attack(true, null, DBZCCG.attackingPlayer.getPersonalityInControl().currentPowerLevel(), DBZCCG.defendingPlayer.getPersonalityInControl().currentPowerLevel());
+        var damage = this.damage();
         DBZCCG.listActions.splice(0, 0, function() {
             defendingPlayer.takeDamage(damage);
         });
@@ -28,7 +31,7 @@ DBZCCG.SAIYAN['001'] = {
             DBZCCG.attackingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
         });
     },
-    effectType: DBZCCG.Combat.AttackerEffect
+    effectType: [DBZCCG.Combat.Attack.Physical]
 };
 
 DBZCCG.SAIYAN['002'] = {
@@ -48,11 +51,14 @@ DBZCCG.SAIYAN['002'] = {
             DBZCCG.attackingPlayer.mainPersonality.changeAnger(1);
         });
     },
-    sucessfulEffect: function(defendingPlayer) {
-        var damage = DBZCCG.Combat.attack(true, function(damage) {
+    damage: function() {
+        return DBZCCG.Combat.attack(true, function(damage) {
             damage.stages += 1;
             return damage;
         }, DBZCCG.attackingPlayer.getPersonalityInControl().currentPowerLevel(), DBZCCG.defendingPlayer.getPersonalityInControl().currentPowerLevel());
+    },
+    sucessfulEffect: function(defendingPlayer) {
+        var damage = this.damage();
         DBZCCG.listActions.splice(0, 0, function() {
             defendingPlayer.takeDamage(damage);
         });
@@ -63,7 +69,7 @@ DBZCCG.SAIYAN['002'] = {
             DBZCCG.attackingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
         });
     },
-    effectType: DBZCCG.Combat.AttackerEffect
+    effectType: [DBZCCG.Combat.Attack.Physical]
 
 };
 
@@ -85,11 +91,15 @@ DBZCCG.SAIYAN['003'] = {
         });
 
     },
-    sucessfulEffect: function(defendingPlayer) {
-        var damage = DBZCCG.Combat.attack(true, function(damage) {
+    damage: function() {
+        DBZCCG.Combat.attack(true, function(damage) {
             damage.stages += 1;
             return damage;
         }, DBZCCG.attackingPlayer.getPersonalityInControl().currentPowerLevel(), DBZCCG.defendingPlayer.getPersonalityInControl().currentPowerLevel());
+    },
+    sucessfulEffect: function(defendingPlayer) {
+        var damage = this.damage();
+
         DBZCCG.listActions.splice(0, 0, function() {
             defendingPlayer.takeDamage(damage);
         });
@@ -100,7 +110,7 @@ DBZCCG.SAIYAN['003'] = {
             DBZCCG.attackingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
         });
     },
-    effectType: DBZCCG.Combat.AttackerEffect
+    effectType: [DBZCCG.Combat.Attack.Physical]
 };
 
 DBZCCG.SAIYAN['004'] = {
@@ -121,8 +131,11 @@ DBZCCG.SAIYAN['004'] = {
         });
 
     },
+    damage: function() {
+        return DBZCCG.Combat.attack(true, null, DBZCCG.attackingPlayer.getPersonalityInControl().currentPowerLevel(), DBZCCG.defendingPlayer.getPersonalityInControl().currentPowerLevel());
+    },
     sucessfulEffect: function(defendingPlayer) {
-        var damage = DBZCCG.Combat.attack(true, null, DBZCCG.attackingPlayer.getPersonalityInControl().currentPowerLevel(), DBZCCG.defendingPlayer.getPersonalityInControl().currentPowerLevel());
+        var damage = this.damage();
         DBZCCG.listActions.splice(0, 0, function() {
             defendingPlayer.takeDamage(damage);
         });
@@ -133,7 +146,7 @@ DBZCCG.SAIYAN['004'] = {
             DBZCCG.attackingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
         });
     },
-    effectType: DBZCCG.Combat.AttackerEffect
+    effectType: [DBZCCG.Combat.Attack.Physical]
 };
 
 DBZCCG.SAIYAN['005'] = {
@@ -154,11 +167,14 @@ DBZCCG.SAIYAN['005'] = {
         });
 
     },
-    sucessfulEffect: function(defendingPlayer) {
-        var damage = DBZCCG.Combat.attack(true, function(damage) {
+    damage: function() {
+        return DBZCCG.Combat.attack(true, function(damage) {
             damage.stages += 3;
             return damage;
         }, DBZCCG.attackingPlayer.getPersonalityInControl().currentPowerLevel(), DBZCCG.defendingPlayer.getPersonalityInControl().currentPowerLevel());
+    },
+    sucessfulEffect: function(defendingPlayer) {
+        var damage = this.damage();
         DBZCCG.listActions.splice(0, 0, function() {
             defendingPlayer.takeDamage(damage);
         });
@@ -169,7 +185,7 @@ DBZCCG.SAIYAN['005'] = {
             DBZCCG.attackingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
         });
     },
-    effectType: DBZCCG.Combat.AttackerEffect
+    effectType: [DBZCCG.Combat.Attack.Physical]
 };
 
 DBZCCG.SAIYAN['006'] = {
@@ -190,8 +206,11 @@ DBZCCG.SAIYAN['006'] = {
         });
 
     },
+    damage: function() {
+        return DBZCCG.Combat.attack(true, null, DBZCCG.attackingPlayer.getPersonalityInControl().currentPowerLevel(), DBZCCG.defendingPlayer.getPersonalityInControl().currentPowerLevel());
+    },
     sucessfulEffect: function(defendingPlayer) {
-        var damage = DBZCCG.Combat.attack(true, null, DBZCCG.attackingPlayer.getPersonalityInControl().currentPowerLevel(), DBZCCG.defendingPlayer.getPersonalityInControl().currentPowerLevel());
+        var damage = this.damage();
         DBZCCG.listActions.splice(0, 0, function() {
             defendingPlayer.takeDamage(damage);
         });
@@ -202,7 +221,7 @@ DBZCCG.SAIYAN['006'] = {
             DBZCCG.attackingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
         });
     },
-    effectType: DBZCCG.Combat.AttackerEffect
+    effectType: [DBZCCG.Combat.Attack.Physical]
 };
 
 DBZCCG.SAIYAN['007'] = {
@@ -223,11 +242,14 @@ DBZCCG.SAIYAN['007'] = {
         });
 
     },
-    sucessfulEffect: function(defendingPlayer) {
-        var damage = DBZCCG.Combat.attack(true, function(damage) {
+    damage: function() {
+        return DBZCCG.Combat.attack(true, function(damage) {
             damage.stages += 3;
             return damage;
         }, DBZCCG.attackingPlayer.getPersonalityInControl().currentPowerLevel(), DBZCCG.defendingPlayer.getPersonalityInControl().currentPowerLevel());
+    },
+    sucessfulEffect: function(defendingPlayer) {
+        var damage = this.damage();
         DBZCCG.listActions.splice(0, 0, function() {
             defendingPlayer.takeDamage(damage);
         });
@@ -238,7 +260,7 @@ DBZCCG.SAIYAN['007'] = {
             DBZCCG.attackingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
         });
     },
-    effectType: DBZCCG.Combat.AttackerEffect
+    effectType: [DBZCCG.Combat.Attack.Physical]
 };
 
 DBZCCG.SAIYAN['008'] = {
@@ -259,11 +281,14 @@ DBZCCG.SAIYAN['008'] = {
         });
 
     },
-    sucessfulEffect: function(defendingPlayer) {
-        var damage = DBZCCG.Combat.attack(true, function(damage) {
+    damage: function() {
+        return DBZCCG.Combat.attack(true, function(damage) {
             damage.stages += 3;
             return damage;
         }, DBZCCG.attackingPlayer.getPersonalityInControl().currentPowerLevel(), DBZCCG.defendingPlayer.getPersonalityInControl().currentPowerLevel());
+    },
+    sucessfulEffect: function(defendingPlayer) {
+        var damage = this.damage();
         DBZCCG.listActions.splice(0, 0, function() {
             defendingPlayer.takeDamage(damage);
         });
@@ -274,7 +299,7 @@ DBZCCG.SAIYAN['008'] = {
             DBZCCG.attackingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
         });
     },
-    effectType: DBZCCG.Combat.AttackerEffect
+    effectType: [DBZCCG.Combat.Attack.Physical]
 };
 
 DBZCCG.SAIYAN['009'] = {
@@ -295,11 +320,14 @@ DBZCCG.SAIYAN['009'] = {
         });
 
     },
-    sucessfulEffect: function(defendingPlayer) {
-        var damage = DBZCCG.Combat.attack(true, function(damage) {
+    damage: function() {
+        return DBZCCG.Combat.attack(true, function(damage) {
             damage.stages += 3;
             return damage;
         }, DBZCCG.attackingPlayer.getPersonalityInControl().currentPowerLevel(), DBZCCG.defendingPlayer.getPersonalityInControl().currentPowerLevel());
+    },
+    sucessfulEffect: function(defendingPlayer) {
+        var damage = this.damage();
         DBZCCG.listActions.splice(0, 0, function() {
             defendingPlayer.takeDamage(damage);
         });
@@ -310,7 +338,7 @@ DBZCCG.SAIYAN['009'] = {
             DBZCCG.attackingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
         });
     },
-    effectType: DBZCCG.Combat.AttackerEffect
+    effectType: [DBZCCG.Combat.Attack.Physical]
 };
 
 DBZCCG.SAIYAN['010'] = {
@@ -331,8 +359,11 @@ DBZCCG.SAIYAN['010'] = {
         });
 
     },
+    damage: function() {
+        return DBZCCG.Combat.attack(true, null, DBZCCG.attackingPlayer.getPersonalityInControl().currentPowerLevel(), DBZCCG.defendingPlayer.getPersonalityInControl().currentPowerLevel());
+    },
     sucessfulEffect: function(defendingPlayer) {
-        var damage = DBZCCG.Combat.attack(true, null, DBZCCG.attackingPlayer.getPersonalityInControl().currentPowerLevel(), DBZCCG.defendingPlayer.getPersonalityInControl().currentPowerLevel());
+        var damage = this.damage();
         DBZCCG.listActions.splice(0, 0, function() {
             defendingPlayer.takeDamage(damage);
         });
@@ -343,7 +374,7 @@ DBZCCG.SAIYAN['010'] = {
             DBZCCG.attackingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
         });
     },
-    effectType: DBZCCG.Combat.AttackerEffect
+    effectType: [DBZCCG.Combat.Attack.Physical]
 };
 
 DBZCCG.SAIYAN['014'] = {
@@ -369,11 +400,14 @@ DBZCCG.SAIYAN['014'] = {
 
 
     },
-    sucessfulEffect: function(defendingPlayer) {
-        var damage = DBZCCG.Combat.attack(true, function(damage) {
+    damage: function() {
+        return DBZCCG.Combat.attack(true, function(damage) {
             damage.stages += 1;
             return damage;
         }, DBZCCG.attackingPlayer.getPersonalityInControl().currentPowerLevel(), DBZCCG.defendingPlayer.getPersonalityInControl().currentPowerLevel());
+    },
+    sucessfulEffect: function(defendingPlayer) {
+        var damage = this.damage();
         DBZCCG.listActions.splice(0, 0, function() {
             defendingPlayer.takeDamage(damage);
         });
@@ -384,7 +418,7 @@ DBZCCG.SAIYAN['014'] = {
             DBZCCG.attackingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
         });
     },
-    effectType: DBZCCG.Combat.AttackerEffect
+    effectType: [DBZCCG.Combat.Attack.Physical]
 };
 
 DBZCCG.SAIYAN['017'] = {
@@ -405,8 +439,11 @@ DBZCCG.SAIYAN['017'] = {
         });
 
     },
+    damage: function() {
+        return DBZCCG.Combat.attack(true, null, DBZCCG.attackingPlayer.getPersonalityInControl().currentPowerLevel(), DBZCCG.defendingPlayer.getPersonalityInControl().currentPowerLevel());
+    },
     sucessfulEffect: function(defendingPlayer) {
-        var damage = DBZCCG.Combat.attack(true, null, DBZCCG.attackingPlayer.getPersonalityInControl().currentPowerLevel(), DBZCCG.defendingPlayer.getPersonalityInControl().currentPowerLevel());
+        var damage = this.damage();
         DBZCCG.listActions.splice(0, 0, function() {
             defendingPlayer.takeDamage(damage);
         });
@@ -417,7 +454,7 @@ DBZCCG.SAIYAN['017'] = {
             DBZCCG.attackingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
         });
     },
-    effectType: DBZCCG.Combat.AttackerEffect
+    effectType: [DBZCCG.Combat.Attack.Physical]
 };
 
 DBZCCG.SAIYAN['022'] = {
@@ -436,18 +473,18 @@ DBZCCG.SAIYAN['022'] = {
 
         DBZCCG.listActions.splice(0, 0, function() {
             var cardIdx = [];
-            
-            if(DBZCCG.attackingPlayer.discardPile.cards.length > 0) {
+
+            if (DBZCCG.attackingPlayer.discardPile.cards.length > 0) {
                 cardIdx.push(DBZCCG.attackingPlayer.discardPile.cards.length - 1);
             }
-            
+
             DBZCCG.attackingPlayer.transferCards('discardPile', cardIdx, 'lifeDeck', 0);
         });
-        
+
         DBZCCG.listActions.splice(0, 0, function() {
             DBZCCG.attackingPlayer.getCurrentPersonality().raiseZScouter(5);
         });
-        
+
     },
     postEffect: function(card) {
         var cardIdx = DBZCCG.attackingPlayer.nonCombats.getCardIdx(card.display);
@@ -473,18 +510,18 @@ DBZCCG.SAIYAN['023'] = {
 
         DBZCCG.listActions.splice(0, 0, function() {
             var cardIdx = [];
-            
-            if(DBZCCG.attackingPlayer.discardPile.cards.length > 0) {
+
+            if (DBZCCG.attackingPlayer.discardPile.cards.length > 0) {
                 cardIdx.push(0);
             }
-            
-            if(DBZCCG.attackingPlayer.discardPile.cards.length > 1) {
+
+            if (DBZCCG.attackingPlayer.discardPile.cards.length > 1) {
                 cardIdx.push(1);
             }
-            
+
             DBZCCG.attackingPlayer.transferCards('discardPile', cardIdx, 'lifeDeck', 0);
         });
-        
+
         DBZCCG.listActions.splice(0, 0, function() {
             DBZCCG.attackingPlayer.mainPersonality.changeAnger(2);
         });
@@ -512,11 +549,14 @@ DBZCCG.SAIYAN['024'] = {
         this.targetCard = DBZCCG.defendingPlayer.getPersonalityInControl();
 
     },
-    sucessfulEffect: function(defendingPlayer) {
-        var damage = DBZCCG.Combat.attack(false, function(damage) {
+    damage: function() {
+        DBZCCG.Combat.attack(false, function(damage) {
             damage.stages = 5;
             return damage;
         }, DBZCCG.attackingPlayer.getPersonalityInControl().currentPowerLevel(), DBZCCG.defendingPlayer.getPersonalityInControl().currentPowerLevel());
+    },
+    sucessfulEffect: function(defendingPlayer) {
+        var damage = this.damage();
         DBZCCG.listActions.splice(0, 0, function() {
             defendingPlayer.takeDamage(damage);
         });
@@ -527,7 +567,7 @@ DBZCCG.SAIYAN['024'] = {
             DBZCCG.attackingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
         });
     },
-    effectType: DBZCCG.Combat.AttackerEffect
+    effectType: [DBZCCG.Combat.Attack.Physical]
 };
 
 DBZCCG.SAIYAN['027'] = {
@@ -544,11 +584,14 @@ DBZCCG.SAIYAN['027'] = {
         this.success = false;
         this.targetCard = DBZCCG.defendingPlayer.getPersonalityInControl();
     },
-    sucessfulEffect: function(defendingPlayer) {
-        var damage = DBZCCG.Combat.attack(false, function(damage) {
+    damage: function() {
+        return DBZCCG.Combat.attack(false, function(damage) {
             damage.cards = 5;
             return damage;
         }, DBZCCG.attackingPlayer.getPersonalityInControl().currentPowerLevel(), DBZCCG.defendingPlayer.getPersonalityInControl().currentPowerLevel());
+    },
+    sucessfulEffect: function(defendingPlayer) {
+        var damage = this.damage();
         DBZCCG.listActions.splice(0, 0, function() {
             defendingPlayer.takeDamage(damage);
         });
@@ -559,7 +602,7 @@ DBZCCG.SAIYAN['027'] = {
             DBZCCG.attackingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
         });
     },
-    effectType: DBZCCG.Combat.AttackerEffect
+    effectType: [DBZCCG.Combat.Attack.Physical]
 };
 
 DBZCCG.SAIYAN['044'] = {
@@ -578,11 +621,14 @@ DBZCCG.SAIYAN['044'] = {
 
 
     },
-    sucessfulEffect: function(defendingPlayer) {
-        var damage = DBZCCG.Combat.attack(false, function(damage) {
+    damage: function() {
+        return DBZCCG.Combat.attack(false, function(damage) {
             damage.cards = 1;
             return damage;
         }, DBZCCG.attackingPlayer.getPersonalityInControl().currentPowerLevel(), DBZCCG.defendingPlayer.getPersonalityInControl().currentPowerLevel());
+    },
+    sucessfulEffect: function(defendingPlayer) {
+        var damage = this.damage();
         DBZCCG.listActions.splice(0, 0, function() {
             defendingPlayer.takeDamage(damage);
         });
@@ -593,7 +639,7 @@ DBZCCG.SAIYAN['044'] = {
             DBZCCG.attackingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
         });
     },
-    effectType: DBZCCG.Combat.AttackerEffect
+    effectType: [DBZCCG.Combat.Attack.Physical]
 };
 
 DBZCCG.SAIYAN['046'] = {
@@ -612,11 +658,14 @@ DBZCCG.SAIYAN['046'] = {
 
 
     },
-    sucessfulEffect: function(defendingPlayer) {
-        var damage = DBZCCG.Combat.attack(true, function(damage) {
+    damage: function() {
+        return DBZCCG.Combat.attack(true, function(damage) {
             damage.stages *= 2;
             return damage;
         }, DBZCCG.attackingPlayer.getPersonalityInControl().currentPowerLevel(), DBZCCG.defendingPlayer.getPersonalityInControl().currentPowerLevel());
+    },
+    sucessfulEffect: function(defendingPlayer) {
+        var damage = this.damage();
         DBZCCG.listActions.splice(0, 0, function() {
             defendingPlayer.takeDamage(damage);
         });
@@ -627,7 +676,7 @@ DBZCCG.SAIYAN['046'] = {
             DBZCCG.attackingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
         });
     },
-    effectType: DBZCCG.Combat.AttackerEffect
+    effectType: [DBZCCG.Combat.Attack.Physical]
 };
 
 DBZCCG.SAIYAN['051'] = {
@@ -648,11 +697,14 @@ DBZCCG.SAIYAN['051'] = {
         });
 
     },
-    sucessfulEffect: function(defendingPlayer) {
-        var damage = DBZCCG.Combat.attack(true, function(damage) {
+    damage: function() {
+        return DBZCCG.Combat.attack(true, function(damage) {
             damage.stages += 2;
             return damage;
         }, DBZCCG.attackingPlayer.getPersonalityInControl().currentPowerLevel(), DBZCCG.defendingPlayer.getPersonalityInControl().currentPowerLevel());
+    },
+    sucessfulEffect: function(defendingPlayer) {
+        var damage = this.damage();
         DBZCCG.listActions.splice(0, 0, function() {
             defendingPlayer.takeDamage(damage);
         });
@@ -663,7 +715,7 @@ DBZCCG.SAIYAN['051'] = {
             DBZCCG.attackingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
         });
     },
-    effectType: DBZCCG.Combat.AttackerEffect
+    effectType: [DBZCCG.Combat.Attack.Physical]
 };
 
 DBZCCG.SAIYAN['055'] = {
@@ -684,11 +736,14 @@ DBZCCG.SAIYAN['055'] = {
         });
 
     },
-    sucessfulEffect: function(defendingPlayer) {
-        var damage = DBZCCG.Combat.attack(true, function(damage) {
+    damage: function() {
+        return DBZCCG.Combat.attack(true, function(damage) {
             damage.stages += 1;
             return damage;
         }, DBZCCG.attackingPlayer.getPersonalityInControl().currentPowerLevel(), DBZCCG.defendingPlayer.getPersonalityInControl().currentPowerLevel());
+    },
+    sucessfulEffect: function(defendingPlayer) {
+        var damage = this.damage();
         DBZCCG.listActions.splice(0, 0, function() {
             defendingPlayer.takeDamage(damage);
         });
@@ -699,7 +754,7 @@ DBZCCG.SAIYAN['055'] = {
             DBZCCG.attackingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
         });
     },
-    effectType: DBZCCG.Combat.AttackerEffect
+    effectType: [DBZCCG.Combat.Attack.Physical]
 };
 
 DBZCCG.SAIYAN['099'] = {
@@ -719,18 +774,18 @@ DBZCCG.SAIYAN['099'] = {
 
         DBZCCG.listActions.splice(0, 0, function() {
             var cardIdx = [];
-            
-            if(DBZCCG.attackingPlayer.discardPile.cards.length > 0) {
+
+            if (DBZCCG.attackingPlayer.discardPile.cards.length > 0) {
                 cardIdx.push(DBZCCG.attackingPlayer.discardPile.cards.length - 1);
             }
-            
-            if(DBZCCG.attackingPlayer.discardPile.cards.length > 1) {
+
+            if (DBZCCG.attackingPlayer.discardPile.cards.length > 1) {
                 cardIdx.push(DBZCCG.attackingPlayer.discardPile.cards.length - 2);
             }
-            
+
             DBZCCG.attackingPlayer.transferCards('discardPile', cardIdx, 'lifeDeck', 0);
         });
-        
+
         DBZCCG.listActions.splice(0, 0, function() {
             DBZCCG.attackingPlayer.mainPersonality.changeAnger(2);
         });

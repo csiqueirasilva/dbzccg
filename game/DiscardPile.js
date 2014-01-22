@@ -24,12 +24,12 @@ DBZCCG.DiscardPile.create = function(discardPile) {
             return this.cards[this.cards.length - 1];
         };
 
-        this.getBottomCard = function () {
+        this.getBottomCard = function() {
             return this.cards[0];
         };
 
         this.firstCardFaceUp();
-        
+
         this.display.name = "Discard pile";
     }
 

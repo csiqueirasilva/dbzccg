@@ -9,8 +9,18 @@ DBZCCG.Table.createSurroundingArea = function(direction, width, height, cornerWi
     var reflectAxis = MathHelper.rotateVector(dir);
     var distanceFromCenter = direction.length();
     var geo = new THREE.CylinderGeometry(cornerWidth, cornerWidth, width, 32, 16, true);
-    var material = new THREE.MeshBasicMaterial({color: 0x444444, side: THREE.FrontSide});
-    var fontMaterial = new THREE.MeshBasicMaterial({color: 0xFFFFFF, side: THREE.FrontSide});
+    var material = new THREE.MeshBasicMaterial({color: 0x444444, transparent: true, opacity: 0.75, side: THREE.FrontSide});
+    var floorMaterial = new THREE.MeshBasicMaterial({color: 0x444444, transparent: true, opacity: 0.25, side: THREE.FrontSide});
+
+    // floor
+
+    var floor = new THREE.Mesh(
+            new THREE.PlaneGeometry(width, height), floorMaterial);
+
+    floor.rotation.x = -90 * Math.PI / 180;
+    floor.position.z = (height / 2 + cornerWidth * 4) * dir.z;
+
+    surroundingArea.add(floor);
 
     // Superior row
     var superiorRow = new THREE.Mesh(geo, material);
@@ -20,40 +30,23 @@ DBZCCG.Table.createSurroundingArea = function(direction, width, height, cornerWi
 
     // Text
     surroundingArea.removeLabelText = function() {
-        if (this.labelText instanceof THREE.Mesh) {
-            this.remove(this.labelText);
-            delete this.labelText;
+        if (this.labelText) {
+            $(this.labelText).remove();
             this.labelText = undefined;
         }
     };
 
     surroundingArea.changeLabelText = function(text) {
         if (text) {
-
             this.removeLabelText();
 
-            var textGeo = new THREE.TextGeometry(text, {
-                size: 0.8,
-                height: 0.1,
-                curveSegments: 4,
-                weight: "bold",
-                font: "optimer"
+            var position = DBZCCG.Screen.getWindowCoords(superiorRow);
 
-            });
-
-            textGeo.computeBoundingBox();
-
-            var textMesh = new THREE.Mesh(textGeo, fontMaterial);
-            textMesh.position = superiorRow.position.clone();
-            textMesh.position.x -= (textGeo.boundingBox.max.x - textGeo.boundingBox.min.x) / 2;
-            textMesh.position.y += 0.2;
-            this.add(textMesh);
-            this.labelText = textMesh;
-            DBZCCG.billboards.push(textMesh);
+            if (!isNaN(position.x)) {
+                this.labelText = DBZCCG.Combat.labelText(text, position, 0xFFFFFF, 800, 1);
+            }
         }
     };
-
-    surroundingArea.changeLabelText("Area");
 
     // Bottom row
     var inferiorRow = new THREE.Mesh(geo, material);

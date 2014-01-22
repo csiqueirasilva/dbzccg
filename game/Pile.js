@@ -49,7 +49,7 @@ DBZCCG.Pile.create = function(data, faceUp) {
 
         this.removeCallback = function(callback) {
             var idx = addCallback.indexOf(callback);
-            if(idx !== -1) {
+            if (idx !== -1) {
                 addCallback.splice(idx, 1);
                 addCallback.sort(DBZCCG.compareCallbacks);
             }
@@ -57,7 +57,7 @@ DBZCCG.Pile.create = function(data, faceUp) {
 
         this.addCallback = function(callback) {
             var idx = addCallback.indexOf(callback);
-            if(idx === -1) {
+            if (idx === -1) {
                 addCallback.push(callback);
                 callback.pile = this;
                 addCallback.sort(DBZCCG.compareCallbacks);
@@ -74,7 +74,7 @@ DBZCCG.Pile.create = function(data, faceUp) {
                     card.display.ownParent = false;
                 }
 
-                if(card.removePositionCallback instanceof Function) {
+                if (card.removePositionCallback instanceof Function) {
                     card.removePositionCallback();
                     card.removePositionCallback = undefined;
                 }
@@ -164,8 +164,8 @@ DBZCCG.Pile.create = function(data, faceUp) {
                     for (var i = 0; i < addCallback.length; i++) {
                         if (addCallback[i].f instanceof Function) {
                             var ret = addCallback[i].f(cardIdx, increaseIndex, cards);
-                            if(ret instanceof Object) {
-                                if(ret.cardIdx !== undefined) {
+                            if (ret instanceof Object) {
+                                if (ret.cardIdx !== undefined) {
                                     cardIdx = ret.cardIdx;
                                 } else if (ret.increaseIndex !== undefined) {
                                     increaseIndex = ret.increaseIndex;
@@ -202,9 +202,9 @@ DBZCCG.Pile.create = function(data, faceUp) {
 
             var removedCard = pile.display.children[cardIdx];
             var card;
-            
+
             // TODO: Load the right card properties, if it is random
-            
+
             // TODO: Ajax Load for the online version!
             if (!removedCard.parentCard) {
                 var rot = removedCard.rotation.clone();
@@ -222,7 +222,7 @@ DBZCCG.Pile.create = function(data, faceUp) {
                 card = removedCard.parentCard;
             }
 
-            card.removePositionCallback = function () {
+            card.removePositionCallback = function() {
 
                 card.display.position.add(pile.display.position);
 
@@ -240,7 +240,7 @@ DBZCCG.Pile.create = function(data, faceUp) {
 
                 parent.add(card.display);
             };
-            
+
             var otherCards = pile.display.children;
 
             card.beginRemoveCallback = function() {
@@ -251,17 +251,17 @@ DBZCCG.Pile.create = function(data, faceUp) {
                 }
 
                 pile.display.remove(removedCard);
-                
+
                 // find card idx, it might be changed
-                for(var i = 0; i < pile.cards.length; i++) {
-                    if(pile.cards[i].display === removedCard) {
+                for (var i = 0; i < pile.cards.length; i++) {
+                    if (pile.cards[i].display === removedCard) {
                         cardIdx = i;
                         break;
                     }
                 }
-                
+
                 pile.cards.splice(cardIdx, 1);
-                
+
                 var idx;
                 for (var i = 0; i < otherCards.length; i++) {
                     idx = DBZCCG.objects.indexOf(otherCards[i]);
@@ -413,6 +413,24 @@ DBZCCG.Pile.create = function(data, faceUp) {
             this.turnThisWay(direction);
             field.add(this.display);
         }
+
+        this.removeLabelText = function() {
+            if (this.labelText) {
+                $(this.labelText).remove();
+                this.labelText = undefined;
+            }
+        };
+
+        this.changeLabelText = function(text) {
+            this.removeLabelText();
+
+            var position = DBZCCG.Screen.getWindowCoords(this.display);
+
+            if (!isNaN(position.x)) {
+                this.labelText = DBZCCG.Combat.labelText(text || this.cards.length, position, 0xFFFFFF, 800, 1);
+            }
+        };
+
     }
 
     return new PileObject(data || {number: 50}, faceUp);

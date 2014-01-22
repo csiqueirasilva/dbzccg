@@ -64,7 +64,7 @@ DBZCCG.Card.Style.Black = 7;
     });
 
     cornerGeo = new THREE.SphereGeometry(DBZCCG.Card.cornerWidth, 32, 16);
-    DBZCCG.Card.cubeGeo = new THREE.CubeGeometry(DBZCCG.Card.cardWidth, DBZCCG.Card.cardHeight, DBZCCG.Card.cardDepth );
+    DBZCCG.Card.cubeGeo = new THREE.CubeGeometry(DBZCCG.Card.cardWidth, DBZCCG.Card.cardHeight, DBZCCG.Card.cardDepth);
 
     DBZCCG.Card.basicCardGeo = new THREE.Geometry();
     var top = new THREE.Mesh(lineGeo, borderMaterial);
@@ -103,57 +103,57 @@ DBZCCG.Card.Style.Black = 7;
     var cube = DBZCCG.Card.cubeGeo;
     var vertices = cube.vertices;
     var faces = cube.faces;
-    
+
     vertices.push(vertices[7].clone());
     vertices.push(vertices[5].clone());
     vertices.push(vertices[0].clone());
     vertices.push(vertices[2].clone());
-    
-    vertices[5].color = vertices[0].color = vertices[2].color = vertices[7].color 
+
+    vertices[5].color = vertices[0].color = vertices[2].color = vertices[7].color
             = new THREE.Color(0x777777);
-    
+
     vertices[5].z = vertices[0].z = vertices[2].z = vertices[7].z = 0;
-    
+
     faces[8].a = 9;
     faces[8].b = 8;
     faces[8].c = 10;
-    
+
     faces[9].a = 8;
     faces[9].b = 11;
     faces[9].c = 10;
-    
+
     faces.push(new THREE.Face3(9, 5, 7));
     faces.push(new THREE.Face3(9, 7, 8));
-    
+
     faces.push(new THREE.Face3(0, 10, 2));
     faces.push(new THREE.Face3(10, 11, 2));
-    
+
     faces.push(new THREE.Face3(8, 7, 2));
     faces.push(new THREE.Face3(8, 2, 11));
 
     faces.push(new THREE.Face3(5, 9, 0));
     faces.push(new THREE.Face3(0, 9, 10));
 
-    for(var i = 0; i < faces.length; i++) {
-        if(vertices[faces[i].a].color === undefined) {
+    for (var i = 0; i < faces.length; i++) {
+        if (vertices[faces[i].a].color === undefined) {
             faces[i].vertexColors[0] = new THREE.Color(0x000000);
         } else {
             faces[i].vertexColors[0] = vertices[faces[i].a].color;
         }
-        
-        if(vertices[faces[i].b].color === undefined) {
+
+        if (vertices[faces[i].b].color === undefined) {
             faces[i].vertexColors[1] = new THREE.Color(0x000000);
         } else {
             faces[i].vertexColors[1] = vertices[faces[i].b].color;
         }
-        
-        if(vertices[faces[i].c].color === undefined) {
+
+        if (vertices[faces[i].c].color === undefined) {
             faces[i].vertexColors[2] = new THREE.Color(0x000000);
         } else {
             faces[i].vertexColors[2] = vertices[faces[i].c].color;
         }
     }
-    
+
     delete baseCorner;
 })();
 
@@ -223,7 +223,7 @@ DBZCCG.Card.create = function(dataObject) {
             }
 
             var cube = new THREE.Mesh(DBZCCG.Card.cubeGeo, new THREE.MeshFaceMaterial(cardCoverBackMaterials));
-            
+
             card.add(cube);
 
             return card;
@@ -269,7 +269,7 @@ DBZCCG.Card.create = function(dataObject) {
 
         card.display.removeCallback = function(callback) {
             var idx = this.callbacks.indexOf(callback);
-            if(idx !== -1) {
+            if (idx !== -1) {
                 this.callbacks.splice(idx, 1);
                 this.callbacks.sort(DBZCCG.compareCallbacks);
             }
@@ -277,16 +277,16 @@ DBZCCG.Card.create = function(dataObject) {
 
         card.display.addCallback = function(callback) {
             var idx = this.callbacks.indexOf(callback);
-            if(idx === -1) {
+            if (idx === -1) {
                 this.callbacks.push(callback);
                 this.callbacks.sort(DBZCCG.compareCallbacks);
             }
         }
 
-        if(!dataObject.playable && dataObject.effect) {
+        if (!dataObject.playable && dataObject.effect) {
             card.display.addCallback(DBZCCG.Combat.activateEffectCallback);
         } else if (dataObject.playable) {
-            card.display.addCallback(DBZCCG.Combat.placeCardInField);            
+            card.display.addCallback(DBZCCG.Combat.placeCardInField);
         }
 
         card.effect = dataObject.effect;
@@ -294,10 +294,12 @@ DBZCCG.Card.create = function(dataObject) {
         card.postEffect = dataObject.postEffect;
         card.sucessfulEffect = dataObject.sucessfulEffect;
         card.playable = dataObject.playable;
-
-        card.display.displayName = function () {
+        card.effectType = dataObject.effectType;
+        card.damage = dataObject.damage;
+        
+        card.display.displayName = function() {
             return card.name;
-        }
+        };
 
         card.display.turnGameDisplay = function() {
             if (card.display.leftScreenCallback === null) {
@@ -320,37 +322,37 @@ DBZCCG.Card.create = function(dataObject) {
             var firstRotationReversed = false;
             if (created.position.z < 0) {
                 rotate = true;
-                if(created.rotation.y === 0) {
+                if (created.rotation.y === 0) {
                     firstRotationReversed = true;
                 }
-            } 
-            
-            created.rotation.x = -Math.PI/2;
-            created.rotation.y = -Math.PI/2;
-            
+            }
+
+            created.rotation.x = -Math.PI / 2;
+            created.rotation.y = -Math.PI / 2;
+
             obj.add(created);
             created.position.set(0, 0, 0);
-            
+
             if (rotate) {
-                if(!firstRotationReversed) {
+                if (!firstRotationReversed) {
                     obj.rotation.y = Math.PI;
                 } else {
                     obj.rotation.y = 0;
                 }
-                
+
                 obj.rotation.z = -Math.PI;
             } else {
                 obj.rotation.z = Math.PI;
             }
 
             var firstRotation = obj.rotation.clone();
-            
-            if(!firstRotationReversed) {
+
+            if (!firstRotationReversed) {
                 firstRotation.z = 0;
             } else {
                 firstRotation.z = -2 * Math.PI;
             }
-            
+
             var rotation = obj.rotation;
             var animation = new TWEEN.Tween(rotation).to(firstRotation, 400);
             animation.easing(TWEEN.Easing.Circular.In);
@@ -364,6 +366,18 @@ DBZCCG.Card.create = function(dataObject) {
             animation.start();
             return obj;
         };
+
+        card.display.displayHoverText = function() {
+            var ret = '';
+            if(this.parentCard.damage instanceof Function) {
+                var damage = this.parentCard.damage();
+                ret = '<div class="hover-icon physical-attack-icon" title="Power Stage Damage"></div><span class="hover-damage-text" style="float: left;">' + damage.stages + '</span><div style="clear: both;"></div><br />';
+                ret += '<div class="hover-icon energy-attack-icon" title="Life Card Damage"></div><span class="hover-damage-text" style="float: left;">' + damage.cards + '</span><div style="clear: both;"></div>';
+            }
+            return ret;
+        };
+
+        DBZCCG.Combat.setMouseOverCallback(card.display);
 
         card.display.descriptionBox = function() {
             var content = "<div class='card-name'>" + card.name + "</div>\

@@ -48,19 +48,9 @@ DBZCCG.LifeDeck.create = function(deckObject) {
         ClassHelper.extends(this, DBZCCG.Pile.create(deckObject));
 
         var deck = this;
-//        
-//        if(cardList.length > 0) {
-//            /* demo code */
-//            for(var i = 0; i < cardList.length; i++) {
-//                this.cards.push(cardList[i]);
-//            }
-//            /* end of demo code */
-//        } else {
-//            cardList = this.cards;
-//        }
-        
+
         this.display.descriptionBox = function() {
-            var content = "<div class='card-quantity'>Number of cards in life deck: " + deck.cards.length + "</div>";
+            var content = "<div class='card-quantity'>"+this.displayName()+ "</div>";
             
             DBZCCG.descriptionBox(content);
             return content;
@@ -68,7 +58,7 @@ DBZCCG.LifeDeck.create = function(deckObject) {
      
         this.display.displayName = function() {
             return this.owner() + ' Life Deck';
-        }
+        };
         
         this.getRandomCard = function () {
             var random = Math.floor(Math.random() * 1000) % cardList.length ;

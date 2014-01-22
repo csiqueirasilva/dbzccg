@@ -141,7 +141,7 @@ DBZCCG.Player.create = function(dataObject, vec) {
             DBZCCG.performingTurn = true;
 
             var player = this;
-            DBZCCG.listActions.splice(0, 0, function() {             console.log('defender defends');
+            DBZCCG.listActions.splice(0, 0, function() {
                 DBZCCG.performingTurn = true;
                 DBZCCG.performingAction = DBZCCG.defendingPlayer;
                 //debug
@@ -150,12 +150,13 @@ DBZCCG.Player.create = function(dataObject, vec) {
                 DBZCCG.passLog = player.displayName() + " passed the opportunity to defend the attack.";
                 if (DBZCCG.defendingPlayer === player) {
                     if (DBZCCG.mainPlayer === player) {
+                        DBZCCG.waitingMainPlayerMouseCommand = true;
                         DBZCCG.passMessage = 'Pass the opportunity to defend?';
                         $('#pass-btn').show();
                     } else {
                         // TODO: AI OR P2
                         DBZCCG.logMessage(DBZCCG.passLog);
-                        DBZCCG.Combat.speechBubble("I will not take action.", player.getPersonalityInControl().display);                            
+                        DBZCCG.Combat.speechBubble("I will not take action.", player.getPersonalityInControl().display);
                         DBZCCG.performingTurn = false;
                     }
                 }
@@ -235,6 +236,7 @@ DBZCCG.Player.create = function(dataObject, vec) {
 
                     // TODO: run floating effects
                     if (attackingPlayer === DBZCCG.mainPlayer && !attackingPlayer.onlyFightBack) {
+                        DBZCCG.waitingMainPlayerMouseCommand = true;
                         DBZCCG.passMessage = 'Pass the chance to perform an action?';
                         $('#pass-btn').show();
                     } else {
@@ -357,6 +359,8 @@ DBZCCG.Player.create = function(dataObject, vec) {
                     player.transferCards("hand", [DBZCCG.toolTip.idxHand], "discardPile", player.discardPile.cards.length);
 
                     if (player.hand.cards.length === player.cardDiscardPhaseLimit) {
+                        DBZCCG.waitingMainPlayerMouseCommand = false;
+
                         elem.onclick = null;
                         DBZCCG.performingTurn = false;
                         for (var i = 0; i < player.hand.cards.length; i++) {
@@ -379,6 +383,8 @@ DBZCCG.Player.create = function(dataObject, vec) {
                             elem.onclick();
                         }, i * 200);
                     }
+                } else {
+                    DBZCCG.waitingMainPlayerMouseCommand = true;
                 }
             }
         };
@@ -386,6 +392,7 @@ DBZCCG.Player.create = function(dataObject, vec) {
         this.declarePhase = function() {
             DBZCCG.performingTurn = true;
             if (DBZCCG.mainPlayer === this) {
+                DBZCCG.waitingMainPlayerMouseCommand = true;
                 document.getElementById('combat-btn').onclick();
                 $('#combat-btn').show();
             } else {
@@ -404,6 +411,7 @@ DBZCCG.Player.create = function(dataObject, vec) {
         this.nonCombatPhase = function() {
             DBZCCG.performingTurn = true;
             if (DBZCCG.mainPlayer === this) {
+                DBZCCG.waitingMainPlayerMouseCommand = true;
                 DBZCCG.passMessage = 'Advance to the Power UP Phase?';
                 DBZCCG.passLog = this.displayName() + " advanced to the Power UP Phase.";
                 $('#pass-btn').show();
@@ -635,6 +643,22 @@ DBZCCG.Player.create = function(dataObject, vec) {
 
         /* End of game functions */
 
+        this.loadLabelText = function() {
+            this.allyArea.changeLabelText("Allies");
+            this.locationCardsArea.changeLabelText("Field");
+            this.asideCardsArea.changeLabelText("Set");
+            this.cardsInPlayArea.changeLabelText("In play");
+            this.dragonballArea.changeLabelText("Dragonballs");
+            this.nonCombatArea.changeLabelText("Non-Combats");
+            this.drillArea.changeLabelText("Drills");
+            this.deckArea.changeLabelText("Deck");
+            this.mainPersonality.surroundingArea.changeLabelText("Main Personality");
+            this.mainPersonality.changePowerStageLabelText();
+            this.mainPersonality.changeAngerLabelText();
+            this.discardPile.changeLabelText();
+            this.removedFromTheGame.changeLabelText();
+        };
+
         this.loadPlayerSpace = function(scene) {
             this.field = new THREE.Object3D();
             this.field.name = "field";
@@ -679,16 +703,6 @@ DBZCCG.Player.create = function(dataObject, vec) {
             this.locationCardsArea = DBZCCG.Table.createSurroundingArea(this.posVector, DBZCCG.Card.cardWidth * 2.5, DBZCCG.Card.cardHeight * 1.2, DBZCCG.Player.Field.cornerWidth);
             this.locationCardsArea.position.z = this.dirVector.clone().multiplyScalar(1.5 * 1.875 * DBZCCG.Card.cardHeight).z * 1.4675;
             this.locationCardsArea.position.x = this.deckArea.position.x;
-
-            this.allyArea.changeLabelText("Allies");
-            this.locationCardsArea.changeLabelText("Field");
-            this.asideCardsArea.changeLabelText("Set");
-            this.cardsInPlayArea.changeLabelText("In play");
-            this.dragonballArea.changeLabelText("Dragonballs");
-            this.nonCombatArea.changeLabelText("Non-Combats");
-            this.drillArea.changeLabelText("Drills");
-            this.deckArea.changeLabelText("Deck");
-            this.mainPersonality.surroundingArea.changeLabelText("Main Personality");
 
             this.field.add(this.allyArea);
             this.field.add(this.locationCardsArea);
@@ -753,9 +767,9 @@ DBZCCG.Player.create = function(dataObject, vec) {
             this.inPlay.addToField(this.field, this.dirVector);
             this.fieldCards.addToField(this.field, this.dirVector);
 
-            this.surroundingArea = DBZCCG.Table.createSurroundingArea(this.posVector, DBZCCG.Player.Field.Width, DBZCCG.Player.Field.Height, DBZCCG.Player.Field.cornerWidth);
-            this.surroundingArea.removeLabelText();
-            this.field.add(this.surroundingArea);
+//            this.surroundingArea = DBZCCG.Table.createSurroundingArea(this.posVector, DBZCCG.Player.Field.Width, DBZCCG.Player.Field.Height, DBZCCG.Player.Field.cornerWidth);
+//            this.surroundingArea.removeLabelText();
+//            this.field.add(this.surroundingArea);
             scene.add(this.field);
         };
 

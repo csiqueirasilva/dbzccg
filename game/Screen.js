@@ -16,19 +16,38 @@ DBZCCG.Screen.findCallbackObject = function(object, callback) {
     return parent;
 };
 
-DBZCCG.Screen.getWindowCoords = function(display) {
-    
-    var width = window.innerWidth, height = window.innerHeight;
-    var widthHalf = width / 2, heightHalf = height / 2;
-
-    var vector = new THREE.Vector3();
+DBZCCG.Screen.getWorldCoords = function(element, camera) {
+    var coords = new THREE.Vector3();
     var projector = new THREE.Projector();
+    coords.x = ((element.offsetLeft + element.offsetWidth) / window.innerWidth) * 2 - 1;
+    coords.y = -((element.offsetTop + element.offsetHeight) / window.innerHeight) * 2 + 1;
 
-    projector.projectVector(vector.getPositionFromMatrix(display.matrixWorld), DBZCCG.playerCamera);
+    coords.ix = (element.offsetLeft / window.innerWidth) * 2 - 1;
+    coords.iy = -(element.offsetTop / window.innerHeight) * 2 + 1;
 
-    vector.x = (vector.x * widthHalf) + widthHalf;
-    vector.y = -(vector.y * heightHalf) + heightHalf;
+    var ret = {};
+    ret.endCoords = new THREE.Vector3(coords.x, coords.y, 0.5);
+    projector.unprojectVector(ret.endCoords, camera);
 
+    ret.beginCoords = new THREE.Vector3(coords.ix, coords.iy, 0.5);
+    projector.unprojectVector(ret.beginCoords, camera);
+    return ret;
+};
+
+DBZCCG.Screen.getWindowCoords = function(display, camera) {
+    var vector = new THREE.Vector3();
+    if (display) {
+        var width = window.innerWidth, height = window.innerHeight;
+        var widthHalf = width / 2, heightHalf = height / 2;
+
+        var projector = new THREE.Projector();
+
+        projector.projectVector(vector.getPositionFromMatrix(display.matrixWorld), camera || DBZCCG.playerCamera);
+
+        vector.x = Math.round((vector.x * widthHalf) + widthHalf);
+        vector.y = Math.round(-(vector.y * heightHalf) + heightHalf);
+
+    }
     return vector;
 };
 
@@ -96,7 +115,7 @@ DBZCCG.Screen.create = function(buildScene, render, controls) {
                 renderer.domElement.id = 'main-canvas';
                 renderer.setClearColor(0x000000, 1);
                 renderer.setSize(w, h);
-                
+
                 document.getElementById('renderer-wrapper').appendChild(renderer.domElement);
 
                 // camera

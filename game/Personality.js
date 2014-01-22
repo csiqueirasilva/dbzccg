@@ -62,51 +62,51 @@ DBZCCG.Personality.create = function(data) {
             content += sagaLabel;
 
             return content;
-        }
+        };
 
-        this.raiseZScouter = function (numberPowerStages, noDelay, noMessage) {
-            if(numberPowerStages === 0) {
+        this.raiseZScouter = function(numberPowerStages, noDelay, noMessage) {
+            if (numberPowerStages === 0) {
                 return;
             }
 
-            if(this.currentPowerStageAboveZero === 0 && numberPowerStages < 0) {
-                if(!noMessage) {
+            if (this.currentPowerStageAboveZero === 0 && numberPowerStages < 0) {
+                if (!noMessage) {
                     DBZCCG.logMessage(this.displayName() + ' already at 0.');
                 }
-                
+
                 return numberPowerStages;
             } else if (this.currentPowerStageAboveZero === this.powerStages.length - 1 && numberPowerStages > 0) {
-                if(!noMessage) {
+                if (!noMessage) {
                     DBZCCG.logMessage(this.displayName() + ' already at maximum power stage level.');
                 }
-                
+
                 return numberPowerStages;
             }
-            
+
             var action = 'gained';
-            if(numberPowerStages < 0) {
+            if (numberPowerStages < 0) {
                 action = 'lost';
             }
 
             var resultPowerStage = this.currentPowerStageAboveZero + numberPowerStages;
             var diffPowerStage = resultPowerStage - this.currentPowerStageAboveZero;
             var leftover;
-            
-            if(!this.powerStages[resultPowerStage]) {
+
+            if (!this.powerStages[resultPowerStage]) {
                 leftover = resultPowerStage;
                 resultPowerStage = resultPowerStage > 0 ? this.powerStages.length - 1 : 0;
                 diffPowerStage = resultPowerStage - this.currentPowerStageAboveZero;
             }
-            
-            DBZCCG.Combat.hoverText((diffPowerStage < 0 ? '' : '+')+diffPowerStage, this.zScouter, diffPowerStage > 0 ? 0x00FF00 : 0xFF0000);
+
+            DBZCCG.Combat.hoverText((diffPowerStage < 0 ? '' : '+') + diffPowerStage, this.zScouter, diffPowerStage > 0 ? 0x00FF00 : 0xFF0000);
 
             this.moveZScouter(resultPowerStage, noDelay, true);
-            
-           if(!noMessage) {
+
+            if (!noMessage) {
                 var msg = this.displayName() + " " + action + " " + Math.abs(diffPowerStage) + " power stage" + (Math.abs(diffPowerStage) > 1 ? "s" : "") + ".";
                 DBZCCG.logMessage(msg);
             }
-            
+
             return leftover;
         }
 
@@ -146,14 +146,14 @@ DBZCCG.Personality.create = function(data) {
                 moveAnimation.onComplete(function() {
                     DBZCCG.performingAnimation = false;
                     if (!noMessage) {
-                        var msg = card.displayName() +" power stage level set to " + card.powerStages[card.currentPowerStageAboveZero];
+                        var msg = card.displayName() + " power stage level set to " + card.powerStages[card.currentPowerStageAboveZero];
                         if (card.currentPowerStageAboveZero == card.powerStages.length - 1) {
                             msg += " (max)";
                         } else if (card.currentPowerStageAboveZero != 0) {
                             msg += " (" + card.currentPowerStageAboveZero + " " + (card.currentPowerStageAboveZero == 1 ? "stage" : "stages") + " above 0)";
                         }
 
-                        DBZCCG.Combat.hoverText("="+card.powerStages[card.currentPowerStageAboveZero], card.zScouter);
+                        DBZCCG.Combat.hoverText("=" + card.powerStages[card.currentPowerStageAboveZero], card.zScouter);
                         DBZCCG.logMessage(msg);
                     }
                 });
@@ -207,7 +207,7 @@ DBZCCG.Personality.create = function(data) {
                 personality.moveZScouter(personality.currentPowerStageAboveZero || 0, true, true);
 
                 personality.zScouter.descriptionBox = function() {
-                    var descriptionBoxText = "<div><b>" + personality.displayName() + "</b> current power stage level: " + personality.powerStages[personality.currentPowerStageAboveZero];
+                    var descriptionBoxText = "<div><b>" + personality.displayName() + "</b> current power stage level: <br />" + personality.powerStages[personality.currentPowerStageAboveZero];
 
                     if (personality.currentPowerStageAboveZero == personality.powerStages.length - 1) {
                         descriptionBoxText += " (max)";
@@ -219,6 +219,24 @@ DBZCCG.Personality.create = function(data) {
 
                     DBZCCG.descriptionBox(descriptionBoxText);
                 };
+
+                if(!personality.zScouter.displayHoverText) {
+                    personality.zScouter.displayHoverText = function() {
+
+                        var msg = personality.powerStages[personality.currentPowerStageAboveZero];
+
+                        if (card.currentPowerStageAboveZero == card.powerStages.length - 1) {
+                            msg += " (max)";
+                        } else if (card.currentPowerStageAboveZero != 0) {
+                            msg += " (" + card.currentPowerStageAboveZero + " " + (card.currentPowerStageAboveZero == 1 ? "stage" : "stages") + " above 0)";
+                        }
+
+                        return "<b>" + personality.displayName() + "</b> current power stage level: " + "<br />" +
+                                msg;
+                    };
+                }
+
+                DBZCCG.Combat.setMouseOverCallback(personality.zScouter);
 
                 DBZCCG.objects.push(personality.zScouter);
                 field.add(personality.zScouter);
@@ -235,10 +253,27 @@ DBZCCG.Personality.create = function(data) {
             }
         };
 
-        this.currentPowerLevel = function () {
+        this.currentPowerLevel = function() {
             return this.powerStages[this.currentPowerStageAboveZero];
         };
-    
+
+        this.removePowerStageLabelText = function() {
+            if (this.powerStageLabelText) {
+                $(this.powerStageLabelText).remove();
+                this.powerStageLabelText = undefined;
+            }
+        };
+
+        this.changePowerStageLabelText = function(text) {
+            this.removePowerStageLabelText();
+
+            var position = DBZCCG.Screen.getWindowCoords(this.display);
+
+            if (!isNaN(position.x)) {
+                this.powerStageLabelText = DBZCCG.Combat.labelText(text || (this.currentPowerStageAboveZero + "/" + (this.powerStages.length - 1)), position, 0xFFFFFF, 800, 1);
+            }
+        };
+
         this.level = data.level;
         this.powerStages = data.powerStages;
         this.powerStageType = data.powerStageType || 'regular';

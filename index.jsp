@@ -10,6 +10,14 @@
         <link rel="stylesheet" href="css/jquery.qtip.min.css" />
         <link rel="stylesheet" href="css/jqueryui/theme-1.10.3.css" />
 
+        <script type="x-shader/x-fragment" id="skybox-shader-vs" src="util/fs">
+            <%@include file="game/skyboxvertexshader.glsl"%>
+        </script>
+
+        <script type="x-shader/x-fragment" id="skybox-shader-fs" src="util/fs">
+            <%@include file="game/skyboxfragmentshader.glsl"%>
+        </script>
+
     </head>
 
     <body id='body' style="margin: 0; overflow: hidden;" oncontextmenu="return false;">
@@ -107,6 +115,7 @@
         <!-- game -->
         <script type="text/javascript" src="game/DBZCCG.js"></script>
         <script type="text/javascript" src="game/Card.js"></script>
+        <script type="text/javascript" src="game/Combat.js"></script>
         <script type="text/javascript" src="game/Personality.js"></script>
         <script type="text/javascript" src="game/MainPersonality.js"></script>
         <script type="text/javascript" src="game/Pile.js"></script>
@@ -117,7 +126,6 @@
         <script type="text/javascript" src="game/Player.js"></script>
         <script type="text/javascript" src="game/Table.js"></script>
         <script type="text/javascript" src="game/Screen.js"></script>
-        <script type="text/javascript" src="game/Combat.js"></script>
         <script type="text/javascript" src="game/SaiyanSaga.js"></script>
         <script type="text/javascript">
             function getKeyByValue(object, value) {
