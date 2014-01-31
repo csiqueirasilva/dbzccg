@@ -8,33 +8,83 @@ DBZCCG.Combat.Attack = {};
 DBZCCG.Combat.Attack.Physical = 0;
 DBZCCG.Combat.Attack.Energy = 1;
 
-DBZCCG.Combat.inUsePAT = DBZCCG.Card.Saga.SAIYAN;
+DBZCCG.Combat.inUsePAT = DBZCCG.Card.Saga.Saiyan;
+
+DBZCCG.Combat.checkCosts = function(card) {
+    var ret = true;
+    if (card.cost instanceof Function) {
+        if (DBZCCG.attackingPlayer.getPersonalityInControl().currentPowerStageAboveZero < card.cost().powerStage) {
+            ret = false;
+        }
+    }
+    return ret;
+};
+
+DBZCCG.Combat.payCosts = function(card) {
+    if (card.cost instanceof Function /* || globalCostModifier */) {
+        var cost = card.cost();
+        DBZCCG.listActions.splice(0, 0, function() {
+            if (cost.powerStage) {
+                DBZCCG.attackingPlayer.getPersonalityInControl().raiseZScouter(-cost.powerStage, true, true);
+            }
+        });
+    }
+};
+
+DBZCCG.Combat.personalityPowerDefaultAttackCheck = function(player) {
+    var turn = parseInt($('#turnCounterNumber')[0].innerHTML);
+    var ret = false;
+    if (this.turn !== turn) {
+        ret = DBZCCG.Combat.defaultAttackerCheck(player, this);
+    }
+    return ret;
+};
+
+DBZCCG.Combat.personalityPowerDefaultDefenseCheck = function(player) {
+    var turn = parseInt($('#turnCounterNumber')[0].innerHTML);
+    var ret = false;
+    if (this.turn !== turn) {
+        ret = DBZCCG.Combat.defaultDefenderCheck(player, this);
+    }
+    return ret;
+};
 
 DBZCCG.Combat.defaultNonCombatCheck = function(player) {
     var result = false;
 
     if (player === DBZCCG.performingAction && !DBZCCG.Combat.effectHappening &&
-            $('.selectedTurn')[0].id === 'noncombat-phase') {
+            $('.selectedTurn')[0].id === 'noncombat-phase' && DBZCCG.Combat.checkCosts(this)
+            && player.nonCombats.getCardIdx(this.display) === -1) {
         result = true;
         $(DBZCCG.toolTip.content).children('#tooltipEffect').show();
     }
     return result;
 };
 
-DBZCCG.Combat.defaultAttackerCheck = function(player) {
+DBZCCG.Combat.checkInPlay = function(player, card) {
+    var ret = true;
+    if(card.type === DBZCCG.Card.Type['Non-Combat']) {
+        ret = player.nonCombats.getCardIdx(card.display) === -1 ? false : true;
+    }
+    return ret;
+};
+
+DBZCCG.Combat.defaultAttackerCheck = function(player, card) {
     var result = false;
+    var checkCard = card || this;
     if (DBZCCG.combat && player === DBZCCG.performingAction && player === DBZCCG.attackingPlayer && !DBZCCG.Combat.effectHappening &&
-            !DBZCCG.displayingText) {
+            !DBZCCG.displayingText && DBZCCG.Combat.checkCosts(checkCard) && DBZCCG.Combat.checkInPlay(player, checkCard)) {
         result = true;
         $(DBZCCG.toolTip.content).children('#tooltipEffect').show();
     }
     return result;
 };
 
-DBZCCG.Combat.defaultDefenderCheck = function(player) {
+DBZCCG.Combat.defaultDefenderCheck = function(player, card) {
     var result = false;
+    var checkCard = card || this;
     if (DBZCCG.combat && player === DBZCCG.performingAction && player === DBZCCG.defendingPlayer && !DBZCCG.Combat.effectHappening &&
-            !DBZCCG.displayingText) {
+            !DBZCCG.displayingText && DBZCCG.Combat.checkCosts(checkCard)  && DBZCCG.Combat.checkInPlay(player, checkCard)) {
         result = true;
         $(DBZCCG.toolTip.content).children('#tooltipEffect').show();
     }
@@ -43,7 +93,7 @@ DBZCCG.Combat.defaultDefenderCheck = function(player) {
 
 DBZCCG.Combat.PAT = {};
 
-DBZCCG.Combat.PAT[DBZCCG.Card.Saga.SAIYAN] = {
+DBZCCG.Combat.PAT[DBZCCG.Card.Saga.Saiyan] = {
     cardImage: 'images/DBZCCG/saiyan_pat.jpg',
     calcDamage: function(sourcePowerLevel, destinationPowerLevel) {
         function getDamage(power) {
@@ -92,7 +142,7 @@ DBZCCG.Combat.attack = function(table, tableModifier, sourcePowerLevel, destinat
 
 DBZCCG.Combat.targetGroup = function(card) {
     switch (card.type) {
-        case DBZCCG.Card.Type.NonCombat:
+        case DBZCCG.Card.Type['Non-Combat']:
             return 'nonCombats';
     }
 };
@@ -139,6 +189,9 @@ DBZCCG.Combat.setCardSource = function(display) {
                             if (idxField !== -1) {
                                 DBZCCG.toolTip.idxCard = idxField;
                                 DBZCCG.toolTip.cardSource = 'fieldCards';
+                            } else {
+                                DBZCCG.toolTip.idxCard = undefined;
+                                DBZCCG.toolTip.cardSource = undefined;
                             }
                         } else {
                             DBZCCG.toolTip.idxCard = idxSetAside;
@@ -166,6 +219,83 @@ DBZCCG.Combat.setCardSource = function(display) {
     }
 };
 
+
+DBZCCG.Combat.activateEffectAI = function(display) {
+    var clicked = display.parentCard;
+
+    if (clicked.playable instanceof Function && clicked.playable(DBZCCG.performingAction)) {
+        DBZCCG.currentCard = clicked;
+
+        DBZCCG.Combat.setCardSource(clicked.display);
+
+        clicked.display.removeCallback(DBZCCG.Combat.placeCardInField);
+        clicked.display.addCallback(DBZCCG.Combat.activateEffectCallback);
+        DBZCCG.performingAction.transferCards(DBZCCG.toolTip.cardSource, [DBZCCG.toolTip.idxCard], DBZCCG.Combat.targetGroup(clicked));
+
+    } else if (clicked.activable instanceof Function && clicked.activable(DBZCCG.performingAction)) {
+
+        DBZCCG.currentCard = clicked;
+
+        DBZCCG.Combat.setCardSource(clicked.display);
+
+        DBZCCG.Combat.effectHappening = true;
+
+        if (!clicked.dontRemoveEffect) {
+            clicked.display.removeCallback(DBZCCG.Combat.activateEffectCallback);
+        }
+
+        this.onclick = null;
+
+        // Finish the action
+        DBZCCG.listActions.splice(0, 0, function() {
+            DBZCCG.performingAction = DBZCCG.attackingPlayer;
+
+            if (clicked.postEffect instanceof Function) {
+                clicked.postEffect(clicked);
+            }
+
+            DBZCCG.Combat.removeAllSelectionArrows();
+            DBZCCG.Combat.removeSelectionParticles();
+            DBZCCG.Combat.effectHappening = false;
+        });
+
+        // Invoke defender's turn
+        DBZCCG.Combat.setDefenderTurn(DBZCCG.defendingPlayer);
+
+        DBZCCG.listActions.splice(0, 0, function() {
+            clicked.effect();
+
+            if (clicked.targetCard && clicked.targetCard.display === DBZCCG.defendingPlayer.getPersonalityInControl().display) {
+                DBZCCG.Combat.selectionArrow(DBZCCG.attackingPlayer.getPersonalityInControl().display, DBZCCG.defendingPlayer.getPersonalityInControl().display);
+            }
+        });
+
+        DBZCCG.Combat.payCosts(clicked);
+
+        // Display the card image
+        DBZCCG.listActions.splice(0, 0, function() {
+            var content = '<img src ="' + clicked.display.children[0].material.materials[5].map.sourceFile + '" />';
+            DBZCCG.Combat.flashContent(content, 'flash-card');
+        });
+
+
+        // Play the card
+        DBZCCG.listActions.splice(0, 0, function() {
+            if (DBZCCG.toolTip.idxCard !== undefined) {
+                DBZCCG.Combat.addSelectionParticle(clicked.display.position);
+
+                if (DBZCCG.toolTip.cardSource === 'hand') {
+                    DBZCCG.performingAction.transferCards("hand", [DBZCCG.toolTip.idxCard], "inPlay");
+                }
+
+                DBZCCG.toolTip.idxCard = undefined;
+            }
+        });
+
+        DBZCCG.performingTurn = false;
+    }
+};
+
 DBZCCG.Combat.activateEffectCallback = {f: function() {
         var clicked = DBZCCG.toolTip.parent.parentCard;
 
@@ -182,13 +312,16 @@ DBZCCG.Combat.activateEffectCallback = {f: function() {
             elem.onclick = function() {
                 if (DBZCCG.combat) {
                     DBZCCG.waitingMainPlayerMouseCommand = false;
+                    DBZCCG.performingAction.passed = false;
                 }
 
                 DBZCCG.Combat.effectHappening = true;
                 $('#pass-btn').hide();
                 $('#hud').qtip('hide');
 
-                clicked.display.removeCallback(DBZCCG.Combat.activateEffectCallback);
+                if (!clicked.dontRemoveEffect) {
+                    clicked.display.removeCallback(DBZCCG.Combat.activateEffectCallback);
+                }
 
                 DBZCCG.clearMouseOver();
 
@@ -210,13 +343,16 @@ DBZCCG.Combat.activateEffectCallback = {f: function() {
                 // Invoke defender's turn
                 DBZCCG.Combat.setDefenderTurn(DBZCCG.defendingPlayer);
 
+                // Card effect
                 DBZCCG.listActions.splice(0, 0, function() {
                     clicked.effect();
 
                     if (clicked.targetCard && clicked.targetCard.display === DBZCCG.defendingPlayer.getPersonalityInControl().display) {
-                        DBZCCG.Combat.selectionArrow(DBZCCG.attackingPlayer.getPersonalityInControl().display.position, DBZCCG.defendingPlayer.getPersonalityInControl().display.position);
+                        DBZCCG.Combat.selectionArrow(DBZCCG.attackingPlayer.getPersonalityInControl().display, DBZCCG.defendingPlayer.getPersonalityInControl().display);
                     }
                 });
+
+                DBZCCG.Combat.payCosts(clicked);
 
                 // Display the card image
                 DBZCCG.listActions.splice(0, 0, function() {
@@ -355,8 +491,23 @@ DBZCCG.Combat.setDefenderTurn = function(player) {
     };
 
 
-    DBZCCG.Combat.selectionArrow = function(source, target) {
+    DBZCCG.Combat.selectionArrow = function(sourceObj, targetObj) {
         var geo = new THREE.Geometry();
+        var source, target;
+
+        if (sourceObj.parent instanceof THREE.Object3D) {
+            source = sourceObj.parent.localToWorld(sourceObj.position.clone());
+        } else {
+            source = sourceObj.position;
+        }
+
+        if (targetObj.parent instanceof THREE.Object3D) {
+            target = targetObj.parent.localToWorld(targetObj.position.clone());
+        } else {
+            target = targetObj.position;
+        }
+
+
         var diffVector = new THREE.Vector3().addVectors(target.clone(), source.clone().multiplyScalar(-1));
 
         var totalVertices = Math.floor(Math.abs(diffVector.z) + Math.abs(diffVector.x));
@@ -388,7 +539,7 @@ DBZCCG.Combat.setDefenderTurn = function(player) {
 
         // Later: Add custom shaders
         var selectionArrow = new THREE.ParticleSystem(geo, new THREE.ParticleSystemMaterial({
-            size: 14,
+            size: 10,
             vertexColors: true,
             map: THREE.ImageUtils.loadTexture("images/gfx/particles/particle.png"),
             blending: THREE.AdditiveBlending,
@@ -482,8 +633,8 @@ DBZCCG.Combat.setMouseOverCallback = function(display, mouseMove) {
     display.mouseOver = function(event) {
         if (!$('.qtip').is(':visible')) {
             if (!this.localTooltip) {
-                if (display.parentCard && display.ownParent && display.parentCard.activable instanceof Function) {
-                    if (display.parentCard.activable(DBZCCG.performingAction) &&
+                if (display.parentCard) {
+                    if (display.parentCard.activable instanceof Function && display.parentCard.activable(DBZCCG.performingAction) && display.parentCard.effectType instanceof Array &&
                             (display.parentCard.effectType.indexOf(DBZCCG.Combat.Attack.Physical) !== -1 ||
                                     display.parentCard.effectType.indexOf(DBZCCG.Combat.Attack.Energy) !== -1)) {
                         this.localTooltip = DBZCCG.Combat.mouseHoverTooltip(event);
@@ -567,6 +718,7 @@ DBZCCG.Combat.labelText = function(text, position, color, zindex, size) {
     span.style['font-weight'] = 'bold';
     span.style['text-shadow'] = '-1px 0 black, 0 1px black, 1px 0 black, 0 -1px black';
     span.innerHTML = text;
+    span.className = 'hover-label-text';
     document.getElementById('renderer-wrapper').appendChild(span);
     span.style.left = (((position.x - span.offsetWidth / 2) / window.innerWidth) * 100) + '%';
     span.style.top = (((position.y - span.offsetHeight / 2) / window.innerHeight) * 100) + '%';

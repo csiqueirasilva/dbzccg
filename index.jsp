@@ -111,7 +111,7 @@
         <script type="text/javascript" src="lib/OrbitControls.js"></script>
         <script type="text/javascript" src="lib/tween.min.js"></script>
         <script type="text/javascript" src="lib/MathHelper.js"></script>
-        <script type="text/javascript" src="lib/optimer_bold.typeface.js"></script>
+        <script type="text/javascript" src="lib/numeral.min.js"></script>
         <!-- game -->
         <script type="text/javascript" src="game/DBZCCG.js"></script>
         <script type="text/javascript" src="game/Card.js"></script>

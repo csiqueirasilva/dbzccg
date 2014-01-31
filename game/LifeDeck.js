@@ -28,7 +28,7 @@ DBZCCG.LifeDeck.create = function(deckObject) {
                 if(count === 3) {
                     allowedCards.splice(idx, 1);
                 } else {
-                    var cardData = DBZCCG.SAIYAN[allowedCards[idx]];
+                    var cardData = DBZCCG.Saiyan[allowedCards[idx]];
                     if(cardData.limit !== count) {
                         card = DBZCCG.Card.create(cardData);
                         card.display.turnGameDisplay();

@@ -3,7 +3,7 @@ DBZCCG.Pile = {};
 DBZCCG.Pile.Face = {};
 
 DBZCCG.Pile.cardBase = DBZCCG.Card.create();
-/* TODO: Rename this object to DBZCCG.Pile (OfCards) */
+
 DBZCCG.Pile.create = function(data, faceUp) {
 
     function PileObject(data, faceUp) {
@@ -180,6 +180,9 @@ DBZCCG.Pile.create = function(data, faceUp) {
                         pile.addCard(cardIdx + increaseIndex, cards);
                     } else {
                         DBZCCG.performingAnimation = false;
+                        if (DBZCCG.resizeLabels instanceof Function) {
+                            DBZCCG.resizeLabels();
+                        }
                     }
 
                 });
@@ -403,7 +406,112 @@ DBZCCG.Pile.create = function(data, faceUp) {
             }
 
             return obj;
-        }
+        };
+
+        this.shuffle = function() {
+            if (this.cards.length > 0) {
+                DBZCCG.performingAnimation = true;
+                var mouseCommand = DBZCCG.waitingMainPlayerMouseCommand;
+                DBZCCG.waitingMainPlayerMouseCommand = false;
+                
+                var topObjectIdx = DBZCCG.objects.indexOf(this.display.children[this.display.children.length - 1]);
+                DBZCCG.objects.splice(topObjectIdx, 1);
+                
+                for (var i = 0; i < pile.cards.length; i++) {
+                    if (DBZCCG.objects.indexOf(pile.cards[i].display) !== -1) {
+                        DBZCCG.objects.splice(i, 1);
+                        break;
+                    }
+                }
+                
+                var display = this.display;
+                var originalPosition = display.position.clone();
+                var originalRotation = display.rotation.clone();
+                var timer = 10;
+                var oldCards = this.cards.slice(0); // copy
+                for(var i = 0; i < this.cards.length; i++) {
+                    this.cards.splice(i, 1);
+                }
+
+                display.position.y += 5;
+                display.rotation.z = -Math.PI / 2;
+                var child;
+                var targetChild;
+                var animation;
+                var totalLength = oldCards.length;
+                var sourceIdx;
+                var targetIdx = 0;
+                var targetPosition;
+                var baseAnimation;
+                var firstAnimation;
+
+                sourceIdx = parseInt(Math.random() * 1000) % oldCards.length;
+                child = display.children[sourceIdx];
+                targetPosition = child.position.clone();
+                targetPosition.x -= DBZCCG.Card.cardWidth * 1.5;
+                firstAnimation = baseAnimation = new TWEEN.Tween(child.position).to(targetPosition, timer);
+
+                targetChild = display.children[targetIdx];
+
+                this.cards.splice(targetIdx, 0, oldCards[sourceIdx]);
+                oldCards.splice(sourceIdx, 1);
+
+                function swapValues(c1, c2) {
+                    var arr = display.children;
+                    var v1 = arr.indexOf(c1);
+                    var v2 = arr.indexOf(c2);
+                    var aux = arr[v1];
+                    arr[v1] = arr[v2];
+                    arr[v2] = aux;
+                }
+
+                animation = new TWEEN.Tween(child.position).to(targetChild.position.clone(), timer);
+                baseAnimation.chain(animation);
+                baseAnimation = animation;
+
+                swapValues(child, targetChild);
+
+                while (this.cards.length !== totalLength) {
+                    sourceIdx = parseInt(Math.random() * 1000) % oldCards.length;
+                    child = display.children[++targetIdx + sourceIdx];
+                    targetPosition = child.position.clone();
+                    targetPosition.x -= DBZCCG.Card.cardWidth * 1.5;
+                    animation = new TWEEN.Tween(child.position).to(targetPosition, timer);
+                    baseAnimation.chain(animation);
+                    baseAnimation = animation;
+
+                    targetChild = display.children[targetIdx];
+
+                    this.cards.splice(targetIdx, 0, oldCards[sourceIdx]);
+                    oldCards.splice(sourceIdx, 1);
+
+                    function swapValues(c1, c2) {
+                        var arr = display.children;
+                        var v1 = arr.indexOf(c1);
+                        var v2 = arr.indexOf(c2);
+                        var aux = arr[v1];
+                        arr[v1] = arr[v2];
+                        arr[v2] = aux;
+                    }
+
+                    animation = new TWEEN.Tween(child.position).to(targetChild.position.clone(), timer);
+                    baseAnimation.chain(animation);
+                    baseAnimation = animation;
+
+                    swapValues(child, targetChild);
+                }
+
+                baseAnimation.onComplete(function() {
+                    display.position.copy(originalPosition);
+                    display.rotation.copy(originalRotation);
+                    addTopToObjectList();
+                    DBZCCG.performingAnimation = false;
+                    DBZCCG.waitingMainPlayerMouseCommand = mouseCommand;
+                });
+
+                firstAnimation.start();
+            }
+        };
 
         this.addToField = function(position, field, direction) {
             this.display.position.copy(position);

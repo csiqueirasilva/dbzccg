@@ -2,6 +2,10 @@ DBZCCG.Table = {}
 
 DBZCCG.Table.basePlayerDistance = 1;
 
+DBZCCG.Table.Camera = {};
+DBZCCG.Table.Camera.Top = 0;
+DBZCCG.Table.Camera.Side = 1;
+
 DBZCCG.Table.createSurroundingArea = function(direction, width, height, cornerWidth) {
     /* Surrounding area */
     var surroundingArea = new THREE.Object3D();
@@ -36,14 +40,28 @@ DBZCCG.Table.createSurroundingArea = function(direction, width, height, cornerWi
         }
     };
 
+    var intersections;
+    var projector = new THREE.Projector();
+    var element = $('#renderer-wrapper')[0];
+    var ray = new THREE.Vector2();
+
     surroundingArea.changeLabelText = function(text) {
         if (text) {
             this.removeLabelText();
-
             var position = DBZCCG.Screen.getWindowCoords(superiorRow);
 
             if (!isNaN(position.x)) {
-                this.labelText = DBZCCG.Combat.labelText(text, position, 0xFFFFFF, 800, 1);
+                ray.x = ((position.x - element.offsetLeft) / element.offsetWidth) * 2 - 1;
+                ray.y = -((position.y - element.offsetTop) / element.offsetHeight) * 2 + 1;
+
+                var vector = new THREE.Vector3(ray.x, ray.y, 0.5);
+
+                projector.unprojectVector(vector, DBZCCG.playerCamera);
+                var raycaster = new THREE.Raycaster(DBZCCG.playerCamera.position, vector.sub(DBZCCG.playerCamera.position).normalize());
+                intersections = raycaster.intersectObjects(DBZCCG.objects, true);
+                if (!intersections[0]) {
+                    this.labelText = DBZCCG.Combat.labelText(text, position, 0xFFFFFF, 800, position.y / window.screen.availHeight + 0.45);
+                }
             }
         }
     };
@@ -72,6 +90,17 @@ DBZCCG.Table.createSurroundingArea = function(direction, width, height, cornerWi
     leftColumn.position.copy(MathHelper.reflect(rightColumn.position, reflectAxis));
     leftColumn.rotation.x = Math.PI / 2;
     surroundingArea.add(leftColumn);
+
+    surroundingArea.getCenterCoords = function() {
+        var ret;
+        if (this.parent instanceof THREE.Object3D) {
+            var vec = this.position.clone();
+            ret = this.parent.localToWorld(vec);
+
+            ret.add(superiorRow.position.clone().add(inferiorRow.position.clone()).multiplyScalar(0.5));
+        }
+        return ret;
+    };
 
     // Corners
     var topRightPos = rightColumn.position.clone().add(dir.clone().multiplyScalar(-height / 2));
@@ -139,19 +168,38 @@ DBZCCG.Table.create = function(extPlayers, camera, scene) {
         /* Player 1 hand adjustments */
         this.players.push(DBZCCG.Player.create(unparsedPlayers[0].data, unparsedPlayers[0].pos));
 
-        /* Adjust camera for P1 */
         var position = this.players[0].dirVector.clone();
-        camera.position.z = position.z * DBZCCG.Table.basePlayerDistance * 70;
-        camera.position.y = 60;
-        camera.position.x = position.x;
-        camera.lookAt(new THREE.Vector3(position.x, -10, -position.z));
+        this.setCameraSideView = function() {
+            DBZCCG.cameraStyle = DBZCCG.Table.Camera.Side;
+            camera.position.z = position.z * DBZCCG.Table.basePlayerDistance * 70;
+            camera.position.y = 40;
+            camera.position.x = position.x;
+            camera.lookAt(new THREE.Vector3(position.x, -5, -position.z));
+
+            this.players[0].hand.rotation.x = camera.rotation.x;
+            this.players[0].hand.position.y = (camera.position.y + 10) * 0.5;
+            this.players[0].hand.position.z = (camera.position.z + position.z) * 0.78;
+            this.players[0].hand.addCard([]);
+        };
+
+        this.setCameraTopView = function() {
+            DBZCCG.cameraStyle = DBZCCG.Table.Camera.Top;
+            camera.position.z = position.z * DBZCCG.Table.basePlayerDistance * 80;
+            camera.position.y = 60;
+            camera.position.x = position.x;
+            camera.lookAt(new THREE.Vector3(position.x, -10, -position.z));
+
+            this.players[0].hand.rotation.x = camera.rotation.x;
+            this.players[0].hand.position.y = (camera.position.y + 10) * 0.5;
+            this.players[0].hand.position.z = (camera.position.z + position.z) * 0.78;
+            this.players[0].hand.addCard([]);
+        };
+
+        /* Adjust camera for P1 */
 
         DBZCCG.mainPlayer = this.players[0];
-
-        this.players[0].hand.rotation.x = camera.rotation.x;
-        this.players[0].hand.position.y = (camera.position.y + 10) * 0.5;
-        this.players[0].hand.position.z = (camera.position.z + position.z) * 0.78;
         this.players[0].loadPlayerSpace(scene);
+        this.setCameraTopView();
 
         // Load other players
         for (var i = 1; i < unparsedPlayers.length; i++) {
@@ -165,6 +213,17 @@ DBZCCG.Table.create = function(extPlayers, camera, scene) {
                 this.players[i].hand.cards[j].display.turnGameDisplay();
             }
         }
+
+        for (var i = 0; i < this.players.length; i++) {
+            this.players[i].loadLabelText();
+        }
+        
+        var table = this;
+        this.updateLabelPlayers = function () {
+            for (var i = 0; i < table.players.length; i++) {
+                table.players[i].loadLabelText();
+            }
+        };
     }
 
     return new TableObject(extPlayers, camera, scene);

@@ -153,6 +153,11 @@ DBZCCG.MainPersonality.create = function(data) {
                     }
                     mp.currentAngerLevel = anger;
                     DBZCCG.performingAnimation = false;
+                    window.setTimeout(function() {
+                        if (DBZCCG.resizeLabels instanceof Function) {
+                            DBZCCG.resizeLabels();
+                        }
+                    }, 200);
                 });
 
                 animation.easing(TWEEN.Easing.Circular.In);
@@ -193,11 +198,7 @@ DBZCCG.MainPersonality.create = function(data) {
                     target.y += -0.075;
                     target.add(moveAxis.clone().multiplyScalar(0.49));
 
-                    if (n > 0) {
-                        target.add(moveAxis.multiplyScalar(0.785 * anger));
-                    } else {
-                        target.add(moveAxis.multiplyScalar(-1 * 0.785 * anger));
-                    }
+                    target.add(moveAxis.multiplyScalar(0.785 * anger));
 
                     var animation = new TWEEN.Tween(position).to(target, 600 + 50 * Math.abs(anger - oldAnger));
                     var scabbard = this.zScabbard.position;
@@ -232,6 +233,11 @@ DBZCCG.MainPersonality.create = function(data) {
                                     msg = mp.personalities[mp.currentMainPersonalityLevel - 1].displayName() + " gained " + diffAnger + " anger.";
                                 }
                                 DBZCCG.logMessage(msg);
+                                window.setTimeout(function() {
+                                    if (DBZCCG.resizeLabels instanceof Function) {
+                                        DBZCCG.resizeLabels();
+                                    }
+                                }, 200);
                             }
                         }
 
@@ -391,6 +397,37 @@ DBZCCG.MainPersonality.create = function(data) {
                 return 'Main Personality: ' + mp.personalities[mp.currentMainPersonalityLevel - 1].displayName();
             };
 
+            this.display.callbacks = [];
+
+            this.display.removeCallback = function(callback) {
+                var idx = this.callbacks.indexOf(callback);
+                if (idx !== -1) {
+                    this.callbacks.splice(idx, 1);
+                    this.callbacks.sort(DBZCCG.compareCallbacks);
+                }
+            };
+
+            this.display.addCallback = function(callback) {
+                var idx = this.callbacks.indexOf(callback);
+                if (idx === -1) {
+                    this.callbacks.push(callback);
+                    this.callbacks.sort(DBZCCG.compareCallbacks);
+                }
+            };
+
+            this.display.addCallback({
+                priority: 50000,
+                f: function() {
+                    DBZCCG.toolTip.parent = mp.currentPersonality().display;
+                    var callbacks = mp.currentPersonality().display.callbacks;
+                    for (var i = 0; i < callbacks.length; i++) {
+                        callbacks[i].f();
+                    }
+                }
+            });
+
+            this.personalitiesDisplay = new THREE.Object3D();
+            this.display.add(this.personalitiesDisplay);
             for (var i = 0; i < this.personalities.length; i++) {
                 var card = this.personalities[i];
                 card.faceup();
@@ -399,7 +436,7 @@ DBZCCG.MainPersonality.create = function(data) {
                 var diffName = card.display.position.clone().normalize();
                 card.display.position.add(diffName.multiplyScalar(-DBZCCG.Card.personalityNameDiff[card.saga] * i));
                 card.moveY(this.personalities.length - 1 - i);
-                this.display.add(card.display);
+                this.personalitiesDisplay.add(card.display);
                 DBZCCG.objects.push(card.display);
             }
 
@@ -468,7 +505,7 @@ DBZCCG.MainPersonality.create = function(data) {
             var position = DBZCCG.Screen.getWindowCoords(this.zSword);
 
             if (!isNaN(position.x)) {
-                this.angerLabelText = DBZCCG.Combat.labelText(text || (this.currentAngerLevel+"/"+this.angerLevelNeededToLevel), position, 0xFFFFFF, 800, 1);
+                this.angerLabelText = DBZCCG.Combat.labelText(text || (this.currentAngerLevel + "/" + this.angerLevelNeededToLevel), position, 0xFFFFFF, 800, 1);
             }
         };
 

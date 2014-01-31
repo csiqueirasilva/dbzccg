@@ -2,7 +2,7 @@ DBZCCG.Card = {};
 
 // SAGA
 DBZCCG.Card.Saga = {};
-DBZCCG.Card.Saga.SAIYAN = 1;
+DBZCCG.Card.Saga.Saiyan = 1;
 
 // GFX Parameters
 DBZCCG.Card.cardHeight = 5.5;
@@ -16,17 +16,17 @@ DBZCCG.Card.cornerHeight = DBZCCG.Card.cornerWidth;
 DBZCCG.Card.cardThicknessScale = 0.1;
 DBZCCG.Card.cardDepth = DBZCCG.Card.cornerWidth * 8 * DBZCCG.Card.cardThicknessScale;
 DBZCCG.Card.personalityNameDiff = {};
-DBZCCG.Card.personalityNameDiff[DBZCCG.Card.Saga.SAIYAN] = DBZCCG.Card.cardHeight / 10;
+DBZCCG.Card.personalityNameDiff[DBZCCG.Card.Saga.Saiyan] = DBZCCG.Card.cardHeight / 10;
 DBZCCG.Card.personalityPowerStageDiff = {};
-DBZCCG.Card.personalityPowerStageDiff[DBZCCG.Card.Saga.SAIYAN] = {"regular": {"Zero": DBZCCG.Card.cardHeight * 0.61, "diff": 0.3845}};
+DBZCCG.Card.personalityPowerStageDiff[DBZCCG.Card.Saga.Saiyan] = {"regular": {"Zero": DBZCCG.Card.cardHeight * 0.61, "diff": 0.3845}};
 
 // TYPES
 DBZCCG.Card.Type = {};
 DBZCCG.Card.Type.Personality = 1;
-DBZCCG.Card.Type.NonCombat = 2;
+DBZCCG.Card.Type['Non-Combat'] = 2;
 DBZCCG.Card.Type.Combat = 3;
-DBZCCG.Card.Type.PhysicalCombat = 4;
-DBZCCG.Card.Type.EnergyCombat = 5;
+DBZCCG.Card.Type['Physical Combat'] = 4;
+DBZCCG.Card.Type['Energy Combat'] = 5;
 DBZCCG.Card.Type.Dragonball = 6;
 DBZCCG.Card.Type.Mastery = 7;
 DBZCCG.Card.Type.Battleground = 8;
@@ -44,6 +44,19 @@ DBZCCG.Card.Style.Namekian = 4;
 DBZCCG.Card.Style.Blue = 5;
 DBZCCG.Card.Style.Orange = 6;
 DBZCCG.Card.Style.Black = 7;
+
+// RARITY
+DBZCCG.Card.Rarity = {};
+DBZCCG.Card.Rarity.Common = 0;
+DBZCCG.Card.Rarity.Promo = 1;
+DBZCCG.Card.Rarity.Uncommun = 2;
+DBZCCG.Card.Rarity.Fixed = 3;
+DBZCCG.Card.Rarity.Rare = 4;
+DBZCCG.Card.Rarity['Ultra Rare'] = 5;
+DBZCCG.Card.Rarity['Premium'] = 6;
+DBZCCG.Card.Rarity['Ubber Rare'] = 7;
+
+
 
 /* To reduce load on card creation */
 (function() {
@@ -153,7 +166,9 @@ DBZCCG.Card.Style.Black = 7;
             faces[i].vertexColors[2] = vertices[faces[i].c].color;
         }
     }
-
+    
+    DBZCCG.Card.basicCardGeo.computeFaceNormals();
+    
     delete baseCorner;
 })();
 
@@ -162,7 +177,7 @@ DBZCCG.Card.Style.Black = 7;
 DBZCCG.Card.generateRandom = function() {
     // TODO: Generate a real random card. This only generates the image.
     var card = {type: DBZCCG.Card.Type.Personality, style: DBZCCG.Card.Style.Freestyle, PUR: 2, alignment: DBZCCG.Personality.alignment.Rogue, description: "Power: Once per combat, reduces the damage of an energy attack by 2 life cards.", level: 1, name: "VEGETA", highTech: false, number: 173, texturePath: "images/DBZCCG/saiyan/" + (parseInt(Math.random() * 1000 % 250) + 1001).toString().substring(1) + ".jpg",
-        personality: DBZCCG.Personality.VEGETA, saga: DBZCCG.Card.Saga.SAIYAN, powerStages: [0, 2000, 2200, 2400, 2600, 2800, 3000, 3200, 3400, 3600, 3800]};
+        personality: DBZCCG.Personality.VEGETA, saga: DBZCCG.Card.Saga.Saiyan, powerStages: [0, 2000, 2200, 2400, 2600, 2800, 3000, 3200, 3400, 3600, 3800]};
     return DBZCCG.Card.createCard(card);
 }
 
@@ -172,16 +187,16 @@ DBZCCG.Card.createCard = function(card) {
         case DBZCCG.Card.Type.Personality:
             card = DBZCCG.Personality.create(card);
             break;
-        case DBZCCG.Card.Type.NonCombat:
+        case DBZCCG.Card.Type['Non-Combat']:
             card = NonCombat.create(card);
             break;
         case DBZCCG.Card.Type.Combat:
             card = Combat.create(card);
             break;
-        case DBZCCG.Card.Type.PhysicalCombat:
+        case DBZCCG.Card.Type['Physical Combat']:
             card = PhysicalCombat.create(card);
             break;
-        case DBZCCG.Card.Type.EnergyCombat:
+        case DBZCCG.Card.Type['Energy Combat']:
             card = EnergyCombat.create(card);
             break;
         case DBZCCG.Card.Type.Dragonball:
@@ -253,6 +268,7 @@ DBZCCG.Card.create = function(dataObject) {
         };
 
         this.name = dataObject.name;
+        this.rarity = dataObject.rarity;
         this.highTech = dataObject.highTech;
         this.saga = dataObject.saga;
         this.personality = dataObject.personality;
@@ -260,6 +276,11 @@ DBZCCG.Card.create = function(dataObject) {
         this.description = dataObject.description;
         this.number = dataObject.number;
         this.type = dataObject.type;
+        
+        if(dataObject.powerStages && dataObject.level) {
+            this.dontRemoveEffect = true;
+        }
+        
         this.display = createCard(dataObject.texturePath);
         this.display.name = this.name;
         this.display.parentCard = this;
@@ -296,6 +317,7 @@ DBZCCG.Card.create = function(dataObject) {
         card.playable = dataObject.playable;
         card.effectType = dataObject.effectType;
         card.damage = dataObject.damage;
+        card.cost = dataObject.cost;
         
         card.display.displayName = function() {
             return card.name;
@@ -380,16 +402,18 @@ DBZCCG.Card.create = function(dataObject) {
         DBZCCG.Combat.setMouseOverCallback(card.display);
 
         card.display.descriptionBox = function() {
-            var content = "<div class='card-name'>" + card.name + "</div>\
-                            <div class='card-type'>[%type%]</div>\
-                            <div class='card-description'>" + card.description + "</div>";
+            var content = "<div class='property-description-box card-name'>" + card.name + "</div>\
+                            <div class='property-description-box card-type'>["+getKeyByValue(DBZCCG.Card.Type, card.type)+" Card]</div>\
+                            <div class='property-description-box card-description'>" + card.description + "</div>";
+            content += "<div class='card-collection-box'>";
             if (card.personality) {
-                content += "<div class='card-personality'>Personality: " + getKeyByValue(DBZCCG.Personality, card.personality) + "</div>";
+                content += "<div class='card-personality'><div class='label-title'>[Personality]</div><div class='label-description-box'><div class='description-icon'><img class='left-screen-icon' src='images/icons/" + getKeyByValue(DBZCCG.Personality, card.personality).toLowerCase() + "-icon.png' title='"+getKeyByValue(DBZCCG.Personality, card.personality)+"'/></div></div></div>";
             }
 
-            content += "<div class='card-style'>Style: " + getKeyByValue(DBZCCG.Card.Style, card.style) + "</div>\
-                        <div class='card-saga-label'>" + getKeyByValue(DBZCCG.Card.Saga, card.saga) + " SAGA (#" + card.number + ")</div>";
+            content += "<div class='card-style'><div class='label-title'>[Style]</div><div class='label-description-box'><div class='description-icon'><img class='left-screen-icon' src='images/icons/" + getKeyByValue(DBZCCG.Card.Style, card.style).toLowerCase() + "-icon.png' title='"+getKeyByValue(DBZCCG.Card.Style, card.style)+"'/></div></div></div>\
+                        <div class='card-saga-label'><div div class='label-title'>[Saga]</div><div class='label-description-box'><div class='description-icon'><img class='left-screen-icon' src='images/icons/" + getKeyByValue(DBZCCG.Card.Saga, card.saga).toLowerCase() + "-saga-icon.png' title='"+getKeyByValue(DBZCCG.Card.Saga, card.saga)+" Saga'/><img class='left-screen-icon' src='images/icons/"+getKeyByValue(DBZCCG.Card.Rarity, card.rarity).toLowerCase().replace(" ","")+"-icon.png' title='"+getKeyByValue(DBZCCG.Card.Rarity, card.rarity)+"' /></div><div class='saga-label-number'>#" + card.number + "</div></div></div>";
 
+            content += "</div>";
             return content;
         };
 

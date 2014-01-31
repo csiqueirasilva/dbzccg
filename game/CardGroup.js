@@ -67,7 +67,7 @@ DBZCCG.CardGroup.create = function(cardGroup) {
             }
         }
 
-        this.getCardIdx = function (card) {
+        this.getCardIdx = function(card) {
             var i = 0;
             var ret = -1;
             for (; i < this.cards.length && card !== this.cards[i].display; i++)
@@ -109,7 +109,7 @@ DBZCCG.CardGroup.create = function(cardGroup) {
 
         this.removeCallback = function(callback) {
             var idx = addCallback.indexOf(callback);
-            if(idx !== -1) {
+            if (idx !== -1) {
                 addCallback.splice(idx, 1);
                 addCallback.sort(DBZCCG.compareCallbacks);
             }
@@ -117,7 +117,7 @@ DBZCCG.CardGroup.create = function(cardGroup) {
 
         this.addCallback = function(callback) {
             var idx = addCallback.indexOf(callback);
-            if(idx === -1) {
+            if (idx === -1) {
                 addCallback.push(callback);
                 callback.cardgroup = this;
                 addCallback.sort(DBZCCG.compareCallbacks);
@@ -143,7 +143,6 @@ DBZCCG.CardGroup.create = function(cardGroup) {
                 var itAnimation;
                 var target = new THREE.Vector3(this.position.x - this.cards.length * (DBZCCG.Card.cardWidth) / 2 + DBZCCG.Card.cardWidth / 2,
                         this.position.y, this.position.z);
-                var i = 0;
 
                 if (diff > 0) {
                     if (target.x < (this.position.x - this.groupMaxWidth / 2)) {
@@ -153,33 +152,31 @@ DBZCCG.CardGroup.create = function(cardGroup) {
                     }
                 }
 
-                if(this.cards[0] === card) {
-                    if(card.removePositionCallback instanceof Function) {
+                if (this.cards[0] === card) {
+                    if (card.removePositionCallback instanceof Function) {
                         card.removePositionCallback();
                         card.removePositionCallback = undefined;
                     }
                 }
 
                 baseAnimation = firstAnimation = new TWEEN.Tween(this.cards[0].display.position)
-                        .to(target, card !== this.cards[0] ? 1 : 150);
+                        .to(target, card !== this.cards[0] ? 0 : 150);
 
-                if (card === this.cards[0] && card.removeCardCallback instanceof Function) {
-                    
-                    baseAnimation.onComplete(function() {
-                        card.removeCardCallback();
-                        card.removeCardCallback = undefined;
+                if (card === this.cards[0]) {
+                    baseAnimation.onStart(function() {
+                        
+                        if (card.beginRemoveCallback instanceof Function) {
+                                card.beginRemoveCallback();
+                                card.beginRemoveCallback = undefined;
+                         };
+                        
+                        card.display.position.copy(target);
                     });
                 }
 
                 if (this.cards[0].display.rotation.x != this.rotation.x ||
                         this.cards[0].display.rotation.y != this.rotation.y ||
                         this.cards[0].display.rotation.z != this.rotation.z) {
-
-                    this.cards[0].display.position.rotation = this.cards[0].display.rotation;
-                    baseAnimation.onComplete(function() {
-                        this.rotation.set(0, 0, 0);
-                        this.rotation = undefined;
-                    });
 
                     itAnimation = new TWEEN.Tween(this.cards[0].display.rotation)
                             .to(this.rotation, 1);
@@ -194,6 +191,7 @@ DBZCCG.CardGroup.create = function(cardGroup) {
 
                 itAnimation = baseAnimation;
 
+                var i = 1;
                 for (; i <= this.cards.length - 1; i++) {
 
                     target = new THREE.Vector3(this.position.x - this.cards.length * (DBZCCG.Card.cardWidth) / 2 + i * DBZCCG.Card.cardWidth + DBZCCG.Card.cardWidth / 2,
@@ -213,8 +211,8 @@ DBZCCG.CardGroup.create = function(cardGroup) {
                     }
 
                     if (card === this.cards[i]) {
-                        
-                        if(card.removePositionCallback instanceof Function) {
+
+                        if (card.removePositionCallback instanceof Function) {
                             card.removePositionCallback();
                             card.removePositionCallback = undefined;
                         }
@@ -224,13 +222,14 @@ DBZCCG.CardGroup.create = function(cardGroup) {
 
                         baseAnimation.chain(itAnimation);
                         baseAnimation = itAnimation;
-                        
+
                         if (card.beginRemoveCallback instanceof Function) {
                             itAnimation.onStart(function() {
                                 card.beginRemoveCallback();
                                 card.beginRemoveCallback = undefined;
                             });
-                        };
+                        }
+                        ;
                     } else {
                         this.cards[i].display.position.copy(target);
                     }
@@ -242,7 +241,7 @@ DBZCCG.CardGroup.create = function(cardGroup) {
                         if (card === this.cards[i]) {
                             this.cards[i].display.position.rotation = this.cards[i].display.rotation;
                             baseAnimation.onComplete(function() {
-                                if(this.rotation) {
+                                if (this.rotation) {
                                     this.rotation.set(0, 0, 0);
                                     this.rotation = undefined;
                                 }
@@ -257,7 +256,7 @@ DBZCCG.CardGroup.create = function(cardGroup) {
                                 this.order = "XYZ";
                             });
                         } else {
-                            this.cards[i].display.rotation.set(0,0,0);
+                            this.cards[i].display.rotation.copy(this.rotation);
                         }
 
                         baseAnimation.chain(itAnimation);
@@ -266,17 +265,17 @@ DBZCCG.CardGroup.create = function(cardGroup) {
                 }
 
                 itAnimation.onComplete(function() {
-                    
+
                     if ((DBZCCG.performingAction === DBZCCG.mainPlayer || addToScene) && card) {
                         DBZCCG.objects.push(card.display);
                         card.display.ownParent = true;
                     }
-                    
+
                     for (var i = 0; i < addCallback.length; i++) {
                         if (addCallback[i].f instanceof Function) {
                             var ret = addCallback[i].f(cardsToJoin, addToScene);
-                            if(ret instanceof Object) {
-                                if(ret.cardsToJoin !== undefined) {
+                            if (ret instanceof Object) {
+                                if (ret.cardsToJoin !== undefined) {
                                     cardsToJoin = ret.cardsToJoin;
                                 } else if (ret.addToScene !== undefined) {
                                     addToScene = ret.addToScene;
@@ -284,9 +283,12 @@ DBZCCG.CardGroup.create = function(cardGroup) {
                             }
                         }
                     }
-                    
+
                     if (cardsToJoin.length === 0) {
                         DBZCCG.performingAnimation = false;
+                        if (DBZCCG.resizeLabels instanceof Function) {
+                            DBZCCG.resizeLabels();
+                        }
                     } else {
                         cardGroup.addCard(cardsToJoin, addToScene);
                     }

@@ -37,6 +37,8 @@ DBZCCG.Personality.create = function(data) {
     function PersonalityObject(data) {
         ClassHelper.extends(this, DBZCCG.Card.create(data));
 
+        this.display.parentCard = this;
+
         this.displayName = function() {
             return "LV" + this.level + " " + this.name;
         }
@@ -45,21 +47,47 @@ DBZCCG.Personality.create = function(data) {
         var card = this;
         this.display.descriptionBox = function() {
             var cardDesc = cardDescription();
-            cardDesc = cardDesc.replace(/%type%/g, "Personality");
-            var elements = $(cardDesc).not(".card-saga-label");
-            var sagaLabel = $(cardDesc).filter(".card-saga-label")[0].outerHTML;
-            var content = '';
+            var collectionBox = 
+                    $(cardDesc).filter(".card-collection-box")[0].outerHTML;
+            
+            var name = $(cardDesc).filter(".card-name").removeClass('property-description-box')[0].outerHTML;
+            
+            var content = 
+                    '<div>\
+                        <div class="personality-card-content">';
+
+            content += "<div class='property-description-box'>\
+            <div class='level-label-bg'></div><div title='Personality Level' class='level-label'>"+card.level+"</div>"+name+"</div>";
+
+            var elements = $(cardDesc).not(".card-collection-box").not(".card-description").not(".card-name");
 
             $.each(elements, function(key, value) {
                 content += value.outerHTML;
             });
 
-            content += "<div class='personality-pur-label'>Personality Level: " + card.level + "</div>";
-            content += "<div class='personality-pur-label'>Power-Up Rating: " + card.PUR + "</div>";
-            content += "<div class='personality-alignment-label'>Alignment: " + getKeyByValue(DBZCCG.Personality.alignment, card.alignment) + "</div>";
-            content += "<div class='personality-powerstage-label'>Power Stages (" + (+card.powerStages.length - 1) + " total stages above zero): <br />" + card.powerStages.slice(0).reverse().toString().replace(/,/g, '<br />') + "</div>";
+            content += "<div class='property-description-box'>\
+                            <div class='card-label-pur'>\
+                                <span title='PUR'>"+card.PUR+"</span>\
+                            </div>"+
+                    $(cardDesc).filter(".card-description")[0].outerHTML.replace("div class","div style='width: 80%; float: left;' class")+
+                    "</div>";
 
-            content += sagaLabel;
+            content = content.replace(/\[Personality Card\]/, "[" + getKeyByValue(DBZCCG.Personality.alignment, card.alignment) + " Personality Card]");
+            content = content.replace(/(Power:|Constant Combat Power:)/,function(match){ return "<div class='personality-power-label'>"+match+"</div>"; });
+            
+            content += "</div>";
+            
+            content += "<div class='personality-content'>"+
+                    card.powerStages.slice(0).reverse().toString().replace(/(\d+,|\d+)/g, function(match) {
+                        var number = numeral(parseInt(match.replace(",",""))).format('0,0').replace(",",".");
+                        var div = "<div class='card-label-power-stage-"+getKeyByValue(DBZCCG.Personality.alignment, card.alignment).toLowerCase()+"'>"
+                            + number + "</div>";
+                        
+                        return div;
+                    })+"</div></div>";
+                    
+            var endContent = "<div style='clear:both;'></div>"+collectionBox;
+            content += endContent;
 
             return content;
         };
@@ -155,6 +183,10 @@ DBZCCG.Personality.create = function(data) {
 
                         DBZCCG.Combat.hoverText("=" + card.powerStages[card.currentPowerStageAboveZero], card.zScouter);
                         DBZCCG.logMessage(msg);
+                    }
+                    
+                    if(DBZCCG.resizeLabels instanceof Function) {
+                        DBZCCG.resizeLabels();
                     }
                 });
 

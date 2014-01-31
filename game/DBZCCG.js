@@ -50,7 +50,7 @@ DBZCCG.passDialog = function(msg) {
     DBZCCG.confirmDialog('Passing', msg, function() {
         $('#pass-btn').hide();
 
-        if (DBZCCG.combat) {
+        if (DBZCCG.combat && DBZCCG.mainPlayer === DBZCCG.attackingPlayer) {
             DBZCCG.attackingPlayer.passed = true;
         }
 
@@ -354,11 +354,11 @@ DBZCCG.create = function() {
     }
 
     function loadKameHouse(sizeX, sizeY) {
-        loadImageBackground('images/bg/bg3.jpg', sizeX, sizeY);    
+        loadImageBackground('images/bg/bg3.jpg', sizeX, sizeY);
     }
 
     function loadBarrenTerrains(sizeX, sizeY) {
-        loadImageBackground('images/bg/bg2.jpg', sizeX, sizeY);    
+        loadImageBackground('images/bg/bg2.jpg', sizeX, sizeY);
     }
 
     function loadTimeChamber() {
@@ -449,6 +449,9 @@ DBZCCG.create = function() {
                 DBZCCG.background.contentResize(sizeX, sizeY);
             }
 
+            DBZCCG.background.plane.position.set(0, -10, 0);
+            DBZCCG.billboards.push(DBZCCG.background.plane);
+
             scaleY = (window.screen.availHeight / window.screen.height) * 0.1;
             scaleX = (window.screen.availWidth / window.screen.width) * 0.1;
 
@@ -495,22 +498,13 @@ DBZCCG.create = function() {
         table = DBZCCG.Table.create([
             /*P1*/
             {name: 'Human', mainPersonality: {alignment: DBZCCG.Personality.alignment.Hero, currentMainPersonalityLevel: 1, currentPowerStageAboveZero: 5, currentAngerLevel: 0,
-                    angerLevelNeededToLevel: 5, personalities: [{style: DBZCCG.Card.Style.Freestyle, PUR: 1, alignment: DBZCCG.Personality.alignment.Hero, description: "Power: Energy attack doing 3 life cards of damage. Costs 1 power stage.", level: 1, name: "GOKU", highTech: false, number: 158, texturePath: "images/DBZCCG/saiyan/158.jpg",
-                            personality: DBZCCG.Personality.GOKU, saga: DBZCCG.Card.Saga.SAIYAN, powerStages: [0, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1400]},
-                        {style: DBZCCG.Card.Style.Freestyle, PUR: 2, alignment: DBZCCG.Personality.alignment.Hero, description: "Power: Physical attack doing 4 power stages of damage.", level: 2, name: "GOKU", highTech: false, number: 159, texturePath: "images/DBZCCG/saiyan/159.jpg",
-                            personality: DBZCCG.Personality.GOKU, saga: DBZCCG.Card.Saga.SAIYAN, powerStages: [0, 3200, 3700, 4200, 4700, 5200, 5700, 6200, 6700, 7200, 7700]},
-                        {style: DBZCCG.Card.Style.Freestyle, PUR: 3, alignment: DBZCCG.Personality.alignment.Hero, description: "Power: Once per combat, reduces the damage of an energy attack by 2 life cards.", level: 3, name: "GOKU", highTech: false, number: 160, texturePath: "images/DBZCCG/saiyan/160.jpg",
-                            personality: DBZCCG.Personality.GOKU, saga: DBZCCG.Card.Saga.SAIYAN, powerStages: [0, 8000, 8500, 9000, 9500, 10000, 10500, 11000, 11500, 12000, 12500]}]}},
+                    angerLevelNeededToLevel: 5, personalities: [DBZCCG.Saiyan['158'], DBZCCG.Saiyan['159'], DBZCCG.Saiyan['160']]}},
             /*P2*/
             {name: 'CPU', mainPersonality: {alignment: DBZCCG.Personality.alignment.Villain, currentMainPersonalityLevel: 1, currentPowerStageAboveZero: 5, currentAngerLevel: 0,
-                    angerLevelNeededToLevel: 5, personalities: [{style: DBZCCG.Card.Style.Freestyle, PUR: 2, alignment: DBZCCG.Personality.alignment.Rogue, description: "Power: Once per combat, reduces the damage of an energy attack by 2 life cards.", level: 1, name: "VEGETA", highTech: false, number: 173, texturePath: "images/DBZCCG/saiyan/173.jpg",
-                            personality: DBZCCG.Personality.VEGETA, saga: DBZCCG.Card.Saga.SAIYAN, powerStages: [0, 2000, 2200, 2400, 2600, 2800, 3000, 3200, 3400, 3600, 3800]},
-                        {style: DBZCCG.Card.Style.Freestyle, PUR: 4, alignment: DBZCCG.Personality.alignment.Rogue, description: "Power: Energy attack doing 3 life cards of damage. Costs 1 power stage.", level: 2, name: "VEGETA", highTech: false, number: 174, texturePath: "images/DBZCCG/saiyan/174.jpg",
-                            personality: DBZCCG.Personality.VEGETA, saga: DBZCCG.Card.Saga.SAIYAN, powerStages: [0, 2000, 2200, 2400, 2600, 2800, 3000, 3200, 3400, 3600, 3800]},
-                        {style: DBZCCG.Card.Style.Freestyle, PUR: 4, alignment: DBZCCG.Personality.alignment.Rogue, description: "Power: Once per game, after performing a successful energy attack, steal a Dragon Ball. After this effect, the combat ends.", level: 3, name: "VEGETA", highTech: false, number: 175, texturePath: "images/DBZCCG/saiyan/175.jpg",
-                            personality: DBZCCG.Personality.VEGETA, saga: DBZCCG.Card.Saga.SAIYAN, powerStages: [0, 9000, 10000, 11000, 12000, 13000, 14000, 15000, 16000, 17000, 18000]}]}}
+                    angerLevelNeededToLevel: 5, personalities: [DBZCCG.Saiyan['173'], DBZCCG.Saiyan['174'], DBZCCG.Saiyan['175']]}}
         ], camera, scene);
 
+        DBZCCG.resizeLabels = table.updateLabelPlayers;
         DBZCCG.mainScene = scene;
 
         // set onclick callback for pass
@@ -713,6 +707,14 @@ DBZCCG.create = function() {
             } else /*Begin code after everything was loaded */ {
                 DBZCCG.finishedLoading = true;
 
+                var players = [];
+                for (var i = 0; i < table.players.length; i++) {
+                    players.push(table.players[i]);
+                    listActions.push(function() {
+                        players.shift().lifeDeck.shuffle();
+                    });
+                }
+
                 listActions.push(function() {
                     invokeTurn();
                 });
@@ -722,7 +724,7 @@ DBZCCG.create = function() {
         window.setTimeout(checkLoad, 500);
 
         function checkAction() {
-            
+
             if (!DBZCCG.performingTurn &&
                     !DBZCCG.performingAnimation &&
                     listActions.length > 0 &&
@@ -736,10 +738,6 @@ DBZCCG.create = function() {
                 DBZCCG.clearMouseOver();
                 $('#modal-post-game').show();
                 window.clearInterval(mainLoopInterval);
-            }
-
-            for (var i = 0; i < table.players.length; i++) {
-                table.players[i].loadLabelText();
             }
         }
 
@@ -798,9 +796,18 @@ DBZCCG.create = function() {
         // KEYBOARD                
 
         Mousetrap.bind('c', function() {
-            var elem = $('.alertify-log:visible').eq(0);
-            elem.fadeOut(150);
-            elem.remove();
+            if (DBZCCG.waitingMainPlayerMouseCommand) {
+
+                if (DBZCCG.cameraStyle === DBZCCG.Table.Camera.Side) {
+                    table.setCameraTopView();
+                } else {
+                    table.setCameraSideView();
+                }
+
+                window.setTimeout(function() {
+                    window.onresize();
+                }, 50);
+            }
         });
 
         Mousetrap.bind('x', function() {
@@ -908,18 +915,18 @@ DBZCCG.create = function() {
 
         function documentOnClick(event) {
             $('#hud').qtip('hide');
-            
-            if(!DBZCCG.typingSpeech && DBZCCG.displayingText) {
+
+            if (!DBZCCG.typingSpeech && DBZCCG.displayingText) {
                 $('#card-speech').remove();
                 DBZCCG.displayingText = false;
             }
-            
-            if(DBZCCG.flash) {
+
+            if (DBZCCG.flash) {
                 $(DBZCCG.flash).remove();
                 DBZCCG.displayingText = false;
                 DBZCCG.flash = null;
             }
-            
+
             $(DBZCCG.toolTip.content).children('#tooltipDiscard').hide();
             $(DBZCCG.toolTip.content).children('#tooltipEffect').hide();
             $(DBZCCG.toolTip.content).children('#tooltipEffect').addClass('tooltipEffectDisabled');
@@ -1198,12 +1205,12 @@ DBZCCG.create = function() {
                 this.camera.lookAt(obj.position);
                 this.control.center.copy(obj.position);
             }
-        }
+        };
 
         DBZCCG.leftScreen.showScreen = function() {
             $(this.renderer.domElement).show();
             $('#leftBarWindow').show();
-        }
+        };
 
         DBZCCG.leftScreen.hideScreen = function() {
             $('#leftBarWindow').hide();
@@ -1268,9 +1275,7 @@ DBZCCG.create = function() {
             DBZCCG.resizeTurnCounter(WIDTH, left, right);
 
             // Resize labels
-            for (var i = 0; i < table.players.length; i++) {
-                table.players[i].loadLabelText();
-            }
+            DBZCCG.resizeLabels();
 
             // Resize Scrollbars
             $('.niceScrollBar').getNiceScroll().resize();
@@ -1295,6 +1300,7 @@ DBZCCG.create = function() {
                     $('#turnCounter').show();
                     $('#toolbar').show();
                     scr.start();
+                    window.onresize();
                 }
             }, 1000);
         }
