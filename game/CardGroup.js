@@ -65,7 +65,7 @@ DBZCCG.CardGroup.create = function(cardGroup) {
                 }
 
             }
-        }
+        };
 
         this.getCardIdx = function(card) {
             var i = 0;
@@ -77,7 +77,7 @@ DBZCCG.CardGroup.create = function(cardGroup) {
                 ret = i;
             }
             return ret;
-        }
+        };
 
         function cardGroupCardMouseOver() {
             if (Math.abs(this.rotation.x / (Math.PI / 2)) !== 1) {

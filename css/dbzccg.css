@@ -203,11 +203,22 @@ canvas {
     background: url('../images/icons/energyattack.png') no-repeat;
 }
 
-#combat-btn {
+#combat-btn, #rejuvenate-btn {
     background: url('../images/icons/combat.png') no-repeat;
     width: 9%;
     left: 10%;
     height: 90%;
+    top: 25%;
+    position: absolute;
+    background-size: 100%;
+    display: none;
+}
+
+#final-physical-btn {
+    background: url('../images/icons/final-physical-icon.png') no-repeat;
+    width: 9%;
+    height: 90%;
+    left: 22%;
     top: 25%;
     position: absolute;
     background-size: 100%;

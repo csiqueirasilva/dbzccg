@@ -46,9 +46,91 @@ DBZCCG.declareDialog = function() {
             });
 };
 
+DBZCCG.rejuvenateDialog = function() {
+    DBZCCG.confirmDialog('Rejuvenation', 'Do you wish to rejuvenate?', null,
+            {
+                "Rejuvenate": function() {
+                    $('#rejuvenate-btn').hide();
+                    DBZCCG.waitingMainPlayerMouseCommand = false;
+                    DBZCCG.performingAction.rejuvenate();
+                    $(this).dialog('close');
+                },
+                "Do not rejuvenate": function() {
+                    $('#rejuvenate-btn').hide();
+                    DBZCCG.waitingMainPlayerMouseCommand = false;
+                    DBZCCG.performingTurn = false;
+                    $(this).dialog('close');
+                }
+            });
+};
+
+DBZCCG.hideCombatIcons = function() {
+    $('#pass-btn').hide();
+    $('#final-physical-btn').hide();
+    $('#hud').qtip('hide');
+};
+
+DBZCCG.finalPhysicalDialog = function() {
+    DBZCCG.confirmDialog(
+            'Final Physical Attack',
+            'Do you wish to perform a final physical attack? After this attack, you can only defend in this combat.',
+            function() {
+                window.setTimeout(function() {
+
+                    document.getElementById('final-physical-btn').onclick = function() {
+
+                        DBZCCG.confirmDialog(
+                                'Final Physical Attack',
+                                'Discard a card from your hand in order to perform the attack.',
+                                null,
+                                {
+                                    "OK": function() {
+                                        $(this).dialog('close');
+                                        DBZCCG.Combat.effectHappening = true;
+                                        var elem = $(DBZCCG.toolTip.content).children('#tooltipDiscard')[0];
+
+                                        for (var i = 0; i < DBZCCG.attackingPlayer.hand.cards.length; i++) {
+                                            DBZCCG.attackingPlayer.hand.cards[i].display.addCallback(DBZCCG.Player.discardCallback);
+                                        }
+
+                                        var player = DBZCCG.attackingPlayer;
+                                        elem.onclick = function() {
+                                            $('#hud').qtip('hide');
+                                            $('#final-physical-btn').hide();
+
+                                            player.transferCards("hand", [DBZCCG.toolTip.idxHand], "discardPile", player.discardPile.cards.length);
+
+                                            DBZCCG.waitingMainPlayerMouseCommand = false;
+
+                                            elem.onclick = null;
+
+                                            for (var i = 0; i < player.hand.cards.length; i++) {
+                                                player.hand.cards[i].display.removeCallback(DBZCCG.Player.discardCallback);
+                                            }
+
+                                            DBZCCG.toolTip.parent.removeCallback(DBZCCG.Player.discardCallback);
+                                            DBZCCG.toolTip.idxHand = undefined;
+                                            DBZCCG.clearMouseOver();
+
+                                            DBZCCG.Combat.effectHappening = false;
+                                            document.getElementById('final-physical-btn').onclick = function() {
+                                                DBZCCG.finalPhysicalDialog();
+                                            };
+                                            DBZCCG.Combat.activateEffectAI(DBZCCG.General['Final Physical Attack'].display);
+                                        };
+                                    }
+                                });
+                    };
+
+                    document.getElementById('final-physical-btn').onclick();
+
+                }, 100);
+            });
+};
+
 DBZCCG.passDialog = function(msg) {
     DBZCCG.confirmDialog('Passing', msg, function() {
-        $('#pass-btn').hide();
+        DBZCCG.hideCombatIcons();
 
         if (DBZCCG.combat && DBZCCG.mainPlayer === DBZCCG.attackingPlayer) {
             DBZCCG.attackingPlayer.passed = true;
@@ -512,9 +594,18 @@ DBZCCG.create = function() {
             DBZCCG.passDialog(DBZCCG.passMessage);
         };
 
+        // set onclick callback for pass
+        document.getElementById('final-physical-btn').onclick = function() {
+            DBZCCG.finalPhysicalDialog();
+        };
+
         // set onclick callback for combat
         document.getElementById('combat-btn').onclick = function() {
             DBZCCG.declareDialog();
+        };
+
+        document.getElementById('rejuvenate-btn').onclick = function() {
+            DBZCCG.rejuvenateDialog();
         };
 
         for (var i = 0; i < table.players.length; i++) {
@@ -651,7 +742,8 @@ DBZCCG.create = function() {
                                     DBZCCG.defendingPlayer = table.players[0];
                                 }
 
-                                DBZCCG.defendingPlayer.passed = DBZCCG.attackingPlayer.passed = false;
+                                DBZCCG.attackingPlayer.onlyDefend = DBZCCG.defendingPlayer.onlyDefend =
+                                        DBZCCG.defendingPlayer.passed = DBZCCG.attackingPlayer.passed = false;
                                 player.combatPhase(listActions);
                             });
                 }
@@ -815,6 +907,8 @@ DBZCCG.create = function() {
                 $('#pass-btn').click();
             } else if ($('#combat-btn').is(':visible')) {
                 $('#combat-btn').click();
+            } else if ($('#rejuvenate-btn').is(':visible')) {
+                $('#rejuvenate-btn').click();
             }
         });
 

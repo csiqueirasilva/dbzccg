@@ -10,6 +10,13 @@ DBZCCG.Combat.Attack.Energy = 1;
 
 DBZCCG.Combat.inUsePAT = DBZCCG.Card.Saga.Saiyan;
 
+DBZCCG.Combat.flashCard = function (card) {
+    if(card.display.children[0].material.materials[5].map && card.display.children[0].material.materials[5].map.sourceFile) {
+        var content = '<img src ="' + card.display.children[0].material.materials[5].map.sourceFile + '" />';
+        DBZCCG.Combat.flashContent(content, 'flash-card');
+    }
+};
+
 DBZCCG.Combat.checkCosts = function(card) {
     var ret = true;
     if (card.cost instanceof Function) {
@@ -274,8 +281,7 @@ DBZCCG.Combat.activateEffectAI = function(display) {
 
         // Display the card image
         DBZCCG.listActions.splice(0, 0, function() {
-            var content = '<img src ="' + clicked.display.children[0].material.materials[5].map.sourceFile + '" />';
-            DBZCCG.Combat.flashContent(content, 'flash-card');
+            DBZCCG.Combat.flashCard(clicked);
         });
 
 
@@ -316,8 +322,7 @@ DBZCCG.Combat.activateEffectCallback = {f: function() {
                 }
 
                 DBZCCG.Combat.effectHappening = true;
-                $('#pass-btn').hide();
-                $('#hud').qtip('hide');
+                DBZCCG.hideCombatIcons();
 
                 if (!clicked.dontRemoveEffect) {
                     clicked.display.removeCallback(DBZCCG.Combat.activateEffectCallback);
@@ -356,8 +361,7 @@ DBZCCG.Combat.activateEffectCallback = {f: function() {
 
                 // Display the card image
                 DBZCCG.listActions.splice(0, 0, function() {
-                    var content = '<img src ="' + clicked.display.children[0].material.materials[5].map.sourceFile + '" />';
-                    DBZCCG.Combat.flashContent(content, 'flash-card');
+                    DBZCCG.Combat.flashCard(clicked);
                 });
 
                 // Play the card
@@ -629,12 +633,11 @@ DBZCCG.Combat.speechBubble = function(text, display) {
 };
 
 DBZCCG.Combat.setMouseOverCallback = function(display, mouseMove) {
-    // Mouse over for ZScouter
     display.mouseOver = function(event) {
         if (!$('.qtip').is(':visible')) {
             if (!this.localTooltip) {
                 if (display.parentCard) {
-                    if (display.parentCard.activable instanceof Function && display.parentCard.activable(DBZCCG.performingAction) && display.parentCard.effectType instanceof Array &&
+                    if (DBZCCG.performingAction.checkOwnership(display) && display.parentCard.activable instanceof Function && display.parentCard.activable(DBZCCG.performingAction) && display.parentCard.effectType instanceof Array &&
                             (display.parentCard.effectType.indexOf(DBZCCG.Combat.Attack.Physical) !== -1 ||
                                     display.parentCard.effectType.indexOf(DBZCCG.Combat.Attack.Energy) !== -1)) {
                         this.localTooltip = DBZCCG.Combat.mouseHoverTooltip(event);

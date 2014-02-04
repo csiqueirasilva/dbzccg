@@ -6,9 +6,20 @@ DBZCCG.Player.Field.cornerWidth = 0.1;
 DBZCCG.Player.Field.Height = 30;
 DBZCCG.Player.Field.Width = 100;
 
+DBZCCG.Player.discardCallback = {f: function() {
+        var clicked = DBZCCG.toolTip.parent;
+        var i = 0;
+        for (; i < DBZCCG.performingAction.hand.cards.length && clicked !== DBZCCG.performingAction.hand.cards[i].display; i++)
+            ;
+
+        if (i !== DBZCCG.performingAction.hand.cards.length) {
+            DBZCCG.toolTip.idxHand = i;
+        }
+        $(DBZCCG.toolTip.content).children('#tooltipDiscard').show();
+    },
+    priority: 1};
+
 DBZCCG.Player.AIPlay = function(player, pass) {
-    console.log(player.name);
-    console.log(player.usableCards[0]);
     if (player.usableCards.length === 0) {
         if (pass) {
             DBZCCG.logMessage(DBZCCG.passLog);
@@ -36,7 +47,7 @@ DBZCCG.Player.create = function(dataObject, vec) {
         /* Game variables */
         this.handOnTable = false;
         this.cardDiscardPhaseLimit = 1;
-        this.onlyFightBack = false;
+        this.onlyDefend = false;
 
         this.drawPhaseEnabled = true;
         this.nonCombatPhaseEnabled = true;
@@ -101,7 +112,6 @@ DBZCCG.Player.create = function(dataObject, vec) {
             var currentPersonality = this.mainPersonality.currentPersonality();
             if (currentPersonality.activable instanceof Function) {
                 if (currentPersonality.activable(this)) {
-                    console.log('adicionou personality power');
                     this.addUsableCard(currentPersonality.display);
                 } else {
                     this.removeUsableCard(currentPersonality.display);
@@ -169,6 +179,20 @@ DBZCCG.Player.create = function(dataObject, vec) {
             }
         };
 
+        this.checkOwnership = function(display) {
+            var ret = false;
+
+            if (
+                    this.mainPersonality.currentPersonality().display === display ||
+                    this.hand.getCardIdx(display) !== -1 ||
+                    this.nonCombats.getCardIdx(display) !== -1
+                    ) {
+                ret = true;
+            }
+
+            return ret;
+        };
+
         this.attackerAttacks = function() {
             DBZCCG.performingTurn = true;
 
@@ -176,7 +200,6 @@ DBZCCG.Player.create = function(dataObject, vec) {
 
                 DBZCCG.performingTurn = true;
                 DBZCCG.performingAction = DBZCCG.attackingPlayer;
-                console.log(DBZCCG.attackingPlayer.name);
 
                 DBZCCG.listActions.splice(0, 0, DBZCCG.swapPlayers);
 
@@ -185,13 +208,21 @@ DBZCCG.Player.create = function(dataObject, vec) {
 
                 DBZCCG.passLog = DBZCCG.attackingPlayer.displayName() + " has passed the chance to perform an action.";
 
-                // TODO: run floating effects
-                if (DBZCCG.attackingPlayer === DBZCCG.mainPlayer && !DBZCCG.attackingPlayer.onlyFightBack) {
-                    DBZCCG.waitingMainPlayerMouseCommand = true;
-                    DBZCCG.passMessage = 'Pass the chance to perform an action?';
-                    $('#pass-btn').show();
+                if (!DBZCCG.attackingPlayer.onlyDefend) {
+                    // TODO: run floating effects
+                    if (DBZCCG.attackingPlayer === DBZCCG.mainPlayer) {
+                        DBZCCG.waitingMainPlayerMouseCommand = true;
+                        DBZCCG.passMessage = 'Pass the chance to perform an action?';
+                        $('#pass-btn').show();
+                        if (DBZCCG.attackingPlayer.hand.cards.length > 0) {
+                            $('#final-physical-btn').show();
+                        }
+                    } else {
+                        DBZCCG.Player.AIPlay(DBZCCG.attackingPlayer, true);
+                        DBZCCG.performingTurn = false;
+                    }
                 } else {
-                    DBZCCG.Player.AIPlay(DBZCCG.attackingPlayer, true);
+                    DBZCCG.attackingPlayer.passed = true;
                     DBZCCG.performingTurn = false;
                 }
             });
@@ -323,32 +354,42 @@ DBZCCG.Player.create = function(dataObject, vec) {
         this.rejuvenationPhase = function() {
             if (this.discardPile.cards.length > 0) {
                 DBZCCG.performingTurn = true;
-
-                var botPos = this.lifeDeck.display.position.clone();
-                var topPos = botPos.clone();
-                topPos.y = 5;
-
-                var animation = new TWEEN.Tween(this.lifeDeck.display.position).to(topPos, 200);
-                var secondAnimation = new TWEEN.Tween(this.lifeDeck.display.position).to(botPos, 200);
-
-                secondAnimation.delay(300);
-
-                var player = this;
-                animation.onComplete(function() {
-                    var cardName = player.discardPile.cards[player.discardPile.cards.length - 1].name;
-                    player.transferCards("discardPile", [player.discardPile.cards.length - 1], "lifeDeck", 0, true);
-                    DBZCCG.logMessage(player.mainPersonality.displayName() + " sent the top card of " + pronome + " Discard Pile (" + cardName + ") into the bottom of " + pronome + " Life Deck.");
-                });
-
-                animation.chain(secondAnimation);
-
-                secondAnimation.onComplete(function() {
-                    DBZCCG.performingTurn = false;
-                });
-
-                animation.start();
+                if (DBZCCG.performingAction === DBZCCG.mainPlayer) {
+                    DBZCCG.waitingMainPlayerMouseCommand = true;
+                    document.getElementById('rejuvenate-btn').onclick();
+                    $('#rejuvenate-btn').show();
+                } else {
+                    this.rejuvenate();
+                }
             }
         };
+
+        this.rejuvenate = function() {
+            var botPos = this.lifeDeck.display.position.clone();
+            var topPos = botPos.clone();
+            topPos.y = 5;
+
+            var animation = new TWEEN.Tween(this.lifeDeck.display.position).to(topPos, 200);
+            var secondAnimation = new TWEEN.Tween(this.lifeDeck.display.position).to(botPos, 200);
+
+            secondAnimation.delay(300);
+
+            var player = this;
+            animation.onComplete(function() {
+                var cardName = player.discardPile.cards[player.discardPile.cards.length - 1].name;
+                player.transferCards("discardPile", [player.discardPile.cards.length - 1], "lifeDeck", 0, true);
+                DBZCCG.logMessage(player.mainPersonality.displayName() + " sent the top card of " + pronome + " Discard Pile (" + cardName + ") into the bottom of " + pronome + " Life Deck.");
+            });
+
+            animation.chain(secondAnimation);
+
+            secondAnimation.onComplete(function() {
+                DBZCCG.performingTurn = false;
+            });
+
+            animation.start();
+        };
+
 
         this.displayName = function() {
             return this.name;
@@ -359,26 +400,12 @@ DBZCCG.Player.create = function(dataObject, vec) {
                 DBZCCG.performingTurn = true;
                 var elem = $(DBZCCG.toolTip.content).children('#tooltipDiscard')[0];
 
-                var discardCallback = {f: function() {
-                        var clicked = DBZCCG.toolTip.parent;
-                        var i = 0;
-                        for (; i < player.hand.cards.length && clicked !== player.hand.cards[i].display; i++)
-                            ;
-
-                        if (i !== player.hand.cards.length) {
-                            DBZCCG.toolTip.idxHand = i;
-                        }
-                        $(DBZCCG.toolTip.content).children('#tooltipDiscard').show();
-                    },
-                    priority: 1};
-
                 for (var i = 0; i < this.hand.cards.length; i++) {
-                    this.hand.cards[i].display.addCallback(discardCallback);
+                    this.hand.cards[i].display.addCallback(DBZCCG.Player.discardCallback);
                 }
 
                 var player = this;
                 elem.onclick = function() {
-
                     $('#hud').qtip('hide');
 
                     player.transferCards("hand", [DBZCCG.toolTip.idxHand], "discardPile", player.discardPile.cards.length);
@@ -389,11 +416,11 @@ DBZCCG.Player.create = function(dataObject, vec) {
                         elem.onclick = null;
                         DBZCCG.performingTurn = false;
                         for (var i = 0; i < player.hand.cards.length; i++) {
-                            player.hand.cards[i].display.removeCallback(discardCallback);
+                            player.hand.cards[i].display.removeCallback(DBZCCG.Player.discardCallback);
                         }
                     }
 
-                    DBZCCG.toolTip.parent.removeCallback(discardCallback);
+                    DBZCCG.toolTip.parent.removeCallback(DBZCCG.Player.discardCallback);
                     DBZCCG.toolTip.idxHand = undefined;
                     DBZCCG.clearMouseOver();
                 };

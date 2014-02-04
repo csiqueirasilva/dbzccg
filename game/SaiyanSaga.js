@@ -1,4 +1,5 @@
 DBZCCG.Saiyan = {};
+
 DBZCCG.Saiyan['001'] = {
     type: DBZCCG.Card.Type['Physical Combat'],
     style: DBZCCG.Card.Style.Orange,

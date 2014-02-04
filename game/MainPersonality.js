@@ -274,15 +274,15 @@ DBZCCG.MainPersonality.create = function(data) {
             this.removePowerStageLabelText();
 
             function advanceLevel() {
-                if (mp.currentMainPersonalityLevel != mp.personalities.length && n > 0) {
+                if (mp.currentMainPersonalityLevel !== mp.personalities.length && n > 0) {
                     // Reorder personalities array
                     var rp = [];
 
                     var qttLevels = mp.personalities.length;
                     for (var i = mp.currentMainPersonalityLevel - 1;
-                            rp.length != qttLevels;
+                            rp.length !== qttLevels;
                             i++) {
-                        if (i == qttLevels) {
+                        if (i === qttLevels) {
                             i = 0;
                         }
                         rp.push(mp.personalities[i]);
@@ -358,13 +358,13 @@ DBZCCG.MainPersonality.create = function(data) {
                     rp[1].zScouter.descriptionBox = function() {
                         var descriptionBoxText = "<div><b>" + rp[1].displayName() + "</b> current power stage level: " + rp[1].powerStages[rp[1].currentPowerStageAboveZero];
 
-                        if (rp[1].currentPowerStageAboveZero == rp[1].powerStages.length - 1) {
+                        if (rp[1].currentPowerStageAboveZero === rp[1].powerStages.length - 1) {
                             descriptionBoxText += " (max)";
-                        } else if (rp[1].currentPowerStageAboveZero != 0) {
+                        } else if (rp[1].currentPowerStageAboveZero !== 0) {
                             descriptionBoxText += " (" + rp[1].currentPowerStageAboveZero + " above 0)";
                         }
 
-                        descriptionBoxText += ".</div>"
+                        descriptionBoxText += ".</div>";
 
                         DBZCCG.descriptionBox(descriptionBoxText);
                     };
@@ -377,7 +377,7 @@ DBZCCG.MainPersonality.create = function(data) {
 
             advanceLevel();
 
-            if (desiredLevels != n) {
+            if (desiredLevels !== n) {
                 window.setTimeout(function() {
                     DBZCCG.performingAnimation = false;
                     var currentLevel = mp.personalities[mp.currentMainPersonalityLevel - 1];
@@ -447,10 +447,10 @@ DBZCCG.MainPersonality.create = function(data) {
                 var personality = mp.currentPersonality();
                 var msg = personality.powerStages[personality.currentPowerStageAboveZero];
 
-                if (personality.currentPowerStageAboveZero == personality.powerStages.length - 1) {
+                if (personality.currentPowerStageAboveZero === personality.powerStages.length - 1) {
                     msg += " (max)";
-                } else if (personality.currentPowerStageAboveZero != 0) {
-                    msg += " (" + personality.currentPowerStageAboveZero + " " + (personality.currentPowerStageAboveZero == 1 ? "stage" : "stages") + " above 0)";
+                } else if (personality.currentPowerStageAboveZero !== 0) {
+                    msg += " (" + personality.currentPowerStageAboveZero + " " + (personality.currentPowerStageAboveZero === 1 ? "stage" : "stages") + " above 0)";
                 }
 
                 return "<b>" + personality.displayName() + "</b> current power stage level: " + "<br />" +

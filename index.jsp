@@ -41,6 +41,10 @@
         </div>
 
         <div id="toolbar">
+            <div id="final-physical-btn" class="btn">
+            </div>
+            <div id="rejuvenate-btn" class="btn">
+            </div>
             <div id="combat-btn" class="btn">
             </div>
             <div id="pass-btn" class="btn">
@@ -127,6 +131,7 @@
         <script type="text/javascript" src="game/Table.js"></script>
         <script type="text/javascript" src="game/Screen.js"></script>
         <script type="text/javascript" src="game/SaiyanSaga.js"></script>
+        <script type="text/javascript" src="game/General.js"></script>
         <script type="text/javascript">
             function getKeyByValue(object, value) {
             for (var prop in object) {
