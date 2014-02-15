@@ -15,7 +15,7 @@ DBZCCG.CardGroup.create = function(cardGroup) {
             }
 
             // If position wasnt set, create a position for the player hand
-            if (this.position.y == 0 && this.position.z == 0 && this.position.x == 0) {
+            if (this.position.y === 0 && this.position.z === 0 && this.position.x === 0) {
                 this.position.copy(position.clone().normalize().multiplyScalar(DBZCCG.Player.Field.Height));
                 this.position.y = DBZCCG.CardGroup.YCoord;
             }
@@ -113,7 +113,7 @@ DBZCCG.CardGroup.create = function(cardGroup) {
                 addCallback.splice(idx, 1);
                 addCallback.sort(DBZCCG.compareCallbacks);
             }
-        }
+        };
 
         this.addCallback = function(callback) {
             var idx = addCallback.indexOf(callback);
@@ -122,7 +122,7 @@ DBZCCG.CardGroup.create = function(cardGroup) {
                 callback.cardgroup = this;
                 addCallback.sort(DBZCCG.compareCallbacks);
             }
-        }
+        };
 
         this.addCard = function(cardsToJoin, addToScene) {
             DBZCCG.performingAnimation = true;
@@ -174,9 +174,9 @@ DBZCCG.CardGroup.create = function(cardGroup) {
                     });
                 }
 
-                if (this.cards[0].display.rotation.x != this.rotation.x ||
-                        this.cards[0].display.rotation.y != this.rotation.y ||
-                        this.cards[0].display.rotation.z != this.rotation.z) {
+                if (this.cards[0].display.rotation.x !== this.rotation.x ||
+                        this.cards[0].display.rotation.y !== this.rotation.y ||
+                        this.cards[0].display.rotation.z !== this.rotation.z) {
 
                     itAnimation = new TWEEN.Tween(this.cards[0].display.rotation)
                             .to(this.rotation, 1);
@@ -287,7 +287,7 @@ DBZCCG.CardGroup.create = function(cardGroup) {
                     if (cardsToJoin.length === 0) {
                         DBZCCG.performingAnimation = false;
                         if (DBZCCG.resizeLabels instanceof Function) {
-                            DBZCCG.resizeLabels();
+                            window.setTimeout(DBZCCG.resizeLabels, 200);
                         }
                     } else {
                         cardGroup.addCard(cardsToJoin, addToScene);

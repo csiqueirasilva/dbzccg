@@ -48,6 +48,8 @@ DBZCCG.Player.create = function(dataObject, vec) {
         this.handOnTable = false;
         this.cardDiscardPhaseLimit = 1;
         this.onlyDefend = false;
+        this.onlyPass = false;
+        this.sufferedAttack = false;
 
         this.drawPhaseEnabled = true;
         this.nonCombatPhaseEnabled = true;
@@ -58,6 +60,58 @@ DBZCCG.Player.create = function(dataObject, vec) {
         this.rejuvenationPhaseEnabled = true;
 
         /* Game functions */
+
+        var player = this;
+
+        this.checkActivation = function(card) {
+            var ret = true;
+
+            this.destroyInvalidCallbacks('activationCallback');
+
+            for (var i = 0; i < this.activationCallback.length; i++) {
+                if (this.activationCallback[i].f instanceof Function) {
+                    ret = this.activationCallback[i].f(card);
+                }
+
+                if (this.activationCallback[i].life === false) {
+                    this.removeActivationCallback(this.activationCallback[i]);
+                }
+            }
+
+            return ret;
+        };
+
+        this.activePersonality = {};
+
+        this.activePersonality.set = function(personality, source) {
+            this.source = source;
+            if (source === 'mainPersonality') {
+                this.personality = player.mainPersonality.currentPersonality;
+                this.display = player.mainPersonality.display;
+                this.zScouter = player.mainPersonality.currentPersonality().zScouter;
+
+                player
+                        .activePersonalityArea
+                        .add(player.mainPersonality.currentPersonality().zScouter);
+
+                player
+                        .activePersonalityArea
+                        .add(player.mainPersonality.display);
+            }
+
+            window.setTimeout(DBZCCG.resizeLabels, 20);
+        };
+
+        this.activePersonality.clear = function() {
+            if (this.source === 'mainPersonality') {
+                player.mainPersonality.surroundingArea.add(this.display);
+                player.mainPersonality.surroundingArea.add(this.zScouter);
+            }
+
+            this.display = this.personality = this.source = this.zScouter = null;
+
+            window.setTimeout(DBZCCG.resizeLabels, 20);
+        };
 
         // check passive effects
         this.checkPassiveEffects = function() {
@@ -137,6 +191,7 @@ DBZCCG.Player.create = function(dataObject, vec) {
         };
 
         this.takeDamage = function(damage) {
+            this.sufferedAttack = true;
             var powerStages = damage.stages;
             var lifeCards = damage.cards;
 
@@ -163,7 +218,100 @@ DBZCCG.Player.create = function(dataObject, vec) {
             }
 
             var player = this;
+
             DBZCCG.listActions.splice(0, 0, function() {
+                var dragonballs = DBZCCG.Combat.checkDragonballControl(player);
+                var oldClickCallback = [];
+                if (player.lastDamageTaken && player.lastDamageTaken.cards >= 5 && dragonballs.length > 0) {
+                    if (DBZCCG.attackingPlayer === DBZCCG.mainPlayer) {
+                        var doNotUseEffect = false;
+                        function finishCaptureDialog() {
+                            for (var k = 0; k < dragonballs.length; k++) {
+                                dragonballs[k].display.click = oldClickCallback.shift();
+                            }
+
+                            $('#capture-btn').hide();
+                            DBZCCG.waitingMainPlayerMouseCommand = false;
+                            DBZCCG.performingTurn = false;
+                            DBZCCG.Combat.removeSelectionParticles();
+                        }
+
+                        function beginCapture() {
+                            for (var k = 0; k < dragonballs.length; k++) {
+                                oldClickCallback.push(dragonballs[k].display.click);
+                                dragonballs[k].display.click = capture;
+                            }
+                            $('#capture-btn')[0].onclick = showCaptureHelp;
+                            window.setTimeout(showCaptureHelp, 200);
+                        }
+
+                        function capture() {
+                            this.parentCard.capture(DBZCCG.attackingPlayer, doNotUseEffect);
+                            finishCaptureDialog();
+                            return false;
+                        }
+
+                        function showCaptureHelp() {
+                            DBZCCG.confirmDialog('Capture Dragonball',
+                                    'You choose to capture a dragonball and ' + (doNotUseEffect ? ' do not use ' : ' use ') +
+                                    ' its powers. Click in a dragonball to capture it.', null,
+                                    {'OK': function() {
+                                            $(this).dialog('close');
+                                        }
+                                    });
+                        }
+
+                        function showCaptureDialog() {
+                            DBZCCG.confirmDialog('Capture Dragonball',
+                                    'You dealt ' +
+                                    player.lastDamageTaken.cards
+                                    + ' life cards of damage. It is possible to capture a dragonball that is currently in control by your opponent.', null,
+                                    {'Capture and USE the effect': function() {
+                                            $(this).dialog('close');
+                                            beginCapture();
+                                        },
+                                        'Capture and DO NOT USE the effect': function() {
+                                            doNotUseEffect = true;
+                                            $(this).dialog('close');
+                                            beginCapture();
+                                        },
+                                        'Do not capture a dragonball': function() {
+                                            finishCaptureDialog();
+                                            $(this).dialog('close');
+                                        }
+                                    },
+                            window.innerWidth * 0.5,
+                                    window.innerHeight * 0.5);
+                        }
+
+                        $('#capture-btn')[0].onclick = showCaptureDialog;
+
+                        DBZCCG.listActions.splice(0, 0, function() {
+                            DBZCCG.waitingMainPlayerMouseCommand = true;
+                            DBZCCG.performingTurn = true;
+
+                            for (var k = 0; k < dragonballs.length; k++) {
+                                DBZCCG.Combat.addSelectionParticle(dragonballs[k].display.position);
+                            }
+
+                            showCaptureDialog();
+                            $('#capture-btn').show();
+
+                        });
+
+                    } else /* CPU */ {
+                        var db = dragonballs.shift();
+                        db.capture(DBZCCG.attackingPlayer);
+                    }
+                }
+            });
+
+            DBZCCG.listActions.splice(0, 0, function() {
+                player.sufferedAttack = false;
+            });
+
+            DBZCCG.listActions.splice(0, 0, function() {
+                player.lastDamageTaken = {cards: lifeCards, stages: damage.stages};
                 if (cbIdx.length > 0) {
                     player.transferCards('lifeDeck', cbIdx, 'discardPile', player.discardPile.cards.length);
                 }
@@ -198,6 +346,7 @@ DBZCCG.Player.create = function(dataObject, vec) {
 
             DBZCCG.listActions.splice(0, 0, function() {
 
+                DBZCCG.currentCard = null;
                 DBZCCG.performingTurn = true;
                 DBZCCG.performingAction = DBZCCG.attackingPlayer;
 
@@ -208,7 +357,7 @@ DBZCCG.Player.create = function(dataObject, vec) {
 
                 DBZCCG.passLog = DBZCCG.attackingPlayer.displayName() + " has passed the chance to perform an action.";
 
-                if (!DBZCCG.attackingPlayer.onlyDefend) {
+                if (!DBZCCG.attackingPlayer.onlyDefend && !DBZCCG.attackingPlayer.onlyPass) {
                     // TODO: run floating effects
                     if (DBZCCG.attackingPlayer === DBZCCG.mainPlayer) {
                         DBZCCG.waitingMainPlayerMouseCommand = true;
@@ -239,24 +388,49 @@ DBZCCG.Player.create = function(dataObject, vec) {
 
             DBZCCG.performingTurn = true;
 
+            var cardPlayed = DBZCCG.currentCard;
             var player = this;
+
+            var defenseChance = true;
+
+            // Solve callbacks
+            for (var i = 0; i < this.defenderCallback.length; i++) {
+                if (this.defenderCallback[i].f instanceof Function) {
+                    var ret = this.defenderCallback[i].f(cardPlayed);
+                    if (ret instanceof Object) {
+                        if (ret.skipDefense === true) {
+                            defenseChance = false;
+                        }
+                    } else if (ret === DBZCCG.cancelAction) {
+                        return;
+                    }
+
+                    if (this.defenderCallback[i].life === false) {
+                        this.removeDefenderCallback(this.defenderCallback[i]);
+                        i--;
+                    }
+                }
+            }
+
             DBZCCG.listActions.splice(0, 0, function() {
                 DBZCCG.performingTurn = true;
                 DBZCCG.performingAction = DBZCCG.defendingPlayer;
-                //debug
-                card.success = true;
                 DBZCCG.performingAction.clearUsableCards();
                 DBZCCG.performingAction.checkUsableCards();
                 DBZCCG.passLog = player.displayName() + " passed the opportunity to defend the attack.";
-                if (DBZCCG.defendingPlayer === player) {
-                    if (DBZCCG.mainPlayer === player) {
-                        DBZCCG.waitingMainPlayerMouseCommand = true;
-                        DBZCCG.passMessage = 'Pass the opportunity to defend?';
-                        $('#pass-btn').show();
-                    } else {
-                        DBZCCG.Player.AIPlay(player);
-                        DBZCCG.performingTurn = false;
+                if (!DBZCCG.defendingPlayer.onlyPass && defenseChance) {
+                    if (DBZCCG.defendingPlayer === player) {
+                        if (DBZCCG.mainPlayer === player) {
+                            DBZCCG.waitingMainPlayerMouseCommand = true;
+                            DBZCCG.passMessage = 'Pass the opportunity to defend?';
+                            $('#pass-btn').show();
+                        } else {
+                            DBZCCG.Player.AIPlay(player);
+                            DBZCCG.performingTurn = false;
+                        }
                     }
+                } else {
+                    DBZCCG.performingTurn = false;
                 }
             });
 
@@ -270,13 +444,29 @@ DBZCCG.Player.create = function(dataObject, vec) {
         };
 
         this.getPersonalityInControl = function() {
-            return this.mainPersonality.currentPersonality();
+            return this.activePersonality.personality();
+        };
+
+        this.destroyInvalidCallbacks = function(callbacks) {
+            for (var i = 0; i < this[callbacks].length; i++) {
+                if (this[callbacks][i].f instanceof Function) {
+                    if (this[callbacks][i].life === false) {
+                        this['remove' + callbacks.charAt(0).toUpperCase() + callbacks.substring(1) ](this[callbacks][i]);
+                        i--;
+                    }
+                }
+            }
         };
 
         this.combatPhase = function(listActions) {
 
-            // run when entering combat effects
+            DBZCCG.phaseCounter = 0;
 
+            // destroy invalid callbacks
+            DBZCCG.attackingPlayer.destroyInvalidCallbacks('defenderCallback');
+            DBZCCG.defendingPlayer.destroyInvalidCallbacks('defenderCallback');
+
+            // run when entering combat effects
             for (var i = 0; i < this.combatEnteringCallback.length; i++) {
                 if (this.combatEnteringCallback[i].f instanceof Function) {
                     var ret = this.combatEnteringCallback[i].f(DBZCCG.defendingPlayer);
@@ -322,6 +512,10 @@ DBZCCG.Player.create = function(dataObject, vec) {
                         if (DBZCCG.attackingPlayer.combatLeavingCallback[i].f instanceof Function) {
                             DBZCCG.attackingPlayer.combatLeavingCallback[i].f(DBZCCG.defendingPlayer);
                         }
+
+                        if (DBZCCG.attackingPlayer.combatLeavingCallback[i].life === false) {
+                            DBZCCG.attackingPlayer.removeCombatLeavingCallback(DBZCCG.attackingPlayer.combatLeavingCallback[i]);
+                        }
                     }
 
                     // run leave from combat effects
@@ -329,10 +523,17 @@ DBZCCG.Player.create = function(dataObject, vec) {
                         if (DBZCCG.defendingPlayer.combatLeavingCallback[i].f instanceof Function) {
                             DBZCCG.defendingPlayer.combatLeavingCallback[i].f(DBZCCG.attackingPlayer);
                         }
+
+                        if (DBZCCG.defendingPlayer.combatLeavingCallback[i].life === false) {
+                            DBZCCG.defendingPlayer.removeCombatLeavingCallback(DBZCCG.defendingPlayer.combatLeavingCallback[i]);
+                        }
                     }
 
                     DBZCCG.attackingPlayer.clearUsableCards();
                     DBZCCG.defendingPlayer.clearUsableCards();
+
+                    DBZCCG.attackingPlayer.activePersonality.clear();
+                    DBZCCG.defendingPlayer.activePersonality.clear();
 
                     DBZCCG.defendingPlayer = null;
                     DBZCCG.attackingPlayer = null;
@@ -344,9 +545,13 @@ DBZCCG.Player.create = function(dataObject, vec) {
                     var aux = DBZCCG.attackingPlayer;
                     DBZCCG.attackingPlayer = DBZCCG.defendingPlayer;
                     DBZCCG.defendingPlayer = aux;
+                    DBZCCG.phaseCounter++;
                     listActions.splice(0, 0, DBZCCG.attackingPlayer.attackerAttacks);
                 }
             };
+
+            DBZCCG.attackingPlayer.activePersonality.set(null, 'mainPersonality');
+            DBZCCG.defendingPlayer.activePersonality.set(null, 'mainPersonality');
 
             listActions.splice(0, 0, this.attackerAttacks);
         };
@@ -359,12 +564,12 @@ DBZCCG.Player.create = function(dataObject, vec) {
                     document.getElementById('rejuvenate-btn').onclick();
                     $('#rejuvenate-btn').show();
                 } else {
-                    this.rejuvenate();
+                    this.rejuvenate(true);
                 }
             }
         };
 
-        this.rejuvenate = function() {
+        this.rejuvenate = function(endTurn) {
             var botPos = this.lifeDeck.display.position.clone();
             var topPos = botPos.clone();
             topPos.y = 5;
@@ -383,9 +588,11 @@ DBZCCG.Player.create = function(dataObject, vec) {
 
             animation.chain(secondAnimation);
 
-            secondAnimation.onComplete(function() {
-                DBZCCG.performingTurn = false;
-            });
+            if (endTurn) {
+                secondAnimation.onComplete(function() {
+                    DBZCCG.performingTurn = false;
+                });
+            }
 
             animation.start();
         };
@@ -473,11 +680,34 @@ DBZCCG.Player.create = function(dataObject, vec) {
                 $('#pass-btn').show();
             } else {
                 // TODO: AI OR P2
-                do {
-                    this.clearUsableCards();
-                    this.checkUsableCards();
-                    DBZCCG.Player.AIPlay(this);
-                } while (this.usableCards.length > 0);
+                var player = this;
+                player.clearUsableCards();
+                player.checkUsableCards();
+
+                var numberUsable = player.usableCards.length;
+
+                function playNonCombatCard() {
+                    player.clearUsableCards();
+                    player.checkUsableCards();
+
+                    numberUsable = player.usableCards.length;
+
+                    if (numberUsable > 0) {
+                        DBZCCG.listActions.splice(0, 0, function() {
+                            DBZCCG.listActions.splice(0, 0, function() {
+                                numberUsable--;
+                                playNonCombatCard();
+                            });
+
+                            DBZCCG.Player.AIPlay(player);
+                        });
+                    }
+                }
+
+                DBZCCG.listActions.splice(0, 0, function() {
+                    playNonCombatCard();
+                });
+
                 DBZCCG.performingTurn = false;
             }
         };
@@ -488,42 +718,79 @@ DBZCCG.Player.create = function(dataObject, vec) {
             DBZCCG.performingTurn = false;
         };
 
+        this.activationCallback = [];
+
+        this.removeActivationCallback = function(callback) {
+            var idx = this.activationCallback.indexOf(callback);
+            if (idx !== -1) {
+                this.activationCallback.splice(idx, 1);
+                this.activationCallback.sort(DBZCCG.compareCallbacks);
+            }
+        };
+
+        this.addActivationCallback = function(callback) {
+            var idx = this.activationCallback.indexOf(callback);
+            if (idx === -1) {
+                callback.player = this;
+                this.activationCallback.push(callback);
+                this.activationCallback.sort(DBZCCG.compareCallbacks);
+            }
+        };
+
+        this.defenderCallback = [];
+
+        this.removeDefenderCallback = function(callback) {
+            var idx = this.defenderCallback.indexOf(callback);
+            if (idx !== -1) {
+                this.defenderCallback.splice(idx, 1);
+                this.defenderCallback.sort(DBZCCG.compareCallbacks);
+            }
+        };
+
+        this.addDefenderCallback = function(callback) {
+            var idx = this.defenderCallback.indexOf(callback);
+            if (idx === -1) {
+                callback.player = this;
+                this.defenderCallback.push(callback);
+                this.defenderCallback.sort(DBZCCG.compareCallbacks);
+            }
+        };
 
         this.combatEnteringCallback = [];
 
         this.removeCombatEnteringCallback = function(callback) {
-            var idx = combatEnteringCallback.indexOf(callback);
+            var idx = this.combatEnteringCallback.indexOf(callback);
             if (idx !== -1) {
-                combatEnteringCallback.splice(idx, 1);
-                combatEnteringCallback.sort(DBZCCG.compareCallbacks);
+                this.combatEnteringCallback.splice(idx, 1);
+                this.combatEnteringCallback.sort(DBZCCG.compareCallbacks);
             }
         };
 
         this.addCombatEnteringCallback = function(callback) {
-            var idx = combatEnteringCallback.indexOf(callback);
+            var idx = this.combatEnteringCallback.indexOf(callback);
             if (idx === -1) {
                 callback.player = this;
-                combatEnteringCallback.push(callback);
-                combatEnteringCallback.sort(DBZCCG.compareCallbacks);
+                this.combatEnteringCallback.push(callback);
+                this.combatEnteringCallback.sort(DBZCCG.compareCallbacks);
             }
         };
 
         this.combatLeavingCallback = [];
 
         this.removeCombatLeavingCallback = function(callback) {
-            var idx = combatLeavingCallback.indexOf(callback);
+            var idx = this.combatLeavingCallback.indexOf(callback);
             if (idx !== -1) {
-                combatLeavingCallback.splice(idx, 1);
-                combatLeavingCallback.sort(DBZCCG.compareCallbacks);
+                this.combatLeavingCallback.splice(idx, 1);
+                this.combatLeavingCallback.sort(DBZCCG.compareCallbacks);
             }
         };
 
         this.addCombatLeavingCallback = function(callback) {
-            var idx = turnCallback.indexOf(callback);
+            var idx = this.combatLeavingCallback.indexOf(callback);
             if (idx === -1) {
                 callback.player = this;
-                turnCallback.push(callback);
-                turnCallback.sort(DBZCCG.compareCallbacks);
+                this.combatLeavingCallback.push(callback);
+                this.combatLeavingCallback.sort(DBZCCG.compareCallbacks);
             }
         };
 
@@ -630,33 +897,34 @@ DBZCCG.Player.create = function(dataObject, vec) {
 
                 var cardString = "";
 
-                cardString += card[0].name;
+                if (card[0]) {
+                    cardString += card[0].name;
 
-                if (card.length > 1) {
-                    for (var i = 1; i < card.length - 1; i++) {
-                        cardString += ", " + card[i].name;
-                    }
-                    cardString += " and " + card[card.length - 1].name;
-                }
-
-                if ("cardGroupObject" === this[destiny].constructor.name) {
-                    this[destiny].addCard(card, addToScene);
-
-                    if (destiny === "hand") {
-                        destinyString = "hand";
-                    } else {
-                        destinyString = "field";
+                    if (card.length > 1) {
+                        for (var i = 1; i < card.length - 1; i++) {
+                            cardString += ", " + card[i].name;
+                        }
+                        cardString += " and " + card[card.length - 1].name;
                     }
 
-                } else /* to Pile */ {
-                    this[destiny].addCard(pilePosition !== undefined ? pilePosition : this[destiny].cards.length, card);
+                    if ("cardGroupObject" === this[destiny].constructor.name) {
+                        this[destiny].addCard(card, addToScene);
 
-                    destinyString = this[destiny].display.name;
+                        if (destiny === "hand") {
+                            destinyString = "hand";
+                        } else {
+                            destinyString = "field";
+                        }
+
+                    } else /* to Pile */ {
+                        this[destiny].addCard(pilePosition !== undefined ? pilePosition : this[destiny].cards.length, card);
+
+                        destinyString = this[destiny].display.name;
+                    }
+
+                    var msg = this.mainPersonality.displayName() + " " + action + " " + cardString + " from " + pronome + " " + sourceString + " into " + pronome + " " + destinyString + ".";
+                    DBZCCG.logMessage(msg);
                 }
-
-
-                var msg = this.mainPersonality.displayName() + " " + action + " " + cardString + " from " + pronome + " " + sourceString + " into " + pronome + " " + destinyString + ".";
-                DBZCCG.logMessage(msg);
             }
         };
 
@@ -837,7 +1105,7 @@ DBZCCG.Player.create = function(dataObject, vec) {
             scene.add(this.field);
         };
 
-        this.discardPile = DBZCCG.DiscardPile.create(dataObject.discardPile);
+        this.discardPile = DBZCCG.DiscardPile.create(dataObject.discardPile, this);
         this.removedFromTheGame = DBZCCG.RemovedPile.create(dataObject.removedPile);
 
         this.nonCombats = DBZCCG.CardGroup.create(dataObject.nonCombats);

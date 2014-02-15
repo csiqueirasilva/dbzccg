@@ -4,13 +4,14 @@ DBZCCG.Pile.Face = {};
 
 DBZCCG.Pile.cardBase = DBZCCG.Card.create();
 
-DBZCCG.Pile.create = function(data, faceUp) {
+DBZCCG.Pile.create = function(data, faceUp, owner) {
 
-    function PileObject(data, faceUp) {
+    function PileObject(data, faceUp, owner) {
 
         var pile = this;
 
         this.number = data.number;
+        this.owner = owner;
 
         function addTopToObjectList() {
             var idx = pile.display.children.length - 1;
@@ -65,6 +66,7 @@ DBZCCG.Pile.create = function(data, faceUp) {
         };
 
         this.addCard = function(cardIdx, cards) {
+            var timer = 150;
             if (cards instanceof Array && cards.length > 0) {
                 DBZCCG.performingAnimation = true;
                 var card = cards.shift();
@@ -88,7 +90,7 @@ DBZCCG.Pile.create = function(data, faceUp) {
                 var target = pile.display.position.clone();
                 target.add(pile.display.parent.position);
                 target.y = DBZCCG.Card.cornerWidth * DBZCCG.Card.cardThicknessScale * cardIdx * 2;
-                var animation = new TWEEN.Tween(card.display.position).to(target, 150);
+                var animation = new TWEEN.Tween(card.display.position).to(target, timer);
 
                 var newTopCard = false;
 
@@ -110,7 +112,7 @@ DBZCCG.Pile.create = function(data, faceUp) {
                     }
 
                     // match player position
-                    card.display.rotation.z += pile.display.rotation.y;
+                    card.display.rotation.z = pile.display.rotation.y;
 
                     for (var i = cardIdx + 1; i < otherCards.length; i++) {
                         DBZCCG.Pile.cardBase.display = otherCards[i];
@@ -163,14 +165,14 @@ DBZCCG.Pile.create = function(data, faceUp) {
 
                     for (var i = 0; i < addCallback.length; i++) {
                         if (addCallback[i].f instanceof Function) {
-                            var ret = addCallback[i].f(cardIdx, increaseIndex, cards);
+                            var ret = addCallback[i].f(cardIdx, increaseIndex, cards, card, owner);
                             if (ret instanceof Object) {
                                 if (ret.cardIdx !== undefined) {
                                     cardIdx = ret.cardIdx;
                                 } else if (ret.increaseIndex !== undefined) {
                                     increaseIndex = ret.increaseIndex;
                                 } else if (ret.cards !== undefined) {
-                                    destiny = ret.cards;
+                                    cards = ret.cards;
                                 }
                             }
                         }
@@ -181,7 +183,7 @@ DBZCCG.Pile.create = function(data, faceUp) {
                     } else {
                         DBZCCG.performingAnimation = false;
                         if (DBZCCG.resizeLabels instanceof Function) {
-                            DBZCCG.resizeLabels();
+                            window.setTimeout(DBZCCG.resizeLabels, 200);
                         }
                     }
 
@@ -205,15 +207,15 @@ DBZCCG.Pile.create = function(data, faceUp) {
 
             var removedCard = pile.display.children[cardIdx];
             var card;
-
-            // TODO: Load the right card properties, if it is random
+            
+            DBZCCG.removeObject(removedCard);
 
             // TODO: Ajax Load for the online version!
             if (!removedCard.parentCard) {
                 var rot = removedCard.rotation.clone();
                 var pos = removedCard.position.clone();
+
                 if (!(pile.cards instanceof Array)) {
-                    DBZCCG.removeObject(removedCard);
                     card = DBZCCG.Card.generateRandom();
                 } else {
                     card = pile.cards[cardIdx];
@@ -252,17 +254,17 @@ DBZCCG.Pile.create = function(data, faceUp) {
                 for (var i = otherCards.length - 1; i > cardIdx; i--) {
                     otherCards[i].position.y = otherCards[i - 1].position.y;
                 }
-
+                
                 pile.display.remove(removedCard);
 
                 // find card idx, it might be changed
                 for (var i = 0; i < pile.cards.length; i++) {
-                    if (pile.cards[i].display === removedCard) {
+                    if (pile.cards[i] === this) {
                         cardIdx = i;
                         break;
                     }
                 }
-
+                
                 pile.cards.splice(cardIdx, 1);
 
                 var idx;
@@ -286,8 +288,7 @@ DBZCCG.Pile.create = function(data, faceUp) {
             };
 
             return card;
-        }
-        ;
+        };
 
         this.removeBottomCard = function() {
             if (this.display.children.length > 0) {
@@ -520,5 +521,5 @@ DBZCCG.Pile.create = function(data, faceUp) {
 
     }
 
-    return new PileObject(data || {number: 50}, faceUp);
+    return new PileObject(data || {number: 50}, faceUp, owner);
 };

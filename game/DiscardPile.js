@@ -1,8 +1,8 @@
 DBZCCG.DiscardPile = {};
 
-DBZCCG.DiscardPile.create = function(discardPile) {
-    function discardPileObject(discardPile) {
-        ClassHelper.extends(this, DBZCCG.Pile.create(discardPile, true));
+DBZCCG.DiscardPile.create = function(discardPile, owner) {
+    function discardPileObject(discardPile, owner) {
+        ClassHelper.extends(this, DBZCCG.Pile.create(discardPile, true, owner));
 
         var discard = this;
 
@@ -33,5 +33,5 @@ DBZCCG.DiscardPile.create = function(discardPile) {
         this.display.name = "Discard pile";
     }
 
-    return new discardPileObject(discardPile || {number: 0});
+    return new discardPileObject(discardPile || {number: 0}, owner);
 }

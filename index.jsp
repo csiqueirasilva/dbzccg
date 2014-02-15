@@ -45,6 +45,8 @@
             </div>
             <div id="rejuvenate-btn" class="btn">
             </div>
+            <div id="capture-btn" class="btn">
+            </div>
             <div id="combat-btn" class="btn">
             </div>
             <div id="pass-btn" class="btn">
@@ -99,6 +101,7 @@
             <%@include file="game/skyboxfragmentshader.glsl"%>
         </script>
         <!-- libs -->
+        <script type="text/javascript" src="lib/annyang.min.js"></script>
         <script type="text/javascript" src="lib/jquery.min.js"></script>
         <script type="text/javascript" src="lib/jquery-ui-1.10.3.custom.min.js"></script>
         <script type="text/javascript" src="lib/mousetrap.min.js"></script>
@@ -118,6 +121,7 @@
         <script type="text/javascript" src="lib/numeral.min.js"></script>
         <!-- game -->
         <script type="text/javascript" src="game/DBZCCG.js"></script>
+        <script type="text/javascript" src="game/Dragonball.js"></script>
         <script type="text/javascript" src="game/Card.js"></script>
         <script type="text/javascript" src="game/Combat.js"></script>
         <script type="text/javascript" src="game/Personality.js"></script>
@@ -133,13 +137,6 @@
         <script type="text/javascript" src="game/SaiyanSaga.js"></script>
         <script type="text/javascript" src="game/General.js"></script>
         <script type="text/javascript">
-            function getKeyByValue(object, value) {
-            for (var prop in object) {
-            if (object[ prop ] === value)
-            return prop;
-            }
-            }
-
             $(document).ready(function() {
             $('.niceScrollBar').niceScroll({autohidemode: false});
             DBZCCG.create();

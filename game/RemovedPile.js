@@ -17,4 +17,4 @@ DBZCCG.RemovedPile.create = function (removedPile) {
     }
     
     return new removedPileObject(removedPile || {number: 0});
-}
+};

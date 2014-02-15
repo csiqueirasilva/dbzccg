@@ -7,7 +7,7 @@ DBZCCG.General['Final Physical Attack'] = DBZCCG.Card.create({
 //    texturePath: "images/DBZCCG/saiyan/250.jpg",
     activable: DBZCCG.Combat.defaultAttackerCheck,
     effect: function() {
-        this.success = false;
+        this.success = true;
         this.targetCard = DBZCCG.defendingPlayer.getPersonalityInControl();
     },
     damage: function() {
@@ -20,7 +20,7 @@ DBZCCG.General['Final Physical Attack'] = DBZCCG.Card.create({
         });
     },
     postEffect: function(card) {
-        DBZCCG.attackingPlayer.onlyDefend = true;
+        DBZCCG.attackingPlayer.onlyPass = true;
     },
     effectType: [DBZCCG.Combat.Attack.Physical]
 });

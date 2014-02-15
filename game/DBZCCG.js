@@ -11,6 +11,56 @@ DBZCCG.compareCallbacks = function(a, b) {
 };
 
 /* Dialogs */
+DBZCCG.searchFormHTML = '<div class="search-box"><input id="search-form" type="text"></input><div id="search-result"></div></div>';
+
+DBZCCG.searchFormContent = function(dialogContentId, matchCallback, sourceElements, searchResult) {
+    var buttons = $(dialogContentId)
+            .parent()
+            .children('.ui-dialog-buttonpane')
+            .children()
+            .children();
+
+    // Hide top close icon
+    $(dialogContentId)
+            .parent()
+            .children('.ui-dialog-titlebar')
+            .children('.ui-dialog-titlebar-close')
+            .hide();
+
+    $(dialogContentId).dialog('option', 'closeOnEscape', false);
+
+    buttons.button('disable');
+
+    $('#search-form').keyup(function() {
+        if (matchCallback($(this).val())) {
+            $(this).val($(this).val().toUpperCase());
+            buttons.button('enable');
+        } else {
+            buttons.button('disable');
+        }
+    });
+
+    $('#search-form').blur(function() {
+        if (matchCallback($(this).val())) {
+            if (searchResult instanceof Function) {
+                searchResult($(this).val());
+            }
+            buttons.button('enable');
+        } else {
+            $('#search-result').html('');
+            buttons.button('disable');
+        }
+    });
+
+    $('#search-form').autocomplete({source: sourceElements,
+        select: function(event, ui) {
+            if (searchResult instanceof Function) {
+                searchResult($(this).val());
+            }
+            buttons.button('enable');
+        }});
+};
+
 DBZCCG.createDialog = function(title, content, id) {
     var elem = document.createElement('div');
     elem.id = id || 'mainDialog';
@@ -52,7 +102,7 @@ DBZCCG.rejuvenateDialog = function() {
                 "Rejuvenate": function() {
                     $('#rejuvenate-btn').hide();
                     DBZCCG.waitingMainPlayerMouseCommand = false;
-                    DBZCCG.performingAction.rejuvenate();
+                    DBZCCG.performingAction.rejuvenate(true);
                     $(this).dialog('close');
                 },
                 "Do not rejuvenate": function() {
@@ -73,9 +123,11 @@ DBZCCG.hideCombatIcons = function() {
 DBZCCG.finalPhysicalDialog = function() {
     DBZCCG.confirmDialog(
             'Final Physical Attack',
-            'Do you wish to perform a final physical attack? After this attack, you can only defend in this combat.',
+            'Do you wish to perform a final physical attack? After this attack, you will automatic pass any chance to attack or defend.',
             function() {
                 window.setTimeout(function() {
+
+                    $('#pass-btn').hide();
 
                     document.getElementById('final-physical-btn').onclick = function() {
 
@@ -145,15 +197,15 @@ DBZCCG.passDialog = function(msg) {
     });
 };
 
-DBZCCG.confirmDialog = function(title, content, ok_cb, buttons) {
+DBZCCG.confirmDialog = function(title, content, ok_cb, buttons, width, height) {
 
     var wrapperDiv = document.createElement('div');
     wrapperDiv.innerHTML = content;
 
     DBZCCG.createDialog(title, wrapperDiv, 'confirmDialog');
 
-    $('#confirmDialog').dialog('option', 'height', window.innerHeight * 0.25);
-    $('#confirmDialog').dialog('option', 'width', window.innerWidth * 0.25);
+    $('#confirmDialog').dialog('option', 'height', height || (window.innerHeight * 0.25));
+    $('#confirmDialog').dialog('option', 'width', width || (window.innerWidth * 0.25));
 
     if (!buttons) {
         $('#confirmDialog').dialog('option', 'buttons', {
@@ -174,11 +226,9 @@ DBZCCG.confirmDialog = function(title, content, ok_cb, buttons) {
 };
 
 DBZCCG.removeObject = function(obj) {
-    for (var i = 0; i < DBZCCG.objects.length; i++) {
-        if (DBZCCG.objects[i] === obj) {
-            DBZCCG.objects.splice(i, 1);
-            break;
-        }
+    var idx = DBZCCG.objects.indexOf(obj);
+    if(idx !== -1) {
+        DBZCCG.objects.splice(idx, 1);
     }
 };
 
@@ -303,7 +353,7 @@ DBZCCG.logMessage = function(msg) {
 
     document.getElementById("logBox").appendChild(log);
     $('#logBox').animate({scrollTop: $('#logBox')[0].scrollHeight}, 'slow');
-}
+};
 
 DBZCCG.create = function() {
 
@@ -505,9 +555,9 @@ DBZCCG.create = function() {
 
         var planeMaterial = new THREE.MeshBasicMaterial({side: THREE.FrontSide, map: DBZCCG.background.texture, depthTest: true, depthWrite: false});
 
-        //loadDefaultBackground();
+        loadDefaultBackground();
         //loadTimeChamber();
-        loadBarrenTerrains(sizeX, sizeY);
+        //loadBarrenTerrains(sizeX, sizeY);
         //loadKameHouse(sizeX, sizeY);
         //loadSupremeKaiPlanet(sizeX, sizeY);
         //loadKamiPalace(sizeX, sizeY);
@@ -577,7 +627,7 @@ DBZCCG.create = function() {
         scene.add(light);
         createBackground(scene, camera);
         //createSkybox(scene);
-        table = DBZCCG.Table.create([
+        DBZCCG.table = table = DBZCCG.Table.create([
             /*P1*/
             {name: 'Human', mainPersonality: {alignment: DBZCCG.Personality.alignment.Hero, currentMainPersonalityLevel: 1, currentPowerStageAboveZero: 5, currentAngerLevel: 0,
                     angerLevelNeededToLevel: 5, personalities: [DBZCCG.Saiyan['158'], DBZCCG.Saiyan['159'], DBZCCG.Saiyan['160']]}},
@@ -609,8 +659,75 @@ DBZCCG.create = function() {
         };
 
         for (var i = 0; i < table.players.length; i++) {
+            table.players[i].newLifeCardDamage = 0;
+            var dragonballRegenerate = {f: function(cardIdx, increaseIndex, cards, card, owner) {
+
+                    // Place at the bottom of the lifeDeck
+                    if (DBZCCG.Card.Type.Dragonball === card.type || (card.type instanceof Array && card.type.indexOf(DBZCCG.Card.Type.Dragonball) !== -1)) {
+                        if (owner.dragonballCardDamage === 8) {
+                            DBZCCG.gameOver = true;
+                            DBZCCG.listActions = [];
+                        } else {
+                            owner.lastDragonballIndex = cardIdx;
+
+                            if (owner.lastDragonballIndex === cardIdx) {
+                                owner.dragonballCardDamage++;
+                            } else {
+                                owner.dragonballCardDamage = 0;
+                            }
+
+                            var performingTurn;
+                            var inPlay = DBZCCG.Dragonball.checkInPlay(card);
+
+                            var pile = this.pile;
+
+                            DBZCCG.listActions.splice(0, 0, function() {
+                                DBZCCG.logMessage(card.name + ' was discarted and ' +
+                                        (inPlay ? 'removed from the game (Already in play)' :
+                                                'placed at the bottom of the life deck'));
+
+                                pile.addCard(cardIdx, cards);
+                                DBZCCG.performingTurn = performingTurn;
+                            });
+
+                            if (owner === DBZCCG.defendingPlayer && owner.sufferedAttack &&
+                                    ClassHelper.checkValue(card.type, DBZCCG.Card.Type.Dragonball)) {
+                                DBZCCG.listActions.splice(0, 0, function() {
+                                    for (var k = owner.lifeDeck.cards.length - 1; k >= 0; k--) {
+                                        if (!owner.lifeDeck.cards[k].beginRemoveCallback) {
+                                            cards.push(owner.lifeDeck.removeCardByIdx(k));
+                                            break;
+                                        }
+                                    }
+                                });
+                            }
+
+                            // added card was a dragonball. adding it to the bottom of the lifedeck.
+                            DBZCCG.listActions.splice(0, 0, function() {
+                                owner.transferCards('discardPile',
+                                        [owner.discardPile.cards.indexOf(card)],
+                                        inPlay ? 'removedFromTheGame' : 'lifeDeck',
+                                        inPlay ? owner.removedFromTheGame.cards.length : 0);
+                            });
+
+                            performingTurn = DBZCCG.performingTurn;
+                            DBZCCG.performingTurn = false;
+                        }
+
+                        return {cards: []};
+                    }
+
+                }, priority: 50};
+
+            table.players[i].discardPile.addCallback(dragonballRegenerate);
+
             table.players[i].addTransferCallback({f: function(src, elems, destiny) {
                     if (src === "lifeDeck") {
+
+                        if (destiny === "discardPile") {
+                            this.player.dragonballCardDamage = 0;
+                        }
+
                         var deckTotal;
                         var deckCards = this.player.lifeDeck.cards;
 
@@ -742,7 +859,7 @@ DBZCCG.create = function() {
                                     DBZCCG.defendingPlayer = table.players[0];
                                 }
 
-                                DBZCCG.attackingPlayer.onlyDefend = DBZCCG.defendingPlayer.onlyDefend =
+                                DBZCCG.attackingPlayer.onlyPass = DBZCCG.defendingPlayer.onlyPass = DBZCCG.attackingPlayer.onlyDefend = DBZCCG.defendingPlayer.onlyDefend =
                                         DBZCCG.defendingPlayer.passed = DBZCCG.attackingPlayer.passed = false;
                                 player.combatPhase(listActions);
                             });
@@ -833,7 +950,7 @@ DBZCCG.create = function() {
             }
         }
 
-        var mainLoopInterval = window.setInterval(checkAction, 100);
+        var mainLoopInterval = window.setInterval(checkAction, 500);
 
         // debug
         // scene.add(MathHelper.buildAxes(1000));
@@ -887,20 +1004,20 @@ DBZCCG.create = function() {
 
         // KEYBOARD                
 
-        Mousetrap.bind('c', function() {
-            if (DBZCCG.waitingMainPlayerMouseCommand) {
-
-                if (DBZCCG.cameraStyle === DBZCCG.Table.Camera.Side) {
-                    table.setCameraTopView();
-                } else {
-                    table.setCameraSideView();
-                }
-
-                window.setTimeout(function() {
-                    window.onresize();
-                }, 50);
-            }
-        });
+//        Mousetrap.bind('c', function() {
+//            if (DBZCCG.waitingMainPlayerMouseCommand) {
+//
+//                if (DBZCCG.cameraStyle === DBZCCG.Table.Camera.Side) {
+//                    table.setCameraTopView();
+//                } else {
+//                    table.setCameraSideView();
+//                }
+//
+//                window.setTimeout(function() {
+//                    window.onresize();
+//                }, 50);
+//            }
+//        });
 
         Mousetrap.bind('x', function() {
             if ($('#pass-btn').is(':visible')) {
@@ -1031,19 +1148,22 @@ DBZCCG.create = function() {
                 DBZCCG.toolTip.parent = parent;
                 DBZCCG.toolTip.title = parent.displayName instanceof Function ? parent.displayName() : "OBJECT";
 
+                var ret = true;
                 if (parent.click instanceof Function) {
-                    parent.click();
+                    ret = parent.click();
                 }
 
-                if (parent.callbacks instanceof Array) {
-                    for (var i = 0; i < parent.callbacks.length; i++) {
-                        if (parent.callbacks[i].f instanceof Function) {
-                            parent.callbacks[i].f();
+                if (ret) {
+                    if (parent.callbacks instanceof Array) {
+                        for (var i = 0; i < parent.callbacks.length; i++) {
+                            if (parent.callbacks[i].f instanceof Function) {
+                                parent.callbacks[i].f();
+                            }
                         }
                     }
-                }
 
-                $('#hud').qtip('show');
+                    $('#hud').qtip('show');
+                }
             }
         }
 
@@ -1137,7 +1257,7 @@ DBZCCG.create = function() {
          */
 
         document.getElementById('closeRightBar').onclick = function(event) {
-            if (event.button == 0) {
+            if (event.button === 0) {
                 $('#rightBar').hide();
                 window.onresize();
             }
@@ -1161,7 +1281,7 @@ DBZCCG.create = function() {
         document.getElementById('rightBarWindow').style.height = '51%';
 
         document.getElementById('closeLeftBar').onclick = function(event) {
-            if (event.button == 0) {
+            if (event.button === 0) {
                 $('#leftBar').hide();
                 window.onresize();
             }
@@ -1205,7 +1325,7 @@ DBZCCG.create = function() {
 
 
         document.getElementById('closeLeftBar').onclick = function(event) {
-            if (event.button == 0) {
+            if (event.button === 0) {
                 $('#leftBar').hide();
                 window.onresize();
             }
@@ -1309,7 +1429,7 @@ DBZCCG.create = function() {
         DBZCCG.leftScreen.hideScreen = function() {
             $('#leftBarWindow').hide();
             $(this.renderer.domElement).hide();
-        }
+        };
 
         // debug
         //DBZCCG.leftScreen.focusElement(new THREE.Mesh(new THREE.SphereGeometry(1, 64,32), new THREE.MeshLambertMaterial({shading: THREE.SmoothShading, side: THREE.DoubleSide, color: 0xFFFFFF})));

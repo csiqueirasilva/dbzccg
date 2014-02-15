@@ -1,23 +1,25 @@
 DBZCCG.Personality = {};
 
-DBZCCG.Personality.GOKU = 1;
-DBZCCG.Personality.NAPPA = 2;
-DBZCCG.Personality.VEGETA = 3;
-DBZCCG.Personality.RADITZ = 4;
-DBZCCG.Personality.PICCOLO = 5;
-DBZCCG.Personality.CHIAOTZU = 6;
-DBZCCG.Personality.TIEN = 7;
-DBZCCG.Personality.KRILLIN = 8;
-DBZCCG.Personality.GOHAN = 9;
-DBZCCG.Personality.YAMCHA = 10;
-DBZCCG.Personality.YAJIROBI = 11;
-DBZCCG.Personality.BULMA = 12;
-DBZCCG.Personality.CHICHI = 13;
-DBZCCG.Personality.SAIBAIMEN = 14;
+DBZCCG.Personality.Personalities = {};
+
+DBZCCG.Personality.Personalities.GOKU = 1;
+DBZCCG.Personality.Personalities.NAPPA = 2;
+DBZCCG.Personality.Personalities.VEGETA = 3;
+DBZCCG.Personality.Personalities.RADITZ = 4;
+DBZCCG.Personality.Personalities.PICCOLO = 5;
+DBZCCG.Personality.Personalities.CHIAOTZU = 6;
+DBZCCG.Personality.Personalities.TIEN = 7;
+DBZCCG.Personality.Personalities.KRILLIN = 8;
+DBZCCG.Personality.Personalities.GOHAN = 9;
+DBZCCG.Personality.Personalities.YAMCHA = 10;
+DBZCCG.Personality.Personalities.YAJIROBE = 11;
+DBZCCG.Personality.Personalities.BULMA = 12;
+DBZCCG.Personality.Personalities.CHICHI = 13;
+DBZCCG.Personality.Personalities.SAIBAIMEN = 14;
 
 DBZCCG.Personality.FemaleList = [
-    DBZCCG.Personality.BULMA,
-    DBZCCG.Personality.CHICHI
+    DBZCCG.Personality.Personalities.BULMA,
+    DBZCCG.Personality.Personalities.CHICHI
 ];
 
 DBZCCG.Personality.alignment = {};
@@ -25,12 +27,23 @@ DBZCCG.Personality.alignment.Hero = 1;
 DBZCCG.Personality.alignment.Villain = 2;
 DBZCCG.Personality.alignment.Rogue = 3;
 
-DBZCCG.Personality.SaiyanHeritage = [DBZCCG.Personality.GOKU, DBZCCG.Personality.NAPPA, DBZCCG.Personality.VEGETA, DBZCCG.Personality.RADITZ, DBZCCG.Personality.GOHAN];
-DBZCCG.Personality.NamekianHeritage = [DBZCCG.Personality.PICCOLO];
-DBZCCG.Personality.Hero = [DBZCCG.Personality.GOKU, DBZCCG.Personality.VEGETA, DBZCCG.Personality.PICCOLO, DBZCCG.Personality.CHIAOTZU, DBZCCG.Personality.TIEN, DBZCCG.Personality.KRILLIN, DBZCCG.Personality.GOHAN, DBZCCG.Personality.YAMCHA, DBZCCG.Personality.YAJIROBI, DBZCCG.Personality.BULMA, DBZCCG.Personality.CHICHI];
-DBZCCG.Personality.Villain = [DBZCCG.Personality.SAIBAIMEN, DBZCCG.Personality.RADITZ, DBZCCG.Personality.PICCOLO, DBZCCG.Personality.VEGETA, DBZCCG.Personality.NAPPA];
+DBZCCG.Personality.SaiyanHeritage = [DBZCCG.Personality.Personalities.GOKU, DBZCCG.Personality.Personalities.NAPPA, DBZCCG.Personality.Personalities.VEGETA, DBZCCG.Personality.Personalities.RADITZ, DBZCCG.Personality.Personalities.GOHAN];
+DBZCCG.Personality.NamekianHeritage = [DBZCCG.Personality.Personalities.PICCOLO];
+DBZCCG.Personality.Hero = [DBZCCG.Personality.Personalities.GOKU, DBZCCG.Personality.Personalities.VEGETA, DBZCCG.Personality.Personalities.PICCOLO, DBZCCG.Personality.Personalities.CHIAOTZU, DBZCCG.Personality.Personalities.TIEN, DBZCCG.Personality.Personalities.KRILLIN, DBZCCG.Personality.Personalities.GOHAN, DBZCCG.Personality.Personalities.YAMCHA, DBZCCG.Personality.Personalities.YAJIROBE, DBZCCG.Personality.Personalities.BULMA, DBZCCG.Personality.Personalities.CHICHI];
+DBZCCG.Personality.Villain = [DBZCCG.Personality.Personalities.SAIBAIMEN, DBZCCG.Personality.Personalities.RADITZ, DBZCCG.Personality.Personalities.PICCOLO, DBZCCG.Personality.Personalities.VEGETA, DBZCCG.Personality.Personalities.NAPPA];
 
 DBZCCG.Personality.zScouterMaterial = new THREE.MeshLambertMaterial({shading: THREE.SmoothShading, color: 0xFF2233});
+
+DBZCCG.Personality.checkHeritage = function(personality, heritage) {
+    heritage = heritage.charAt(0).toUpperCase() + heritage.substring(1) + 'Heritage';
+    var ret = false;
+    for (var i = 0; i < DBZCCG.Personality[heritage].length && !ret; i++) {
+        if (ClassHelper.checkValue(personality, DBZCCG.Personality[heritage][i])) {
+            ret = true;
+        }
+    }
+    return ret;
+};
 
 DBZCCG.Personality.create = function(data) {
 
@@ -47,17 +60,17 @@ DBZCCG.Personality.create = function(data) {
         var card = this;
         this.display.descriptionBox = function() {
             var cardDesc = cardDescription();
-            var collectionBox = 
+            var collectionBox =
                     $(cardDesc).filter(".card-collection-box")[0].outerHTML;
-            
+
             var name = $(cardDesc).filter(".card-name").removeClass('property-description-box')[0].outerHTML;
-            
-            var content = 
+
+            var content =
                     '<div>\
                         <div class="personality-card-content">';
 
             content += "<div class='property-description-box'>\
-            <div class='level-label-bg'></div><div title='Personality Level' class='level-label'>"+card.level+"</div>"+name+"</div>";
+            <div class='level-label-bg'></div><div title='Personality Level' class='level-label'>" + card.level + "</div>" + name + "</div>";
 
             var elements = $(cardDesc).not(".card-collection-box").not(".card-description").not(".card-name");
 
@@ -67,26 +80,28 @@ DBZCCG.Personality.create = function(data) {
 
             content += "<div class='property-description-box'>\
                             <div class='card-label-pur'>\
-                                <span title='PUR'>"+card.PUR+"</span>\
-                            </div>"+
-                    $(cardDesc).filter(".card-description")[0].outerHTML.replace("div class","div style='width: 80%; float: left;' class")+
+                                <span title='PUR'>" + card.PUR + "</span>\
+                            </div>" +
+                    $(cardDesc).filter(".card-description")[0].outerHTML.replace("div class", "div style='width: 80%; float: left;' class") +
                     "</div>";
 
-            content = content.replace(/\[Personality Card\]/, "[" + getKeyByValue(DBZCCG.Personality.alignment, card.alignment) + " Personality Card]");
-            content = content.replace(/(Power:|Constant Combat Power:)/,function(match){ return "<div class='personality-power-label'>"+match+"</div>"; });
-            
+            content = content.replace(/\[Personality Card\]/, "[" + ClassHelper.getKeyByValue(DBZCCG.Personality.alignment, card.alignment) + " Personality Card]");
+            content = content.replace(/(Power:|Constant Combat Power:)/, function(match) {
+                return "<div class='personality-power-label'>" + match + "</div>";
+            });
+
             content += "</div>";
-            
-            content += "<div class='personality-content'>"+
+
+            content += "<div class='personality-content'>" +
                     card.powerStages.slice(0).reverse().toString().replace(/(\d+,|\d+)/g, function(match) {
-                        var number = numeral(parseInt(match.replace(",",""))).format('0,0').replace(",",".");
-                        var div = "<div class='card-label-power-stage-"+getKeyByValue(DBZCCG.Personality.alignment, card.alignment).toLowerCase()+"'>"
-                            + number + "</div>";
-                        
-                        return div;
-                    })+"</div></div>";
-                    
-            var endContent = "<div style='clear:both;'></div>"+collectionBox;
+                var number = numeral(parseInt(match.replace(",", ""))).format('0,0').replace(",", ".");
+                var div = "<div class='card-label-power-stage-" + ClassHelper.getKeyByValue(DBZCCG.Personality.alignment, card.alignment).toLowerCase() + "'>"
+                        + number + "</div>";
+
+                return div;
+            }) + "</div></div>";
+
+            var endContent = "<div style='clear:both;'></div>" + collectionBox;
             content += endContent;
 
             return content;
@@ -136,7 +151,7 @@ DBZCCG.Personality.create = function(data) {
             }
 
             return leftover;
-        }
+        };
 
         this.moveZScouter = function(toPowerStages, noDelay, noMessage) {
             if (this.zScouter) {
@@ -175,18 +190,18 @@ DBZCCG.Personality.create = function(data) {
                     DBZCCG.performingAnimation = false;
                     if (!noMessage) {
                         var msg = card.displayName() + " power stage level set to " + card.powerStages[card.currentPowerStageAboveZero];
-                        if (card.currentPowerStageAboveZero == card.powerStages.length - 1) {
+                        if (card.currentPowerStageAboveZero === card.powerStages.length - 1) {
                             msg += " (max)";
-                        } else if (card.currentPowerStageAboveZero != 0) {
+                        } else if (card.currentPowerStageAboveZero !== 0) {
                             msg += " (" + card.currentPowerStageAboveZero + " " + (card.currentPowerStageAboveZero == 1 ? "stage" : "stages") + " above 0)";
                         }
 
                         DBZCCG.Combat.hoverText("=" + card.powerStages[card.currentPowerStageAboveZero], card.zScouter);
                         DBZCCG.logMessage(msg);
                     }
-                    
-                    if(DBZCCG.resizeLabels instanceof Function) {
-                        DBZCCG.resizeLabels();
+
+                    if (DBZCCG.resizeLabels instanceof Function) {
+                        window.setTimeout(DBZCCG.resizeLabels, 200);
                     }
                 });
 
@@ -229,7 +244,6 @@ DBZCCG.Personality.create = function(data) {
 
                 var meshZScouter = new THREE.Mesh(geometry, DBZCCG.Personality.zScouterMaterial);
                 personality.zScouter.add(meshZScouter);
-                personality.zScouter.rotation.y = Math.PI;
                 personality.zScouter.rotation.z = Math.PI / 2;
 
                 personality.zScouter.rotation.y = MathHelper.angleVectors(new THREE.Vector3(0, 0, -1), personality.display.position);
@@ -241,9 +255,9 @@ DBZCCG.Personality.create = function(data) {
                 personality.zScouter.descriptionBox = function() {
                     var descriptionBoxText = "<div><b>" + personality.displayName() + "</b> current power stage level: <br />" + personality.powerStages[personality.currentPowerStageAboveZero];
 
-                    if (personality.currentPowerStageAboveZero == personality.powerStages.length - 1) {
+                    if (personality.currentPowerStageAboveZero === personality.powerStages.length - 1) {
                         descriptionBoxText += " (max)";
-                    } else if (personality.currentPowerStageAboveZero != 0) {
+                    } else if (personality.currentPowerStageAboveZero !== 0) {
                         descriptionBoxText += " (" + personality.currentPowerStageAboveZero + " above 0)";
                     }
 
@@ -252,15 +266,15 @@ DBZCCG.Personality.create = function(data) {
                     DBZCCG.descriptionBox(descriptionBoxText);
                 };
 
-                if(!personality.zScouter.displayHoverText) {
+                if (!personality.zScouter.displayHoverText) {
                     personality.zScouter.displayHoverText = function() {
 
                         var msg = personality.powerStages[personality.currentPowerStageAboveZero];
 
-                        if (card.currentPowerStageAboveZero == card.powerStages.length - 1) {
+                        if (card.currentPowerStageAboveZero === card.powerStages.length - 1) {
                             msg += " (max)";
-                        } else if (card.currentPowerStageAboveZero != 0) {
-                            msg += " (" + card.currentPowerStageAboveZero + " " + (card.currentPowerStageAboveZero == 1 ? "stage" : "stages") + " above 0)";
+                        } else if (card.currentPowerStageAboveZero !== 0) {
+                            msg += " (" + card.currentPowerStageAboveZero + " " + (card.currentPowerStageAboveZero === 1 ? "stage" : "stages") + " above 0)";
                         }
 
                         return "<b>" + personality.displayName() + "</b> current power stage level: " + "<br />" +
