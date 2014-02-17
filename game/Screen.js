@@ -4,6 +4,7 @@ DBZCCG.Screen = {};
 
 DBZCCG.Screen.findCallbackObject = function(object, callback) {
     var parent;
+    
     if (object instanceof THREE.Mesh || object instanceof THREE.Object3D) {
         parent = object;
         while (parent && !parent.ownParent && !(parent.parent instanceof THREE.Scene)) {
@@ -13,6 +14,7 @@ DBZCCG.Screen.findCallbackObject = function(object, callback) {
             }
         }
     }
+
     return parent;
 };
 

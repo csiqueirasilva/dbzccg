@@ -49,14 +49,12 @@ DBZCCG.Card.Style.Black = 7;
 DBZCCG.Card.Rarity = {};
 DBZCCG.Card.Rarity.Common = 0;
 DBZCCG.Card.Rarity.Promo = 1;
-DBZCCG.Card.Rarity.Uncommun = 2;
+DBZCCG.Card.Rarity.Uncommon = 2;
 DBZCCG.Card.Rarity.Fixed = 3;
 DBZCCG.Card.Rarity.Rare = 4;
 DBZCCG.Card.Rarity['Ultra Rare'] = 5;
 DBZCCG.Card.Rarity['Premium'] = 6;
 DBZCCG.Card.Rarity['Ubber Rare'] = 7;
-
-
 
 /* To reduce load on card creation */
 (function() {
@@ -166,9 +164,9 @@ DBZCCG.Card.Rarity['Ubber Rare'] = 7;
             faces[i].vertexColors[2] = vertices[faces[i].c].color;
         }
     }
-    
+
     DBZCCG.Card.basicCardGeo.computeFaceNormals();
-    
+
     delete baseCorner;
 })();
 
@@ -271,7 +269,7 @@ DBZCCG.Card.create = function(dataObject) {
         this.number = dataObject.number;
         this.type = dataObject.type;
         this.numberOfUses = dataObject.numberOfUses;
-        
+
         this.display = createCard(dataObject.texturePath);
         this.display.name = this.name;
         this.display.parentCard = this;
@@ -283,7 +281,7 @@ DBZCCG.Card.create = function(dataObject) {
             var idx = this.callbacks.indexOf(callback);
             if (idx !== -1) {
                 this.callbacks.splice(idx, 1);
-                this.callbacks.sort(DBZCCG.compareCallbacks);
+                this.callbacks.sort(DBZCCG.Callbacks.CompareCallbacks);
             }
         }
 
@@ -291,7 +289,7 @@ DBZCCG.Card.create = function(dataObject) {
             var idx = this.callbacks.indexOf(callback);
             if (idx === -1) {
                 this.callbacks.push(callback);
-                this.callbacks.sort(DBZCCG.compareCallbacks);
+                this.callbacks.sort(DBZCCG.Callbacks.CompareCallbacks);
             }
         }
 
@@ -304,13 +302,14 @@ DBZCCG.Card.create = function(dataObject) {
         card.effect = dataObject.effect;
         card.activable = dataObject.activable;
         card.postEffect = dataObject.postEffect;
-        card.sucessfulEffect = dataObject.sucessfulEffect;
+        card.successfulEffect = dataObject.successfulEffect;
         card.playable = dataObject.playable;
         card.effectType = dataObject.effectType;
         card.damage = dataObject.damage;
         card.cost = dataObject.cost;
         card.activators = dataObject.activators;
-        
+        card.defenseShield = dataObject.defenseShield;
+
         card.display.displayName = function() {
             return card.name;
         };
@@ -321,11 +320,19 @@ DBZCCG.Card.create = function(dataObject) {
                 card.display.offLeftScreenCallback = null;
                 card.display.descriptionBox = card.display.offDescriptionBox;
                 card.display.offDescriptionBox = null;
+                card.display.mouseOut = card.display.offMouseOut;
+                card.display.offMouseOut = null;
+                card.display.mouseOver = card.display.offMouseOver;
+                card.display.offMouseOver = null;
             } else {
                 card.display.offLeftScreenCallback = card.display.leftScreenCallback;
                 card.display.leftScreenCallback = null;
                 card.display.offDescriptionBox = card.display.descriptionBox;
                 card.display.descriptionBox = null;
+                card.display.offMouseOut = card.display.mouseOut;
+                card.display.mouseOut = null;
+                card.display.offMouseOver = card.display.mouseOver;
+                card.display.mouseOver = null;
             }
         };
 
@@ -383,7 +390,7 @@ DBZCCG.Card.create = function(dataObject) {
 
         card.display.displayHoverText = function() {
             var ret = '';
-            if(this.parentCard.damage instanceof Function && this.parentCard.damage() instanceof Object) {
+            if (this.parentCard.damage instanceof Function && this.parentCard.damage() instanceof Object) {
                 var damage = this.parentCard.damage();
                 ret = '<div class="hover-icon physical-attack-icon" title="Power Stage Damage"></div><span class="hover-damage-text" style="float: left;">' + damage.stages + '</span><div style="clear: both;"></div><br />';
                 ret += '<div class="hover-icon energy-attack-icon" title="Life Card Damage"></div><span class="hover-damage-text" style="float: left;">' + damage.cards + '</span><div style="clear: both;"></div>';
@@ -395,15 +402,15 @@ DBZCCG.Card.create = function(dataObject) {
 
         card.display.descriptionBox = function() {
             var content = "<div class='property-description-box card-name'>" + card.name + "</div>\
-                            <div class='property-description-box card-type'>["+ClassHelper.getKeyByValue(DBZCCG.Card.Type, card.type)+" Card]</div>\
+                            <div class='property-description-box card-type'>[" + ClassHelper.getKeyByValue(DBZCCG.Card.Type, card.type) + " Card]</div>\
                             <div class='property-description-box card-description'>" + card.description + "</div>";
             content += "<div class='card-collection-box'>";
             if (card.personality) {
-                content += "<div class='card-personality'><div class='label-title'>[Personality]</div><div class='label-description-box'><div class='description-icon'><img class='left-screen-icon' src='images/icons/" + ClassHelper.getKeyByValue(DBZCCG.Personality.Personalities, card.personality).toLowerCase() + "-icon.png' title='"+ClassHelper.getKeyByValue(DBZCCG.Personality.Personalities, card.personality)+"'/></div></div></div>";
+                content += "<div class='card-personality'><div class='label-title'>[Personality]</div><div class='label-description-box'><div class='description-icon'><img class='left-screen-icon' src='images/icons/" + ClassHelper.getKeyByValue(DBZCCG.Personality.Personalities, card.personality).toLowerCase() + "-icon.png' title='" + ClassHelper.getKeyByValue(DBZCCG.Personality.Personalities, card.personality) + "'/></div></div></div>";
             }
 
-            content += "<div class='card-style'><div class='label-title'>[Style]</div><div class='label-description-box'><div class='description-icon'><img class='left-screen-icon' src='images/icons/" + ClassHelper.getKeyByValue(DBZCCG.Card.Style, card.style).toLowerCase() + "-icon.png' title='"+ClassHelper.getKeyByValue(DBZCCG.Card.Style, card.style)+"'/></div></div></div>\
-                        <div class='card-saga-label'><div div class='label-title'>[Saga]</div><div class='label-description-box'><div class='description-icon'><img class='left-screen-icon' src='images/icons/" + ClassHelper.getKeyByValue(DBZCCG.Card.Saga, card.saga).toLowerCase() + "-saga-icon.png' title='"+ClassHelper.getKeyByValue(DBZCCG.Card.Saga, card.saga)+" Saga'/><img class='left-screen-icon' src='images/icons/"+ClassHelper.getKeyByValue(DBZCCG.Card.Rarity, card.rarity).toLowerCase().replace(" ","")+"-icon.png' title='"+ClassHelper.getKeyByValue(DBZCCG.Card.Rarity, card.rarity)+"' /></div><div class='saga-label-number'>#" + card.number + "</div></div></div>";
+            content += "<div class='card-style'><div class='label-title'>[Style]</div><div class='label-description-box'><div class='description-icon'><img class='left-screen-icon' src='images/icons/" + ClassHelper.getKeyByValue(DBZCCG.Card.Style, card.style).toLowerCase() + "-icon.png' title='" + ClassHelper.getKeyByValue(DBZCCG.Card.Style, card.style) + "'/></div></div></div>\
+                        <div class='card-saga-label'><div div class='label-title'>[Saga]</div><div class='label-description-box'><div class='description-icon'><img class='left-screen-icon' src='images/icons/" + ClassHelper.getKeyByValue(DBZCCG.Card.Saga, card.saga).toLowerCase() + "-saga-icon.png' title='" + ClassHelper.getKeyByValue(DBZCCG.Card.Saga, card.saga) + " Saga'/><img class='left-screen-icon' src='images/icons/" + ClassHelper.getKeyByValue(DBZCCG.Card.Rarity, card.rarity).toLowerCase().replace(" ", "") + "-icon.png' title='" + ClassHelper.getKeyByValue(DBZCCG.Card.Rarity, card.rarity) + "' /></div><div class='saga-label-number'>#" + card.number + "</div></div></div>";
 
             content += "</div>";
             return content;

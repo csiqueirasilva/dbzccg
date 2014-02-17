@@ -30,6 +30,15 @@ DBZCCG.Combat.Effect.StageSet = 13;
 DBZCCG.Combat.Target.Multiple = 14;
 DBZCCG.Combat.Target.Single = 15;
 
+DBZCCG.Combat.Defense.DefenseShield = 16;
+DBZCCG.Combat.Defense.Prevention = 17;
+
+DBZCCG.Combat.Effect.StrainingMove = 18;
+
+DBZCCG.Combat.Effect.Regenerate = 19;
+
+DBZCCG.Combat.Effect.CaptureDragonball = 20;
+
 // End of effect types
 
 DBZCCG.Combat.inUsePAT = DBZCCG.Card.Saga.Saiyan;
@@ -44,7 +53,16 @@ DBZCCG.Combat.flashCard = function(card) {
 DBZCCG.Combat.checkCosts = function(card) {
     var ret = true;
     if (card.cost instanceof Function) {
-        if (DBZCCG.attackingPlayer.getPersonalityInControl().currentPowerStageAboveZero < card.cost().powerStage) {
+        var cost = card.cost();
+        if (cost.powerStage && DBZCCG.performingAction.getPersonalityInControl().currentPowerStageAboveZero < cost.powerStage) {
+            ret = false;
+        }
+
+        if (cost.lifeCard && DBZCCG.performingAction.lifeDeck.cards.length < cost.lifeCard) {
+            ret = false;
+        }
+
+        if (cost.handCard && DBZCCG.performingAction.hand.cards.length < cost.handCard) {
             ret = false;
         }
     }
@@ -56,7 +74,74 @@ DBZCCG.Combat.payCosts = function(card) {
         var cost = card.cost();
         DBZCCG.listActions.splice(0, 0, function() {
             if (cost.powerStage) {
-                DBZCCG.attackingPlayer.getPersonalityInControl().raiseZScouter(-cost.powerStage, true, true);
+                DBZCCG.performingAction.getPersonalityInControl().raiseZScouter(-cost.powerStage, true, true);
+            }
+
+            if (cost.lifeCard) {
+                DBZCCG.Combat.hoverText('-' + cost.lifeCard, DBZCCG.performingAction.lifeDeck.display, 0xFF0000);
+
+                var cardIdx = [];
+                for (var i = DBZCCG.performingAction.lifeDeck.cards.length - 1, j = 0; i >= 0 && j < cost.lifeCard; i--, j++) {
+                    cardIdx.push(i);
+                }
+
+                DBZCCG.performingAction.transferCards('lifeDeck', cardIdx, 'discardPile');
+            }
+
+            if (cost.handCard) {
+                if (DBZCCG.mainPlayer === DBZCCG.performingAction) {
+                    var discardCounter = 0;
+                    DBZCCG.performingTurn = true;
+                    DBZCCG.waitingMainPlayerMouseCommand = true;
+                    DBZCCG.confirmDialog(
+                            card.name,
+                            'Discard ' + cost.handCard + ' card' + (cost.handCard > 1 ? 's' : '') + ' from your hand in order to perform the action.',
+                            null,
+                            {
+                                "OK": function() {
+                                    $(this).dialog('close');
+                                    DBZCCG.Combat.effectHappening = true;
+                                    var elem = $(DBZCCG.toolTip.content).children('#tooltipDiscard')[0];
+
+                                    for (var i = 0; i < DBZCCG.performingAction.hand.cards.length; i++) {
+                                        DBZCCG.performingAction.hand.cards[i].display.addCallback(DBZCCG.Player.discardCallback);
+                                    }
+
+                                    var player = DBZCCG.performingAction;
+                                    elem.onclick = function() {
+                                        $('#hud').qtip('hide');
+
+                                        discardCounter++;
+
+                                        player.transferCards("hand", [DBZCCG.toolTip.idxHand], "discardPile", player.discardPile.cards.length);
+
+                                        DBZCCG.toolTip.parent.removeCallback(DBZCCG.Player.discardCallback);
+
+                                        DBZCCG.clearMouseOver();
+
+                                        if (discardCounter === cost.handCard) {
+                                            DBZCCG.waitingMainPlayerMouseCommand = false;
+
+                                            elem.onclick = null;
+
+                                            for (var i = 0; i < player.hand.cards.length; i++) {
+                                                player.hand.cards[i].display.removeCallback(DBZCCG.Player.discardCallback);
+                                            }
+
+                                            DBZCCG.Combat.effectHappening = false;
+                                            DBZCCG.performingTurn = false;
+                                        }
+                                    };
+                                }
+                            });
+
+                } else /* AI */ {
+                    var cardIdx = [];
+                    for (var i = DBZCCG.performingAction.hand.cards.length - 1, j = 0; i >= 0 && j < cost.handCard; i--, j++) {
+                        cardIdx.push(i);
+                    }
+                    DBZCCG.performingAction.transferCards("hand", cardIdx, "discardPile");
+                }
             }
         });
     }
@@ -275,18 +360,47 @@ DBZCCG.Combat.checkDragonballControl = function(player) {
                 true);
 
 
-        if (((clicked.type instanceof Array && clicked.type.indexOf(DBZCCG.Card.Type.Dragonball) !== -1) ||
-                clicked.type === DBZCCG.Card.Type.Dragonball) && !(clicked.activable instanceof Function)) {
+        if ((((clicked.type instanceof Array && clicked.type.indexOf(DBZCCG.Card.Type.Dragonball) !== -1) ||
+                clicked.type === DBZCCG.Card.Type.Dragonball) && !(clicked.activable instanceof Function)) ||
+                clicked.activable === true) {
             var performingTurn = DBZCCG.performingTurn;
+            var mouseCommand = DBZCCG.waitingMainPlayerMouseCommand;
+            
+            if(mouseCommand === true) {
+                DBZCCG.waitingMainPlayerMouseCommand = false;
+            }
+            
+            var passVisible = $('#pass-btn').is(':visible');
+
+            if(passVisible) {
+                $('#pass-btn').hide();
+            }
+
             DBZCCG.effectHappening = true;
 
             DBZCCG.listActions.splice(0, 0, function() {
                 DBZCCG.listActions.splice(0, 0, function() {
                     DBZCCG.performingTurn = performingTurn;
                     DBZCCG.effectHappening = false;
+                    DBZCCG.waitingMainPlayerMouseCommand = mouseCommand;
+                    
+                    if(passVisible) {
+                        $('#pass-btn').show();
+                    }
+                    
                 });
 
-                clicked.control = DBZCCG.performingAction;
+                if (clicked.activable === true && clicked.postEffect instanceof Function) {
+                    DBZCCG.listActions.splice(0, 0, function() {
+                        clicked.postEffect();
+                    });
+                }
+
+                if (((clicked.type instanceof Array && clicked.type.indexOf(DBZCCG.Card.Type.Dragonball) !== -1) ||
+                        clicked.type === DBZCCG.Card.Type.Dragonball) && !(clicked.activable instanceof Function)) {
+                    clicked.control = DBZCCG.performingAction;
+                }
+                
                 clicked.effect();
             });
 
@@ -320,7 +434,13 @@ DBZCCG.Combat.checkDragonballControl = function(player) {
 
     function executeEffect(clicked) {
         DBZCCG.Combat.effectHappening = true;
-        DBZCCG.currentCard = clicked;
+
+        if (!DBZCCG.currentCard) {
+            DBZCCG.openCard = DBZCCG.currentCard = clicked;
+        } else {
+            clicked.targetCard = DBZCCG.currentCard;
+            DBZCCG.currentCard = clicked;
+        }
 
         var performerPlayer = DBZCCG.performingAction;
 
@@ -346,7 +466,8 @@ DBZCCG.Combat.checkDragonballControl = function(player) {
             var effectHappening = clicked.effect() || false;
 
             if (clicked.targetCard && clicked.targetCard.display === DBZCCG.defendingPlayer.getPersonalityInControl().display) {
-                DBZCCG.Combat.selectionArrow(DBZCCG.attackingPlayer.getPersonalityInControl().display, DBZCCG.defendingPlayer.getPersonalityInControl().display);
+                DBZCCG.Combat.selectionArrow(DBZCCG.attackingPlayer.getPersonalityInControl().display,
+                        DBZCCG.defendingPlayer.getPersonalityInControl().display);
             }
 
             DBZCCG.Combat.effectHappening = effectHappening;
@@ -430,18 +551,32 @@ DBZCCG.Combat.checkDragonballControl = function(player) {
 
 DBZCCG.Combat.setDefenderTurn = function(player) {
     DBZCCG.listActions.splice(0, 0, function() {
-
         DBZCCG.performingTurn = true;
 
+        var attackCard = DBZCCG.currentCard;
+
+        // run post attack callbacks
+        var damage = {};
+
+        var argsFunction = function(callback) {
+            return callback.f(damage);
+        };
+
+        var solveFunction = function(ret) {
+        };
+
         DBZCCG.listActions.splice(0, 0, function() {
-
-            if (DBZCCG.currentCard.success && DBZCCG.currentCard.sucessfulEffect instanceof Function) {
-                DBZCCG.currentCard.sucessfulEffect(player);
+            if (attackCard.success && attackCard.successfulEffect instanceof Function) {
+                attackCard.successfulEffect(player);
             }
-
         });
 
-        player.defenderDefends(DBZCCG.currentCard);
+        DBZCCG.listActions.splice(0, 0, function() {
+            DBZCCG.attackingPlayer.solvePostAttackCallback(argsFunction, solveFunction);
+            DBZCCG.defendingPlayer.solvePostDefenseCallback(argsFunction, solveFunction);
+        });
+
+        player.defenderDefends(attackCard);
 
         DBZCCG.performingTurn = false;
     });
@@ -678,7 +813,8 @@ DBZCCG.Combat.setMouseOverCallback = function(display, mouseMove) {
         if (!$('.qtip').is(':visible')) {
             if (!this.localTooltip) {
                 if (display.parentCard) {
-                    if (DBZCCG.performingAction.checkOwnership(display) && display.parentCard.activable instanceof Function && display.parentCard.activable(DBZCCG.performingAction) && display.parentCard.effectType instanceof Array &&
+                    if (DBZCCG.performingAction.checkOwnership(display) && display.parentCard.activable instanceof Function &&
+                            display.parentCard.activable(DBZCCG.performingAction) && display.parentCard.effectType instanceof Array &&
                             (display.parentCard.effectType.indexOf(DBZCCG.Combat.Attack.Physical) !== -1 ||
                                     display.parentCard.effectType.indexOf(DBZCCG.Combat.Attack.Energy) !== -1) && this.displayHoverText()) {
                         this.localTooltip = DBZCCG.Combat.mouseHoverTooltip(event);

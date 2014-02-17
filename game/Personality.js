@@ -80,7 +80,7 @@ DBZCCG.Personality.create = function(data) {
 
             content += "<div class='property-description-box'>\
                             <div class='card-label-pur'>\
-                                <span title='PUR'>" + card.PUR + "</span>\
+                                <div title='PUR'>" + card.PUR + "</div>\
                             </div>" +
                     $(cardDesc).filter(".card-description")[0].outerHTML.replace("div class", "div style='width: 80%; float: left;' class") +
                     "</div>";
@@ -114,13 +114,13 @@ DBZCCG.Personality.create = function(data) {
 
             if (this.currentPowerStageAboveZero === 0 && numberPowerStages < 0) {
                 if (!noMessage) {
-                    DBZCCG.logMessage(this.displayName() + ' already at 0.');
+                    DBZCCG.Log.logEntry(this.displayName() + ' already at 0.');
                 }
 
                 return numberPowerStages;
             } else if (this.currentPowerStageAboveZero === this.powerStages.length - 1 && numberPowerStages > 0) {
                 if (!noMessage) {
-                    DBZCCG.logMessage(this.displayName() + ' already at maximum power stage level.');
+                    DBZCCG.Log.logEntry(this.displayName() + ' already at maximum power stage level.');
                 }
 
                 return numberPowerStages;
@@ -147,7 +147,7 @@ DBZCCG.Personality.create = function(data) {
 
             if (!noMessage) {
                 var msg = this.displayName() + " " + action + " " + Math.abs(diffPowerStage) + " power stage" + (Math.abs(diffPowerStage) > 1 ? "s" : "") + ".";
-                DBZCCG.logMessage(msg);
+                DBZCCG.Log.logEntry(msg);
             }
 
             return leftover;
@@ -197,7 +197,7 @@ DBZCCG.Personality.create = function(data) {
                         }
 
                         DBZCCG.Combat.hoverText("=" + card.powerStages[card.currentPowerStageAboveZero], card.zScouter);
-                        DBZCCG.logMessage(msg);
+                        DBZCCG.Log.logEntry(msg);
                     }
 
                     if (DBZCCG.resizeLabels instanceof Function) {

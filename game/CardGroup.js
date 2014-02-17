@@ -111,7 +111,7 @@ DBZCCG.CardGroup.create = function(cardGroup) {
             var idx = addCallback.indexOf(callback);
             if (idx !== -1) {
                 addCallback.splice(idx, 1);
-                addCallback.sort(DBZCCG.compareCallbacks);
+                addCallback.sort(DBZCCG.Callbacks.CompareCallbacks);
             }
         };
 
@@ -120,7 +120,7 @@ DBZCCG.CardGroup.create = function(cardGroup) {
             if (idx === -1) {
                 addCallback.push(callback);
                 callback.cardgroup = this;
-                addCallback.sort(DBZCCG.compareCallbacks);
+                addCallback.sort(DBZCCG.Callbacks.CompareCallbacks);
             }
         };
 
@@ -234,9 +234,9 @@ DBZCCG.CardGroup.create = function(cardGroup) {
                         this.cards[i].display.position.copy(target);
                     }
 
-                    if (this.cards[i].display.rotation.x != this.rotation.x ||
-                            this.cards[i].display.rotation.y != this.rotation.y ||
-                            this.cards[i].display.rotation.z != this.rotation.z) {
+                    if (this.cards[i].display.rotation.x !== this.rotation.x ||
+                            this.cards[i].display.rotation.y !== this.rotation.y ||
+                            this.cards[i].display.rotation.z !== this.rotation.z) {
 
                         if (card === this.cards[i]) {
                             this.cards[i].display.position.rotation = this.cards[i].display.rotation;
@@ -273,7 +273,7 @@ DBZCCG.CardGroup.create = function(cardGroup) {
 
                     for (var i = 0; i < addCallback.length; i++) {
                         if (addCallback[i].f instanceof Function) {
-                            var ret = addCallback[i].f(cardsToJoin, addToScene);
+                            var ret = addCallback[i].f(cardsToJoin, addToScene, card);
                             if (ret instanceof Object) {
                                 if (ret.cardsToJoin !== undefined) {
                                     cardsToJoin = ret.cardsToJoin;

@@ -22,7 +22,7 @@ DBZCCG.Player.discardCallback = {f: function() {
 DBZCCG.Player.AIPlay = function(player, pass) {
     if (player.usableCards.length === 0) {
         if (pass) {
-            DBZCCG.logMessage(DBZCCG.passLog);
+            DBZCCG.Log.logEntry(DBZCCG.passLog);
             DBZCCG.Combat.speechBubble("I will not take action.", player.getPersonalityInControl().display);
             player.passed = true;
         }
@@ -83,34 +83,122 @@ DBZCCG.Player.create = function(dataObject, vec) {
 
         this.activePersonality = {};
 
+        this.activePersonality.toOriginalPosition = function() {
+            var zScouter = this.zScouter;
+            var personality = this.display;
+
+            DBZCCG.performingAnimation = true;
+
+            var globalPositionScouter = zScouter.parent.localToWorld(zScouter.position.clone());
+
+            var globalPositionPersonality = personality
+                    .parent
+                    .localToWorld(personality
+                    .position
+                    .clone());
+
+            var relativePositionScouter = zScouter
+                    .position
+                    .clone();
+
+            var relativePositionPersonality = new THREE.Vector3(0, 0, 0);
+
+            DBZCCG.mainScene.add(personality);
+            personality.position = globalPositionPersonality;
+            DBZCCG.mainScene.add(zScouter);
+            zScouter.position = globalPositionScouter;
+
+            if (this.source === 'mainPersonality') {
+                var animation = new TWEEN.Tween(personality.position)
+                        .to(player.mainPersonality.surroundingArea.localToWorld(relativePositionPersonality.clone()), 150);
+
+                var secondAnimation = new TWEEN.Tween(zScouter.position)
+                        .to(player.mainPersonality.surroundingArea.localToWorld(relativePositionScouter.clone()), 150);
+
+                animation.chain(secondAnimation);
+
+                secondAnimation.onComplete(function() {
+                    zScouter.position = relativePositionScouter;
+                    personality.position = relativePositionPersonality;
+
+                    player.mainPersonality.surroundingArea.add(personality);
+                    player.mainPersonality.surroundingArea.add(zScouter);
+
+                    window.setTimeout(DBZCCG.resizeLabels, 20);
+                    DBZCCG.performingAnimation = false;
+                });
+
+                animation.start();
+            }
+        };
+
+        this.activePersonality.toActivePosition = function() {
+            var zScouter = this.zScouter;
+            var personality = this.display;
+
+            DBZCCG.performingAnimation = true;
+
+            var globalPositionScouter = zScouter.parent.localToWorld(zScouter.position.clone());
+
+            var globalPositionPersonality = personality
+                    .parent
+                    .localToWorld(personality
+                    .position
+                    .clone());
+
+            var relativePositionScouter = zScouter
+                    .position
+                    .clone();
+
+            var relativePositionPersonality = personality
+                    .position.clone();
+
+            DBZCCG.mainScene.add(personality);
+            personality.position = globalPositionPersonality;
+            DBZCCG.mainScene.add(zScouter);
+            zScouter.position = globalPositionScouter;
+
+            var animation = new TWEEN.Tween(personality.position)
+                    .to(player.activePersonalityArea.localToWorld(relativePositionPersonality.clone()), 150);
+
+            var secondAnimation = new TWEEN.Tween(zScouter.position)
+                    .to(player.activePersonalityArea.localToWorld(relativePositionScouter.clone()), 150);
+
+            animation.chain(secondAnimation);
+
+            secondAnimation.onComplete(function() {
+                zScouter.position = relativePositionScouter;
+                personality.position = relativePositionPersonality;
+
+                player
+                        .activePersonalityArea
+                        .add(zScouter);
+
+                player
+                        .activePersonalityArea
+                        .add(personality);
+
+                window.setTimeout(DBZCCG.resizeLabels, 20);
+                DBZCCG.performingAnimation = false;
+            });
+
+            animation.start();
+        };
+
         this.activePersonality.set = function(personality, source) {
             this.source = source;
             if (source === 'mainPersonality') {
                 this.personality = player.mainPersonality.currentPersonality;
                 this.display = player.mainPersonality.display;
                 this.zScouter = player.mainPersonality.currentPersonality().zScouter;
-
-                player
-                        .activePersonalityArea
-                        .add(player.mainPersonality.currentPersonality().zScouter);
-
-                player
-                        .activePersonalityArea
-                        .add(player.mainPersonality.display);
             }
 
-            window.setTimeout(DBZCCG.resizeLabels, 20);
+            this.toActivePosition();
         };
 
         this.activePersonality.clear = function() {
-            if (this.source === 'mainPersonality') {
-                player.mainPersonality.surroundingArea.add(this.display);
-                player.mainPersonality.surroundingArea.add(this.zScouter);
-            }
-
+            this.toOriginalPosition();
             this.display = this.personality = this.source = this.zScouter = null;
-
-            window.setTimeout(DBZCCG.resizeLabels, 20);
         };
 
         // check passive effects
@@ -128,7 +216,7 @@ DBZCCG.Player.create = function(dataObject, vec) {
                 }
             }
 
-            passiveEffects.sort(DBZCCG.compareCallbacks);
+            passiveEffects.sort(DBZCCG.Callbacks.CompareCallbacks);
 
             for (var i = 0; i < passiveEffects.length; i++) {
                 passiveEffects[i].f();
@@ -190,6 +278,111 @@ DBZCCG.Player.create = function(dataObject, vec) {
 
         };
 
+        DBZCCG.Callbacks.create(this, 'beforeDamageCallback', function(callback) {
+            callback.player = player;
+        });
+
+        this.captureDragonballs = function(notUsePower, notDontUsePower, notNotCapture, msg, player) {
+            var dragonballs = DBZCCG.Combat.checkDragonballControl(this);
+            var oldClickCallback = [];
+
+            if (dragonballs.length > 0) {
+
+                if (DBZCCG.attackingPlayer === DBZCCG.mainPlayer) {
+                    var doNotUseEffect = false;
+                    function finishCaptureDialog() {
+                        for (var k = 0; k < dragonballs.length; k++) {
+                            dragonballs[k].display.click = oldClickCallback.shift();
+                        }
+
+                        $('#capture-btn').hide();
+                        DBZCCG.waitingMainPlayerMouseCommand = false;
+                        DBZCCG.performingTurn = false;
+                        DBZCCG.Combat.removeSelectionParticles();
+                    }
+
+                    function beginCapture() {
+                        for (var k = 0; k < dragonballs.length; k++) {
+                            oldClickCallback.push(dragonballs[k].display.click);
+                            dragonballs[k].display.click = capture;
+                        }
+                        $('#capture-btn')[0].onclick = showCaptureHelp;
+                        window.setTimeout(showCaptureHelp, 200);
+                    }
+
+                    function capture() {
+                        this.parentCard.capture(DBZCCG.attackingPlayer, doNotUseEffect);
+                        finishCaptureDialog();
+                        return false;
+                    }
+
+                    function showCaptureHelp() {
+                        DBZCCG.confirmDialog('Capture Dragonball',
+                                'You choose to capture a dragonball and ' + (doNotUseEffect ? ' do not use ' : ' use ') +
+                                ' its powers. Click in a dragonball to capture it.', null,
+                                {'OK': function() {
+                                        $(this).dialog('close');
+                                    }
+                                });
+                    }
+
+                    var buttons = {};
+
+                    var msg = msg || ('You dealt ' +
+                            this.lastDamageTaken.cards
+                            + ' life cards of damage. It is possible to capture a dragonball that is currently in control by your opponent.');
+
+                    if (!notUsePower) {
+                        buttons['Capture and USE the effect'] = function() {
+                            $(this).dialog('close');
+                            beginCapture();
+                        };
+                    }
+
+                    if (!notDontUsePower) {
+                        buttons['Capture and DO NOT USE the effect'] = function() {
+                            doNotUseEffect = true;
+                            $(this).dialog('close');
+                            beginCapture();
+                        };
+                    }
+
+                    if (!notNotCapture) {
+                        buttons['Do not capture a dragonball'] = function() {
+                            finishCaptureDialog();
+                            $(this).dialog('close');
+                        };
+                    }
+
+                    function showCaptureDialog() {
+                        DBZCCG.confirmDialog('Capture Dragonball',
+                                msg, null,
+                                buttons,
+                                window.innerWidth * 0.5,
+                                window.innerHeight * 0.5);
+                    }
+
+                    $('#capture-btn')[0].onclick = showCaptureDialog;
+
+                    DBZCCG.listActions.splice(0, 0, function() {
+                        DBZCCG.waitingMainPlayerMouseCommand = true;
+                        DBZCCG.performingTurn = true;
+
+                        for (var k = 0; k < dragonballs.length; k++) {
+                            DBZCCG.Combat.addSelectionParticle(dragonballs[k].display.position);
+                        }
+
+                        showCaptureDialog();
+                        $('#capture-btn').show();
+                    });
+
+                } else /* CPU */ {
+                    var db = dragonballs.shift();
+                    db.capture(player || DBZCCG.attackingPlayer, notUsePower);
+                }
+            }
+        };
+
         this.takeDamage = function(damage) {
             this.sufferedAttack = true;
             var powerStages = damage.stages;
@@ -198,9 +391,20 @@ DBZCCG.Player.create = function(dataObject, vec) {
             if (powerStages > 0) {
                 if (powerStages > this.getPersonalityInControl().currentPowerStageAboveZero) {
                     lifeCards += damage.stages - this.getPersonalityInControl().currentPowerStageAboveZero;
-                    damage.stages = this.getPersonalityInControl().currentPowerStageAboveZero;
+                    powerStages = this.getPersonalityInControl().currentPowerStageAboveZero;
                 }
             }
+
+            var argsCallback = function(callback) {
+                return callback.f(powerStages, lifeCards);
+            };
+
+            var solveCallback = function(ret) {
+                powerStages = ret.powerStages;
+                lifeCards = ret.lifeCards;
+            };
+
+            this.solveBeforeDamageCallback(argsCallback, solveCallback);
 
             var cbIdx = [];
             if (lifeCards > 0) {
@@ -220,110 +424,41 @@ DBZCCG.Player.create = function(dataObject, vec) {
             var player = this;
 
             DBZCCG.listActions.splice(0, 0, function() {
-                var dragonballs = DBZCCG.Combat.checkDragonballControl(player);
-                var oldClickCallback = [];
-                if (player.lastDamageTaken && player.lastDamageTaken.cards >= 5 && dragonballs.length > 0) {
-                    if (DBZCCG.attackingPlayer === DBZCCG.mainPlayer) {
-                        var doNotUseEffect = false;
-                        function finishCaptureDialog() {
-                            for (var k = 0; k < dragonballs.length; k++) {
-                                dragonballs[k].display.click = oldClickCallback.shift();
-                            }
-
-                            $('#capture-btn').hide();
-                            DBZCCG.waitingMainPlayerMouseCommand = false;
-                            DBZCCG.performingTurn = false;
-                            DBZCCG.Combat.removeSelectionParticles();
-                        }
-
-                        function beginCapture() {
-                            for (var k = 0; k < dragonballs.length; k++) {
-                                oldClickCallback.push(dragonballs[k].display.click);
-                                dragonballs[k].display.click = capture;
-                            }
-                            $('#capture-btn')[0].onclick = showCaptureHelp;
-                            window.setTimeout(showCaptureHelp, 200);
-                        }
-
-                        function capture() {
-                            this.parentCard.capture(DBZCCG.attackingPlayer, doNotUseEffect);
-                            finishCaptureDialog();
-                            return false;
-                        }
-
-                        function showCaptureHelp() {
-                            DBZCCG.confirmDialog('Capture Dragonball',
-                                    'You choose to capture a dragonball and ' + (doNotUseEffect ? ' do not use ' : ' use ') +
-                                    ' its powers. Click in a dragonball to capture it.', null,
-                                    {'OK': function() {
-                                            $(this).dialog('close');
-                                        }
-                                    });
-                        }
-
-                        function showCaptureDialog() {
-                            DBZCCG.confirmDialog('Capture Dragonball',
-                                    'You dealt ' +
-                                    player.lastDamageTaken.cards
-                                    + ' life cards of damage. It is possible to capture a dragonball that is currently in control by your opponent.', null,
-                                    {'Capture and USE the effect': function() {
-                                            $(this).dialog('close');
-                                            beginCapture();
-                                        },
-                                        'Capture and DO NOT USE the effect': function() {
-                                            doNotUseEffect = true;
-                                            $(this).dialog('close');
-                                            beginCapture();
-                                        },
-                                        'Do not capture a dragonball': function() {
-                                            finishCaptureDialog();
-                                            $(this).dialog('close');
-                                        }
-                                    },
-                            window.innerWidth * 0.5,
-                                    window.innerHeight * 0.5);
-                        }
-
-                        $('#capture-btn')[0].onclick = showCaptureDialog;
-
-                        DBZCCG.listActions.splice(0, 0, function() {
-                            DBZCCG.waitingMainPlayerMouseCommand = true;
-                            DBZCCG.performingTurn = true;
-
-                            for (var k = 0; k < dragonballs.length; k++) {
-                                DBZCCG.Combat.addSelectionParticle(dragonballs[k].display.position);
-                            }
-
-                            showCaptureDialog();
-                            $('#capture-btn').show();
-
-                        });
-
-                    } else /* CPU */ {
-                        var db = dragonballs.shift();
-                        db.capture(DBZCCG.attackingPlayer);
-                    }
+                if (player.lastDamageTaken && player.lastDamageTaken.cards >= 5) {
+                    player.captureDragonballs();
                 }
             });
 
             DBZCCG.listActions.splice(0, 0, function() {
                 player.sufferedAttack = false;
+                var typeDamage = null;
+                if (ClassHelper.checkValue(DBZCCG.openCard.effectType, DBZCCG.Combat.Attack.Physical)) {
+                    typeDamage = DBZCCG.Combat.Attack.Physical;
+                } else if (ClassHelper.checkValue(DBZCCG.openCard.effectType, DBZCCG.Combat.Attack.Energy)) {
+                    typeDamage = DBZCCG.Combat.Attack.Energy;
+                }
+
+                var log = DBZCCG.Log.logEntry('Suffered damage' + (typeDamage ? (typeDamage === DBZCCG.Combat.Attack.Energy ? ' from an energy attack' : ' from a physical attack') : '') + ': ' + player.lastDamageTaken.stages + ' power stages and ' + player.lastDamageTaken.cards + ' life cards', DBZCCG.openCard);
+                log.typeDamage = typeDamage;
+                log.type = DBZCCG.Log.Type.sufferedDamage;
+                log.lifeCardDamageTaken = player.lastDamageTaken.cards;
+                log.powerStageDamageTaken = player.lastDamageTaken.stages;
             });
 
             DBZCCG.listActions.splice(0, 0, function() {
-                player.lastDamageTaken = {cards: lifeCards, stages: damage.stages};
+                player.lastDamageTaken = {cards: lifeCards, stages: powerStages};
                 if (cbIdx.length > 0) {
                     player.transferCards('lifeDeck', cbIdx, 'discardPile', player.discardPile.cards.length);
                 }
                 player.loadLabelText();
             });
 
-            if (lifeCards !== 0) {
+            if (lifeCards >= 0) {
                 DBZCCG.Combat.hoverText("-" + lifeCards, this.lifeDeck.display, 0xFF0000);
             }
 
-            if (damage.stages !== 0) {
-                this.getPersonalityInControl().raiseZScouter(-damage.stages);
+            if (powerStages >= 0) {
+                this.getPersonalityInControl().raiseZScouter(-powerStages);
             }
         };
 
@@ -346,7 +481,7 @@ DBZCCG.Player.create = function(dataObject, vec) {
 
             DBZCCG.listActions.splice(0, 0, function() {
 
-                DBZCCG.currentCard = null;
+                DBZCCG.openCard = DBZCCG.currentCard = null;
                 DBZCCG.performingTurn = true;
                 DBZCCG.performingAction = DBZCCG.attackingPlayer;
 
@@ -444,7 +579,7 @@ DBZCCG.Player.create = function(dataObject, vec) {
         };
 
         this.getPersonalityInControl = function() {
-            return this.activePersonality.personality();
+            return this.activePersonality.personality instanceof Function ? this.activePersonality.personality() : null;
         };
 
         this.destroyInvalidCallbacks = function(callbacks) {
@@ -505,7 +640,7 @@ DBZCCG.Player.create = function(dataObject, vec) {
             DBZCCG.swapPlayers = function() {
                 if (DBZCCG.attackingPlayer.passed && DBZCCG.defendingPlayer.passed) {
                     DBZCCG.performingAction = player;
-                    DBZCCG.logMessage("The combat is over.");
+                    DBZCCG.Log.logEntry("The combat is over.");
 
                     // run leave from combat effects
                     for (var i = 0; i < DBZCCG.attackingPlayer.combatLeavingCallback.length; i++) {
@@ -583,7 +718,7 @@ DBZCCG.Player.create = function(dataObject, vec) {
             animation.onComplete(function() {
                 var cardName = player.discardPile.cards[player.discardPile.cards.length - 1].name;
                 player.transferCards("discardPile", [player.discardPile.cards.length - 1], "lifeDeck", 0, true);
-                DBZCCG.logMessage(player.mainPersonality.displayName() + " sent the top card of " + pronome + " Discard Pile (" + cardName + ") into the bottom of " + pronome + " Life Deck.");
+                DBZCCG.Log.logEntry(player.mainPersonality.displayName() + " sent the top card of " + pronome + " Discard Pile (" + cardName + ") into the bottom of " + pronome + " Life Deck.");
             });
 
             animation.chain(secondAnimation);
@@ -620,11 +755,12 @@ DBZCCG.Player.create = function(dataObject, vec) {
                     if (player.hand.cards.length === player.cardDiscardPhaseLimit) {
                         DBZCCG.waitingMainPlayerMouseCommand = false;
 
-                        elem.onclick = null;
-                        DBZCCG.performingTurn = false;
                         for (var i = 0; i < player.hand.cards.length; i++) {
                             player.hand.cards[i].display.removeCallback(DBZCCG.Player.discardCallback);
                         }
+                        
+                        elem.onclick = null;
+                        DBZCCG.performingTurn = false;
                     }
 
                     DBZCCG.toolTip.parent.removeCallback(DBZCCG.Player.discardCallback);
@@ -635,13 +771,14 @@ DBZCCG.Player.create = function(dataObject, vec) {
                 if (DBZCCG.mainPlayer !== this) {
                     //TODO: AI OR P2
                     var handSize = this.hand.cards.length;
-                    for (var i = handSize - 1; i > 0; i--) {
-                        window.setTimeout(function() {
+                    for (var i = handSize - 1; i >= this.cardDiscardPhaseLimit; i--) {
+                        DBZCCG.listActions.splice(0, 0, function() {
                             DBZCCG.toolTip.idxHand = i;
                             DBZCCG.toolTip.parent = player.hand.cards[DBZCCG.toolTip.idxHand].display;
                             elem.onclick();
-                        }, i * 200);
+                        });
                     }
+                    DBZCCG.performingTurn = false;
                 } else {
                     DBZCCG.waitingMainPlayerMouseCommand = true;
                 }
@@ -724,7 +861,7 @@ DBZCCG.Player.create = function(dataObject, vec) {
             var idx = this.activationCallback.indexOf(callback);
             if (idx !== -1) {
                 this.activationCallback.splice(idx, 1);
-                this.activationCallback.sort(DBZCCG.compareCallbacks);
+                this.activationCallback.sort(DBZCCG.Callbacks.CompareCallbacks);
             }
         };
 
@@ -733,9 +870,52 @@ DBZCCG.Player.create = function(dataObject, vec) {
             if (idx === -1) {
                 callback.player = this;
                 this.activationCallback.push(callback);
-                this.activationCallback.sort(DBZCCG.compareCallbacks);
+                this.activationCallback.sort(DBZCCG.Callbacks.CompareCallbacks);
             }
         };
+
+        DBZCCG.Callbacks.create(this, 'postDefenseCallback', function(callback) {
+            callback.player = player;
+        });
+
+        DBZCCG.Callbacks.create(this, 'postAttackCallback', function(callback) {
+            callback.player = player;
+        });
+
+        this.addPostDefenseCallback({
+            priority: 10000000,
+            life: true,
+            executeShield: function(card) {
+                DBZCCG.listActions.splice(0, 0, function() {
+                    DBZCCG.Combat.flashCard(card);
+                    card.effect();
+                    if (card.postEffect instanceof Function) {
+                        card.postEffect(card);
+                    }
+                });
+            },
+            f: function() {
+                if (DBZCCG.openCard.success) {
+                    //check field for defense shields
+                    var personality = this.player.getPersonalityInControl();
+
+                    if (personality.defenseShield instanceof Function && personality.defenseShield(this.player)) {
+                        this.executeShield(personality);
+                    }
+
+                    var checkGroups = ['drills', 'nonCombats'];
+
+                    for (var i = 0; i < checkGroups.length; i++) {
+                        for (var j = 0; j < this.player[checkGroups[i]].cards.length; j++) {
+                            var card = this.player[checkGroups[i]].cards[j];
+                            if (card.defenseShield instanceof Function && card.defenseShield(this.player)) {
+                                this.executeShield(card);
+                            }
+                        }
+                    }
+                }
+            }
+        });
 
         this.defenderCallback = [];
 
@@ -743,7 +923,7 @@ DBZCCG.Player.create = function(dataObject, vec) {
             var idx = this.defenderCallback.indexOf(callback);
             if (idx !== -1) {
                 this.defenderCallback.splice(idx, 1);
-                this.defenderCallback.sort(DBZCCG.compareCallbacks);
+                this.defenderCallback.sort(DBZCCG.Callbacks.CompareCallbacks);
             }
         };
 
@@ -752,7 +932,7 @@ DBZCCG.Player.create = function(dataObject, vec) {
             if (idx === -1) {
                 callback.player = this;
                 this.defenderCallback.push(callback);
-                this.defenderCallback.sort(DBZCCG.compareCallbacks);
+                this.defenderCallback.sort(DBZCCG.Callbacks.CompareCallbacks);
             }
         };
 
@@ -762,7 +942,7 @@ DBZCCG.Player.create = function(dataObject, vec) {
             var idx = this.combatEnteringCallback.indexOf(callback);
             if (idx !== -1) {
                 this.combatEnteringCallback.splice(idx, 1);
-                this.combatEnteringCallback.sort(DBZCCG.compareCallbacks);
+                this.combatEnteringCallback.sort(DBZCCG.Callbacks.CompareCallbacks);
             }
         };
 
@@ -771,7 +951,7 @@ DBZCCG.Player.create = function(dataObject, vec) {
             if (idx === -1) {
                 callback.player = this;
                 this.combatEnteringCallback.push(callback);
-                this.combatEnteringCallback.sort(DBZCCG.compareCallbacks);
+                this.combatEnteringCallback.sort(DBZCCG.Callbacks.CompareCallbacks);
             }
         };
 
@@ -781,7 +961,7 @@ DBZCCG.Player.create = function(dataObject, vec) {
             var idx = this.combatLeavingCallback.indexOf(callback);
             if (idx !== -1) {
                 this.combatLeavingCallback.splice(idx, 1);
-                this.combatLeavingCallback.sort(DBZCCG.compareCallbacks);
+                this.combatLeavingCallback.sort(DBZCCG.Callbacks.CompareCallbacks);
             }
         };
 
@@ -790,27 +970,13 @@ DBZCCG.Player.create = function(dataObject, vec) {
             if (idx === -1) {
                 callback.player = this;
                 this.combatLeavingCallback.push(callback);
-                this.combatLeavingCallback.sort(DBZCCG.compareCallbacks);
+                this.combatLeavingCallback.sort(DBZCCG.Callbacks.CompareCallbacks);
             }
         };
 
-        this.turnCallback = [];
-
-        this.removeTurnCallback = function(callback) {
-            var idx = combatLeavingCallback.indexOf(callback);
-            if (idx !== -1) {
-                combatLeavingCallback.splice(idx, 1);
-                combatLeavingCallback.sort(DBZCCG.compareCallbacks);
-            }
-        };
-
-        this.addTurnCallback = function(callback) {
-            var idx = turnCallback.indexOf(callback);
-            if (idx === -1) {
-                turnCallback.push(callback);
-                turnCallback.sort(DBZCCG.compareCallbacks);
-            }
-        };
+        DBZCCG.Callbacks.create(this, 'turnCallback', function(callback) {
+            callback.player = player;
+        });
 
         var transferCallback = [];
 
@@ -818,7 +984,7 @@ DBZCCG.Player.create = function(dataObject, vec) {
             var idx = transferCallback.indexOf(callback);
             if (idx !== -1) {
                 transferCallback.splice(idx, 1);
-                transferCallback.sort(DBZCCG.compareCallbacks);
+                transferCallback.sort(DBZCCG.Callbacks.CompareCallbacks);
             }
         };
 
@@ -829,7 +995,7 @@ DBZCCG.Player.create = function(dataObject, vec) {
                 callback.player = this;
 
                 transferCallback.push(callback);
-                transferCallback.sort(DBZCCG.compareCallbacks);
+                transferCallback.sort(DBZCCG.Callbacks.CompareCallbacks);
             }
         };
 
@@ -923,7 +1089,9 @@ DBZCCG.Player.create = function(dataObject, vec) {
                     }
 
                     var msg = this.mainPersonality.displayName() + " " + action + " " + cardString + " from " + pronome + " " + sourceString + " into " + pronome + " " + destinyString + ".";
-                    DBZCCG.logMessage(msg);
+                    if (!noMessage) {
+                        DBZCCG.Log.logEntry(msg);
+                    }
                 }
             }
         };
@@ -946,7 +1114,7 @@ DBZCCG.Player.create = function(dataObject, vec) {
 
             this.transferCards("lifeDeck", cbIdx, "hand", null, true, (this === DBZCCG.mainPlayer || this.handOnTable) ? true : false);
 
-            DBZCCG.logMessage(this.mainPersonality.displayName() + " drew " + n + " card" + ((n > 1) ? "s" : "") + " from the bottom of the " + this[sourcePile].display.name + ".");
+            DBZCCG.Log.logEntry(this.mainPersonality.displayName() + " drew " + n + " card" + ((n > 1) ? "s" : "") + " from the bottom of the " + this[sourcePile].display.name + ".");
         };
 
         this.drawTopCards = function(n, sourcePile) {
@@ -967,7 +1135,7 @@ DBZCCG.Player.create = function(dataObject, vec) {
 
             this.transferCards(sourcePile, cbIdx, "hand", null, true, (this === DBZCCG.mainPlayer || this.handOnTable) ? true : false);
 
-            DBZCCG.logMessage(this.mainPersonality.displayName() + " drew " + n + " card" + ((n > 1) ? "s" : "") + " from the top of the " + this[sourcePile].display.name + ".");
+            DBZCCG.Log.logEntry(this.mainPersonality.displayName() + " drew " + n + " card" + ((n > 1) ? "s" : "") + " from the top of the " + this[sourcePile].display.name + ".");
         };
 
         /* End of game functions */
@@ -1101,7 +1269,7 @@ DBZCCG.Player.create = function(dataObject, vec) {
 
 //            this.surroundingArea = DBZCCG.Table.createSurroundingArea(this.posVector, DBZCCG.Player.Field.Width, DBZCCG.Player.Field.Height, DBZCCG.Player.Field.cornerWidth);
 //            this.surroundingArea.removeLabelText();
-//            this.field.add(this.surroundingArea);
+            //            this.field.add(this.surroundingArea);
             scene.add(this.field);
         };
 
@@ -1122,7 +1290,7 @@ DBZCCG.Player.create = function(dataObject, vec) {
         this.hand = DBZCCG.CardGroup.create(dataObject.hand);
 
         this.mainPersonality = DBZCCG.MainPersonality.create(dataObject.mainPersonality);
-//            this.mastery = Mastery.create(dataObject.mastery);
+        //            this.mastery = Mastery.create(dataObject.mastery);
 
         // To be shown in messages
 
@@ -1143,7 +1311,7 @@ DBZCCG.Player.create = function(dataObject, vec) {
         }
 
         this.lifeDeck = DBZCCG.LifeDeck.create(dataObject.lifeDeck);
-//            this.sensei = Sensei.create(dataObject.sensei);
+        //            this.sensei = Sensei.create(dataObject.sensei);
 
 
 
@@ -1152,7 +1320,7 @@ DBZCCG.Player.create = function(dataObject, vec) {
             //Load SenseiDeck and Sensei Card
         }
 
-//            this.mastery = tableCards.mastery;
+        //            this.mastery = tableCards.mastery;
         if (this.mastery) {
             //loadMastery
         }
@@ -1160,4 +1328,5 @@ DBZCCG.Player.create = function(dataObject, vec) {
     }
     return new PlayerObject(dataObject, vec);
 
-};
+}
+;

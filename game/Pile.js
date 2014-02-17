@@ -52,7 +52,7 @@ DBZCCG.Pile.create = function(data, faceUp, owner) {
             var idx = addCallback.indexOf(callback);
             if (idx !== -1) {
                 addCallback.splice(idx, 1);
-                addCallback.sort(DBZCCG.compareCallbacks);
+                addCallback.sort(DBZCCG.Callbacks.CompareCallbacks);
             }
         }
 
@@ -61,7 +61,7 @@ DBZCCG.Pile.create = function(data, faceUp, owner) {
             if (idx === -1) {
                 addCallback.push(callback);
                 callback.pile = this;
-                addCallback.sort(DBZCCG.compareCallbacks);
+                addCallback.sort(DBZCCG.Callbacks.CompareCallbacks);
             }
         };
 
@@ -80,8 +80,6 @@ DBZCCG.Pile.create = function(data, faceUp, owner) {
                     card.removePositionCallback();
                     card.removePositionCallback = undefined;
                 }
-
-                card.display.mouseOut = card.display.mouseOver = undefined;
 
                 var otherCards = pile.display.children;
 

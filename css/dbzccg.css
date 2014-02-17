@@ -84,16 +84,6 @@ canvas {
     color: rgba(255, 255, 255, 1);
 }
 
-#descriptionBox {
-    position: absolute;
-    width: 100%;
-    height: 40%;
-    display: none;
-    margin: 0px;
-    top: 60%;
-    z-index: 1200;
-}
-
 .label-title {
     margin-top: 0.75em;
     margin-bottom: 0.75em;
@@ -143,8 +133,10 @@ canvas {
     font-size: 0.67em;
 }
 
-.card-label-pur span {
-    margin-left: 0.3em;
+.card-label-pur div {
+    font-size: 2.5vmax;
+    margin-left: 0.85vmax;
+    margin-top: 0.15vmax;
 }
 
 .card-label-power-stage-hero {
@@ -161,16 +153,7 @@ canvas {
 }
 
 #descriptionBoxContent {
-    overflow: auto;
-    background: #000000;
-    padding: 5%;
-    position: absolute;
-    top: 68.8%;
-    left: 8%;
-    border-radius: 30px;
-    width: 73%;
-    height: 25%;
-    z-index: 1300;
+    margin-left: 4%;
 }
 
 .close-btn {
@@ -286,12 +269,8 @@ canvas {
 }
 
 #logBox {
-    position: relative;
-    top: 5%;
-    z-index: 1500;
-    left: 10%;
-    width: 80%;
-    height: 50%;
+    width: 96%;
+    height: 94%;
 }
 
 .tooltip {

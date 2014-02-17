@@ -149,7 +149,7 @@ DBZCCG.MainPersonality.create = function(data) {
                 animation.onComplete(function() {
                     if (!noMessage) {
                         var msg = mp.personalities[mp.currentMainPersonalityLevel - 1].displayName() + "'s anger was set to " + anger + ".";
-                        DBZCCG.logMessage(msg);
+                        DBZCCG.Log.logEntry(msg);
                     }
                     mp.currentAngerLevel = anger;
                     DBZCCG.performingAnimation = false;
@@ -164,7 +164,7 @@ DBZCCG.MainPersonality.create = function(data) {
 
                 animation.start();
             } else if (anger === this.currentAngerLevel) {
-                DBZCCG.logMessage("No change at anger level");
+                DBZCCG.Log.logEntry("No change at anger level");
             }
         };
 
@@ -232,7 +232,7 @@ DBZCCG.MainPersonality.create = function(data) {
                                 } else {
                                     msg = mp.personalities[mp.currentMainPersonalityLevel - 1].displayName() + " gained " + diffAnger + " anger.";
                                 }
-                                DBZCCG.logMessage(msg);
+                                DBZCCG.Log.logEntry(msg);
                                 window.setTimeout(function() {
                                     if (DBZCCG.resizeLabels instanceof Function) {
                                         DBZCCG.resizeLabels();
@@ -246,7 +246,7 @@ DBZCCG.MainPersonality.create = function(data) {
                             if (mp.personalities.length != mp.currentMainPersonalityLevel) {
                                 mp.advanceLevels(1);
                             } else {
-                                DBZCCG.logMessage(mp.personalities[mp.currentMainPersonalityLevel - 1].displayName() + "'s level cannot go higher.");
+                                DBZCCG.Log.logEntry(mp.personalities[mp.currentMainPersonalityLevel - 1].displayName() + "'s level cannot go higher.");
                                 mp.personalities[mp.currentMainPersonalityLevel - 1].moveZScouter("max");
                                 mp.setAnger(0);
                             }
@@ -260,7 +260,7 @@ DBZCCG.MainPersonality.create = function(data) {
 
                     animation.start();
                 } else {
-                    DBZCCG.logMessage("No change at anger level");
+                    DBZCCG.Log.logEntry("No change at anger level");
                     DBZCCG.performingAnimation = false;
                 }
             }
@@ -381,39 +381,43 @@ DBZCCG.MainPersonality.create = function(data) {
                 window.setTimeout(function() {
                     DBZCCG.performingAnimation = false;
                     var currentLevel = mp.personalities[mp.currentMainPersonalityLevel - 1];
-                    DBZCCG.logMessage(previousLevel.displayName() + " advanced to " + currentLevel.displayName() + ".");
+                    DBZCCG.Log.logEntry(previousLevel.displayName() + " advanced to " + currentLevel.displayName() + ".");
                     mp.moveZScouter("max");
                     mp.setAnger(0, true);
                 }, (80 + 80 + 120 + 750) * (desiredLevels - n) + 200);
             }
         };
 
+        this.display = new THREE.Object3D();
+
+        var mp = this;
+        
+        this.display.displayName = function() {
+            return 'Main Personality: ' + mp.personalities[mp.currentMainPersonalityLevel - 1].displayName();
+        };
+
+        this.display.callbacks = [];
+
+        this.display.removeCallback = function(callback) {
+            var idx = this.callbacks.indexOf(callback);
+            if (idx !== -1) {
+                this.callbacks.splice(idx, 1);
+                this.callbacks.sort(DBZCCG.Callbacks.CompareCallbacks);
+            }
+        };
+
+        this.display.addCallback = function(callback) {
+            var idx = this.callbacks.indexOf(callback);
+            if (idx === -1) {
+                this.callbacks.push(callback);
+                this.callbacks.sort(DBZCCG.Callbacks.CompareCallbacks);
+            }
+        };
+
         this.addToField = function(position, field) {
             this.surroundingArea = DBZCCG.Table.createSurroundingArea(position.clone().multiplyScalar(0.08), DBZCCG.Card.cardWidth * 2.5, DBZCCG.Card.cardHeight * 2.5, DBZCCG.Player.Field.cornerWidth);
-            this.display = new THREE.Object3D();
             this.display.name = 'mp';
             var mp = this;
-            this.display.displayName = function() {
-                return 'Main Personality: ' + mp.personalities[mp.currentMainPersonalityLevel - 1].displayName();
-            };
-
-            this.display.callbacks = [];
-
-            this.display.removeCallback = function(callback) {
-                var idx = this.callbacks.indexOf(callback);
-                if (idx !== -1) {
-                    this.callbacks.splice(idx, 1);
-                    this.callbacks.sort(DBZCCG.compareCallbacks);
-                }
-            };
-
-            this.display.addCallback = function(callback) {
-                var idx = this.callbacks.indexOf(callback);
-                if (idx === -1) {
-                    this.callbacks.push(callback);
-                    this.callbacks.sort(DBZCCG.compareCallbacks);
-                }
-            };
 
             this.display.addCallback({
                 priority: 50000,
@@ -426,8 +430,6 @@ DBZCCG.MainPersonality.create = function(data) {
                 }
             });
 
-            this.personalitiesDisplay = new THREE.Object3D();
-            this.display.add(this.personalitiesDisplay);
             for (var i = 0; i < this.personalities.length; i++) {
                 var card = this.personalities[i];
                 card.faceup();
@@ -436,7 +438,7 @@ DBZCCG.MainPersonality.create = function(data) {
                 var diffName = card.display.position.clone().normalize();
                 card.display.position.add(diffName.multiplyScalar(-DBZCCG.Card.personalityNameDiff[card.saga] * i));
                 card.moveY(this.personalities.length - 1 - i);
-                this.personalitiesDisplay.add(card.display);
+                this.display.add(card.display);
                 DBZCCG.objects.push(card.display);
             }
 
@@ -513,7 +515,7 @@ DBZCCG.MainPersonality.create = function(data) {
         for (var i = 0; i < data.personalities.length; i++) {
             this.personalities.push(DBZCCG.Personality.create(data.personalities[i]));
             this.personalities[i].descriptionBox = this.personalities[i].display.descriptionBox;
-            this.personalities[i].display.descriptionBox = undefined;
+            this.personalities[i].display.displayName = this.display.displayName;
         }
 
         this.angerLevelNeededToLevel = data.angerLevelNeededToLevel;

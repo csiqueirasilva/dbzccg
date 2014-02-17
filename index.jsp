@@ -55,11 +55,23 @@
             </div>
         </div>
 
-        <div id="rightBar">
-            <div class='btn close-btn' title='Close' id='closeRightBar'>
+        <div id="object-info">
+            <div id='display-object-screen' style='width: 35%; height: 100%; float: left;'>
             </div>
 
-            <div id="logBox" class="niceScrollBar">
+            <div style='text-align: justify; width: 65%; float: left;'>
+                <div id='descriptionBox'>
+                </div>
+
+                <div id='descriptionBoxContent'>
+                </div>
+            </div>
+
+            <div style='clear: both;'></div>
+        </div>
+
+        <div id="log-dialog">
+            <div id="logBox">
             </div>
         </div>
 
@@ -75,24 +87,6 @@
             <div id="turnTitle">TURN</div>
             <div id="turnCounterNumber">0</div>
         </div>
-
-        <div id="leftBar">
-            <div class='btn close-btn' title='Close' id='closeLeftBar'>
-            </div>
-
-            <div id='descriptionBox'>
-            </div>
-
-            <div id='descriptionBoxContent' class="niceScrollBar">
-            </div>
-        </div>
-
-        <div id="leftBarWindow">
-        </div>
-
-        <div id="rightBarWindow">
-        </div>
-
 
         <script id="skybox_vertex_shader" type="x-shader/x-fragment">
             <%@include file="game/skyboxvertexshader.glsl"%>
@@ -121,6 +115,8 @@
         <script type="text/javascript" src="lib/numeral.min.js"></script>
         <!-- game -->
         <script type="text/javascript" src="game/DBZCCG.js"></script>
+        <script type="text/javascript" src="game/Log.js"></script>
+        <script type="text/javascript" src="game/Callbacks.js"></script>
         <script type="text/javascript" src="game/Dragonball.js"></script>
         <script type="text/javascript" src="game/Card.js"></script>
         <script type="text/javascript" src="game/Combat.js"></script>
@@ -139,6 +135,29 @@
         <script type="text/javascript">
             $(document).ready(function() {
             $('.niceScrollBar').niceScroll({autohidemode: false});
+
+            $('#log-dialog').dialog({
+            autoOpen: false,
+            closeOnEscape: true,
+            width: window.innerWidth * 0.5,
+            height: window.innerHeight * 0.6,
+            title: 'Log',
+            open: function () {
+            $('#log-dialog')[0].style.cursor = 'auto';
+            }
+            });
+
+            $('#object-info').dialog({
+            autoOpen: false,
+            closeOnEscape: true,
+            width: window.innerWidth * 0.5,
+            height: window.innerHeight * 0.6,
+            title: 'Information',
+            open: function () {
+            $('#object-info')[0].style.cursor = 'auto';
+            }
+            });
+
             DBZCCG.create();
             });
         </script>

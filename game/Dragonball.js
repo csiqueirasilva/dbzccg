@@ -39,7 +39,8 @@ DBZCCG.Dragonball.create = function(data) {
                 var animation = new TWEEN.Tween(new THREE.Vector3(0,
                         0,
                         db.display.rotation.z))
-                        .to(new THREE.Vector3(0, 0, player.dirVector.z === 1 ? 0 : Math.PI), 200);
+                        .to(new THREE.Vector3(0, 0, (db.display.position.z < 0 && player.dirVector.z > 0) 
+                        || (db.display.position.z > 0 && player.dirVector.z < 0) ? Math.PI : 0), 200);
 
                 animation.onUpdate(function() {
                     db.display.rotation.z = this.z;
@@ -49,7 +50,12 @@ DBZCCG.Dragonball.create = function(data) {
 
                 db.control = player;
                 if(!doNotUse) {
+                    var performingTurn = DBZCCG.performingTurn;
                     db.effect();
+                    DBZCCG.listActions.splice(0,0,function() {
+                        DBZCCG.performingTurn = performingTurn;
+                    });
+                    DBZCCG.performingTurn = false;
                 }
             }
         };
