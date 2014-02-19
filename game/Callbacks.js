@@ -30,10 +30,12 @@ DBZCCG.Callbacks.create = function(player, callbackName, attribCallback) {
     };
 
     player['solve' + upperCaseName] = function(argsCallback, solveCallback) {
+        var cb;
         if (argsCallback instanceof Function && solveCallback instanceof Function) {
             for (var i = 0; i < this[callbackName].length; i++) {
-                if (this[callbackName][i].f instanceof Function) {
-                    var ret = argsCallback(this[callbackName][i]);
+                cb = this[callbackName][i];
+                if (cb.f instanceof Function) {
+                    var ret = argsCallback(cb);
 
                     if (ret instanceof Object) {
                         solveCallback(ret);
@@ -41,8 +43,8 @@ DBZCCG.Callbacks.create = function(player, callbackName, attribCallback) {
                         return DBZCCG.cancelAction;
                     }
 
-                    if (this[callbackName][i].life === false) {
-                        this['remove' + upperCaseName](this[callbackName][i]);
+                    if (cb.life === false) {
+                        this['remove' + upperCaseName](cb);
                         i--;
                     }
                 }

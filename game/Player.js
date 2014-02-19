@@ -638,7 +638,7 @@ DBZCCG.Player.create = function(dataObject, vec) {
             DBZCCG.defendingPlayer.drawTopCards(defenderQuantityDraw, defenderSourcePile);
 
             DBZCCG.swapPlayers = function() {
-                if (DBZCCG.attackingPlayer.passed && DBZCCG.defendingPlayer.passed) {
+                if ((DBZCCG.attackingPlayer.passed && DBZCCG.defendingPlayer.passed) || !DBZCCG.combat) {
                     DBZCCG.performingAction = player;
                     DBZCCG.Log.logEntry("The combat is over.");
 
@@ -716,7 +716,7 @@ DBZCCG.Player.create = function(dataObject, vec) {
 
             var player = this;
             animation.onComplete(function() {
-                var cardName = player.discardPile.cards[player.discardPile.cards.length - 1].name;
+                var cardName = player.discardPile.cards[player.discardPile.cards.length - 1].logName();
                 player.transferCards("discardPile", [player.discardPile.cards.length - 1], "lifeDeck", 0, true);
                 DBZCCG.Log.logEntry(player.mainPersonality.displayName() + " sent the top card of " + pronome + " Discard Pile (" + cardName + ") into the bottom of " + pronome + " Life Deck.");
             });
@@ -750,7 +750,7 @@ DBZCCG.Player.create = function(dataObject, vec) {
                 elem.onclick = function() {
                     $('#hud').qtip('hide');
 
-                    player.transferCards("hand", [DBZCCG.toolTip.idxHand], "discardPile", player.discardPile.cards.length);
+                    player.transferCards("hand", [DBZCCG.toolTip.idxHand], "discardPile");
 
                     if (player.hand.cards.length === player.cardDiscardPhaseLimit) {
                         DBZCCG.waitingMainPlayerMouseCommand = false;
@@ -1064,13 +1064,13 @@ DBZCCG.Player.create = function(dataObject, vec) {
                 var cardString = "";
 
                 if (card[0]) {
-                    cardString += card[0].name;
+                    cardString += card[0].logName();
 
                     if (card.length > 1) {
                         for (var i = 1; i < card.length - 1; i++) {
-                            cardString += ", " + card[i].name;
+                            cardString += ", " + card[i].logName();
                         }
-                        cardString += " and " + card[card.length - 1].name;
+                        cardString += " and " + card[card.length - 1].logName();
                     }
 
                     if ("cardGroupObject" === this[destiny].constructor.name) {

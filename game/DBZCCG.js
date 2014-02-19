@@ -53,6 +53,10 @@ DBZCCG.searchFormContent = function(dialogContentId, matchCallback, sourceElemen
 };
 
 DBZCCG.createDialog = function(title, content, id) {
+    if ($('#' + id).is(':visible') || $('#mainDialog').is(':visible')) {
+        return false;
+    }
+
     var elem = document.createElement('div');
     elem.id = id || 'mainDialog';
     elem.innerHTML = '';
@@ -65,6 +69,8 @@ DBZCCG.createDialog = function(title, content, id) {
         close: function() {
             $(this).remove();
         }});
+
+    return true;
 };
 
 DBZCCG.declareDialog = function() {
@@ -193,27 +199,29 @@ DBZCCG.confirmDialog = function(title, content, ok_cb, buttons, width, height) {
     var wrapperDiv = document.createElement('div');
     wrapperDiv.innerHTML = content;
 
-    DBZCCG.createDialog(title, wrapperDiv, 'confirmDialog');
+    var ret = DBZCCG.createDialog(title, wrapperDiv, 'confirmDialog');
 
-    $('#confirmDialog').dialog('option', 'height', height || (window.innerHeight * 0.25));
-    $('#confirmDialog').dialog('option', 'width', width || (window.innerWidth * 0.25));
+    if (ret) {
 
-    if (!buttons) {
-        $('#confirmDialog').dialog('option', 'buttons', {
-            "OK": function() {
-                ok_cb();
-                $(this).dialog('close');
-            },
-            "Cancel": function() {
-                $(this).dialog('close');
-            }
-        });
-    } else {
-        $('#confirmDialog').dialog('option', 'buttons', buttons);
+        $('#confirmDialog').dialog('option', 'height', height || (window.innerHeight * 0.25));
+        $('#confirmDialog').dialog('option', 'width', width || (window.innerWidth * 0.25));
+
+        if (!buttons) {
+            $('#confirmDialog').dialog('option', 'buttons', {
+                "OK": function() {
+                    ok_cb();
+                    $(this).dialog('close');
+                },
+                "Cancel": function() {
+                    $(this).dialog('close');
+                }
+            });
+        } else {
+            $('#confirmDialog').dialog('option', 'buttons', buttons);
+        }
+
+        $('#confirmDialog').dialog('open');
     }
-
-    $('#confirmDialog').dialog('open');
-
 };
 
 DBZCCG.removeObject = function(obj) {
@@ -221,38 +229,6 @@ DBZCCG.removeObject = function(obj) {
     if (idx !== -1) {
         DBZCCG.objects.splice(idx, 1);
     }
-};
-
-DBZCCG.browseCardList = function(cards, title) {
-    var descriptionBoxContent = document.getElementById('descriptionBoxContent');
-    var content = document.createElement('div');
-    descriptionBoxContent.innerHTML = content.innerHTML = title;
-
-    var selectList = document.createElement('ol');
-    selectList.id = 'card-list';
-
-    for (var i = cards.length - 1; i >= 0; i--) {
-        var option = document.createElement('li');
-        option.innerHTML = (i + 101).toString().substring(1) + ' - ' + cards[i].name;
-        option.value = i;
-        option.selectCallback = function() {
-            var card = cards[this.value];
-            descriptionBoxContent.innerHTML = card.display.offDescriptionBox();
-            DBZCCG.leftScreen.focusElement(card.display, card.display.offLeftScreenCallback);
-        };
-        selectList.appendChild(option);
-    }
-
-    var wrapperDiv = document.createElement('div');
-    wrapperDiv.id = 'dialog-wrapper-div';
-    wrapperDiv.appendChild(selectList);
-    DBZCCG.createDialog(content.innerHTML, wrapperDiv);
-
-    $(selectList).selectable({selected: function(event, ui) {
-            ui.selected.selectCallback();
-        }});
-
-    $('#mainDialog').dialog('open');
 };
 /* End of dialog */
 
@@ -264,7 +240,7 @@ DBZCCG.checkObjectLoad = function() {
 
 
 /* Enums */
-DBZCCG.cancelAction = 0x000001;
+DBZCCG.cancelAction = 0xF00001;
 
 /* Game variables */
 DBZCCG.performingTurn = false;
@@ -635,7 +611,7 @@ DBZCCG.create = function() {
 
         for (var i = 0; i < table.players.length; i++) {
             table.players[i].newLifeCardDamage = 0;
-            var dragonballRegenerate = {f: function(cardIdx, increaseIndex, cards, card, owner) {
+            var dragonballRegenerate = {life: true, f: function(cardIdx, increaseIndex, cards, card, owner) {
 
                     // Place at the bottom of the lifeDeck
                     if (DBZCCG.Card.Type.Dragonball === card.type || (card.type instanceof Array && card.type.indexOf(DBZCCG.Card.Type.Dragonball) !== -1)) {
@@ -657,7 +633,7 @@ DBZCCG.create = function() {
                             var pile = this.pile;
 
                             DBZCCG.listActions.splice(0, 0, function() {
-                                DBZCCG.Log.logEntry(card.name + ' was discarted and ' +
+                                DBZCCG.Log.logEntry(card.logName() + ' was discarted and ' +
                                         (inPlay ? 'removed from the game (Already in play)' :
                                                 'placed at the bottom of the life deck'));
 
@@ -695,7 +671,7 @@ DBZCCG.create = function() {
 
                 }, priority: 50};
 
-            table.players[i].discardPile.addCallback(dragonballRegenerate);
+            table.players[i].discardPile.addAddCallback(dragonballRegenerate);
 
             table.players[i].addTransferCallback({f: function(src, elems, destiny) {
                     if (src === "lifeDeck") {
@@ -707,14 +683,14 @@ DBZCCG.create = function() {
                         var deckTotal;
                         var deckCards = this.player.lifeDeck.cards;
 
-                        var checkGameOver = {f: function() {
+                        var checkGameOver = {life: true, f: function() {
                                 if (deckCards.length === 0) { // TODO: check for infinite dragonball loop as well
                                     DBZCCG.gameOver = true;
                                     DBZCCG.listActions = [];
                                 }
                             }, priority: 1};
 
-                        var checkLowLife = {
+                        var checkLowLife = {life: true,
                             f: function() {
                                 var currentCards;
                                 for (var i = 0; i < table.players.length; i++) {
@@ -731,8 +707,8 @@ DBZCCG.create = function() {
                             }, priority: 2
                         };
 
-                        this.player[destiny].addCallback(checkGameOver);
-                        this.player[destiny].addCallback(checkLowLife);
+                        this.player[destiny].addAddCallback(checkGameOver);
+                        this.player[destiny].addAddCallback(checkLowLife);
                     }
                 }, priority: 1});
         }
@@ -755,6 +731,8 @@ DBZCCG.create = function() {
 
         function invokeTurn() {
 
+            $('.selectedTurn').removeClass('selectedTurn');
+            
             document.getElementById('turnCounterNumber').innerHTML =
                     parseInt(document.getElementById('turnCounterNumber').innerHTML) + 1;
 
@@ -854,14 +832,13 @@ DBZCCG.create = function() {
                     for (var i = 0; i < table.players.length; i++) {
                         if (table.players[i].discardPhaseEnabled && table.players[i] !== player && table.players[i].hand.cards.length > table.players[i].cardDiscardPhaseLimit) {
                             var discardPlayer = table.players[i];
-                            listActions.splice(0,0,function() {
+                            listActions.splice(0, 0, function() {
                                 DBZCCG.performingAction = discardPlayer;
                                 discardPlayer.discardPhase();
                                 DBZCCG.Log.logEntry(discardPlayer.displayName() + " discard phase.");
                             });
                         }
                     }
-
                 });
 
 
@@ -873,7 +850,6 @@ DBZCCG.create = function() {
                                     player.rejuvenationPhase();
                                 });
                     }
-
                 });
             }
 
@@ -1124,14 +1100,10 @@ DBZCCG.create = function() {
                 }
 
                 if (ret) {
-                    if (parent.callbacks instanceof Array) {
-                        for (var i = 0; i < parent.callbacks.length; i++) {
-                            if (parent.callbacks[i].f instanceof Function) {
-                                parent.callbacks[i].f();
-                            }
-                        }
+                    if(parent.solveCallback instanceof Function) {
+                        parent.solveCallback(function(cb){ return cb.f(); }, function (ret) {});
                     }
-
+                    
                     $('#hud').qtip('show');
                 }
             }
@@ -1162,10 +1134,10 @@ DBZCCG.create = function() {
         $('#hud').qtip({
             content: {
                 title: function(event, api) {
-                    return DBZCCG.toolTip.title;
+                    return DBZCCG.toolTip.customContent ? null : DBZCCG.toolTip.title;
                 },
                 text: function(event, api) {
-                    return DBZCCG.toolTip.content;
+                    return DBZCCG.toolTip.customContent ? DBZCCG.toolTip.customContent : DBZCCG.toolTip.content;
                 }
             },
             position: {
@@ -1201,7 +1173,10 @@ DBZCCG.create = function() {
                 }
             }
 
-            $('#object-info').dialog('open');
+            if(!parent.doNotFocus) {
+                $('#object-info').dialog('open');
+            }
+            
             window.onresize();
         };
 
@@ -1216,8 +1191,12 @@ DBZCCG.create = function() {
         document.getElementById('log-btn').onclick = function(event) {
             if (event.button === 0) {
                 $('#hud').qtip('hide');
-                $('#log-dialog').dialog('open');
                 window.onresize();
+                if ($('#communication-box').is(':visible')) {
+                    $('#communication-box').hide();
+                } else {
+                    $('#communication-box').show();
+                }
             }
         };
 

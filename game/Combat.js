@@ -39,6 +39,8 @@ DBZCCG.Combat.Effect.Regenerate = 19;
 
 DBZCCG.Combat.Effect.CaptureDragonball = 20;
 
+DBZCCG.Combat.Effect.EndCombat = 21;
+
 // End of effect types
 
 DBZCCG.Combat.inUsePAT = DBZCCG.Card.Saga.Saiyan;
@@ -62,8 +64,15 @@ DBZCCG.Combat.checkCosts = function(card) {
             ret = false;
         }
 
-        if (cost.handCard && DBZCCG.performingAction.hand.cards.length < cost.handCard) {
-            ret = false;
+        if (cost.handCard) {
+            var inHand = 0;
+            if (DBZCCG.performingAction.hand.getCardIdx(card.display) !== -1) {
+                inHand = 1;
+            }
+
+            if (DBZCCG.performingAction.hand.cards.length < (cost.handCard + inHand)) {
+                ret = false;
+            }
         }
     }
     return ret;
@@ -365,14 +374,14 @@ DBZCCG.Combat.checkDragonballControl = function(player) {
                 clicked.activable === true) {
             var performingTurn = DBZCCG.performingTurn;
             var mouseCommand = DBZCCG.waitingMainPlayerMouseCommand;
-            
-            if(mouseCommand === true) {
+
+            if (mouseCommand === true) {
                 DBZCCG.waitingMainPlayerMouseCommand = false;
             }
-            
+
             var passVisible = $('#pass-btn').is(':visible');
 
-            if(passVisible) {
+            if (passVisible) {
                 $('#pass-btn').hide();
             }
 
@@ -383,11 +392,11 @@ DBZCCG.Combat.checkDragonballControl = function(player) {
                     DBZCCG.performingTurn = performingTurn;
                     DBZCCG.effectHappening = false;
                     DBZCCG.waitingMainPlayerMouseCommand = mouseCommand;
-                    
-                    if(passVisible) {
+
+                    if (passVisible) {
                         $('#pass-btn').show();
                     }
-                    
+
                 });
 
                 if (clicked.activable === true && clicked.postEffect instanceof Function) {
@@ -400,7 +409,7 @@ DBZCCG.Combat.checkDragonballControl = function(player) {
                         clicked.type === DBZCCG.Card.Type.Dragonball) && !(clicked.activable instanceof Function)) {
                     clicked.control = DBZCCG.performingAction;
                 }
-                
+
                 clicked.effect();
             });
 
@@ -457,7 +466,9 @@ DBZCCG.Combat.checkDragonballControl = function(player) {
         });
 
         // Invoke defender's turn, if possible
-        if (DBZCCG.performingAction === DBZCCG.attackingPlayer) {
+        if (DBZCCG.performingAction === DBZCCG.attackingPlayer &&
+                (ClassHelper.checkValue(clicked.effectType, DBZCCG.Combat.Attack.Physical) ||
+                        ClassHelper.checkValue(clicked.effectType, DBZCCG.Combat.Attack.Energy))) {
             DBZCCG.Combat.setDefenderTurn(DBZCCG.defendingPlayer);
         }
 
@@ -670,7 +681,6 @@ DBZCCG.Combat.setDefenderTurn = function(player) {
         selectionArrows = [];
     };
 
-
     DBZCCG.Combat.selectionArrow = function(sourceObj, targetObj) {
         var geo = new THREE.Geometry();
         var source, target;
@@ -690,7 +700,7 @@ DBZCCG.Combat.setDefenderTurn = function(player) {
 
         var diffVector = new THREE.Vector3().addVectors(target.clone(), source.clone().multiplyScalar(-1));
 
-        var totalVertices = Math.floor(Math.abs(diffVector.z) + Math.abs(diffVector.x));
+        var totalVertices = Math.floor(Math.abs(diffVector.z) + Math.abs(diffVector.x)) * 5;
 
         var height = 30;
         var itZ = diffVector.z / totalVertices;
@@ -702,7 +712,6 @@ DBZCCG.Combat.setDefenderTurn = function(player) {
             var x = source.x + itX * i;
 
             var y = i < totalVertices / 2 ? Math.pow(itY * i * 2, 0.5) : Math.pow((height - itY * i) * 2, 0.5);
-
 
             var particle = new THREE.Vector3(x, 2 + y, z);
             geo.vertices.push(particle);
@@ -719,7 +728,7 @@ DBZCCG.Combat.setDefenderTurn = function(player) {
 
         // Later: Add custom shaders
         var selectionArrow = new THREE.ParticleSystem(geo, new THREE.ParticleSystemMaterial({
-            size: 10,
+            size: 2,
             vertexColors: true,
             map: THREE.ImageUtils.loadTexture("images/gfx/particles/particle.png"),
             blending: THREE.AdditiveBlending,
@@ -741,7 +750,7 @@ DBZCCG.Combat.setDefenderTurn = function(player) {
             }
 
             geo.colorsNeedUpdate = true;
-            idxArrow = (idxArrow + 1) % geo.colors.length;
+            idxArrow = (idxArrow + 2) % geo.colors.length;
         };
 
         selectionArrows.push(selectionArrow);
@@ -808,49 +817,50 @@ DBZCCG.Combat.speechBubble = function(text, display) {
     });
 };
 
-DBZCCG.Combat.setMouseOverCallback = function(display, mouseMove) {
-    display.mouseOver = function(event) {
+DBZCCG.Combat.setMouseOverCallback = function(display) {
+    display.mouseOver = function() {
         if (!$('.qtip').is(':visible')) {
-            if (!this.localTooltip) {
-                if (display.parentCard) {
-                    if (DBZCCG.performingAction.checkOwnership(display) && display.parentCard.activable instanceof Function &&
-                            display.parentCard.activable(DBZCCG.performingAction) && display.parentCard.effectType instanceof Array &&
-                            (display.parentCard.effectType.indexOf(DBZCCG.Combat.Attack.Physical) !== -1 ||
-                                    display.parentCard.effectType.indexOf(DBZCCG.Combat.Attack.Energy) !== -1) && this.displayHoverText()) {
-                        this.localTooltip = DBZCCG.Combat.mouseHoverTooltip(event);
-                        var coords = DBZCCG.Screen.getWindowCoords(display);
+            DBZCCG.toolTip.customContent = this.displayHoverText();
 
-                        this.localTooltip.style.top = parseInt(coords.y) * 0.75 + 'px';
-                        this.localTooltip.style.left = (coords.x - this.localTooltip.offsetWidth * 1.25) + 'px';
-                    }
-                } else {
-                    this.localTooltip = DBZCCG.Combat.mouseHoverTooltip(event);
+            $('#hud').qtip('option', {'position.adjust.y': -30});
+            $('#hud').qtip('option', {'position.adjust.mouse': true});
 
-                    var top = event.clientY - this.localTooltip.offsetHeight * 2.25;
-                    var left = event.clientX - this.localTooltip.offsetWidth * 4;
-                    this.localTooltip.style.top = top + 'px';
-                    this.localTooltip.style.left = left + 'px';
+            if (display.parentCard) {
+                if (display.children[0].material.materials[5].map && display.children[0].material.materials[5].map.sourceFile) {
+                    var cardImage = '<img src ="' + display.children[0].material.materials[5].map.sourceFile + '" style="float:left; width: 14vmax;" />';
                 }
-            } else if (mouseMove) {
-                var top = event.clientY - this.localTooltip.offsetHeight - 25;
-                var left = event.clientX - this.localTooltip.offsetWidth / 2;
-                this.localTooltip.style.top = top + 'px';
-                this.localTooltip.style.left = left + 'px';
+
+                var wrapper = document.createElement('div');
+                wrapper.innerHTML = DBZCCG.toolTip.customContent;
+                wrapper.style.float = 'right';
+                wrapper.style['margin-left'] = '10px';
+                wrapper.style.width = ($('#descriptionBoxContent')
+                        .parent()
+                        .parent()
+                        .parent()[0].style.width.replace('px', '') * 0.4) + 'px';
+
+                DBZCCG.toolTip.customContent = cardImage + wrapper.outerHTML + "<div style='clear:both;' />";
             }
 
-            if (this.localTooltip) {
-                this.localTooltip.innerHTML = this.displayHoverText();
-            }
+            $('#hud').qtip('show');
+
+            //fix for personality cards display
+            // power stages
+            $('.qtip-content').children().children().children('.personality-content').children().css({'font-size': '0.95em'});
+            // level
+            $('.qtip-content').children().children().children('.personality-card-content').children('.property-description-box').children('.level-label').css({'margin-top': '0em', 'font-size': '2em', 'margin-left': '-0.8em'});
+            // pur
+            $('.qtip-content').children().children().children('.personality-card-content').children('.property-description-box').children('.card-label-pur').children('div').css({'font-size': '1.9vmax', 'margin-left': '0.6vmax', 'margin-top': '0.75vmax'});
         }
     };
 
-    display.click = display.mouseOut = function(event) {
-        if (this.localTooltip) {
-            var elem = this;
-            $(elem.localTooltip).fadeOut(250, function() {
-                $(elem.localTooltip).remove();
-                elem.localTooltip = undefined;
-            });
+    display.click = display.mouseOut = function() {
+        if (DBZCCG.toolTip.customContent) {
+            $('#hud').qtip('option', {'position.adjust.y': 0});
+            $('#hud').qtip('option', {'position.adjust.mouse': false});
+            $('#hud').qtip('hide');
+            $(DBZCCG.toolTip.customContent).remove();
+            DBZCCG.toolTip.customContent = undefined;
         }
         return true;
     };

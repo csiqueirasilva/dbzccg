@@ -114,13 +114,13 @@ DBZCCG.Personality.create = function(data) {
 
             if (this.currentPowerStageAboveZero === 0 && numberPowerStages < 0) {
                 if (!noMessage) {
-                    DBZCCG.Log.logEntry(this.displayName() + ' already at 0.');
+                    DBZCCG.Log.logEntry(this.logName() + ' already at 0.');
                 }
 
                 return numberPowerStages;
             } else if (this.currentPowerStageAboveZero === this.powerStages.length - 1 && numberPowerStages > 0) {
                 if (!noMessage) {
-                    DBZCCG.Log.logEntry(this.displayName() + ' already at maximum power stage level.');
+                    DBZCCG.Log.logEntry(this.logName() + ' already at maximum power stage level.');
                 }
 
                 return numberPowerStages;

@@ -246,7 +246,7 @@ DBZCCG.MainPersonality.create = function(data) {
                             if (mp.personalities.length != mp.currentMainPersonalityLevel) {
                                 mp.advanceLevels(1);
                             } else {
-                                DBZCCG.Log.logEntry(mp.personalities[mp.currentMainPersonalityLevel - 1].displayName() + "'s level cannot go higher.");
+                                DBZCCG.Log.logEntry(mp.personalities[mp.currentMainPersonalityLevel - 1].logName() + "'s level cannot go higher.");
                                 mp.personalities[mp.currentMainPersonalityLevel - 1].moveZScouter("max");
                                 mp.setAnger(0);
                             }
@@ -381,7 +381,7 @@ DBZCCG.MainPersonality.create = function(data) {
                 window.setTimeout(function() {
                     DBZCCG.performingAnimation = false;
                     var currentLevel = mp.personalities[mp.currentMainPersonalityLevel - 1];
-                    DBZCCG.Log.logEntry(previousLevel.displayName() + " advanced to " + currentLevel.displayName() + ".");
+                    DBZCCG.Log.logEntry(previousLevel.logName() + " advanced to " + currentLevel.logName() + ".");
                     mp.moveZScouter("max");
                     mp.setAnger(0, true);
                 }, (80 + 80 + 120 + 750) * (desiredLevels - n) + 200);
@@ -396,23 +396,10 @@ DBZCCG.MainPersonality.create = function(data) {
             return 'Main Personality: ' + mp.personalities[mp.currentMainPersonalityLevel - 1].displayName();
         };
 
-        this.display.callbacks = [];
+        function atribCallback () {
+        }
 
-        this.display.removeCallback = function(callback) {
-            var idx = this.callbacks.indexOf(callback);
-            if (idx !== -1) {
-                this.callbacks.splice(idx, 1);
-                this.callbacks.sort(DBZCCG.Callbacks.CompareCallbacks);
-            }
-        };
-
-        this.display.addCallback = function(callback) {
-            var idx = this.callbacks.indexOf(callback);
-            if (idx === -1) {
-                this.callbacks.push(callback);
-                this.callbacks.sort(DBZCCG.Callbacks.CompareCallbacks);
-            }
-        };
+        DBZCCG.Callbacks.create(this.display, 'callback', atribCallback);
 
         this.addToField = function(position, field) {
             this.surroundingArea = DBZCCG.Table.createSurroundingArea(position.clone().multiplyScalar(0.08), DBZCCG.Card.cardWidth * 2.5, DBZCCG.Card.cardHeight * 2.5, DBZCCG.Player.Field.cornerWidth);
@@ -423,10 +410,11 @@ DBZCCG.MainPersonality.create = function(data) {
                 priority: 50000,
                 f: function() {
                     DBZCCG.toolTip.parent = mp.currentPersonality().display;
-                    var callbacks = mp.currentPersonality().display.callbacks;
-                    for (var i = 0; i < callbacks.length; i++) {
-                        callbacks[i].f();
-                    }
+                    
+                    function argsCallback (cb) { return cb.f() }
+                    function solveCallback (ret) {}
+                    
+                    mp.currentPersonality().display.solveCallback(argsCallback, solveCallback);
                 }
             });
 

@@ -1795,7 +1795,7 @@ DBZCCG.Saiyan['040'] = {
     texturePath: "images/DBZCCG/saiyan/040.jpg",
     saga: DBZCCG.Card.Saga.Saiyan,
     cost: function() {
-        return {handCard: 1}
+        return {handCard: 1};
     },
     activable: function(player) {
         return DBZCCG.currentCard && DBZCCG.currentCard.effectType instanceof Array &&
@@ -1824,7 +1824,7 @@ DBZCCG.Saiyan['041'] = {
     texturePath: "images/DBZCCG/saiyan/041.jpg",
     saga: DBZCCG.Card.Saga.Saiyan,
     cost: function() {
-        return {handCard: 1}
+        return {handCard: 1};
     },
     activable: function(player) {
         return DBZCCG.currentCard && DBZCCG.currentCard.effectType instanceof Array &&
@@ -1951,18 +1951,22 @@ DBZCCG.Saiyan['045'] = {
         DBZCCG.performingAction.addTurnCallback({
             priority: 50,
             f: function() {
-                DBZCCG.Combat.flashCard(card);
-                this.player.declarePhaseEnabled = false;
-                DBZCCG.performingAction.addTurnCallback({
-                    turn: $('#turnCounterNumber').html(),
-                    f: function() {
-                        if ($('#turnCounterNumber').html() !== this.turn) {
-                            DBZCCG.performingAction.declarePhaseEnabled = true;
-                            this.life = false;
-                        }
-                    },
-                    life: true,
-                    priority: 100
+                var player = this.player;
+                DBZCCG.listActions.push(function() {
+                    DBZCCG.Combat.flashCard(card);
+                    player.declarePhaseEnabled = false;
+
+                    DBZCCG.performingAction.addTurnCallback({
+                        turn: $('#turnCounterNumber').html(),
+                        f: function() {
+                            if ($('#turnCounterNumber').html() !== this.turn) {
+                                DBZCCG.performingAction.declarePhaseEnabled = true;
+                                this.life = false;
+                            }
+                        },
+                        life: true,
+                        priority: 100
+                    });
                 });
             },
             life: false
@@ -2075,7 +2079,7 @@ DBZCCG.Saiyan['048'] = {
     },
     effect: function() {
         this.success = true;
-        DBZCCG.defendingPlayer.captureDragonballs(false, false, true, "Due to the effects of Goku's Touch it is not possible to capture a dragonball.");
+        DBZCCG.defendingPlayer.captureDragonballs(false, false, true, "Due to the effects of <b>Goku's Touch</b> it is not possible to capture a dragonball.");
     },
     postEffect: function(card) {
         var cardIdx = DBZCCG.performingAction.nonCombats.getCardIdx(card.display);
@@ -2506,10 +2510,52 @@ DBZCCG.Saiyan['060'] = {
     effectType: [DBZCCG.Combat.Defense.Physical, DBZCCG.Combat.Effect.LowerAnger]
 };
 
+DBZCCG.Saiyan['074'] = {
+    type: DBZCCG.Card.Type['Energy Combat'],
+    style: DBZCCG.Card.Style.Black,
+    description: "Energy attack. Raise your anger 1 level.",
+    rarity: DBZCCG.Card.Rarity.Uncommon,
+    name: "Black Jump Turn Kick",
+    number: '074',
+    texturePath: "images/DBZCCG/saiyan/074.jpg",
+    saga: DBZCCG.Card.Saga.Saiyan,
+    activable: DBZCCG.Combat.defaultAttackerCheck,
+    cost: function() {
+        return {powerStage: 2};
+    },
+    effect: function() {
+        this.success = true;
+        this.targetCard = DBZCCG.defendingPlayer.getPersonalityInControl();
+        
+        DBZCCG.listActions.splice(0, 0, function() {
+            DBZCCG.attackingPlayer.mainPersonality.changeAnger(1);
+        });
+    },
+    damage: function() {
+        return DBZCCG.Combat.attack(false, function(damage) {
+            damage.cards = 4;
+            return damage;
+        }, DBZCCG.attackingPlayer.getPersonalityInControl().currentPowerLevel(), DBZCCG.defendingPlayer.getPersonalityInControl().currentPowerLevel());
+    },
+    successfulEffect: function(defendingPlayer) {
+        var damage = this.damage();
+        DBZCCG.listActions.splice(0, 0, function() {
+            defendingPlayer.takeDamage(damage);
+        });
+    },
+    postEffect: function(card) {
+        var cardIdx = DBZCCG.attackingPlayer.inPlay.getCardIdx(card.display);
+        DBZCCG.listActions.splice(0, 0, function() {
+            DBZCCG.attackingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
+        });
+    },
+    effectType: [DBZCCG.Combat.Attack.Energy, DBZCCG.Combat.Effect.RaiseAnger]
+};
+
+
 DBZCCG.Saiyan['099'] = {
     type: DBZCCG.Card.Type['Non-Combat'],
     style: DBZCCG.Card.Style.Freestyle,
-    personality: DBZCCG.Personality.Personalities.GOKU,
     description: "Increase your anger by 2 levels. Take the top 2 cards of your discard pile and place them at the bottom of your life deck. Limit 1 per deck.",
     name: "Blazing Anger!",
     number: '099',
@@ -2556,7 +2602,7 @@ DBZCCG.Saiyan['158'] = {
     description: "Power: Energy attack doing 3 life cards of damage. Costs 1 power stage.",
     level: 1,
     rarity: DBZCCG.Card.Rarity.Fixed,
-    name: "GOKU",
+    name: "Goku",
     highTech: false,
     number: 158,
     texturePath: "images/DBZCCG/saiyan/158.jpg",
@@ -2597,7 +2643,7 @@ DBZCCG.Saiyan['159'] = {
     description: "Power: Physical attack doing 4 power stages of damage.",
     level: 2,
     rarity: DBZCCG.Card.Rarity.Fixed,
-    name: "GOKU",
+    name: "Goku",
     highTech: false,
     number: 159,
     texturePath: "images/DBZCCG/saiyan/159.jpg",
@@ -2635,13 +2681,35 @@ DBZCCG.Saiyan['160'] = {
     description: "Power: Once per combat, reduces the damage of an energy attack by 2 life cards.",
     level: 3,
     rarity: DBZCCG.Card.Rarity.Fixed,
-    name: "GOKU",
+    name: "Goku",
     highTech: false,
     number: 160,
+    activable: function(player) {
+        return DBZCCG.currentCard && DBZCCG.currentCard.effectType instanceof Array
+                && DBZCCG.currentCard.effectType.indexOf(DBZCCG.Combat.Attack.Energy) !== -1
+                && DBZCCG.Combat.personalityPowerDefaultDefenseCheck(player, this);
+    },
+    effect: function() {
+        DBZCCG.defendingPlayer.addBeforeDamageCallback({
+            priority: 50,
+            f: function(powerStages, lifeCards) {
+                var ret = {
+                    powerStages: powerStages,
+                    lifeCards: lifeCards > 1 ? lifeCards - 2 : 0
+                };
+                return ret;
+            },
+            life: false
+        });
+    },
+    postEffect: function(card) {
+        this.turn = parseInt($('#turnCounterNumber')[0].innerHTML);
+    },
     texturePath: "images/DBZCCG/saiyan/160.jpg",
     personality: DBZCCG.Personality.Personalities.GOKU,
     saga: DBZCCG.Card.Saga.Saiyan,
-    powerStages: [0, 8000, 8500, 9000, 9500, 10000, 10500, 11000, 11500, 12000, 12500]
+    powerStages: [0, 8000, 8500, 9000, 9500, 10000, 10500, 11000, 11500, 12000, 12500],
+    effectType: [DBZCCG.Combat.Defense.Energy, DBZCCG.Combat.Defense.Prevention]
 };
 
 DBZCCG.Saiyan['173'] = {
@@ -2652,13 +2720,35 @@ DBZCCG.Saiyan['173'] = {
     alignment: DBZCCG.Personality.alignment.Rogue,
     description: "Power: Once per combat, reduces the damage of an energy attack by 2 life cards.",
     level: 1,
-    name: "VEGETA",
+    name: "Vegeta",
+    activable: function(player) {
+        return DBZCCG.currentCard && DBZCCG.currentCard.effectType instanceof Array
+                && DBZCCG.currentCard.effectType.indexOf(DBZCCG.Combat.Attack.Energy) !== -1
+                && DBZCCG.Combat.personalityPowerDefaultDefenseCheck(player, this);
+    },
+    effect: function() {
+        DBZCCG.defendingPlayer.addBeforeDamageCallback({
+            priority: 50,
+            f: function(powerStages, lifeCards) {
+                var ret = {
+                    powerStages: powerStages,
+                    lifeCards: lifeCards > 1 ? lifeCards - 2 : 0
+                };
+                return ret;
+            },
+            life: false
+        });
+    },
+    postEffect: function(card) {
+        this.turn = parseInt($('#turnCounterNumber')[0].innerHTML);
+    },
     highTech: false,
     number: 173,
     texturePath: "images/DBZCCG/saiyan/173.jpg",
     personality: DBZCCG.Personality.Personalities.VEGETA,
     saga: DBZCCG.Card.Saga.Saiyan,
-    powerStages: [0, 2000, 2200, 2400, 2600, 2800, 3000, 3200, 3400, 3600, 3800]
+    powerStages: [0, 2000, 2200, 2400, 2600, 2800, 3000, 3200, 3400, 3600, 3800],
+    effectType: [DBZCCG.Combat.Defense.Energy, DBZCCG.Combat.Defense.Prevention]
 };
 
 DBZCCG.Saiyan['174'] = {
@@ -2669,7 +2759,7 @@ DBZCCG.Saiyan['174'] = {
     description: "Power: Energy attack doing 3 life cards of damage. Costs 1 power stage.",
     level: 2,
     rarity: DBZCCG.Card.Rarity.Fixed,
-    name: "VEGETA",
+    name: "Vegeta",
     highTech: false,
     number: 174,
     texturePath: "images/DBZCCG/saiyan/174.jpg",
@@ -2710,11 +2800,26 @@ DBZCCG.Saiyan['175'] = {
     description: "Power: Once per game, after performing a successful energy attack, steal a Dragon Ball. After this effect, the combat ends.",
     level: 3,
     rarity: DBZCCG.Card.Rarity.Fixed,
-    name: "VEGETA",
+    name: "Vegeta",
     highTech: false,
     number: 175,
     texturePath: "images/DBZCCG/saiyan/175.jpg",
     personality: DBZCCG.Personality.Personalities.VEGETA,
     saga: DBZCCG.Card.Saga.Saiyan,
-    powerStages: [0, 9000, 10000, 11000, 12000, 13000, 14000, 15000, 16000, 17000, 18000]
+    powerStages: [0, 9000, 10000, 11000, 12000, 13000, 14000, 15000, 16000, 17000, 18000],
+    postEffect: function(card) {
+        this.used = true;
+    },
+    activable: function(player) {
+        return !this.used && DBZCCG.Log.checkEventThisPhase(DBZCCG.Log.Type.sufferedDamage, {player: DBZCCG.defendingPlayer, typeDamage: DBZCCG.Combat.Attack.Energy, turn: $('#turnCounterNumber').html()}) &&
+                DBZCCG.Combat.defaultAttackerCheck(player, this);
+    },
+    effect: function() {
+        this.success = true;
+        DBZCCG.defendingPlayer.captureDragonballs(false, false, true, "Due to the effects of <b>Vegeta</b> it is not possible to capture a dragonball.");
+        DBZCCG.listActions.splice(0,0,function () {
+            DBZCCG.combat = false;
+        });
+    },
+    effectType: [DBZCCG.Combat.Effect.CaptureDragonball, DBZCCG.Combat.Effect.EndCombat]
 };

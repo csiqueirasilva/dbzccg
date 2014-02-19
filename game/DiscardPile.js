@@ -7,7 +7,7 @@ DBZCCG.DiscardPile.create = function(discardPile, owner) {
         var discard = this;
 
         discard.display.descriptionBox = function() {
-            DBZCCG.browseCardList(discard.cards, 'Number of cards in discard pile: ' + discard.cards.length);
+            DBZCCG.Interface.browseCardList(discard.cards, 'Number of cards in discard pile: ' + discard.cards.length);
         };
 
         discard.display.displayName = function() {
@@ -27,6 +27,8 @@ DBZCCG.DiscardPile.create = function(discardPile, owner) {
         this.getBottomCard = function() {
             return this.cards[0];
         };
+
+        this.display.doNotFocus = true;
 
         this.firstCardFaceUp();
 

@@ -268,9 +268,31 @@ canvas {
     font-size: 1.15em;
 }
 
+#communication-box {
+    z-index: 1000;
+    left: 20vmin;
+    display: none;
+    max-height: 30vmin;
+    top: 40vmin;
+    position: absolute;
+    overflow: auto;
+    width: 70vmin;
+    background: rgba(196, 196, 196, 0.28);
+    padding: 1vmin;
+}
+
 #logBox {
-    width: 96%;
-    height: 94%;
+    display: none;
+    overflow: auto;
+    max-height: 20vmin;
+}
+
+.card-info-link {
+    text-decoration: underline;
+}
+
+.card-info-link:hover {
+    cursor: pointer;
 }
 
 .tooltip {
@@ -535,6 +557,19 @@ canvas {
     top: 80px;
     border: 10px solid;
     border-color: #fff transparent transparent #fff;
+}
+
+#chat-entries {
+    min-height: 10vmin;
+    max-height: 20vmin;
+    overflow: auto;
+}
+
+#chat-input {
+    width: 85%;
+}
+
+#chat-submit {
 }
 
 /* DEBUG */

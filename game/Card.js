@@ -275,23 +275,8 @@ DBZCCG.Card.create = function(dataObject) {
         this.display.parentCard = this;
         var card = this;
 
-        card.display.callbacks = [];
-
-        card.display.removeCallback = function(callback) {
-            var idx = this.callbacks.indexOf(callback);
-            if (idx !== -1) {
-                this.callbacks.splice(idx, 1);
-                this.callbacks.sort(DBZCCG.Callbacks.CompareCallbacks);
-            }
-        }
-
-        card.display.addCallback = function(callback) {
-            var idx = this.callbacks.indexOf(callback);
-            if (idx === -1) {
-                this.callbacks.push(callback);
-                this.callbacks.sort(DBZCCG.Callbacks.CompareCallbacks);
-            }
-        }
+        DBZCCG.Callbacks.create(card.display, 'callback', function (cb) {
+        });
 
         if (!dataObject.playable && dataObject.effect) {
             card.display.addCallback(DBZCCG.Combat.activateEffectCallback);
@@ -309,6 +294,12 @@ DBZCCG.Card.create = function(dataObject) {
         card.cost = dataObject.cost;
         card.activators = dataObject.activators;
         card.defenseShield = dataObject.defenseShield;
+
+        card.getTextureImg = function () {
+            if(card.display.children[0].material.materials[5].map && card.display.children[0].material.materials[5].map.sourceFile) {
+                return card.display.children[0].material.materials[5].map.sourceFile;
+            }
+        };
 
         card.display.displayName = function() {
             return card.name;
@@ -390,10 +381,25 @@ DBZCCG.Card.create = function(dataObject) {
 
         card.display.displayHoverText = function() {
             var ret = '';
-            if (this.parentCard.damage instanceof Function && this.parentCard.damage() instanceof Object) {
-                var damage = this.parentCard.damage();
-                ret = '<div class="hover-icon physical-attack-icon" title="Power Stage Damage"></div><span class="hover-damage-text" style="float: left;">' + damage.stages + '</span><div style="clear: both;"></div><br />';
-                ret += '<div class="hover-icon energy-attack-icon" title="Life Card Damage"></div><span class="hover-damage-text" style="float: left;">' + damage.cards + '</span><div style="clear: both;"></div>';
+
+            ret += card.display.descriptionBox();
+
+            ret += '<div style="clear:both;"/>';
+
+            if (DBZCCG.performingAction.checkOwnership(card.display) && card.activable instanceof Function &&
+                    card.activable(DBZCCG.performingAction) && card.effectType instanceof Array &&
+                    (card.effectType.indexOf(DBZCCG.Combat.Attack.Physical) !== -1 ||
+                            card.effectType.indexOf(DBZCCG.Combat.Attack.Energy) !== -1)) {
+
+                if (this.parentCard.damage instanceof Function && this.parentCard.damage() instanceof Object) {
+                    var damage = this.parentCard.damage();
+                    ret += '<div><h3 style="margin-top: 10%; text-align: center;">Attack Damage</h3>\
+                            <div class="damage-hover-helper">\
+                            \
+                            <div style="margin-left: 40%"><div style="float:left;" class="hover-icon physical-attack-icon" title="Power Stage Damage"></div><div style="float:left; font-size: 3em;" class="hover-damage-text">' + damage.stages + '</div>';
+                    ret += '</div><div style="clear:both;"/><div style="padding-top: 10px; margin-left: 40%"><div style="float:left;" class="hover-icon energy-attack-icon" title="Life Card Damage"></div><div style="float:left; font-size: 3em;" class="hover-damage-text">' + damage.cards + '</div>' 
+                    + '</div></div></div>';
+                }
             }
             return ret;
         };
@@ -412,9 +418,13 @@ DBZCCG.Card.create = function(dataObject) {
             content += "<div class='card-style'><div class='label-title'>[Style]</div><div class='label-description-box'><div class='description-icon'><img class='left-screen-icon' src='images/icons/" + ClassHelper.getKeyByValue(DBZCCG.Card.Style, card.style).toLowerCase() + "-icon.png' title='" + ClassHelper.getKeyByValue(DBZCCG.Card.Style, card.style) + "'/></div></div></div>\
                         <div class='card-saga-label'><div div class='label-title'>[Saga]</div><div class='label-description-box'><div class='description-icon'><img class='left-screen-icon' src='images/icons/" + ClassHelper.getKeyByValue(DBZCCG.Card.Saga, card.saga).toLowerCase() + "-saga-icon.png' title='" + ClassHelper.getKeyByValue(DBZCCG.Card.Saga, card.saga) + " Saga'/><img class='left-screen-icon' src='images/icons/" + ClassHelper.getKeyByValue(DBZCCG.Card.Rarity, card.rarity).toLowerCase().replace(" ", "") + "-icon.png' title='" + ClassHelper.getKeyByValue(DBZCCG.Card.Rarity, card.rarity) + "' /></div><div class='saga-label-number'>#" + card.number + "</div></div></div>";
 
-            content += "</div>";
+            content += "</div><div style='clear: both;'>";
             return content;
         };
+
+        card.logName = function() {
+            return '{' + ClassHelper.getKeyByValue(DBZCCG.Card.Saga, card.saga) + ' ' + card.number + '}';
+        }
 
     }
 

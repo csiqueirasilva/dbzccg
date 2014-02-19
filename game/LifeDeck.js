@@ -18,9 +18,10 @@ DBZCCG.LifeDeck.create = function(deckObject) {
                 '031', '033', '034', '035', '036', '037', '038', '039', '040',
                 '041', '042', '043', '044', '045', '046', '047', '048', '049', '050',
                 '051', '052', '053', '054', '055', '056', '057', '058', '059', '060',
+                '074',
                 '099'];
 
-            while(cardList.length < DBZCCG.LifeDeck.maximumSize) {
+            while(cardList.length < DBZCCG.LifeDeck.maximumSize - 3) {
                 var idx = Math.floor((Math.random()*1000)) % allowedCards.length;
 
                 var count = 0;

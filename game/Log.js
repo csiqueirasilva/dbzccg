@@ -19,7 +19,7 @@ DBZCCG.Log.logEntry = function(msg, card, type) {
         this.player = DBZCCG.performingAction;
 
         if (card && !msg) {
-            this.msg = 'Played ' + card.name;
+            this.msg = 'Played ' + card.logName();
         }
 
         DBZCCG.Log.entries.push(this);

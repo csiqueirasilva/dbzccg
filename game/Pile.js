@@ -46,24 +46,10 @@ DBZCCG.Pile.create = function(data, faceUp, owner) {
         }
         ;
 
-        var addCallback = [];
-
-        this.removeCallback = function(callback) {
-            var idx = addCallback.indexOf(callback);
-            if (idx !== -1) {
-                addCallback.splice(idx, 1);
-                addCallback.sort(DBZCCG.Callbacks.CompareCallbacks);
-            }
-        }
-
-        this.addCallback = function(callback) {
-            var idx = addCallback.indexOf(callback);
-            if (idx === -1) {
-                addCallback.push(callback);
-                callback.pile = this;
-                addCallback.sort(DBZCCG.Callbacks.CompareCallbacks);
-            }
-        };
+        var pile = this;
+        DBZCCG.Callbacks.create(this, "addCallback", function(cb) {
+            cb.pile = pile;
+        });
 
         this.addCard = function(cardIdx, cards) {
             var timer = 150;
@@ -161,20 +147,36 @@ DBZCCG.Pile.create = function(data, faceUp, owner) {
 
                     pile.currentCards = pile.display.children.length;
 
-                    for (var i = 0; i < addCallback.length; i++) {
-                        if (addCallback[i].f instanceof Function) {
-                            var ret = addCallback[i].f(cardIdx, increaseIndex, cards, card, owner);
-                            if (ret instanceof Object) {
-                                if (ret.cardIdx !== undefined) {
-                                    cardIdx = ret.cardIdx;
-                                } else if (ret.increaseIndex !== undefined) {
-                                    increaseIndex = ret.increaseIndex;
-                                } else if (ret.cards !== undefined) {
-                                    cards = ret.cards;
-                                }
-                            }
+                    function argsCallback(cb) {
+                        return cb.f(cardIdx, increaseIndex, cards, card, owner);
+                    }
+
+                    function solveCallback(ret) {
+                        if (ret.cardIdx !== undefined) {
+                            cardIdx = ret.cardIdx;
+                        } else if (ret.increaseIndex !== undefined) {
+                            increaseIndex = ret.increaseIndex;
+                        } else if (ret.cards !== undefined) {
+                            cards = ret.cards;
                         }
                     }
+
+                    pile.solveAddCallback(argsCallback, solveCallback);
+
+//                    for (var i = 0; i < addCallback.length; i++) {
+//                        if (addCallback[i].f instanceof Function) {
+//                            var ret = addCallback[i].f(cardIdx, increaseIndex, cards, card, owner);
+//                            if (ret instanceof Object) {
+//                                if (ret.cardIdx !== undefined) {
+//                                    cardIdx = ret.cardIdx;
+//                                } else if (ret.increaseIndex !== undefined) {
+//                                    increaseIndex = ret.increaseIndex;
+//                                } else if (ret.cards !== undefined) {
+//                                    cards = ret.cards;
+//                                }
+//                            }
+//                        }
+//                    }
 
                     if (cards.length > 0) {
                         pile.addCard(cardIdx + increaseIndex, cards);
@@ -205,7 +207,7 @@ DBZCCG.Pile.create = function(data, faceUp, owner) {
 
             var removedCard = pile.display.children[cardIdx];
             var card;
-            
+
             DBZCCG.removeObject(removedCard);
 
             // TODO: Ajax Load for the online version!
@@ -252,7 +254,7 @@ DBZCCG.Pile.create = function(data, faceUp, owner) {
                 for (var i = otherCards.length - 1; i > cardIdx; i--) {
                     otherCards[i].position.y = otherCards[i - 1].position.y;
                 }
-                
+
                 pile.display.remove(removedCard);
 
                 // find card idx, it might be changed
@@ -262,7 +264,7 @@ DBZCCG.Pile.create = function(data, faceUp, owner) {
                         break;
                     }
                 }
-                
+
                 pile.cards.splice(cardIdx, 1);
 
                 var idx;
@@ -286,7 +288,8 @@ DBZCCG.Pile.create = function(data, faceUp, owner) {
             };
 
             return card;
-        };
+        }
+        ;
 
         this.removeBottomCard = function() {
             if (this.display.children.length > 0) {
@@ -429,7 +432,7 @@ DBZCCG.Pile.create = function(data, faceUp, owner) {
                 var oldCards = this.cards.slice(0); // copy
                 var cardSize = this.cards.length;
                 var timer = 750;
-                
+
                 for (var i = 0; i < cardSize; i++) {
                     this.cards.splice(0, 1);
                 }
@@ -468,25 +471,25 @@ DBZCCG.Pile.create = function(data, faceUp, owner) {
 
                 var it = new THREE.Vector3(1000, 0, 0);
                 var animation = new TWEEN.Tween(new THREE.Vector3(0, 0, 0)).to(it, timer);
-                
-                animation.onUpdate(function () {
-                    for(var i = 0; i < pile.display.children.length; i++) {
+
+                animation.onUpdate(function() {
+                    for (var i = 0; i < pile.display.children.length; i++) {
                         pile.display.children[i].position.x = Math.sin(Math.random()) * 2.5;
                     }
                 });
-                
+
                 animation.onComplete(function() {
-                    for(var i = 0; i < pile.display.children.length; i++) {
+                    for (var i = 0; i < pile.display.children.length; i++) {
                         pile.display.children[i].position.x = 0;
                     }
-                    
+
                     display.position.copy(originalPosition);
                     display.rotation.copy(originalRotation);
                     addTopToObjectList();
                     DBZCCG.performingAnimation = false;
                     DBZCCG.waitingMainPlayerMouseCommand = mouseCommand;
                 });
-                
+
                 animation.start();
             }
         };

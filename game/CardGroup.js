@@ -105,24 +105,10 @@ DBZCCG.CardGroup.create = function(cardGroup) {
             }
         }
 
-        var addCallback = [];
-
-        this.removeCallback = function(callback) {
-            var idx = addCallback.indexOf(callback);
-            if (idx !== -1) {
-                addCallback.splice(idx, 1);
-                addCallback.sort(DBZCCG.Callbacks.CompareCallbacks);
-            }
-        };
-
-        this.addCallback = function(callback) {
-            var idx = addCallback.indexOf(callback);
-            if (idx === -1) {
-                addCallback.push(callback);
-                callback.cardgroup = this;
-                addCallback.sort(DBZCCG.Callbacks.CompareCallbacks);
-            }
-        };
+        var cardgroup = this;
+        DBZCCG.Callbacks.create(this, "addCallback", function(cb) {
+            cb.cardgroup = cardgroup;
+        });
 
         this.addCard = function(cardsToJoin, addToScene) {
             DBZCCG.performingAnimation = true;
@@ -164,12 +150,13 @@ DBZCCG.CardGroup.create = function(cardGroup) {
 
                 if (card === this.cards[0]) {
                     baseAnimation.onStart(function() {
-                        
+
                         if (card.beginRemoveCallback instanceof Function) {
-                                card.beginRemoveCallback();
-                                card.beginRemoveCallback = undefined;
-                         };
-                        
+                            card.beginRemoveCallback();
+                            card.beginRemoveCallback = undefined;
+                        }
+                        ;
+
                         card.display.position.copy(target);
                     });
                 }
@@ -271,18 +258,19 @@ DBZCCG.CardGroup.create = function(cardGroup) {
                         card.display.ownParent = true;
                     }
 
-                    for (var i = 0; i < addCallback.length; i++) {
-                        if (addCallback[i].f instanceof Function) {
-                            var ret = addCallback[i].f(cardsToJoin, addToScene, card);
-                            if (ret instanceof Object) {
-                                if (ret.cardsToJoin !== undefined) {
-                                    cardsToJoin = ret.cardsToJoin;
-                                } else if (ret.addToScene !== undefined) {
-                                    addToScene = ret.addToScene;
-                                }
-                            }
+                    function argsCallback(cb) {
+                        return cb.f(cardsToJoin, addToScene, card);
+                    }
+
+                    function solveCallback(ret) {
+                        if (ret.cardsToJoin !== undefined) {
+                            cardsToJoin = ret.cardsToJoin;
+                        } else if (ret.addToScene !== undefined) {
+                            addToScene = ret.addToScene;
                         }
                     }
+
+                    cardgroup.solveAddCallback(argsCallback, solveCallback);
 
                     if (cardsToJoin.length === 0) {
                         DBZCCG.performingAnimation = false;
