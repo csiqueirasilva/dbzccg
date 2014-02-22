@@ -44,15 +44,15 @@ DBZCCG.CardGroup.create = function(cardGroup) {
                             target.z += DBZCCG.Card.cardDepth * DBZCCG.Card.cardThicknessScale * i;
                         }
 
-                        this.cards[i].display.mouseOver = cardGroupCardMouseOver;
-                        this.cards[i].display.mouseOut = cardGroupCardMouseOut;
+                        this.cards[i].display.cardGroupCardMouseOver = true;
+                        this.cards[i].display.cardGroupCardMouseOut = true;
                     }
 
                     this.cards[i].display.position = target;
 
-                    if (this.cards[i].display.rotation.x != this.rotation.x ||
-                            this.cards[i].display.rotation.y != this.rotation.y ||
-                            this.cards[i].display.rotation.z != this.rotation.z) {
+                    if (this.cards[i].display.rotation.x !== this.rotation.x ||
+                            this.cards[i].display.rotation.y !== this.rotation.y ||
+                            this.cards[i].display.rotation.z !== this.rotation.z) {
                         this.cards[i].display.rotation.copy(this.rotation);
                     }
 
@@ -81,14 +81,14 @@ DBZCCG.CardGroup.create = function(cardGroup) {
 
         function cardGroupCardMouseOver() {
             if (Math.abs(this.rotation.x / (Math.PI / 2)) !== 1) {
-                if (this.originalZ == undefined) {
+                if (this.originalZ === undefined) {
                     this.originalZ = this.position.z;
                 }
                 this.position.z = this.originalZ + 0.05;
             }
             else
             {
-                if (this.originalY == undefined) {
+                if (this.originalY === undefined) {
                     this.originalY = this.position.y;
                 }
                 this.position.y = this.originalY + 0.05;
@@ -133,8 +133,8 @@ DBZCCG.CardGroup.create = function(cardGroup) {
                 if (diff > 0) {
                     if (target.x < (this.position.x - this.groupMaxWidth / 2)) {
                         target.x = this.position.x - this.groupMaxWidth / 2;
-                        this.cards[0].display.mouseOver = cardGroupCardMouseOver;
-                        this.cards[0].display.mouseOut = cardGroupCardMouseOut;
+//                        this.cards[0].display.cardGroupCardMouseOver = true;
+//                        this.cards[0].display.cardGroupCardMouseOut = true;
                     }
                 }
 
@@ -193,8 +193,8 @@ DBZCCG.CardGroup.create = function(cardGroup) {
                             target.z += DBZCCG.Card.cardDepth * DBZCCG.Card.cardThicknessScale * i;
                         }
 
-                        this.cards[i].display.mouseOver = cardGroupCardMouseOver;
-                        this.cards[i].display.mouseOut = cardGroupCardMouseOut;
+//                        this.cards[i].display.mouseOver = cardGroupCardMouseOver;
+//                        this.cards[i].display.mouseOut = cardGroupCardMouseOut;
                     }
 
                     if (card === this.cards[i]) {

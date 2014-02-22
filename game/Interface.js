@@ -138,16 +138,16 @@ DBZCCG.Interface.browseCardList = function(cards, title) {
 
         option.saga = ClassHelper.getKeyByValue(DBZCCG.Card.Saga, cards[i].saga);
         option.number = cards[i].number;
-        
+
         if (!DBZCCG.Interface.cachedCards[option.saga][option.number]) {
             DBZCCG.Interface.cachedCards[option.saga][option.number] = DBZCCG.Card.createCard(DBZCCG[option.saga][option.number]);
         }
 
-        option.onmouseover = function () {
+        option.onmouseover = function() {
             DBZCCG.Interface.cachedCards[this.saga][this.number].display.mouseOver();
         };
-        
-        option.onmouseout = function () {
+
+        option.onmouseout = function() {
             DBZCCG.Interface.cachedCards[this.saga][this.number].display.mouseOut();
         };
 
@@ -167,3 +167,38 @@ DBZCCG.Interface.browseCardList = function(cards, title) {
 
     $('#mainDialog').dialog('open');
 };
+
+DBZCCG.Interface.fixWebkitGfx = function() {
+
+// FIX of some GFX bugs
+
+// SRC: http://www.eccesignum.org/blog/solving-display-refreshredrawrepaint-issues-in-webkit-browsers
+
+    /*	Silently append and remove a text node	
+     This is the fix that worked for me in the Phonegap/Android application
+     the setTimeout allows a 'tick' to happen in the browser refresh,
+     giving the UI time to update
+     */
+    var fixElement = document.createElement('div');
+    fixElement.id = 'fixElement';
+    document.body.appendChild(fixElement);
+    var n = document.createTextNode(' ');
+    $('#fixElement').append(n);
+    setTimeout(function() {
+        n.parentNode.removeChild(n)
+    }, 0);
+
+
+    /*	Hide and reshow the element	*/
+    document.getElementById('fixElement').style.display = 'none';
+    document.getElementById('fixElement').offsetHeight; // no need to store this anywhere, the reference is enough
+    document.getElementById('fixElement').style.display = 'block';
+
+    /*	Set the scale of the element to 1. 
+     This doesn't actually change anything visually, 
+     because by default everything in the browser 
+     is set to scale 1	*/
+
+    document.getElementById('fixElement').style.webkitTransform = 'scale(1)';
+    $('#fixElement').remove();
+}

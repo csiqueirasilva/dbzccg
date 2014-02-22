@@ -417,15 +417,26 @@ DBZCCG.Saiyan['011'] = {
         var damage = this.damage();
         var card = this;
 
+        DBZCCG.Card.FloatingEffect.create(
+                {card: DBZCCG.Saiyan['011'],
+                    player: DBZCCG.performingAction,
+                    turn: $('#turnCounterNumber').html,
+                    phase: DBZCCG.phaseCounter + 1,
+                    scene: DBZCCG.mainScene,
+                    combat: true
+                });
+
         DBZCCG.listActions.splice(0, 0, function() {
             DBZCCG.attackingPlayer.addDefenderCallback({f: function(attackingCard) {
-                    if (attackingCard.effectType instanceof Array && attackingCard.effectType.indexOf(DBZCCG.Combat.Attack.Energy) !== -1) {
+                    if (attackingCard.success && this.phase === DBZCCG.phaseCounter && this.turn === $('#turnCounterNumber').html &&
+                            attackingCard.effectType instanceof Array &&
+                            attackingCard.effectType.indexOf(DBZCCG.Combat.Attack.Energy) !== -1) {
                         attackingCard.success = false;
                         DBZCCG.Combat.flashCard(card);
                         return {skipDefense: true};
                     }
                     // destroy floating effect created
-                }, priority: 100000, life: false});
+                }, priority: 100000, life: false, turn: $('#turnCounterNumber').html, phase: DBZCCG.phaseCounter + 1});
             //createFloatingEffect to stop next energy attack in his next attack phase
         });
 
@@ -461,16 +472,27 @@ DBZCCG.Saiyan['012'] = {
             DBZCCG.defendingPlayer.mainPersonality.changeAnger(-1);
         });
 
+        DBZCCG.Card.FloatingEffect.create(
+                {card: DBZCCG.Saiyan['012'],
+                    player: DBZCCG.performingAction,
+                    turn: $('#turnCounterNumber').html,
+                    phase: DBZCCG.phaseCounter + 1,
+                    scene: DBZCCG.mainScene,
+                    combat: true
+                });
+
         DBZCCG.listActions.splice(0, 0, function() {
             DBZCCG.attackingPlayer.addDefenderCallback({f: function(attackingCard) {
-                    if (attackingCard.effectType instanceof Array && attackingCard.effectType.indexOf(DBZCCG.Combat.Attack.Physical) !== -1) {
+                    if (attackingCard.success &&
+                            this.phase === DBZCCG.phaseCounter && this.turn === $('#turnCounterNumber').html &&
+                            attackingCard.effectType instanceof Array && attackingCard.effectType.indexOf(DBZCCG.Combat.Attack.Physical) !== -1) {
                         attackingCard.success = false;
                         DBZCCG.Combat.flashCard(card);
                         return {skipDefense: true};
                     }
                     // destroy floating effect created
                 }, priority: 100000,
-                life: false});
+                life: false, turn: $('#turnCounterNumber').html, phase: DBZCCG.phaseCounter + 1});
             //createFloatingEffect to stop next energy attack in his next attack phase
         });
 
@@ -753,13 +775,23 @@ DBZCCG.Saiyan['018'] = {
                                 ret = false;
                             }
 
-                            return ret;
+                            return {success: ret};
                         },
                         phase: DBZCCG.phaseCounter + 1,
                         turn: $('#turnCounterNumber').html(),
                         life: true,
                         priority: 50}
                     );
+
+                    DBZCCG.Card.FloatingEffect.create(
+                            {card: DBZCCG.Saiyan['018'],
+                                player: DBZCCG.performingAction,
+                                turn: $('#turnCounterNumber').html,
+                                phase: DBZCCG.phaseCounter + 1,
+                                scene: DBZCCG.mainScene,
+                                combat: true,
+                                appendText: "Chosen personality: " + $('#search-form').val()
+                            });
 
                     $(this).dialog('close');
                     DBZCCG.performingTurn =
@@ -792,6 +824,17 @@ DBZCCG.Saiyan['018'] = {
             return true;
         } else /* AI */ {
             var personality = DBZCCG.defendingPlayer.getPersonalityInControl().personality;
+
+            DBZCCG.Card.FloatingEffect.create(
+                    {card: DBZCCG.Saiyan['018'],
+                        player: DBZCCG.performingAction,
+                        turn: $('#turnCounterNumber').html,
+                        phase: DBZCCG.phaseCounter + 1,
+                        scene: DBZCCG.mainScene,
+                        combat: true,
+                        appendText: "Chosen personality: " + ClassHelper.getKeyByValue(DBZCCG.Personality.Personalities, personality)
+                    });
+
             DBZCCG.defendingPlayer.addActivationCallback({
                 f: function(card) {
                     var ret = true;
@@ -805,7 +848,7 @@ DBZCCG.Saiyan['018'] = {
                         ret = false;
                     }
 
-                    return ret;
+                    return {success: ret};
                 },
                 phase: DBZCCG.phaseCounter + 1,
                 turn: $('#turnCounterNumber').html(),
@@ -870,13 +913,23 @@ DBZCCG.Saiyan['019'] = {
                                 ret = false;
                             }
 
-                            return ret;
+                            return {success: ret};
                         },
                         phase: DBZCCG.phaseCounter + 1,
                         turn: $('#turnCounterNumber').html(),
                         life: true,
                         priority: 50}
                     );
+
+                    DBZCCG.Card.FloatingEffect.create(
+                            {card: DBZCCG.Saiyan['019'],
+                                player: DBZCCG.performingAction,
+                                turn: $('#turnCounterNumber').html,
+                                phase: DBZCCG.phaseCounter + 1,
+                                scene: DBZCCG.mainScene,
+                                combat: true,
+                                appendText: "Chosen personality: " + $('#search-form').val()
+                            });
 
                     $(this).dialog('close');
                     DBZCCG.performingTurn =
@@ -909,6 +962,17 @@ DBZCCG.Saiyan['019'] = {
             return true;
         } else /* AI */ {
             var personality = DBZCCG.defendingPlayer.getPersonalityInControl().personality;
+
+            DBZCCG.Card.FloatingEffect.create(
+                    {card: DBZCCG.Saiyan['019'],
+                        player: DBZCCG.performingAction,
+                        turn: $('#turnCounterNumber').html,
+                        phase: DBZCCG.phaseCounter + 1,
+                        scene: DBZCCG.mainScene,
+                        combat: true,
+                        appendText: "Chosen personality: " + ClassHelper.getKeyByValue(DBZCCG.Personality.Personalities, personality)
+                    });
+
             DBZCCG.defendingPlayer.addActivationCallback({
                 f: function(card) {
                     var ret = true;
@@ -922,7 +986,7 @@ DBZCCG.Saiyan['019'] = {
                         ret = false;
                     }
 
-                    return ret;
+                    return {success: ret};
                 },
                 phase: DBZCCG.phaseCounter + 1,
                 turn: $('#turnCounterNumber').html(),
@@ -1029,13 +1093,23 @@ DBZCCG.Saiyan['021'] = {
                                 ret = false;
                             }
 
-                            return ret;
+                            return {success: ret};
                         },
                         phase: DBZCCG.phaseCounter + 1,
                         turn: $('#turnCounterNumber').html(),
                         life: true,
                         priority: 50}
                     );
+
+                    DBZCCG.Card.FloatingEffect.create(
+                            {card: DBZCCG.Saiyan['021'],
+                                player: DBZCCG.performingAction,
+                                turn: $('#turnCounterNumber').html,
+                                phase: DBZCCG.phaseCounter + 1,
+                                scene: DBZCCG.mainScene,
+                                combat: true,
+                                appendText: "Chosen personality: " + $('#search-form').val()
+                            });
 
                     $(this).dialog('close');
                     DBZCCG.performingTurn =
@@ -1068,6 +1142,17 @@ DBZCCG.Saiyan['021'] = {
             return true;
         } else /* AI */ {
             var personality = DBZCCG.defendingPlayer.getPersonalityInControl().personality;
+
+            DBZCCG.Card.FloatingEffect.create(
+                    {card: DBZCCG.Saiyan['021'],
+                        player: DBZCCG.performingAction,
+                        turn: $('#turnCounterNumber').html,
+                        phase: DBZCCG.phaseCounter + 1,
+                        scene: DBZCCG.mainScene,
+                        combat: true,
+                        appendText: "Chosen personality: " + ClassHelper.getKeyByValue(DBZCCG.Personality.Personalities, personality)
+                    });
+
             DBZCCG.defendingPlayer.addActivationCallback({
                 f: function(card) {
                     var ret = true;
@@ -1081,7 +1166,7 @@ DBZCCG.Saiyan['021'] = {
                         ret = false;
                     }
 
-                    return ret;
+                    return {success: ret};
                 },
                 phase: DBZCCG.phaseCounter + 1,
                 turn: $('#turnCounterNumber').html(),
@@ -1273,6 +1358,11 @@ DBZCCG.Saiyan['025'] = {
                 DBZCCG.listActions.splice(0, 0, function() {
                     DBZCCG.performingAnimation = true;
                     var card = DBZCCG.attackingPlayer.hand.cards[DBZCCG.attackingPlayer.hand.cards.length - 1];
+
+                    if (card.display.offDescriptionBox !== null) {
+                        card.display.turnGameDisplay();
+                    }
+
                     var cardRotation = card.display.rotation.y;
                     var animation = new TWEEN.Tween(new THREE.Vector3(0, cardRotation, 0)).to(new THREE.Vector3(0, cardRotation - Math.PI, 0), 300);
                     animation.onUpdate(function() {
@@ -1413,16 +1503,23 @@ DBZCCG.Saiyan['028'] = {
     effect: function() {
         this.targetCard.success = false;
         var card = this;
+
+        DBZCCG.Card.FloatingEffect.create(
+                {card: DBZCCG.Saiyan['028'],
+                    player: DBZCCG.performingAction,
+                    scene: DBZCCG.mainScene,
+                    combat: true
+                });
+
         DBZCCG.defendingPlayer.addDefenderCallback({f: function(attackingCard) {
                 if ($('#turnCounterNumber').html() !== this.turn) {
                     this.life = false;
                     return;
-                } else if (attackingCard.effectType instanceof Array && attackingCard.effectType.indexOf(DBZCCG.Combat.Attack.Physical) !== -1) {
+                } else if (attackingCard.success && attackingCard.effectType instanceof Array && attackingCard.effectType.indexOf(DBZCCG.Combat.Attack.Physical) !== -1) {
                     attackingCard.success = false;
                     DBZCCG.Combat.flashCard(card);
                     return {skipDefense: true};
                 }
-                // destroy floating effect created
             }, priority: 100000, life: true, turn: $('#turnCounterNumber').html()});
         DBZCCG.performingTurn = false;
     },
@@ -1548,13 +1645,24 @@ DBZCCG.Saiyan['033'] = {
         DBZCCG.defendingPlayer.addBeforeDamageCallback({
             priority: 50,
             f: function(powerStages, lifeCards) {
-                var ret = {
-                    powerStages: powerStages,
-                    lifeCards: lifeCards > 0 ? lifeCards - 1 : lifeCards
-                };
+                var ret;
+                if (DBZCCG.phaseCounter === this.phase && $('#turnCounterNumber').html() === this.turn) {
+                    ret = {
+                        powerStages: powerStages,
+                        lifeCards: lifeCards > 0 ? lifeCards - 1 : lifeCards
+                    };
+                } else {
+                    ret = {
+                        powerStages: powerStages,
+                        lifeCards: lifeCards
+                    };
+                }
+
                 return ret;
             },
-            life: false
+            life: false,
+            turn: $('#turnCounterNumber').html(),
+            phase: DBZCCG.phaseCounter
         });
     },
     postEffect: function(card) {
@@ -1662,13 +1770,23 @@ DBZCCG.Saiyan['036'] = {
         DBZCCG.defendingPlayer.addBeforeDamageCallback({
             priority: 50,
             f: function(powerStages, lifeCards) {
-                var ret = {
-                    powerStages: powerStages,
-                    lifeCards: lifeCards >= 3 ? lifeCards - 3 : lifeCards
-                };
+                var ret;
+                if (this.phase === DBZCCG.phaseCounter && $('#turnCounterNumber').html() === this.turn) {
+                    ret = {
+                        powerStages: powerStages,
+                        lifeCards: lifeCards >= 3 ? lifeCards - 3 : lifeCards
+                    };
+                } else {
+                    ret = {
+                        powerStages: powerStages,
+                        lifeCards: lifeCards
+                    };
+                }
                 return ret;
             },
-            life: false
+            turn: $('#turnCounterNumber').html(),
+            life: false,
+            phase: DBZCCG.phaseCounter
         });
     },
     cost: function() {
@@ -1948,6 +2066,14 @@ DBZCCG.Saiyan['045'] = {
     effect: function() {
         this.success = true;
         var card = this;
+
+        DBZCCG.Card.FloatingEffect.create(
+                {card: DBZCCG.Saiyan['045'],
+                    player: DBZCCG.performingAction,
+                    nextTurn: true,
+                    scene: DBZCCG.mainScene
+                });
+
         DBZCCG.performingAction.addTurnCallback({
             priority: 50,
             f: function() {
@@ -2074,12 +2200,14 @@ DBZCCG.Saiyan['048'] = {
     saga: DBZCCG.Card.Saga.Saiyan,
     playable: DBZCCG.Combat.defaultNonCombatCheck,
     activable: function(player) {
-        return DBZCCG.Log.checkEventThisPhase(DBZCCG.Log.Type.sufferedDamage, {player: DBZCCG.defendingPlayer, typeDamage: DBZCCG.Combat.Attack.Physical, turn: $('#turnCounterNumber').html()}) &&
+        return DBZCCG.Combat.checkDragonballControl(DBZCCG.defendingPlayer).length > 0 && DBZCCG.Log.checkEventThisPhase(DBZCCG.Log.Type.sufferedDamage, {player: DBZCCG.defendingPlayer, typeDamage: DBZCCG.Combat.Attack.Physical, turn: $('#turnCounterNumber').html()}) &&
                 DBZCCG.Combat.defaultAttackerCheck(player, this);
     },
     effect: function() {
         this.success = true;
         DBZCCG.defendingPlayer.captureDragonballs(false, false, true, "Due to the effects of <b>Goku's Touch</b> it is not possible to capture a dragonball.");
+        // effect still happening
+        return true;
     },
     postEffect: function(card) {
         var cardIdx = DBZCCG.performingAction.nonCombats.getCardIdx(card.display);
@@ -2412,12 +2540,28 @@ DBZCCG.Saiyan['058'] = {
         }, DBZCCG.attackingPlayer.getPersonalityInControl().currentPowerLevel(), DBZCCG.defendingPlayer.getPersonalityInControl().currentPowerLevel());
     },
     successfulEffect: function(defendingPlayer) {
+        var card = this;
         var damage = this.damage();
+
+        DBZCCG.Card.FloatingEffect.create(
+                {card: DBZCCG.Saiyan['058'],
+                    player: DBZCCG.defendingPlayer,
+                    combat: true,
+                    scene: DBZCCG.mainScene
+                });
+
+        DBZCCG.Card.FloatingEffect.create(
+                {card: DBZCCG.Saiyan['058'],
+                    player: DBZCCG.attackingPlayer,
+                    combat: true,
+                    scene: DBZCCG.mainScene
+                });
+
         DBZCCG.defendingPlayer.addDefenderCallback({f: function(attackingCard) {
                 if ($('#turnCounterNumber').html() !== this.turn) {
                     this.life = false;
                     return;
-                } else if (attackingCard.effectType instanceof Array && attackingCard.effectType.indexOf(DBZCCG.Combat.Attack.Energy) !== -1) {
+                } else if (attackingCard.success && attackingCard.effectType instanceof Array && attackingCard.effectType.indexOf(DBZCCG.Combat.Attack.Energy) !== -1) {
                     attackingCard.success = false;
                     DBZCCG.Combat.flashCard(card);
                     return {skipDefense: true};
@@ -2429,7 +2573,7 @@ DBZCCG.Saiyan['058'] = {
                 if ($('#turnCounterNumber').html() !== this.turn) {
                     this.life = false;
                     return;
-                } else if (attackingCard.effectType instanceof Array && attackingCard.effectType.indexOf(DBZCCG.Combat.Attack.Energy) !== -1) {
+                } else if (attackingCard.success && attackingCard.effectType instanceof Array && attackingCard.effectType.indexOf(DBZCCG.Combat.Attack.Energy) !== -1) {
                     attackingCard.success = false;
                     DBZCCG.Combat.flashCard(card);
                     return {skipDefense: true};
@@ -2526,7 +2670,7 @@ DBZCCG.Saiyan['074'] = {
     effect: function() {
         this.success = true;
         this.targetCard = DBZCCG.defendingPlayer.getPersonalityInControl();
-        
+
         DBZCCG.listActions.splice(0, 0, function() {
             DBZCCG.attackingPlayer.mainPersonality.changeAnger(1);
         });
@@ -2693,13 +2837,23 @@ DBZCCG.Saiyan['160'] = {
         DBZCCG.defendingPlayer.addBeforeDamageCallback({
             priority: 50,
             f: function(powerStages, lifeCards) {
-                var ret = {
-                    powerStages: powerStages,
-                    lifeCards: lifeCards > 1 ? lifeCards - 2 : 0
-                };
+                var ret;
+                if (this.phase === DBZCCG.phaseCounter && $('#turnCounterNumber').html() === this.turn) {
+                    ret = {
+                        powerStages: powerStages,
+                        lifeCards: lifeCards > 1 ? lifeCards - 2 : 0
+                    };
+                } else {
+                    ret = {
+                        powerStages: powerStages,
+                        lifeCards: lifeCards
+                    };
+                }
                 return ret;
             },
-            life: false
+            life: false,
+            turn: $('#turnCounterNumber').html(),
+            phase: DBZCCG.phaseCounter
         });
     },
     postEffect: function(card) {
@@ -2730,13 +2884,23 @@ DBZCCG.Saiyan['173'] = {
         DBZCCG.defendingPlayer.addBeforeDamageCallback({
             priority: 50,
             f: function(powerStages, lifeCards) {
-                var ret = {
-                    powerStages: powerStages,
-                    lifeCards: lifeCards > 1 ? lifeCards - 2 : 0
-                };
+                var ret;
+                if (DBZCCG.phaseCounter === this.phase && $('#turnCounterNumber').html() === this.turn) {
+                    ret = {
+                        powerStages: powerStages,
+                        lifeCards: 2
+                    };
+                } else {
+                    ret = {
+                        powerStages: powerStages,
+                        lifeCards: lifeCards
+                    };
+                }
                 return ret;
             },
-            life: false
+            life: false,
+            turn: $('#turnCounterNumber').html(),
+            phase: DBZCCG.phaseCounter
         });
     },
     postEffect: function(card) {
@@ -2811,15 +2975,17 @@ DBZCCG.Saiyan['175'] = {
         this.used = true;
     },
     activable: function(player) {
-        return !this.used && DBZCCG.Log.checkEventThisPhase(DBZCCG.Log.Type.sufferedDamage, {player: DBZCCG.defendingPlayer, typeDamage: DBZCCG.Combat.Attack.Energy, turn: $('#turnCounterNumber').html()}) &&
+        return !this.used && DBZCCG.Combat.checkDragonballControl(DBZCCG.defendingPlayer).length > 0 && DBZCCG.Log.checkEventThisPhase(DBZCCG.Log.Type.sufferedDamage, {player: DBZCCG.defendingPlayer, typeDamage: DBZCCG.Combat.Attack.Energy, turn: $('#turnCounterNumber').html()}) &&
                 DBZCCG.Combat.defaultAttackerCheck(player, this);
     },
     effect: function() {
         this.success = true;
         DBZCCG.defendingPlayer.captureDragonballs(false, false, true, "Due to the effects of <b>Vegeta</b> it is not possible to capture a dragonball.");
-        DBZCCG.listActions.splice(0,0,function () {
+        DBZCCG.listActions.splice(0, 0, function() {
             DBZCCG.combat = false;
         });
+        // effect still happening
+        return true;
     },
     effectType: [DBZCCG.Combat.Effect.CaptureDragonball, DBZCCG.Combat.Effect.EndCombat]
 };

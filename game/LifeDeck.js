@@ -20,7 +20,7 @@ DBZCCG.LifeDeck.create = function(deckObject) {
                 '051', '052', '053', '054', '055', '056', '057', '058', '059', '060',
                 '074',
                 '099'];
-
+            var card;
             while(cardList.length < DBZCCG.LifeDeck.maximumSize - 3) {
                 var idx = Math.floor((Math.random()*1000)) % allowedCards.length;
 
@@ -71,7 +71,7 @@ DBZCCG.LifeDeck.create = function(deckObject) {
             var card = cardList[random];
             cardList.splice(random, 1);
             return card;
-        }
+        };
         
         this.display.name = "Life deck";
     }

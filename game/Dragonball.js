@@ -50,11 +50,7 @@ DBZCCG.Dragonball.create = function(data) {
 
                 db.control = player;
                 if(!doNotUse) {
-                    var performingTurn = DBZCCG.performingTurn;
                     db.effect();
-                    DBZCCG.listActions.splice(0,0,function() {
-                        DBZCCG.performingTurn = performingTurn;
-                    });
                     DBZCCG.performingTurn = false;
                 }
             }

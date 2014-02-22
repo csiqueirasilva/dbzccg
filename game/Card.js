@@ -393,7 +393,7 @@ DBZCCG.Card.create = function(dataObject) {
 
                 if (this.parentCard.damage instanceof Function && this.parentCard.damage() instanceof Object) {
                     var damage = this.parentCard.damage();
-                    ret += '<div><h3 style="margin-top: 10%; text-align: center;">Attack Damage</h3>\
+                    ret += '<div><h3 style="text-align: center;">Attack Damage</h3>\
                             <div class="damage-hover-helper">\
                             \
                             <div style="margin-left: 40%"><div style="float:left;" class="hover-icon physical-attack-icon" title="Power Stage Damage"></div><div style="float:left; font-size: 3em;" class="hover-damage-text">' + damage.stages + '</div>';

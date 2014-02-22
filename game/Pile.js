@@ -163,21 +163,6 @@ DBZCCG.Pile.create = function(data, faceUp, owner) {
 
                     pile.solveAddCallback(argsCallback, solveCallback);
 
-//                    for (var i = 0; i < addCallback.length; i++) {
-//                        if (addCallback[i].f instanceof Function) {
-//                            var ret = addCallback[i].f(cardIdx, increaseIndex, cards, card, owner);
-//                            if (ret instanceof Object) {
-//                                if (ret.cardIdx !== undefined) {
-//                                    cardIdx = ret.cardIdx;
-//                                } else if (ret.increaseIndex !== undefined) {
-//                                    increaseIndex = ret.increaseIndex;
-//                                } else if (ret.cards !== undefined) {
-//                                    cards = ret.cards;
-//                                }
-//                            }
-//                        }
-//                    }
-
                     if (cards.length > 0) {
                         pile.addCard(cardIdx + increaseIndex, cards);
                     } else {
@@ -501,7 +486,7 @@ DBZCCG.Pile.create = function(data, faceUp, owner) {
             }
             this.turnThisWay(direction);
             field.add(this.display);
-        }
+        };
 
         this.removeLabelText = function() {
             if (this.labelText) {
@@ -517,6 +502,24 @@ DBZCCG.Pile.create = function(data, faceUp, owner) {
 
             if (!isNaN(position.x)) {
                 this.labelText = DBZCCG.Combat.labelText(text || this.cards.length, position, 0xFFFFFF, 800, 1);
+            }
+        };
+
+        this.display.displayHoverText = function () {
+            if(this.displayName) {
+                return this.displayName();
+            } else {
+                return 'NO DISPLAY';
+            }
+        };
+        
+        DBZCCG.Combat.setMouseOverCallback(this.display);
+
+        var clickCb = this.display.click;
+        this.display.click = function () {
+            clickCb();
+            if(this.descriptionBox instanceof Function) {
+                this.descriptionBox();
             }
         };
 

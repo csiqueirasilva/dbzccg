@@ -12,7 +12,7 @@ DBZCCG.DiscardPile.create = function(discardPile, owner) {
 
         discard.display.displayName = function() {
             return this.owner() + ' Discard Pile';
-        }
+        };
 
         discard.display.displayObject = function() {
             var lastIndex = this.children.length - 1;

@@ -208,11 +208,10 @@ DBZCCG.MainPersonality.create = function(data) {
 
                     animation.onStart(function() {
                         var text;
-                        if (anger !== 0) {
+                        if (oldAnger === 0 && anger > 0 || oldAnger !== 0) {
                             text = (diffAnger < 0 ? '' : '+') + diffAnger;
                             DBZCCG.Combat.hoverText(text, mp.zScabbard);
                         }
-
                     });
 
                     animation.onUpdate(function() {
