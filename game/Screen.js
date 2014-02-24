@@ -99,7 +99,7 @@ DBZCCG.Screen.create = function(buildScene, render, controls) {
 
                 requestAnimationFrame(animate);
 
-            }, 33 - DBZCCG.clock.getDelta() * 1000);
+            }, 0);//33 - DBZCCG.clock.getDelta() * 1000);
 
             render(cameraControl, renderer, scene, camera, stats);
         }

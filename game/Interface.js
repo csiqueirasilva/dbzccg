@@ -12,6 +12,12 @@ $('#log-dialog').dialog({
     }
 });
 
+$('#sound-btn').click(function() {
+    DBZCCG.Sound.toggle();
+    $(this).toggleClass('sound-on');
+    $(this).toggleClass('sound-off');
+});
+
 $('#object-info').dialog({
     autoOpen: false,
     closeOnEscape: true,

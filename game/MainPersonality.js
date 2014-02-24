@@ -136,6 +136,7 @@ DBZCCG.MainPersonality.create = function(data) {
                 animation.onStart(function() {
                     var text = "=" + anger;
                     DBZCCG.Combat.hoverText(text, mp.zScabbard);
+                    DBZCCG.Sound.anger(anger - oldAnger);
                 });
 
                 animation.onUpdate(function() {
@@ -181,7 +182,7 @@ DBZCCG.MainPersonality.create = function(data) {
                     updateLevel = true;
                 } else if (anger + this.currentAngerLevel <= 0) {
                     anger = 0;
-                } else if (anger == 0) {
+                } else if (anger === 0) {
                     anger = this.currentAngerLevel;
                 } else {
                     anger = anger + this.currentAngerLevel;
@@ -212,6 +213,7 @@ DBZCCG.MainPersonality.create = function(data) {
                             text = (diffAnger < 0 ? '' : '+') + diffAnger;
                             DBZCCG.Combat.hoverText(text, mp.zScabbard);
                         }
+                        DBZCCG.Sound.anger(diffAnger);
                     });
 
                     animation.onUpdate(function() {
@@ -224,7 +226,7 @@ DBZCCG.MainPersonality.create = function(data) {
 
                     animation.onComplete(function() {
                         if (!noMessage) {
-                            if (oldAnger != anger) {
+                            if (oldAnger !== anger) {
                                 var msg;
                                 if (diffAnger < 0) {
                                     msg = mp.personalities[mp.currentMainPersonalityLevel - 1].displayName() + " lost " + Math.abs(diffAnger) + " anger.";
@@ -242,7 +244,7 @@ DBZCCG.MainPersonality.create = function(data) {
 
                         if (updateLevel) {
                             mp.currentAngerLevel = mp.angerLevelNeededToLevel;
-                            if (mp.personalities.length != mp.currentMainPersonalityLevel) {
+                            if (mp.personalities.length !== mp.currentMainPersonalityLevel) {
                                 mp.advanceLevels(1);
                             } else {
                                 DBZCCG.Log.logEntry(mp.personalities[mp.currentMainPersonalityLevel - 1].logName() + "'s level cannot go higher.");
@@ -321,6 +323,7 @@ DBZCCG.MainPersonality.create = function(data) {
                         lastPosition.y = pos.y;
                         lastPosition.z = pos.z;
                     }
+                    
                     var putOldLevelBehind = new TWEEN.Tween(stepAside).to(lastPosition, 80);
 
                     lastTween.chain(putOldLevelBehind);
@@ -370,6 +373,7 @@ DBZCCG.MainPersonality.create = function(data) {
 
                     rp[0].currentPowerStageAboveZero = rp[0].zScouter = undefined;
                     mp.currentMainPersonalityLevel++;
+                    DBZCCG.Sound.level(1);
                     currentLevelStepAside.start();
                 }
             }

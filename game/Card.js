@@ -59,19 +59,15 @@ DBZCCG.Card.Rarity['Ubber Rare'] = 7;
 /* To reduce load on card creation */
 (function() {
     DBZCCG.Card.backTexture = THREE.ImageUtils.loadTexture("images/DBZCCG/back.jpg");
-    borderTexture = THREE.ImageUtils.loadTexture("images/DBZCCG/border_low.jpg");
-    cornerTexture = THREE.ImageUtils.loadTexture("images/DBZCCG/corner_low.jpg");
-    columnGeo = new THREE.CylinderGeometry(DBZCCG.Card.cornerWidth, DBZCCG.Card.cornerWidth, DBZCCG.Card.cardHeight, 32, 16, true);
-    lineGeo = new THREE.CylinderGeometry(DBZCCG.Card.cornerWidth, DBZCCG.Card.cornerWidth, DBZCCG.Card.cardWidth - DBZCCG.Card.cornerWidth, 32, 16, true);
+    var columnGeo = new THREE.CylinderGeometry(DBZCCG.Card.cornerWidth, DBZCCG.Card.cornerWidth, DBZCCG.Card.cardHeight, 32, 16, true);
+    var lineGeo = new THREE.CylinderGeometry(DBZCCG.Card.cornerWidth, DBZCCG.Card.cornerWidth, DBZCCG.Card.cardWidth - DBZCCG.Card.cornerWidth, 32, 16, true);
     DBZCCG.Card.cardMaterial = new THREE.MeshLambertMaterial({shading: THREE.SmoothShading, color: 0x000000, side: THREE.FrontSide});
-    cornerMaterial = new THREE.MeshLambertMaterial({
-        side: THREE.FrontSide,
-        map: cornerTexture
+    var cornerMaterial = new THREE.MeshLambertMaterial({
+        side: THREE.FrontSide
     });
 
     borderMaterial = new THREE.MeshLambertMaterial({
-        side: THREE.FrontSide,
-        map: borderTexture
+        side: THREE.FrontSide
     });
 
     cornerGeo = new THREE.SphereGeometry(DBZCCG.Card.cornerWidth, 32, 16);
@@ -382,14 +378,14 @@ DBZCCG.Card.create = function(dataObject) {
         card.display.displayHoverText = function() {
             var ret = '';
 
-            ret += card.display.descriptionBox();
+            ret += this.parentCard.display.descriptionBox();
 
             ret += '<div style="clear:both;"/>';
 
-            if (DBZCCG.performingAction.checkOwnership(card.display) && card.activable instanceof Function &&
-                    card.activable(DBZCCG.performingAction) && card.effectType instanceof Array &&
-                    (card.effectType.indexOf(DBZCCG.Combat.Attack.Physical) !== -1 ||
-                            card.effectType.indexOf(DBZCCG.Combat.Attack.Energy) !== -1)) {
+            if (DBZCCG.performingAction.checkOwnership(this.parentCard.display) && this.parentCard.activable instanceof Function &&
+                    this.parentCard.activable(DBZCCG.performingAction) && this.parentCard.effectType instanceof Array &&
+                    (this.parentCard.effectType.indexOf(DBZCCG.Combat.Attack.Physical) !== -1 ||
+                            this.parentCard.effectType.indexOf(DBZCCG.Combat.Attack.Energy) !== -1)) {
 
                 if (this.parentCard.damage instanceof Function && this.parentCard.damage() instanceof Object) {
                     var damage = this.parentCard.damage();
@@ -401,6 +397,7 @@ DBZCCG.Card.create = function(dataObject) {
                     + '</div></div></div>';
                 }
             }
+            
             return ret;
         };
 

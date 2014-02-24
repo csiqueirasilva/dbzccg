@@ -141,7 +141,9 @@ DBZCCG.Personality.create = function(data) {
                 diffPowerStage = resultPowerStage - this.currentPowerStageAboveZero;
             }
 
-            DBZCCG.Combat.hoverText((diffPowerStage < 0 ? '' : '+') + diffPowerStage, this.zScouter, diffPowerStage > 0 ? 0x00FF00 : 0xFF0000);
+
+            DBZCCG.Sound.power(diffPowerStage);
+            DBZCCG.Combat.hoverText((diffPowerStage < 0 ? '' : '+') + diffPowerStage.toString(), this.zScouter, diffPowerStage > 0 ? 0x00FF00 : 0xFF0000);
 
             this.moveZScouter(resultPowerStage, noDelay, true);
 
@@ -193,9 +195,10 @@ DBZCCG.Personality.create = function(data) {
                         if (card.currentPowerStageAboveZero === card.powerStages.length - 1) {
                             msg += " (max)";
                         } else if (card.currentPowerStageAboveZero !== 0) {
-                            msg += " (" + card.currentPowerStageAboveZero + " " + (card.currentPowerStageAboveZero == 1 ? "stage" : "stages") + " above 0)";
+                            msg += " (" + card.currentPowerStageAboveZero + " " + (card.currentPowerStageAboveZero === 1 ? "stage" : "stages") + " above 0)";
                         }
 
+                        DBZCCG.Sound.power();
                         DBZCCG.Combat.hoverText("=" + card.powerStages[card.currentPowerStageAboveZero], card.zScouter);
                         DBZCCG.Log.logEntry(msg);
                     }

@@ -158,6 +158,10 @@ DBZCCG.Card.FloatingEffect.create = function(dataObject) {
                                 var animation = new TWEEN.Tween(new THREE.Vector3(1, 0, 0)).to(new THREE.Vector3(0, 0, 0), 250);
                                 var materials = floatingEffect.display.children[0].material.materials;
 
+                                animation.onStart(function () {
+                                    DBZCCG.Sound.floatingEffect("disappear");
+                                });
+
                                 animation.onUpdate(function() {
                                     for (var i = 0; i < materials.length; i++) {
                                         materials[i].opacity = this.x;
@@ -197,9 +201,9 @@ DBZCCG.Card.FloatingEffect.create = function(dataObject) {
         
         if(dataObject.appendText) {
             if(this.display.displayHoverText instanceof Function) {
-                var oldDisplayFunc = this.display.displayHoverText;
+                this.display.oldDisplayFunc = this.display.displayHoverText;
                 this.display.displayHoverText = function () {
-                    return oldDisplayFunc() + "<div><h2>Floating Effect:</h2>" + dataObject.appendText + "</div>";
+                    return this.oldDisplayFunc() + "<div><h2>Floating Effect:</h2>" + dataObject.appendText + "</div>";
                 };
             }
         }
@@ -215,6 +219,7 @@ DBZCCG.Card.FloatingEffect.create = function(dataObject) {
                 var materials = floatingEffect.display.children[0].material.materials;
 
                 animation.onStart(function() {
+                    DBZCCG.Sound.floatingEffect("appear");
                     DBZCCG.Card.FloatingEffect.addParticle(floatingEffect);
                 });
 
@@ -240,7 +245,6 @@ DBZCCG.Card.FloatingEffect.create = function(dataObject) {
 
         dataObject.player.floatingEffects.addCard([this], true);
     }
-    ;
 
     return new floatingEffectObject(dataObject);
 };

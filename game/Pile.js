@@ -69,7 +69,8 @@ DBZCCG.Pile.create = function(data, faceUp, owner) {
 
                 var otherCards = pile.display.children;
 
-                card.display.position.y = DBZCCG.Card.cornerWidth * DBZCCG.Card.cardThicknessScale * (50 + card.display.parent.children.length + pile.display.children.length) * 2;
+                card.display.position.y = DBZCCG.Card.cornerWidth * DBZCCG.Card.cardThicknessScale *
+                        (50 + card.display.parent.children.length + pile.display.children.length) * 2;
 
                 var target = pile.display.position.clone();
                 target.add(pile.display.parent.position);
@@ -82,6 +83,8 @@ DBZCCG.Pile.create = function(data, faceUp, owner) {
 
                 animation.onStart(function() {
 
+                    DBZCCG.Sound.transfer(1);
+
                     if (cardIdx === otherCards.length) {
                         if (faceUp) {
                             card.faceup();
@@ -92,7 +95,6 @@ DBZCCG.Pile.create = function(data, faceUp, owner) {
                         increaseIndex = 1;
 
                         newTopCard = true;
-
                     }
 
                     // match player position
@@ -457,9 +459,15 @@ DBZCCG.Pile.create = function(data, faceUp, owner) {
                 var it = new THREE.Vector3(1000, 0, 0);
                 var animation = new TWEEN.Tween(new THREE.Vector3(0, 0, 0)).to(it, timer);
 
+                var sound = -1;
+
                 animation.onUpdate(function() {
                     for (var i = 0; i < pile.display.children.length; i++) {
                         pile.display.children[i].position.x = Math.sin(Math.random()) * 2.5;
+                    }
+                    
+                    if ((++sound % 7) === 0 && sound < 18) {
+                        DBZCCG.Sound.shuffle();
                     }
                 });
 
@@ -505,20 +513,20 @@ DBZCCG.Pile.create = function(data, faceUp, owner) {
             }
         };
 
-        this.display.displayHoverText = function () {
-            if(this.displayName) {
+        this.display.displayHoverText = function() {
+            if (this.displayName) {
                 return this.displayName();
             } else {
                 return 'NO DISPLAY';
             }
         };
-        
+
         DBZCCG.Combat.setMouseOverCallback(this.display);
 
         var clickCb = this.display.click;
-        this.display.click = function () {
+        this.display.click = function() {
             clickCb();
-            if(this.descriptionBox instanceof Function) {
+            if (this.descriptionBox instanceof Function) {
                 this.descriptionBox();
             }
         };

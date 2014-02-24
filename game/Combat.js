@@ -915,9 +915,8 @@ DBZCCG.Combat.setMouseOverCallback = function(display) {
                 }
 
                 var wrapper = document.createElement('div');
+                wrapper.id = 'description-right';
                 wrapper.innerHTML = DBZCCG.toolTip.customContent;
-                wrapper.style.float = 'right';
-                wrapper.style['margin-left'] = '10px';
                 wrapper.style.width = ($('#descriptionBoxContent')
                         .parent()
                         .parent()
@@ -985,16 +984,13 @@ DBZCCG.Combat.labelText = function(text, position, color, zindex, size) {
     }
 
     var span = document.createElement('span');
-    span.id = 'hover-text';
     span.style.position = 'absolute';
     span.style['z-index'] = zindex || 900;
     span.style.color = color;
-    span.style['font-size'] = (size || 2) + 'em';
-    span.style['font-weight'] = 'bold';
-    span.style['text-shadow'] = '-1px 0 black, 0 1px black, 1px 0 black, 0 -1px black';
     span.innerHTML = text;
     span.className = 'hover-label-text';
     document.getElementById('renderer-wrapper').appendChild(span);
+    $(span).css('font-size', (size || 2) + 'em');
     span.style.left = (((position.x - span.offsetWidth / 2) / window.innerWidth) * 100) + '%';
     span.style.top = (((position.y - span.offsetHeight / 2) / window.innerHeight) * 100) + '%';
     return span;

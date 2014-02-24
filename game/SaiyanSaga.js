@@ -419,7 +419,7 @@ DBZCCG.Saiyan['011'] = {
 
         DBZCCG.Card.FloatingEffect.create(
                 {card: DBZCCG.Saiyan['011'],
-                    player: DBZCCG.performingAction,
+                    player: DBZCCG.attackingPlayer,
                     turn: $('#turnCounterNumber').html,
                     phase: DBZCCG.phaseCounter + 1,
                     scene: DBZCCG.mainScene,
@@ -474,7 +474,7 @@ DBZCCG.Saiyan['012'] = {
 
         DBZCCG.Card.FloatingEffect.create(
                 {card: DBZCCG.Saiyan['012'],
-                    player: DBZCCG.performingAction,
+                    player: DBZCCG.attackingPlayer,
                     turn: $('#turnCounterNumber').html,
                     phase: DBZCCG.phaseCounter + 1,
                     scene: DBZCCG.mainScene,
@@ -2071,7 +2071,8 @@ DBZCCG.Saiyan['045'] = {
                 {card: DBZCCG.Saiyan['045'],
                     player: DBZCCG.performingAction,
                     nextTurn: true,
-                    scene: DBZCCG.mainScene
+                    scene: DBZCCG.mainScene,
+                    appendText: "Will skip the next declare phase"
                 });
 
         DBZCCG.performingAction.addTurnCallback({
@@ -2206,6 +2207,11 @@ DBZCCG.Saiyan['048'] = {
     effect: function() {
         this.success = true;
         DBZCCG.defendingPlayer.captureDragonballs(false, false, true, "Due to the effects of <b>Goku's Touch</b> it is not possible to capture a dragonball.");
+        
+        DBZCCG.listActions.splice(0,0,function () {
+            DBZCCG.Combat.effectHappening = false; 
+        });
+        
         // effect still happening
         return true;
     },
@@ -2983,7 +2989,9 @@ DBZCCG.Saiyan['175'] = {
         DBZCCG.defendingPlayer.captureDragonballs(false, false, true, "Due to the effects of <b>Vegeta</b> it is not possible to capture a dragonball.");
         DBZCCG.listActions.splice(0, 0, function() {
             DBZCCG.combat = false;
+            DBZCCG.Combat.effectHappening = false;
         });
+        
         // effect still happening
         return true;
     },

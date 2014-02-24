@@ -429,13 +429,6 @@ DBZCCG.Player.create = function(dataObject, vec) {
             var powerStages = damage.stages;
             var lifeCards = damage.cards;
 
-            if (powerStages > 0) {
-                if (powerStages > this.getPersonalityInControl().currentPowerStageAboveZero) {
-                    lifeCards += damage.stages - this.getPersonalityInControl().currentPowerStageAboveZero;
-                    powerStages = this.getPersonalityInControl().currentPowerStageAboveZero;
-                }
-            }
-
             var argsCallback = function(callback) {
                 return callback.f(powerStages, lifeCards);
             };
@@ -446,6 +439,13 @@ DBZCCG.Player.create = function(dataObject, vec) {
             };
 
             this.solveBeforeDamageCallback(argsCallback, solveCallback);
+
+            if (powerStages > 0) {
+                if (powerStages > this.getPersonalityInControl().currentPowerStageAboveZero) {
+                    lifeCards += damage.stages - this.getPersonalityInControl().currentPowerStageAboveZero;
+                    powerStages = this.getPersonalityInControl().currentPowerStageAboveZero;
+                }
+            }
 
             var cbIdx = [];
             if (lifeCards > 0) {
@@ -467,6 +467,9 @@ DBZCCG.Player.create = function(dataObject, vec) {
             DBZCCG.listActions.splice(0, 0, function() {
                 if (player.lastDamageTaken && player.lastDamageTaken.cards >= 5) {
                     player.captureDragonballs();
+                    if(player.lastDamageTaken.cards > 7 || player.lastDamageTaken.stages > 7) {
+                        DBZCCG.Sound.wowDamage();
+                    }
                 }
             });
 
@@ -482,7 +485,10 @@ DBZCCG.Player.create = function(dataObject, vec) {
                     }
                 }
 
-                var log = DBZCCG.Log.logEntry('Suffered damage' + (typeDamage ? (typeDamage === DBZCCG.Combat.Attack.Energy ? ' from an energy attack' : ' from a physical attack') : '') + ': ' + player.lastDamageTaken.stages + ' power stages and ' + player.lastDamageTaken.cards + ' life cards', DBZCCG.openCard);
+                var log = DBZCCG.Log.logEntry('Suffered damage' + (typeDamage ? (typeDamage === DBZCCG.Combat.Attack.Energy ? 
+                ' from an energy attack' : ' from a physical attack') : '') + ': ' + 
+                        player.lastDamageTaken.stages + ' power stages and ' + 
+                        player.lastDamageTaken.cards + ' life cards', DBZCCG.openCard);
                 log.typeDamage = typeDamage;
                 log.type = DBZCCG.Log.Type.sufferedDamage;
                 log.lifeCardDamageTaken = player.lastDamageTaken.cards;
@@ -1284,7 +1290,8 @@ DBZCCG.Player.create = function(dataObject, vec) {
         this.inPlay = DBZCCG.CardGroup.create(dataObject.inPlay);
         this.fieldCards = DBZCCG.CardGroup.create(dataObject.fieldCards);
         this.floatingEffects = DBZCCG.CardGroup.create(dataObject.floatingEffects);
-
+        this.floatingEffects.name = 'floatingEffects';
+        
         this.floatingEffects.groupMaxWidth = this.inPlay.groupMaxWidth = this.fieldCards.groupMaxWidth = this.setAside.groupMaxWidth = 1.1 * DBZCCG.Card.cardWidth;
 
         this.allies = null;

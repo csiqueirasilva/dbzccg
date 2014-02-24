@@ -284,6 +284,12 @@ DBZCCG.CardGroup.create = function(cardGroup) {
                 });
 
                 firstAnimation.start();
+                
+                if(card) {
+                    if(this.name !== 'floatingEffects') {
+                        DBZCCG.Sound.transfer();
+                    }
+                }
             }
         };
 

@@ -260,13 +260,13 @@ DBZCCG.updateBillboards = function(camera) {
         obj.position.z += 1;
         obj.position.y += 0.5;
     }
-}
+};
 
 DBZCCG.resizeToolbar = function(rendererWidth, left, right) {
     var elem = document.getElementById('toolbar');
     elem.style.left = Math.ceil(rendererWidth * 0.62) + parseInt(left) + 'px';
     elem.style.right = right + 'px';
-    elem.style.width = rendererWidth * 0.2 + 'px';
+    elem.style.width = rendererWidth * 0.38 + 'px';
 };
 
 DBZCCG.resizeTurnCounter = function(rendererWidth, left, right) {
@@ -720,7 +720,11 @@ DBZCCG.create = function() {
             $('#turnOrder').children(id.replace('-warn', '')).addClass('selectedTurn');
 
             if (!noPhaseWarn) {
-                $(id).fadeIn(500);
+
+                $(id).fadeIn(250, function() {
+                    DBZCCG.Sound.turn();
+                });
+
                 window.setTimeout(function() {
                     $(id).fadeOut(500, function() {
                         DBZCCG.performingAnimation = false;
@@ -966,6 +970,22 @@ DBZCCG.create = function() {
          */
 
         // KEYBOARD                
+
+        Mousetrap.bind('m', function() {
+            if ($('#music-box').length === 1) {
+                $('#music-box').stop();
+                document.getElementById('music-box').toggled = true;
+                if (!$('#music-box').is(':visible')) {
+                    $('#music-box').show();
+                } else {
+                    $('#music-box').hide();
+                }
+            }
+        });
+
+        Mousetrap.bind('z', function() {
+            DBZCCG.Sound.Background.nextTrack();
+        });
 
 //        Mousetrap.bind('c', function() {
 //            if (DBZCCG.waitingMainPlayerMouseCommand) {

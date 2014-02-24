@@ -188,10 +188,7 @@ canvas {
 
 #combat-btn, #rejuvenate-btn, #capture-btn {
     background: url('../images/icons/combat.png') no-repeat;
-    width: 9%;
     left: 10%;
-    height: 90%;
-    top: 25%;
     position: absolute;
     background-size: 100%;
     display: none;
@@ -199,10 +196,7 @@ canvas {
 
 #final-physical-btn {
     background: url('../images/icons/final-physical-icon.png') no-repeat;
-    width: 9%;
-    height: 90%;
     left: 22%;
-    top: 25%;
     position: absolute;
     background-size: 100%;
     display: none;
@@ -210,10 +204,7 @@ canvas {
 
 #pass-btn {
     background: url('../images/icons/pass.png') no-repeat;
-    width: 9%;
-    height: 90%;
     left: 10%;
-    top: 25%;
     position: absolute;
     background-size: 100%;
     display: none;
@@ -221,9 +212,20 @@ canvas {
 
 #log-btn {
     background: url('../images/icons/log2.png') no-repeat;
-    width: 9%;
-    height: 90%;
-    top: 25%;
+    position: absolute;
+    background-size: 100%;
+}
+
+.sound-on {
+    background: url('../images/icons/sound-on-icon.png') no-repeat;
+}
+
+.sound-off {
+    background: url('../images/icons/sound-off-icon.png') no-repeat;
+}
+
+#sound-btn {
+    right: 2%;
     position: absolute;
     background-size: 100%;
 }
@@ -234,8 +236,13 @@ canvas {
     left: 62%;
     position: absolute;
     height: 5%;
-    width: 20%;
     display: none;
+}
+
+.btn {
+    width: 2.5vmax;
+    height: 100%;
+    top: 0.5vmax;
 }
 
 .btn:hover {
@@ -269,8 +276,38 @@ canvas {
     font-size: 1.15em;
 }
 
+#music-box {
+    background: rgba( 196, 196, 196, 0.28 );
+    padding: 1%;
+    top: 3.5%;
+    left: 3.5%;
+    height: 24%;
+    width: 24%;
+    display :none;
+    position: absolute;
+    z-index: 1500;
+}
+
+#music-box div {
+    text-align: center;
+}
+
+#music-box div img {
+    border: 3px #000000 solid;
+}
+
+#music-box a {
+    color: #FFFFFF;
+    text-decoration: underline;
+}
+
+#description-right {
+    float: right;
+    margin-left: 10px;
+}
+
 #communication-box {
-    z-index: 1000;
+    z-index: 1201;
     left: 20vmin;
     display: none;
     max-height: 30vmin;
@@ -550,6 +587,8 @@ canvas {
 
 .hover-label-text {
     text-align: center;
+    font-weight: bold;
+    text-shadow: -1px 0 black, 0 1px black, 1px 0 black, 0 -1px black;
 }
 
 #card-speech:after {
