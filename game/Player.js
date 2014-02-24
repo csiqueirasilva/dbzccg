@@ -292,7 +292,7 @@ DBZCCG.Player.create = function(dataObject, vec) {
             // check main personality
             var currentPersonality = this.mainPersonality.currentPersonality();
             if (currentPersonality.activable instanceof Function) {
-                if (currentPersonality.activable(this)) {
+                if (currentPersonality.activable(this, currentPersonality)) {
                     this.addUsableCard(currentPersonality.display);
                 } else {
                     this.removeUsableCard(currentPersonality.display);
@@ -305,8 +305,8 @@ DBZCCG.Player.create = function(dataObject, vec) {
             for (var j = 0; j < cardGroups.length; j++) {
                 for (var i = 0; i < this[cardGroups[j]].cards.length; i++) {
                     if (this[cardGroups[j]].cards[i].activable instanceof Function || this[cardGroups[j]].cards[i].playable instanceof Function) {
-                        if ((this[cardGroups[j]].cards[i].playable instanceof Function && this[cardGroups[j]].cards[i].playable(this)) ||
-                                (this[cardGroups[j]].cards[i].activable instanceof Function && this[cardGroups[j]].cards[i].activable(this))) {
+                        if ((this[cardGroups[j]].cards[i].playable instanceof Function && this[cardGroups[j]].cards[i].playable(this, this[cardGroups[j]].cards[i])) ||
+                                (this[cardGroups[j]].cards[i].activable instanceof Function && this[cardGroups[j]].cards[i].activable(this, this[cardGroups[j]].cards[i]))) {
                             this.addUsableCard(this[cardGroups[j]].cards[i].display);
                         } else {
                             this.removeUsableCard(this[cardGroups[j]].cards[i].display);

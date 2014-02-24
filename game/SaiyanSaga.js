@@ -2863,7 +2863,7 @@ DBZCCG.Saiyan['160'] = {
         });
     },
     postEffect: function(card) {
-        this.turn = parseInt($('#turnCounterNumber')[0].innerHTML);
+        card.turn = parseInt($('#turnCounterNumber')[0].innerHTML);
     },
     texturePath: "images/DBZCCG/saiyan/160.jpg",
     personality: DBZCCG.Personality.Personalities.GOKU,
@@ -2878,7 +2878,7 @@ DBZCCG.Saiyan['173'] = {
     PUR: 2,
     rarity: DBZCCG.Card.Rarity.Fixed,
     alignment: DBZCCG.Personality.alignment.Rogue,
-    description: "Power: Once per combat, reduces the damage of an energy attack by 2 life cards.",
+    description: "Power: Once per combat, reduces the damage of an energy attack to 2 life cards.",
     level: 1,
     name: "Vegeta",
     activable: function(player) {
@@ -2910,7 +2910,7 @@ DBZCCG.Saiyan['173'] = {
         });
     },
     postEffect: function(card) {
-        this.turn = parseInt($('#turnCounterNumber')[0].innerHTML);
+        card.turn = parseInt($('#turnCounterNumber')[0].innerHTML);
     },
     highTech: false,
     number: 173,

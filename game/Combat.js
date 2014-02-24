@@ -159,20 +159,22 @@ DBZCCG.Combat.payCosts = function(card) {
     }
 };
 
-DBZCCG.Combat.personalityPowerDefaultAttackCheck = function(player) {
+DBZCCG.Combat.personalityPowerDefaultAttackCheck = function(player, card) {
     var turn = parseInt($('#turnCounterNumber')[0].innerHTML);
     var ret = false;
-    if (this.turn !== turn) {
-        ret = DBZCCG.Combat.defaultAttackerCheck(player, this);
+    var effectCard = card || this;
+    if (effectCard.turn !== turn) {
+        ret = DBZCCG.Combat.defaultAttackerCheck(player, effectCard);
     }
     return ret;
 };
 
-DBZCCG.Combat.personalityPowerDefaultDefenseCheck = function(player) {
+DBZCCG.Combat.personalityPowerDefaultDefenseCheck = function(player, card) {
     var turn = parseInt($('#turnCounterNumber')[0].innerHTML);
     var ret = false;
-    if (this.turn !== turn) {
-        ret = DBZCCG.Combat.defaultDefenderCheck(player, this);
+    var effectCard = card || this;
+    if (effectCard.turn !== turn) {
+        ret = DBZCCG.Combat.defaultDefenderCheck(player, effectCard);
     }
     return ret;
 };
