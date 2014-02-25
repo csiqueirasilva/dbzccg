@@ -11,14 +11,7 @@ DBZCCG.searchFormContent = function(dialogContentId, matchCallback, sourceElemen
             .children()
             .children();
 
-    // Hide top close icon
-    $(dialogContentId)
-            .parent()
-            .children('.ui-dialog-titlebar')
-            .children('.ui-dialog-titlebar-close')
-            .hide();
-
-    $(dialogContentId).dialog('option', 'closeOnEscape', false);
+    DBZCCG.Interface.hideDialogClose(dialogContentId);
 
     buttons.button('disable');
 
@@ -46,7 +39,7 @@ DBZCCG.searchFormContent = function(dialogContentId, matchCallback, sourceElemen
     $('#search-form').autocomplete({source: sourceElements,
         select: function(event, ui) {
             if (searchResult instanceof Function) {
-                searchResult($(this).val());
+                searchResult(ui.item.value);
             }
             buttons.button('enable');
         }});
@@ -682,11 +675,11 @@ DBZCCG.create = function() {
                             var deckCards = this.player.lifeDeck.cards;
 
                             var checkGameOver = {life: true, f: function() {
-                                    if (deckCards.length === 0) { // TODO: check for infinite dragonball loop as well
+                                    if (deckCards.length === 0 && this.player.canLose) { // TODO: check for infinite dragonball loop as well
                                         DBZCCG.gameOver = true;
                                         DBZCCG.listActions = [];
                                     }
-                                }, priority: 1};
+                                }, player: this.player, priority: 1};
 
                             var checkLowLife = {life: true,
                                 f: function() {
@@ -829,27 +822,24 @@ DBZCCG.create = function() {
 
 
                 listActions.push(function() {
-                    if (player.discardPhaseEnabled) {
-                        displayPhaseMessage('#discard-phase-warn',
-                                function() {
-                                    player.discardPhase();
-                                    DBZCCG.Log.logEntry(player.displayName() + " discard phase.");
-                                }, player !== DBZCCG.mainPlayer);
-                    }
-
-                    for (var i = 0; i < table.players.length; i++) {
-                        if (table.players[i].discardPhaseEnabled && table.players[i] !== player && table.players[i].hand.cards.length > table.players[i].cardDiscardPhaseLimit) {
-                            var discardPlayer = table.players[i];
-                            listActions.splice(0, 0, function() {
-                                DBZCCG.performingAction = discardPlayer;
-                                displayPhaseMessage('#discard-phase-warn',
-                                        function() {
-                                            discardPlayer.discardPhase();
-                                            DBZCCG.Log.logEntry(discardPlayer.displayName() + " discard phase.");
-                                        }, discardPlayer !== DBZCCG.mainPlayer);
-                            });
+                    displayPhaseMessage('#discard-phase-warn', function() {
+                        if (player.discardPhaseEnabled) {
+                            DBZCCG.performingAction = player;
+                            player.discardPhase();
+                            DBZCCG.Log.logEntry(player.displayName() + " discard phase.");
                         }
-                    }
+
+                        for (var i = 0; i < table.players.length; i++) {
+                            if (table.players[i].discardPhaseEnabled && table.players[i] !== player && table.players[i].hand.cards.length > table.players[i].cardDiscardPhaseLimit) {
+                                var discardPlayer = table.players[i];
+                                listActions.splice(0, 0, function() {
+                                    DBZCCG.performingAction = discardPlayer;
+                                    discardPlayer.discardPhase();
+                                    DBZCCG.Log.logEntry(discardPlayer.displayName() + " discard phase.");
+                                });
+                            }
+                        }
+                    });
                 });
 
 
@@ -1125,24 +1115,27 @@ DBZCCG.create = function() {
                 var parent = DBZCCG.Screen.findCallbackObject(intersected, "descriptionBox");
 
                 DBZCCG.toolTip.parent = parent;
-
-                var ret = true;
-                if (parent.click instanceof Function) {
-                    ret = parent.click();
-                }
-
-                if (ret) {
-                    var tooltip = false;
-                    if (parent.solveCallback instanceof Function) {
-                        parent.solveCallback(function(cb) {
-                            return cb.f();
-                        }, function(ret) {
-                            tooltip = ret.tooltip;
-                        });
+                
+                if(parent.parentCard && parent.parentCard.canActivate) {
+                
+                    var ret = true;
+                    if (parent.click instanceof Function) {
+                        ret = parent.click();
                     }
 
-                    if (tooltip) {
-                        $('#hud').qtip('show');
+                    if (ret) {
+                        var tooltip = false;
+                        if (parent.solveCallback instanceof Function) {
+                            parent.solveCallback(function(cb) {
+                                return cb.f();
+                            }, function(ret) {
+                                tooltip = ret.tooltip;
+                            });
+                        }
+
+                        if (tooltip) {
+                            $('#hud').qtip('show');
+                        }
                     }
                 }
             }

@@ -36,6 +36,11 @@ DBZCCG.Dragonball.create = function(data) {
             if(this.control !== player) {
                 var db = this;
                 
+                if(this.killFloatingEffect && this.floatingEffect) {
+                    this.floatingEffect.kill = true;
+                    this.floatingEffect = null;
+                }
+                
                 var animation = new TWEEN.Tween(new THREE.Vector3(0,
                         0,
                         db.display.rotation.z))

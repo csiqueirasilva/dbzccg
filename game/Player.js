@@ -66,6 +66,7 @@ DBZCCG.Player.create = function(dataObject, vec) {
         this.onlyDefend = false;
         this.onlyPass = false;
         this.sufferedAttack = false;
+        this.canLose = true;
 
         this.drawPhaseEnabled = true;
         this.nonCombatPhaseEnabled = true;
@@ -299,7 +300,7 @@ DBZCCG.Player.create = function(dataObject, vec) {
                 }
             }
 
-            var cardGroups = ['hand', 'nonCombats', 'inPlay', 'floatingEffects'];
+            var cardGroups = ['hand', 'nonCombats', 'inPlay', 'floatingEffects', 'dragonballs'];
 
             // check cardgroups
             for (var j = 0; j < cardGroups.length; j++) {
@@ -315,6 +316,25 @@ DBZCCG.Player.create = function(dataObject, vec) {
                 }
             }
 
+            // check opponents fields
+            cardGroups = ['dragonballs'];
+            for (var j = 0; j < cardGroups.length; j++) {
+                for (var k = 0; k < DBZCCG.table.players.length; k++) {
+                    var player = DBZCCG.table.players[k];
+                    if (player !== this) {
+                        for (var i = 0; i < player[cardGroups[j]].cards.length; i++) {
+                            if (player[cardGroups[j]].cards[i].activable instanceof Function || player[cardGroups[j]].cards[i].playable instanceof Function) {
+                                if ((player[cardGroups[j]].cards[i].playable instanceof Function && player[cardGroups[j]].cards[i].playable(this, player[cardGroups[j]].cards[i])) ||
+                                        (player[cardGroups[j]].cards[i].activable instanceof Function && player[cardGroups[j]].cards[i].activable(this, player[cardGroups[j]].cards[i]))) {
+                                    this.addUsableCard(player[cardGroups[j]].cards[i].display);
+                                } else {
+                                    this.removeUsableCard(player[cardGroups[j]].cards[i].display);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         };
 
         DBZCCG.Callbacks.create(this, 'beforeDamageCallback', function(callback) {
@@ -467,7 +487,7 @@ DBZCCG.Player.create = function(dataObject, vec) {
             DBZCCG.listActions.splice(0, 0, function() {
                 if (player.lastDamageTaken && player.lastDamageTaken.cards >= 5) {
                     player.captureDragonballs();
-                    if(player.lastDamageTaken.cards > 7 || player.lastDamageTaken.stages > 7) {
+                    if (player.lastDamageTaken.cards > 7 || player.lastDamageTaken.stages > 7) {
                         DBZCCG.Sound.wowDamage();
                     }
                 }
@@ -485,9 +505,9 @@ DBZCCG.Player.create = function(dataObject, vec) {
                     }
                 }
 
-                var log = DBZCCG.Log.logEntry('Suffered damage' + (typeDamage ? (typeDamage === DBZCCG.Combat.Attack.Energy ? 
-                ' from an energy attack' : ' from a physical attack') : '') + ': ' + 
-                        player.lastDamageTaken.stages + ' power stages and ' + 
+                var log = DBZCCG.Log.logEntry('Suffered damage' + (typeDamage ? (typeDamage === DBZCCG.Combat.Attack.Energy ?
+                        ' from an energy attack' : ' from a physical attack') : '') + ': ' +
+                        player.lastDamageTaken.stages + ' power stages and ' +
                         player.lastDamageTaken.cards + ' life cards', DBZCCG.openCard);
                 log.typeDamage = typeDamage;
                 log.type = DBZCCG.Log.Type.sufferedDamage;
@@ -593,7 +613,7 @@ DBZCCG.Player.create = function(dataObject, vec) {
                     function(ret) {
                         if (ret.skipDefense === true) {
                             defenseChance = false;
-                        } 
+                        }
                     });
 
             DBZCCG.listActions.splice(0, 0, function() {
@@ -674,58 +694,60 @@ DBZCCG.Player.create = function(dataObject, vec) {
                         }
                     });
 
-            if (defenderDrawPosition === "top") {
-                DBZCCG.defendingPlayer.drawTopCards(defenderQuantityDraw, defenderSourcePile);
-            } else if (defenderDrawPosition === "bottom") {
-                DBZCCG.defendingPlayer.drawBottomCards(defenderQuantityDraw, defenderSourcePile);
-            }
-
-            DBZCCG.swapPlayers = function() {
-                if ((DBZCCG.attackingPlayer.passed && DBZCCG.defendingPlayer.passed) || !DBZCCG.combat) {
-                    DBZCCG.performingAction = player;
-                    DBZCCG.Log.logEntry("The combat is over.");
-
-                    // run leave from combat effects
-                    DBZCCG.attackingPlayer.solveCombatLeavingCallback(function(cb) {
-                        return cb.f(DBZCCG.defendingPlayer);
-                    },
-                            function(ret) {
-
-                            });
-
-                    DBZCCG.defendingPlayer.solveCombatLeavingCallback(function(cb) {
-                        return cb.f(DBZCCG.attackingPlayer);
-                    },
-                            function(ret) {
-
-                            });
-
-                    DBZCCG.attackingPlayer.clearUsableCards();
-                    DBZCCG.defendingPlayer.clearUsableCards();
-
-                    DBZCCG.attackingPlayer.activePersonality.clear();
-                    DBZCCG.defendingPlayer.activePersonality.clear();
-
-                    DBZCCG.defendingPlayer = null;
-                    DBZCCG.attackingPlayer = null;
-
-                    DBZCCG.combat = false;
-                    DBZCCG.swapPlayers = undefined;
-
-                    DBZCCG.Combat.removeSelectionParticles();
-                } else {
-                    var aux = DBZCCG.attackingPlayer;
-                    DBZCCG.attackingPlayer = DBZCCG.defendingPlayer;
-                    DBZCCG.defendingPlayer = aux;
-                    DBZCCG.phaseCounter++;
-                    listActions.splice(0, 0, DBZCCG.attackingPlayer.attackerAttacks);
+            if (DBZCCG.combat) {
+                if (defenderDrawPosition === "top") {
+                    DBZCCG.defendingPlayer.drawTopCards(defenderQuantityDraw, defenderSourcePile);
+                } else if (defenderDrawPosition === "bottom") {
+                    DBZCCG.defendingPlayer.drawBottomCards(defenderQuantityDraw, defenderSourcePile);
                 }
-            };
 
-            DBZCCG.attackingPlayer.activePersonality.set(null, 'mainPersonality');
-            DBZCCG.defendingPlayer.activePersonality.set(null, 'mainPersonality');
+                DBZCCG.swapPlayers = function() {
+                    if ((DBZCCG.attackingPlayer.passed && DBZCCG.defendingPlayer.passed) || !DBZCCG.combat) {
+                        DBZCCG.performingAction = player;
+                        DBZCCG.Log.logEntry("The combat is over.");
 
-            listActions.splice(0, 0, this.attackerAttacks);
+                        // run leave from combat effects
+                        DBZCCG.attackingPlayer.solveCombatLeavingCallback(function(cb) {
+                            return cb.f(DBZCCG.defendingPlayer);
+                        },
+                                function(ret) {
+
+                                });
+
+                        DBZCCG.defendingPlayer.solveCombatLeavingCallback(function(cb) {
+                            return cb.f(DBZCCG.attackingPlayer);
+                        },
+                                function(ret) {
+
+                                });
+
+                        DBZCCG.attackingPlayer.clearUsableCards();
+                        DBZCCG.defendingPlayer.clearUsableCards();
+
+                        DBZCCG.attackingPlayer.activePersonality.clear();
+                        DBZCCG.defendingPlayer.activePersonality.clear();
+
+                        DBZCCG.defendingPlayer = null;
+                        DBZCCG.attackingPlayer = null;
+
+                        DBZCCG.combat = false;
+                        DBZCCG.swapPlayers = undefined;
+
+                        DBZCCG.Combat.removeSelectionParticles();
+                    } else {
+                        var aux = DBZCCG.attackingPlayer;
+                        DBZCCG.attackingPlayer = DBZCCG.defendingPlayer;
+                        DBZCCG.defendingPlayer = aux;
+                        DBZCCG.phaseCounter++;
+                        listActions.splice(0, 0, DBZCCG.attackingPlayer.attackerAttacks);
+                    }
+                };
+
+                DBZCCG.attackingPlayer.activePersonality.set(null, 'mainPersonality');
+                DBZCCG.defendingPlayer.activePersonality.set(null, 'mainPersonality');
+
+                listActions.splice(0, 0, this.attackerAttacks);
+            }
         };
 
         this.rejuvenationPhase = function() {
@@ -1246,7 +1268,7 @@ DBZCCG.Player.create = function(dataObject, vec) {
 
             this.fieldCards.position = this.locationCardsArea.getCenterCoords();
             this.fieldCards.rotation.x = this.fieldCardsRotation.x;
-            
+
             this.floatingEffects.position = this.floatingEffectsArea.getCenterCoords();
             this.floatingEffects.rotation.x = this.fieldCardsRotation.x;
 
@@ -1291,7 +1313,7 @@ DBZCCG.Player.create = function(dataObject, vec) {
         this.fieldCards = DBZCCG.CardGroup.create(dataObject.fieldCards);
         this.floatingEffects = DBZCCG.CardGroup.create(dataObject.floatingEffects);
         this.floatingEffects.name = 'floatingEffects';
-        
+
         this.floatingEffects.groupMaxWidth = this.inPlay.groupMaxWidth = this.fieldCards.groupMaxWidth = this.setAside.groupMaxWidth = 1.1 * DBZCCG.Card.cardWidth;
 
         this.allies = null;

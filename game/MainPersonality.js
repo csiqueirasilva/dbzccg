@@ -271,6 +271,7 @@ DBZCCG.MainPersonality.create = function(data) {
             var mp = this;
             var desiredLevels = n;
             var previousLevel = mp.personalities[mp.currentMainPersonalityLevel - 1];
+            previousLevel.canActivate = false;
             DBZCCG.performingAnimation = true;
             this.removePowerStageLabelText();
 
@@ -384,10 +385,11 @@ DBZCCG.MainPersonality.create = function(data) {
                 window.setTimeout(function() {
                     DBZCCG.performingAnimation = false;
                     var currentLevel = mp.personalities[mp.currentMainPersonalityLevel - 1];
+                    currentLevel.canActivate = true;
                     DBZCCG.Log.logEntry(previousLevel.logName() + " advanced to " + currentLevel.logName() + ".");
                     mp.moveZScouter("max");
                     mp.setAnger(0, true);
-                }, (80 + 80 + 120 + 750) * (desiredLevels - n) + 200);
+                }, (160 + 120 + 750) * (desiredLevels - n) + 200);
             }
         };
 
@@ -450,6 +452,7 @@ DBZCCG.MainPersonality.create = function(data) {
                         msg;
             };
 
+            this.personalities[0].canActivate = true;
             this.personalities[0].moveZScouter(this.currentPowerStageAboveZero, true, true);
             this.addZSword(this.surroundingArea, position);
 
@@ -507,6 +510,7 @@ DBZCCG.MainPersonality.create = function(data) {
             this.personalities.push(DBZCCG.Personality.create(data.personalities[i]));
             this.personalities[i].descriptionBox = this.personalities[i].display.descriptionBox;
             this.personalities[i].display.displayName = this.display.displayName;
+            this.personalities[i].canActivate = false;
         }
 
         this.angerLevelNeededToLevel = data.angerLevelNeededToLevel;

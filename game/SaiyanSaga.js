@@ -1227,7 +1227,8 @@ DBZCCG.Saiyan['022'] = {
         DBZCCG.listActions.splice(0, 0, function() {
             DBZCCG.attackingPlayer.transferCards("nonCombats", [cardIdx], "discardPile");
         });
-    }
+    },
+    effectType: [DBZCCG.Combat.Effect.StageUp, DBZCCG.Combat.Effect.Regenerate]
 };
 
 DBZCCG.Saiyan['023'] = {
@@ -1529,9 +1530,8 @@ DBZCCG.Saiyan['028'] = {
             DBZCCG.defendingPlayer.transferCards("inPlay", [cardIdx], "removedFromTheGame");
         });
     },
-    effectType: [DBZCCG.Combat.Defense.Physical]
+    effectType: [DBZCCG.Combat.Defense.Energy, DBZCCG.Combat.Defense.Floating, DBZCCG.Combat.Defense.All]
 };
-
 
 DBZCCG.Saiyan['029'] = {
     type: DBZCCG.Card.Type['Physical Combat'],
@@ -2060,8 +2060,8 @@ DBZCCG.Saiyan['045'] = {
     saga: DBZCCG.Card.Saga.Saiyan,
     playable: DBZCCG.Combat.defaultNonCombatCheck,
     activable: function(player) {
-        return DBZCCG.performingAction.getPersonalityInControl() && ClassHelper.checkValue(DBZCCG.Personality.Villain,
-                DBZCCG.performingAction.getPersonalityInControl().personality) && DBZCCG.Combat.defaultAttackerCheck(player, this);
+        return DBZCCG.performingAction.getPersonalityInControl() && ClassHelper.checkValue(DBZCCG.performingAction.mainPersonality.alignment,
+                DBZCCG.Personality.alignment.Villain) && DBZCCG.Combat.defaultAttackerCheck(player, this);
     },
     effect: function() {
         this.success = true;
@@ -2119,7 +2119,7 @@ DBZCCG.Saiyan['045'] = {
             DBZCCG.performingAction.transferCards("nonCombats", [cardIdx], "removedFromTheGame");
         });
     },
-    effectType: [DBZCCG.Combat.Effect.Regenerate]
+    effectType: [DBZCCG.Combat.Effect.Regenerate, DBZCCG.Combat.Effect.EndCombat, DBZCCG.Combat.Effect.VillainOnly]
 };
 
 DBZCCG.Saiyan['046'] = {
@@ -2207,11 +2207,11 @@ DBZCCG.Saiyan['048'] = {
     effect: function() {
         this.success = true;
         DBZCCG.defendingPlayer.captureDragonballs(false, false, true, "Due to the effects of <b>Goku's Touch</b> it is not possible to capture a dragonball.");
-        
-        DBZCCG.listActions.splice(0,0,function () {
-            DBZCCG.Combat.effectHappening = false; 
+
+        DBZCCG.listActions.splice(0, 0, function() {
+            DBZCCG.Combat.effectHappening = false;
         });
-        
+
         // effect still happening
         return true;
     },
@@ -2660,6 +2660,541 @@ DBZCCG.Saiyan['060'] = {
     effectType: [DBZCCG.Combat.Defense.Physical, DBZCCG.Combat.Effect.LowerAnger]
 };
 
+DBZCCG.Saiyan['061'] = {
+    type: DBZCCG.Card.Type['Physical Combat'],
+    style: DBZCCG.Card.Style.Blue,
+    description: "Stops a physical attack. Lower your opponent's anger 1 level.",
+    name: "Blue Body Drop Throw",
+    number: '061',
+    rarity: DBZCCG.Card.Rarity.Uncommon,
+    texturePath: "images/DBZCCG/saiyan/061.jpg",
+    saga: DBZCCG.Card.Saga.Saiyan,
+    activable: function(player) {
+        return DBZCCG.currentCard && DBZCCG.currentCard.effectType instanceof Array &&
+                DBZCCG.currentCard.effectType.indexOf(DBZCCG.Combat.Attack.Physical) !== -1 &&
+                DBZCCG.Combat.defaultDefenderCheck(player, this);
+    },
+    effect: function() {
+        this.targetCard.success = false;
+
+        DBZCCG.listActions.splice(0, 0, function() {
+            DBZCCG.attackingPlayer.mainPersonality.changeAnger(-1);
+        });
+    },
+    postEffect: function(card) {
+        var cardIdx = DBZCCG.defendingPlayer.inPlay.getCardIdx(card.display);
+        DBZCCG.listActions.splice(0, 0, function() {
+            DBZCCG.defendingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
+        });
+    },
+    effectType: [DBZCCG.Combat.Defense.Physical, DBZCCG.Combat.Effect.LowerAnger]
+};
+
+DBZCCG.Saiyan['062'] = {
+    type: DBZCCG.Card.Type['Physical Combat'],
+    style: DBZCCG.Card.Style.Blue,
+    description: "Stops a physical attack. Lower your opponent's anger 1 level.",
+    name: "Blue Inner Leg Throw",
+    number: '062',
+    rarity: DBZCCG.Card.Rarity.Uncommon,
+    texturePath: "images/DBZCCG/saiyan/062.jpg",
+    saga: DBZCCG.Card.Saga.Saiyan,
+    activable: function(player) {
+        return DBZCCG.currentCard && DBZCCG.currentCard.effectType instanceof Array &&
+                DBZCCG.currentCard.effectType.indexOf(DBZCCG.Combat.Attack.Physical) !== -1 &&
+                DBZCCG.Combat.defaultDefenderCheck(player, this);
+    },
+    effect: function() {
+        this.targetCard.success = false;
+
+        DBZCCG.listActions.splice(0, 0, function() {
+            DBZCCG.attackingPlayer.mainPersonality.changeAnger(-1);
+        });
+    },
+    postEffect: function(card) {
+        var cardIdx = DBZCCG.defendingPlayer.inPlay.getCardIdx(card.display);
+        DBZCCG.listActions.splice(0, 0, function() {
+            DBZCCG.defendingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
+        });
+    },
+    effectType: [DBZCCG.Combat.Defense.Physical, DBZCCG.Combat.Effect.LowerAnger]
+};
+
+DBZCCG.Saiyan['063'] = {
+    type: DBZCCG.Card.Type['Energy Combat'],
+    style: DBZCCG.Card.Style.Blue,
+    description: "Stops an energy attack. Lower your opponent's anger 1 level.",
+    name: "Blue Big Whirl Throw",
+    number: '063',
+    rarity: DBZCCG.Card.Rarity.Uncommon,
+    texturePath: "images/DBZCCG/saiyan/063.jpg",
+    saga: DBZCCG.Card.Saga.Saiyan,
+    activable: function(player) {
+        return DBZCCG.currentCard && DBZCCG.currentCard.effectType instanceof Array &&
+                DBZCCG.currentCard.effectType.indexOf(DBZCCG.Combat.Attack.Energy) !== -1 &&
+                DBZCCG.Combat.defaultDefenderCheck(player, this);
+    },
+    effect: function() {
+        this.targetCard.success = false;
+
+        DBZCCG.listActions.splice(0, 0, function() {
+            DBZCCG.attackingPlayer.mainPersonality.changeAnger(-1);
+        });
+    },
+    postEffect: function(card) {
+        var cardIdx = DBZCCG.defendingPlayer.inPlay.getCardIdx(card.display);
+        DBZCCG.listActions.splice(0, 0, function() {
+            DBZCCG.defendingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
+        });
+    },
+    effectType: [DBZCCG.Combat.Defense.Energy, DBZCCG.Combat.Effect.LowerAnger]
+};
+
+DBZCCG.Saiyan['064'] = {
+    type: DBZCCG.Card.Type['Physical Combat'],
+    style: DBZCCG.Card.Style.Blue,
+    description: "Stops a physical attack. Lower your opponent's anger 1 level.",
+    name: "Blue Ground Holding",
+    number: '064',
+    rarity: DBZCCG.Card.Rarity.Uncommon,
+    texturePath: "images/DBZCCG/saiyan/064.jpg",
+    saga: DBZCCG.Card.Saga.Saiyan,
+    activable: function(player) {
+        return DBZCCG.currentCard && DBZCCG.currentCard.effectType instanceof Array &&
+                DBZCCG.currentCard.effectType.indexOf(DBZCCG.Combat.Attack.Physical) !== -1 &&
+                DBZCCG.Combat.defaultDefenderCheck(player, this);
+    },
+    effect: function() {
+        this.targetCard.success = false;
+
+        DBZCCG.listActions.splice(0, 0, function() {
+            DBZCCG.attackingPlayer.mainPersonality.changeAnger(-1);
+        });
+    },
+    postEffect: function(card) {
+        var cardIdx = DBZCCG.defendingPlayer.inPlay.getCardIdx(card.display);
+        DBZCCG.listActions.splice(0, 0, function() {
+            DBZCCG.defendingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
+        });
+    },
+    effectType: [DBZCCG.Combat.Defense.Physical, DBZCCG.Combat.Effect.LowerAnger]
+};
+
+DBZCCG.Saiyan['065'] = {
+    type: DBZCCG.Card.Type['Energy Combat'],
+    style: DBZCCG.Card.Style.Black,
+    description: "Energy attack doing 6 life cards. If successful, your opponent's lose 3 power stages to a minimum of 0.",
+    rarity: DBZCCG.Card.Rarity.Uncommon,
+    name: "Black Fore Fist Punch",
+    number: '065',
+    texturePath: "images/DBZCCG/saiyan/065.jpg",
+    saga: DBZCCG.Card.Saga.Saiyan,
+    activable: DBZCCG.Combat.defaultAttackerCheck,
+    cost: function() {
+        return {powerStage: 2};
+    },
+    effect: function() {
+        this.success = true;
+        this.targetCard = DBZCCG.defendingPlayer.getPersonalityInControl();
+    },
+    damage: function() {
+        return DBZCCG.Combat.attack(false, function(damage) {
+            damage.cards = 6;
+            return damage;
+        }, DBZCCG.attackingPlayer.getPersonalityInControl().currentPowerLevel(), DBZCCG.defendingPlayer.getPersonalityInControl().currentPowerLevel());
+    },
+    successfulEffect: function(defendingPlayer) {
+        var damage = this.damage();
+
+        DBZCCG.listActions.splice(0, 0, function() {
+            defendingPlayer.getPersonalityInControl().raiseZScouter(-3);
+        });
+
+        DBZCCG.listActions.splice(0, 0, function() {
+            defendingPlayer.takeDamage(damage);
+        });
+    },
+    postEffect: function(card) {
+        var cardIdx = DBZCCG.attackingPlayer.inPlay.getCardIdx(card.display);
+        DBZCCG.listActions.splice(0, 0, function() {
+            DBZCCG.attackingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
+        });
+    },
+    effectType: [DBZCCG.Combat.Attack.Energy, DBZCCG.Combat.Effect.StageDown]
+};
+
+DBZCCG.Saiyan['066'] = {
+    type: DBZCCG.Card.Type['Energy Combat'],
+    style: DBZCCG.Card.Style.Black,
+    description: "Energy attack or stops an energy attack.",
+    name: "Black Knife Hand Strike",
+    number: '066',
+    rarity: DBZCCG.Card.Rarity.Uncommon,
+    texturePath: "images/DBZCCG/saiyan/066.jpg",
+    saga: DBZCCG.Card.Saga.Saiyan,
+    activable: DBZCCG.Combat.multipleActivation,
+    activators: [function(player, card) {
+            var ret = false;
+            if (DBZCCG.Combat.defaultAttackerCheck(player, card)) {
+                ret = true;
+                card.attack = true;
+            } else {
+                card.attack = false;
+            }
+            return ret;
+        }, function(player, card) {
+            var ret = false;
+            if (DBZCCG.currentCard && DBZCCG.currentCard.effectType instanceof Array
+                    && DBZCCG.currentCard.effectType.indexOf(DBZCCG.Combat.Attack.Energy) !== -1
+                    && DBZCCG.Combat.defaultDefenderCheck(player, card)) {
+                ret = true;
+                card.defense = true;
+            } else {
+                card.defense = false;
+            }
+            return ret;
+        }
+    ],
+    cost: function() {
+        return {powerStage: this.defense ? 0 : 2};
+    },
+    effect: function() {
+        if (this.attack) {
+            this.success = true;
+            this.targetCard = DBZCCG.defendingPlayer.getPersonalityInControl();
+        } else {
+            this.targetCard.success = false;
+            DBZCCG.listActions.splice(0, 0, function() {
+                DBZCCG.performingTurn = false;
+            });
+        }
+    },
+    damage: function() {
+        if (this.attack) {
+            return DBZCCG.Combat.attack(false, function(damage) {
+                damage.cards = 4;
+                return damage;
+            }, DBZCCG.attackingPlayer.getPersonalityInControl().currentPowerLevel(), DBZCCG.defendingPlayer.getPersonalityInControl().currentPowerLevel());
+        }
+    },
+    successfulEffect: function(defendingPlayer) {
+        if (this.attack) {
+            var damage = this.damage();
+
+            DBZCCG.listActions.splice(0, 0, function() {
+                defendingPlayer.takeDamage(damage);
+            });
+        }
+    },
+    postEffect: function(card) {
+        var player;
+        if (this.attack) {
+            player = DBZCCG.attackingPlayer;
+        } else {
+            player = DBZCCG.defendingPlayer;
+        }
+
+        var cardIdx = player.inPlay.getCardIdx(card.display);
+        DBZCCG.listActions.splice(0, 0, function() {
+            player.transferCards("inPlay", [cardIdx], "discardPile");
+        });
+
+    },
+    effectType: [DBZCCG.Combat.Attack.Energy, DBZCCG.Combat.Defense.Energy]
+};
+
+DBZCCG.Saiyan['067'] = {
+    type: DBZCCG.Card.Type['Physical Combat'],
+    style: DBZCCG.Card.Style.Black,
+    description: "Stops a physical attack. Raise your anger 1 level.",
+    name: "Black Elbow Strike",
+    number: '067',
+    rarity: DBZCCG.Card.Rarity.Uncommon,
+    texturePath: "images/DBZCCG/saiyan/067.jpg",
+    saga: DBZCCG.Card.Saga.Saiyan,
+    activable: function(player) {
+        return DBZCCG.currentCard && DBZCCG.currentCard.effectType instanceof Array &&
+                DBZCCG.currentCard.effectType.indexOf(DBZCCG.Combat.Attack.Physical) !== -1 &&
+                DBZCCG.Combat.defaultDefenderCheck(player, this);
+    },
+    effect: function() {
+        this.targetCard.success = false;
+
+        DBZCCG.listActions.splice(0, 0, function() {
+            DBZCCG.defendingPlayer.mainPersonality.changeAnger(1);
+        });
+    },
+    postEffect: function(card) {
+        var cardIdx = DBZCCG.defendingPlayer.inPlay.getCardIdx(card.display);
+        DBZCCG.listActions.splice(0, 0, function() {
+            DBZCCG.defendingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
+        });
+    },
+    effectType: [DBZCCG.Combat.Defense.Physical, DBZCCG.Combat.Effect.RaiseAnger]
+};
+
+DBZCCG.Saiyan['068'] = {
+    type: DBZCCG.Card.Type['Energy Combat'],
+    style: DBZCCG.Card.Style.Black,
+    description: "Energy attack doing 5 life cards. Costs 4 power stages. Raise your anger 2 levels.",
+    rarity: DBZCCG.Card.Rarity.Uncommon,
+    name: "Black Front Kick",
+    number: '068',
+    texturePath: "images/DBZCCG/saiyan/068.jpg",
+    saga: DBZCCG.Card.Saga.Saiyan,
+    activable: DBZCCG.Combat.defaultAttackerCheck,
+    cost: function() {
+        return {powerStage: 4};
+    },
+    effect: function() {
+        this.success = true;
+        this.targetCard = DBZCCG.defendingPlayer.getPersonalityInControl();
+
+        DBZCCG.listActions.splice(0, 0, function() {
+            DBZCCG.attackingPlayer.mainPersonality.changeAnger(2);
+        });
+    },
+    damage: function() {
+        return DBZCCG.Combat.attack(false, function(damage) {
+            damage.cards = 5;
+            return damage;
+        }, DBZCCG.attackingPlayer.getPersonalityInControl().currentPowerLevel(), DBZCCG.defendingPlayer.getPersonalityInControl().currentPowerLevel());
+    },
+    successfulEffect: function(defendingPlayer) {
+        var damage = this.damage();
+
+        DBZCCG.listActions.splice(0, 0, function() {
+            defendingPlayer.takeDamage(damage);
+        });
+    },
+    postEffect: function(card) {
+        var cardIdx = DBZCCG.attackingPlayer.inPlay.getCardIdx(card.display);
+        DBZCCG.listActions.splice(0, 0, function() {
+            DBZCCG.attackingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
+        });
+    },
+    effectType: [DBZCCG.Combat.Attack.Energy, DBZCCG.Combat.Effect.RaiseAnger]
+};
+
+DBZCCG.Saiyan['069'] = {
+    type: DBZCCG.Card.Type['Physical Combat'],
+    style: DBZCCG.Card.Style.Black,
+    description: "Stops a physical attack. Raise your anger 2 levels.",
+    name: "Black Side Kick",
+    number: '069',
+    rarity: DBZCCG.Card.Rarity.Uncommon,
+    texturePath: "images/DBZCCG/saiyan/069.jpg",
+    saga: DBZCCG.Card.Saga.Saiyan,
+    activable: function(player) {
+        return DBZCCG.currentCard && DBZCCG.currentCard.effectType instanceof Array &&
+                DBZCCG.currentCard.effectType.indexOf(DBZCCG.Combat.Attack.Physical) !== -1 &&
+                DBZCCG.Combat.defaultDefenderCheck(player, this);
+    },
+    effect: function() {
+        this.targetCard.success = false;
+
+        DBZCCG.listActions.splice(0, 0, function() {
+            DBZCCG.defendingPlayer.mainPersonality.changeAnger(2);
+        });
+    },
+    postEffect: function(card) {
+        var cardIdx = DBZCCG.defendingPlayer.inPlay.getCardIdx(card.display);
+        DBZCCG.listActions.splice(0, 0, function() {
+            DBZCCG.defendingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
+        });
+    },
+    effectType: [DBZCCG.Combat.Defense.Physical, DBZCCG.Combat.Effect.RaiseAnger]
+};
+
+DBZCCG.Saiyan['070'] = {
+    type: DBZCCG.Card.Type['Energy Combat'],
+    style: DBZCCG.Card.Style.Black,
+    description: "Energy attack doing 5 life cards of damage or stops a physical attack. Raise your anger 1 level.",
+    name: "Black Turning Kick",
+    number: '070',
+    rarity: DBZCCG.Card.Rarity.Uncommon,
+    texturePath: "images/DBZCCG/saiyan/070.jpg",
+    saga: DBZCCG.Card.Saga.Saiyan,
+    activable: DBZCCG.Combat.multipleActivation,
+    activators: [function(player, card) {
+            var ret = false;
+            if (DBZCCG.Combat.defaultAttackerCheck(player, card)) {
+                ret = true;
+                card.attack = true;
+            } else {
+                card.attack = false;
+            }
+            return ret;
+        }, function(player, card) {
+            var ret = false;
+            if (DBZCCG.currentCard && DBZCCG.currentCard.effectType instanceof Array
+                    && DBZCCG.currentCard.effectType.indexOf(DBZCCG.Combat.Attack.Physical) !== -1
+                    && DBZCCG.Combat.defaultDefenderCheck(player, card)) {
+                ret = true;
+                card.defense = true;
+            } else {
+                card.defense = false;
+            }
+            return ret;
+        }
+    ],
+    cost: function() {
+        return {powerStage: this.defense ? 0 : 2};
+    },
+    effect: function() {
+        if (this.attack) {
+            this.success = true;
+            this.targetCard = DBZCCG.defendingPlayer.getPersonalityInControl();
+        } else {
+            this.targetCard.success = false;
+            DBZCCG.listActions.splice(0, 0, function() {
+                DBZCCG.performingTurn = false;
+            });
+        }
+
+        DBZCCG.listActions.splice(0, 0, function() {
+            DBZCCG.attackingPlayer.mainPersonality.changeAnger(1);
+        });
+
+    },
+    damage: function() {
+        if (this.attack) {
+            return DBZCCG.Combat.attack(false, function(damage) {
+                damage.cards = 5;
+                return damage;
+            }, DBZCCG.attackingPlayer.getPersonalityInControl().currentPowerLevel(), DBZCCG.defendingPlayer.getPersonalityInControl().currentPowerLevel());
+        }
+    },
+    successfulEffect: function(defendingPlayer) {
+        if (this.attack) {
+            var damage = this.damage();
+
+            DBZCCG.listActions.splice(0, 0, function() {
+                defendingPlayer.takeDamage(damage);
+            });
+        }
+    },
+    postEffect: function(card) {
+        var player;
+        if (this.attack) {
+            player = DBZCCG.attackingPlayer;
+        } else {
+            player = DBZCCG.defendingPlayer;
+        }
+
+        var cardIdx = player.inPlay.getCardIdx(card.display);
+        DBZCCG.listActions.splice(0, 0, function() {
+            player.transferCards("inPlay", [cardIdx], "discardPile");
+        });
+
+    },
+    effectType: [DBZCCG.Combat.Attack.Energy, DBZCCG.Combat.Defense.Physical, DBZCCG.Combat.Effect.RaiseAnger]
+};
+
+
+DBZCCG.Saiyan['071'] = {
+    type: DBZCCG.Card.Type['Energy Combat'],
+    style: DBZCCG.Card.Style.Black,
+    description: "Energy attack doing 6 life cards. Costs 5 power stages. Raise your anger 1 level.",
+    rarity: DBZCCG.Card.Rarity.Uncommon,
+    name: "Black Back Kick",
+    number: '071',
+    texturePath: "images/DBZCCG/saiyan/071.jpg",
+    saga: DBZCCG.Card.Saga.Saiyan,
+    activable: DBZCCG.Combat.defaultAttackerCheck,
+    cost: function() {
+        return {powerStage: 5};
+    },
+    effect: function() {
+        this.success = true;
+        this.targetCard = DBZCCG.defendingPlayer.getPersonalityInControl();
+
+        DBZCCG.listActions.splice(0, 0, function() {
+            DBZCCG.attackingPlayer.mainPersonality.changeAnger(1);
+        });
+    },
+    damage: function() {
+        return DBZCCG.Combat.attack(false, function(damage) {
+            damage.cards = 6;
+            return damage;
+        }, DBZCCG.attackingPlayer.getPersonalityInControl().currentPowerLevel(), DBZCCG.defendingPlayer.getPersonalityInControl().currentPowerLevel());
+    },
+    successfulEffect: function(defendingPlayer) {
+        var damage = this.damage();
+
+        DBZCCG.listActions.splice(0, 0, function() {
+            defendingPlayer.takeDamage(damage);
+        });
+    },
+    postEffect: function(card) {
+        var cardIdx = DBZCCG.attackingPlayer.inPlay.getCardIdx(card.display);
+        DBZCCG.listActions.splice(0, 0, function() {
+            DBZCCG.attackingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
+        });
+    },
+    effectType: [DBZCCG.Combat.Attack.Energy, DBZCCG.Combat.Effect.RaiseAnger]
+};
+
+DBZCCG.Saiyan['072'] = {
+    type: DBZCCG.Card.Type['Energy Combat'],
+    style: DBZCCG.Card.Style.Black,
+    description: "Stops an energy attack. Raise your anger 1 level.",
+    name: "Black Axe Heel Kick",
+    number: '072',
+    rarity: DBZCCG.Card.Rarity.Uncommon,
+    texturePath: "images/DBZCCG/saiyan/072.jpg",
+    saga: DBZCCG.Card.Saga.Saiyan,
+    activable: function(player) {
+        return DBZCCG.currentCard && DBZCCG.currentCard.effectType instanceof Array &&
+                DBZCCG.currentCard.effectType.indexOf(DBZCCG.Combat.Attack.Energy) !== -1 &&
+                DBZCCG.Combat.defaultDefenderCheck(player, this);
+    },
+    effect: function() {
+        this.targetCard.success = false;
+
+        DBZCCG.listActions.splice(0, 0, function() {
+            DBZCCG.defendingPlayer.mainPersonality.changeAnger(1);
+        });
+    },
+    postEffect: function(card) {
+        var cardIdx = DBZCCG.defendingPlayer.inPlay.getCardIdx(card.display);
+        DBZCCG.listActions.splice(0, 0, function() {
+            DBZCCG.defendingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
+        });
+    },
+    effectType: [DBZCCG.Combat.Defense.Energy, DBZCCG.Combat.Effect.RaiseAnger]
+};
+
+DBZCCG.Saiyan['073'] = {
+    type: DBZCCG.Card.Type['Energy Combat'],
+    style: DBZCCG.Card.Style.Black,
+    description: "Stops an energy attack. Raise your anger 1 level.",
+    name: "Black Rear Spin Kick",
+    number: '073',
+    rarity: DBZCCG.Card.Rarity.Uncommon,
+    texturePath: "images/DBZCCG/saiyan/073.jpg",
+    saga: DBZCCG.Card.Saga.Saiyan,
+    activable: function(player) {
+        return DBZCCG.currentCard && DBZCCG.currentCard.effectType instanceof Array &&
+                DBZCCG.currentCard.effectType.indexOf(DBZCCG.Combat.Attack.Energy) !== -1 &&
+                DBZCCG.Combat.defaultDefenderCheck(player, this);
+    },
+    effect: function() {
+        this.targetCard.success = false;
+
+        DBZCCG.listActions.splice(0, 0, function() {
+            DBZCCG.defendingPlayer.mainPersonality.changeAnger(1);
+        });
+    },
+    postEffect: function(card) {
+        var cardIdx = DBZCCG.defendingPlayer.inPlay.getCardIdx(card.display);
+        DBZCCG.listActions.splice(0, 0, function() {
+            DBZCCG.defendingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
+        });
+    },
+    effectType: [DBZCCG.Combat.Defense.Energy, DBZCCG.Combat.Effect.RaiseAnger]
+};
+
 DBZCCG.Saiyan['074'] = {
     type: DBZCCG.Card.Type['Energy Combat'],
     style: DBZCCG.Card.Style.Black,
@@ -2702,6 +3237,646 @@ DBZCCG.Saiyan['074'] = {
     effectType: [DBZCCG.Combat.Attack.Energy, DBZCCG.Combat.Effect.RaiseAnger]
 };
 
+DBZCCG.Saiyan['075'] = {
+    type: DBZCCG.Card.Type['Dragonball'],
+    style: DBZCCG.Card.Style.Freestyle,
+    description: "Draw 3 cards if you wish. Place the top card in your discard pile at the bottom of your life deck.",
+    limit: 1,
+    name: "Earth Dragon Ball 3",
+    number: '075',
+    rarity: DBZCCG.Card.Rarity.Common,
+    texturePath: "images/DBZCCG/saiyan/075.jpg",
+    saga: DBZCCG.Card.Saga.Saiyan,
+    dbCode: DBZCCG.Dragonball['Earth Dragonball 3'],
+    playable: DBZCCG.Combat.defaultDragonballCheck,
+    effect: function() {
+        var control = this.control;
+
+        DBZCCG.listActions.splice(0, 0, function() {
+            var cardIdx = [];
+
+            if (control.discardPile.cards.length > 0) {
+                cardIdx.push(control.discardPile.cards.length - 1);
+            }
+
+            control.transferCards('discardPile', cardIdx, 'lifeDeck', 0);
+        });
+
+        DBZCCG.listActions.splice(0, 0, function() {
+            if (control === DBZCCG.mainPlayer) {
+                DBZCCG.performingTurn = true;
+                DBZCCG.waitingMainPlayerMouseCommand = true;
+
+                DBZCCG.confirmDialog('Earth Dragon Ball 3', 'Draw 3 cards?', null, {'Yes': function() {
+                        DBZCCG.listActions.splice(0, 0, function() {
+                            control.drawTopCards(3, 'lifeDeck');
+                        });
+
+                        DBZCCG.performingTurn = false;
+                        DBZCCG.waitingMainPlayerMouseCommand = false;
+                        DBZCCG.Combat.effectHappening = false;
+                        $(this).dialog('close');
+                    }, 'No': function() {
+                        DBZCCG.performingTurn = false;
+                        DBZCCG.waitingMainPlayerMouseCommand = false;
+                        DBZCCG.Combat.effectHappening = false;
+                        $(this).dialog('close');
+                    }});
+
+                DBZCCG.Interface.hideDialogClose('#confirmDialog');
+            } else /* AI */ {
+                DBZCCG.listActions.splice(0, 0, function() {
+                    control.drawTopCards(3, 'lifeDeck');
+                });
+            }
+        });
+
+        if (control === DBZCCG.mainPlayer) {
+            // effect still happening
+            return true;
+        }
+    },
+    effectType: [DBZCCG.Combat.Effect.Regenerate, DBZCCG.Combat.Effect.DrawCard]
+};
+
+DBZCCG.Saiyan['076'] = {
+    type: DBZCCG.Card.Type['Dragonball'],
+    style: DBZCCG.Card.Style.Freestyle,
+    description: "End the next combat you are forced into. Raise your anger 2 levels.",
+    limit: 1,
+    name: "Earth Dragon Ball 4",
+    number: '076',
+    rarity: DBZCCG.Card.Rarity.Common,
+    texturePath: "images/DBZCCG/saiyan/076.jpg",
+    saga: DBZCCG.Card.Saga.Saiyan,
+    dbCode: DBZCCG.Dragonball['Earth Dragonball 4'],
+    playable: DBZCCG.Combat.defaultDragonballCheck,
+    effect: function() {
+        var control = this.control;
+
+        this.floatingEffect = DBZCCG.Card.FloatingEffect.create(
+                {
+                    player: control,
+                    card: DBZCCG.Saiyan['076'],
+                    scene: DBZCCG.mainScene,
+                    appendText: 'If this player still controls this Dragon Ball, end the first combat declared against him before entering it.'
+                });
+
+        // If it is captured, kill the current floating effect
+        this.killFloatingEffect = true;
+
+        control.addCombatEnteringCallback({
+            life: true,
+            priority: 50000,
+            f: function() {
+                if (this.player === DBZCCG.defendingPlayer) {
+                    if (this.player === this.db.control) {
+                        DBZCCG.combat = false;
+                        DBZCCG.Combat.flashCard(this.db);
+                        DBZCCG.Log.logEntry('Combat ended due to the effects of Earth Dragon Ball 4', this.db);
+                        this.db.floatingEffect.kill = true;
+                        this.db.floatingEffect = null;
+                    }
+                    this.life = false;
+                }
+            },
+            db: this
+        });
+
+        DBZCCG.listActions.splice(0, 0, function() {
+            control.mainPersonality.changeAnger(2);
+        });
+    },
+    effectType: [DBZCCG.Combat.Effect.EndCombat, DBZCCG.Combat.Effect.RaiseAnger]
+};
+
+DBZCCG.Saiyan['077'] = {
+    type: DBZCCG.Card.Type['Dragonball'],
+    style: DBZCCG.Card.Style.Freestyle,
+    description: "Power up to full. Raise your anger 2 levels. Draw 2 cards if you wish. Place the two top cards in your discard pile at the bottom of your life deck.",
+    limit: 1,
+    name: "Earth Dragon Ball 5",
+    number: '077',
+    rarity: DBZCCG.Card.Rarity.Common,
+    texturePath: "images/DBZCCG/saiyan/077.jpg",
+    saga: DBZCCG.Card.Saga.Saiyan,
+    dbCode: DBZCCG.Dragonball['Earth Dragonball 5'],
+    playable: DBZCCG.Combat.defaultDragonballCheck,
+    effect: function() {
+        var control = this.control;
+
+        DBZCCG.listActions.splice(0, 0, function() {
+            var cardIdx = [];
+
+            if (control.discardPile.cards.length > 0) {
+                cardIdx.push(control.discardPile.cards.length - 1);
+                if (control.discardPile.cards.length > 1) {
+                    cardIdx.push(control.discardPile.cards.length - 2);
+                }
+            }
+
+            control.transferCards('discardPile', cardIdx, 'lifeDeck', 0);
+        });
+
+        DBZCCG.listActions.splice(0, 0, function() {
+            if (control === DBZCCG.mainPlayer) {
+                DBZCCG.performingTurn = true;
+                DBZCCG.waitingMainPlayerMouseCommand = true;
+
+                DBZCCG.confirmDialog('Earth Dragon Ball 5', 'Draw 2 cards?', null, {'Yes': function() {
+                        DBZCCG.listActions.splice(0, 0, function() {
+                            control.drawTopCards(2, 'lifeDeck');
+                        });
+
+                        DBZCCG.performingTurn = false;
+                        DBZCCG.waitingMainPlayerMouseCommand = false;
+                        DBZCCG.Combat.effectHappening = false;
+                        $(this).dialog('close');
+                    }, 'No': function() {
+                        DBZCCG.performingTurn = false;
+                        DBZCCG.waitingMainPlayerMouseCommand = false;
+                        DBZCCG.Combat.effectHappening = false;
+                        $(this).dialog('close');
+                    }});
+
+                DBZCCG.Interface.hideDialogClose('#confirmDialog');
+            } else /* AI */ {
+                DBZCCG.listActions.splice(0, 0, function() {
+                    control.drawTopCards(2, 'lifeDeck');
+                });
+            }
+        });
+
+        DBZCCG.listActions.splice(0, 0, function() {
+            control.mainPersonality.changeAnger(2);
+        });
+
+        DBZCCG.listActions.splice(0, 0, function() {
+            control.mainPersonality.moveZScouter("max");
+        });
+
+        if (control === DBZCCG.mainPlayer) {
+            // effect still happening
+            return true;
+        }
+    },
+    effectType: [DBZCCG.Combat.Effect.Regenerate, DBZCCG.Combat.Effect.StageUp, DBZCCG.Combat.Effect.RaiseAnger, DBZCCG.Combat.Effect.DrawCard]
+};
+
+DBZCCG.Saiyan['078'] = {
+    type: DBZCCG.Card.Type['Non-Combat'],
+    style: DBZCCG.Card.Style.Freestyle,
+    description: "Heroes only. Place the top 3 cards from your discard pile on the bottom of your Life Deck.",
+    name: "Roshi Training",
+    number: '078',
+    personality: DBZCCG.Personality.Personalities.ROSHI,
+    rarity: DBZCCG.Card.Rarity.Uncommon,
+    texturePath: "images/DBZCCG/saiyan/078.jpg",
+    saga: DBZCCG.Card.Saga.Saiyan,
+    playable: DBZCCG.Combat.defaultNonCombatCheck,
+    activable: function(player) {
+        return DBZCCG.performingAction.getPersonalityInControl() && ClassHelper.checkValue(DBZCCG.performingAction.mainPersonality.alignment,
+                DBZCCG.Personality.alignment.Hero) && DBZCCG.Combat.defaultAttackerCheck(player, this);
+    },
+    effect: function() {
+        this.success = true;
+
+        DBZCCG.listActions.splice(0, 0, function() {
+            var cardIdx = [];
+
+            if (DBZCCG.attackingPlayer.discardPile.cards.length > 0) {
+                cardIdx.push(DBZCCG.attackingPlayer.discardPile.cards.length - 1);
+            }
+
+            if (DBZCCG.attackingPlayer.discardPile.cards.length > 1) {
+                cardIdx.push(DBZCCG.attackingPlayer.discardPile.cards.length - 2);
+            }
+
+            if (DBZCCG.attackingPlayer.discardPile.cards.length > 2) {
+                cardIdx.push(DBZCCG.attackingPlayer.discardPile.cards.length - 3);
+            }
+
+            DBZCCG.attackingPlayer.transferCards('discardPile', cardIdx, 'lifeDeck', 0);
+        });
+    },
+    postEffect: function(card) {
+        var cardIdx = DBZCCG.performingAction.nonCombats.getCardIdx(card.display);
+        DBZCCG.listActions.splice(0, 0, function() {
+            DBZCCG.performingAction.transferCards("nonCombats", [cardIdx], "discardPile");
+        });
+    },
+    effectType: [DBZCCG.Combat.Effect.Regenerate, DBZCCG.Combat.Effect.HeroOnly]
+};
+
+DBZCCG.Saiyan['090'] = {
+    type: DBZCCG.Card.Type['Combat'],
+    style: DBZCCG.Card.Style.Freestyle,
+    description: "Stops a physical or energy attack. Remove from the game after use.",
+    name: "Mother's Touch",
+    number: '090',
+    rarity: DBZCCG.Card.Rarity.Uncommon,
+    texturePath: "images/DBZCCG/saiyan/090.jpg",
+    saga: DBZCCG.Card.Saga.Saiyan,
+    activable: function(player) {
+        return DBZCCG.currentCard && DBZCCG.currentCard.effectType instanceof Array &&
+                (DBZCCG.currentCard.effectType.indexOf(DBZCCG.Combat.Attack.Energy) !== -1 ||
+                        DBZCCG.currentCard.effectType.indexOf(DBZCCG.Combat.Attack.Physical) !== -1) &&
+                DBZCCG.Combat.defaultDefenderCheck(player, this);
+    },
+    effect: function() {
+        this.targetCard.success = false;
+    },
+    postEffect: function(card) {
+        var cardIdx = DBZCCG.defendingPlayer.inPlay.getCardIdx(card.display);
+        DBZCCG.listActions.splice(0, 0, function() {
+            DBZCCG.defendingPlayer.transferCards("inPlay", [cardIdx], "removedFromTheGame");
+        });
+    },
+    effectType: [DBZCCG.Combat.Defense.Omni, DBZCCG.Combat.Defense.Physical, DBZCCG.Combat.Defense.Energy]
+};
+
+DBZCCG.Saiyan['091'] = {
+    type: DBZCCG.Card.Type['Energy Combat'],
+    style: DBZCCG.Card.Style.Saiyan,
+    description: "Saiyan Heritage Only. Energy attack doing 7 power life cards of damage. Costs 4 power stages to perform. Remove from the game after use.",
+    rarity: DBZCCG.Card.Rarity.Uncommon,
+    name: "Saiyan Energy Throw",
+    number: '091',
+    texturePath: "images/DBZCCG/saiyan/091.jpg",
+    saga: DBZCCG.Card.Saga.Saiyan,
+    activable: function(player) {
+        return DBZCCG.Combat.defaultAttackerCheck(player, this) && DBZCCG.Personality.checkHeritage(player.activePersonality.personality().personality, 'saiyan');
+    },
+    cost: function() {
+        return {powerStage: 4};
+    },
+    effect: function() {
+        this.success = true;
+        this.targetCard = DBZCCG.defendingPlayer.getPersonalityInControl();
+    },
+    damage: function() {
+        return DBZCCG.Combat.attack(false, function(damage) {
+            damage.cards = 7;
+            return damage;
+        }, DBZCCG.attackingPlayer.getPersonalityInControl().currentPowerLevel(), DBZCCG.defendingPlayer.getPersonalityInControl().currentPowerLevel());
+    },
+    successfulEffect: function(defendingPlayer) {
+        var damage = this.damage();
+        DBZCCG.listActions.splice(0, 0, function() {
+            defendingPlayer.takeDamage(damage);
+        });
+    },
+    postEffect: function(card) {
+        var cardIdx = DBZCCG.attackingPlayer.inPlay.getCardIdx(card.display);
+        DBZCCG.listActions.splice(0, 0, function() {
+            DBZCCG.attackingPlayer.transferCards("inPlay", [cardIdx], "removedFromTheGame");
+        });
+    },
+    effectType: [DBZCCG.Combat.Attack.Energy]
+};
+
+DBZCCG.Saiyan['092'] = {
+    type: DBZCCG.Card.Type['Energy Combat'],
+    style: DBZCCG.Card.Style.Saiyan,
+    description: "Saiyan Heritage Only. Stops an energy attack.",
+    name: "Saiyan Energy Defense",
+    number: '092',
+    rarity: DBZCCG.Card.Rarity.Uncommon,
+    texturePath: "images/DBZCCG/saiyan/092.jpg",
+    saga: DBZCCG.Card.Saga.Saiyan,
+    activable: function(player) {
+        return DBZCCG.currentCard && DBZCCG.currentCard.effectType instanceof Array &&
+                DBZCCG.currentCard.effectType.indexOf(DBZCCG.Combat.Attack.Energy) !== -1 &&
+                DBZCCG.Personality.checkHeritage(player.activePersonality.personality().personality, 'saiyan') &&
+                DBZCCG.Combat.defaultDefenderCheck(player, this);
+    },
+    effect: function() {
+        this.targetCard.success = false;
+    },
+    postEffect: function(card) {
+        var cardIdx = DBZCCG.defendingPlayer.inPlay.getCardIdx(card.display);
+        DBZCCG.listActions.splice(0, 0, function() {
+            DBZCCG.defendingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
+        });
+    },
+    effectType: [DBZCCG.Combat.Defense.Energy]
+};
+
+DBZCCG.Saiyan['093'] = {
+    type: DBZCCG.Card.Type['Energy Combat'],
+    style: DBZCCG.Card.Style.Saiyan,
+    description: "Saiyan Heritage Only. Energy attack doing 6 power life cards of damage.",
+    rarity: DBZCCG.Card.Rarity.Uncommon,
+    name: "Saiyan Mental Energy Attack",
+    number: '093',
+    texturePath: "images/DBZCCG/saiyan/093.jpg",
+    saga: DBZCCG.Card.Saga.Saiyan,
+    activable: function(player) {
+        return DBZCCG.Combat.defaultAttackerCheck(player, this) && DBZCCG.Personality.checkHeritage(player.activePersonality.personality().personality, 'saiyan');
+    },
+    cost: function() {
+        return {powerStage: 2};
+    },
+    effect: function() {
+        this.success = true;
+        this.targetCard = DBZCCG.defendingPlayer.getPersonalityInControl();
+    },
+    damage: function() {
+        return DBZCCG.Combat.attack(false, function(damage) {
+            damage.cards = 6;
+            return damage;
+        }, DBZCCG.attackingPlayer.getPersonalityInControl().currentPowerLevel(), DBZCCG.defendingPlayer.getPersonalityInControl().currentPowerLevel());
+    },
+    successfulEffect: function(defendingPlayer) {
+        var damage = this.damage();
+        DBZCCG.listActions.splice(0, 0, function() {
+            defendingPlayer.takeDamage(damage);
+        });
+    },
+    postEffect: function(card) {
+        var cardIdx = DBZCCG.attackingPlayer.inPlay.getCardIdx(card.display);
+        DBZCCG.listActions.splice(0, 0, function() {
+            DBZCCG.attackingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
+        });
+    },
+    effectType: [DBZCCG.Combat.Attack.Energy]
+};
+
+DBZCCG.Saiyan['094'] = {
+    type: DBZCCG.Card.Type['Energy Combat'],
+    style: DBZCCG.Card.Style.Saiyan,
+    description: "Saiyan Heritage Only. Energy attack. Name a personality. Your opponent cannot perform physical attacks with that personality on his next attack phase. Costs 3 power stages to perform.",
+    name: "Saiyan Energy Blast",
+    number: '094',
+    cost: function() {
+        return {powerStage: 3};
+    },
+    rarity: DBZCCG.Card.Rarity.Common,
+    texturePath: "images/DBZCCG/saiyan/094.jpg",
+    saga: DBZCCG.Card.Saga.Saiyan,
+    activable: function(player) {
+        return DBZCCG.Combat.defaultAttackerCheck(player, this) && DBZCCG.Personality.checkHeritage(player.activePersonality.personality().personality, 'saiyan');
+    },
+    effect: function() {
+        this.success = true;
+        this.targetCard = DBZCCG.defendingPlayer.getPersonalityInControl();
+
+        if (DBZCCG.attackingPlayer === DBZCCG.mainPlayer) {
+            DBZCCG.performingTurn = true;
+            DBZCCG.waitingMainPlayerMouseCommand = true;
+
+            DBZCCG.confirmDialog('Saiyan Arm Throw',
+                    'Name a personality that will not be able to perform a physical attack in your opponent\'s next attack phase.' +
+                    DBZCCG.searchFormHTML,
+                    null, {'OK': function() {
+                    var personality = DBZCCG.Personality.Personalities[$('#search-form').val()];
+                    DBZCCG.defendingPlayer.addActivationCallback({
+                        f: function(card) {
+                            var ret = true;
+
+                            if (this.phase < DBZCCG.phaseCounter || $('#turnCounterNumber').html() !== this.turn) {
+                                this.life = false;
+                                ret = true;
+                            } else if (ClassHelper.checkValue(DBZCCG.attackingPlayer.getPersonalityInControl().personality, personality) &&
+                                    ClassHelper.checkValue(card.effectType, DBZCCG.Combat.Attack.Physical) &&
+                                    !ClassHelper.checkValue(card.effectType, DBZCCG.Combat.Attack.Energy)) {
+                                ret = false;
+                            }
+
+                            return {success: ret};
+                        },
+                        phase: DBZCCG.phaseCounter + 1,
+                        turn: $('#turnCounterNumber').html(),
+                        life: true,
+                        priority: 50}
+                    );
+
+                    DBZCCG.Card.FloatingEffect.create(
+                            {card: DBZCCG.Saiyan['021'],
+                                player: DBZCCG.performingAction,
+                                turn: $('#turnCounterNumber').html,
+                                phase: DBZCCG.phaseCounter + 1,
+                                scene: DBZCCG.mainScene,
+                                combat: true,
+                                appendText: "Chosen personality: " + $('#search-form').val()
+                            });
+
+                    $(this).dialog('close');
+                    DBZCCG.performingTurn =
+                            DBZCCG.waitingMainPlayerMouseCommand =
+                            DBZCCG.Combat.effectHappening = false;
+                }}, window.innerWidth * 0.35,
+                    window.innerHeight * 0.35
+                    );
+
+            DBZCCG.searchFormContent('#confirmDialog', function(elem) {
+                for (var key in DBZCCG.Personality.Personalities) {
+                    if (key === elem.toUpperCase()) {
+                        return true;
+                    }
+                }
+            }, function(request, response) {
+                var props = [];
+                for (var key in DBZCCG.Personality.Personalities) {
+                    if (key.search(request.term.toUpperCase()) !== -1) {
+                        props.push(key);
+                    }
+                }
+                props.sort();
+                response(props);
+            }, function(personality) {
+                $('#search-result').html("<img src='images/icons/" + personality.toLowerCase() + "-icon.png' title='" + personality + "'/>");
+            });
+
+            // effect still happening
+            return true;
+        } else /* AI */ {
+            var personality = DBZCCG.defendingPlayer.getPersonalityInControl().personality;
+
+            DBZCCG.Card.FloatingEffect.create(
+                    {card: DBZCCG.Saiyan['021'],
+                        player: DBZCCG.performingAction,
+                        turn: $('#turnCounterNumber').html,
+                        phase: DBZCCG.phaseCounter + 1,
+                        scene: DBZCCG.mainScene,
+                        combat: true,
+                        appendText: "Chosen personality: " + ClassHelper.getKeyByValue(DBZCCG.Personality.Personalities, personality)
+                    });
+
+            DBZCCG.defendingPlayer.addActivationCallback({
+                f: function(card) {
+                    var ret = true;
+
+                    if (this.phase < DBZCCG.phaseCounter || $('#turnCounterNumber').html() !== this.turn) {
+                        this.life = false;
+                        ret = true;
+                    } else if (ClassHelper.checkValue(DBZCCG.attackingPlayer.getPersonalityInControl().personality, personality) &&
+                            ClassHelper.checkValue(card.effectType, DBZCCG.Combat.Attack.Physical) &&
+                            !ClassHelper.checkValue(card.effectType, DBZCCG.Combat.Attack.Energy)) {
+                        ret = false;
+                    }
+
+                    return {success: ret};
+                },
+                phase: DBZCCG.phaseCounter + 1,
+                turn: $('#turnCounterNumber').html(),
+                life: true,
+                priority: 50}
+            );
+        }
+    },
+    damage: function() {
+        return DBZCCG.Combat.attack(false, function(damage) {
+            damage.cards = 4;
+            return damage;
+        }, DBZCCG.attackingPlayer.getPersonalityInControl().currentPowerLevel(), DBZCCG.defendingPlayer.getPersonalityInControl().currentPowerLevel());
+    },
+    successfulEffect: function(defendingPlayer) {
+        var damage = this.damage();
+        DBZCCG.listActions.splice(0, 0, function() {
+            defendingPlayer.takeDamage(damage);
+        });
+    },
+    postEffect: function(card) {
+        var cardIdx = DBZCCG.attackingPlayer.inPlay.getCardIdx(card.display);
+        DBZCCG.listActions.splice(0, 0, function() {
+            DBZCCG.attackingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
+        });
+    },
+    effectType: [DBZCCG.Combat.Attack.Energy]
+};
+
+DBZCCG.Saiyan['095'] = {
+    type: DBZCCG.Card.Type['Energy Combat'],
+    style: DBZCCG.Card.Style.Saiyan,
+    description: "Saiyan Heritage Only. Stops an energy attack. Stops an energy attack in your next defense phase.",
+    name: "Saiyan Energy Aura",
+    number: '095',
+    rarity: DBZCCG.Card.Rarity.Uncommon,
+    texturePath: "images/DBZCCG/saiyan/095.jpg",
+    saga: DBZCCG.Card.Saga.Saiyan,
+    activable: function(player) {
+        return DBZCCG.currentCard && DBZCCG.currentCard.effectType instanceof Array &&
+                DBZCCG.currentCard.effectType.indexOf(DBZCCG.Combat.Attack.Energy) !== -1 &&
+                DBZCCG.Personality.checkHeritage(player.activePersonality.personality().personality, 'saiyan') &&
+                DBZCCG.Combat.defaultDefenderCheck(player, this);
+    },
+    effect: function() {
+        var card = this;
+        this.targetCard.success = false;
+
+        DBZCCG.Card.FloatingEffect.create(
+                {card: DBZCCG.Saiyan['095'],
+                    player: DBZCCG.defendingPlayer,
+                    turn: $('#turnCounterNumber').html,
+                    phase: DBZCCG.phaseCounter + 1,
+                    scene: DBZCCG.mainScene,
+                    combat: true
+                });
+
+        DBZCCG.listActions.splice(0, 0, function() {
+            DBZCCG.defendingPlayer.addDefenderCallback({f: function(attackingCard) {
+                    if (attackingCard.success &&
+                            this.phase === DBZCCG.phaseCounter && this.turn === $('#turnCounterNumber').html &&
+                            attackingCard.effectType instanceof Array && attackingCard.effectType.indexOf(DBZCCG.Combat.Attack.Energy) !== -1) {
+                        attackingCard.success = false;
+                        DBZCCG.Combat.flashCard(card);
+                        return {skipDefense: true};
+                    }
+                    // destroy floating effect created
+                }, priority: 100000,
+                life: false, turn: $('#turnCounterNumber').html, phase: DBZCCG.phaseCounter + 1});
+            //createFloatingEffect to stop next energy attack in his next attack phase
+        });
+    },
+    postEffect: function(card) {
+        var cardIdx = DBZCCG.defendingPlayer.inPlay.getCardIdx(card.display);
+        DBZCCG.listActions.splice(0, 0, function() {
+            DBZCCG.defendingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
+        });
+    },
+    effectType: [DBZCCG.Combat.Defense.Energy, DBZCCG.Combat.Effect.Floating]
+};
+
+DBZCCG.Saiyan['096'] = {
+    type: DBZCCG.Card.Type['Energy Combat'],
+    style: DBZCCG.Card.Style.Saiyan,
+    description: "Saiyan Heritage Only. Stops a physical attack. Stops a physical attack in your next defense phase.",
+    name: "Saiyan Sweeping Defense",
+    number: '096',
+    rarity: DBZCCG.Card.Rarity.Uncommon,
+    texturePath: "images/DBZCCG/saiyan/096.jpg",
+    saga: DBZCCG.Card.Saga.Saiyan,
+    activable: function(player) {
+        return DBZCCG.currentCard && DBZCCG.currentCard.effectType instanceof Array &&
+                DBZCCG.currentCard.effectType.indexOf(DBZCCG.Combat.Attack.Physical) !== -1 &&
+                DBZCCG.Personality.checkHeritage(player.activePersonality.personality().personality, 'saiyan') &&
+                DBZCCG.Combat.defaultDefenderCheck(player, this);
+    },
+    effect: function() {
+        var card = this;
+        this.targetCard.success = false;
+
+        DBZCCG.Card.FloatingEffect.create(
+                {card: DBZCCG.Saiyan['096'],
+                    player: DBZCCG.defendingPlayer,
+                    turn: $('#turnCounterNumber').html,
+                    phase: DBZCCG.phaseCounter + 1,
+                    scene: DBZCCG.mainScene,
+                    combat: true
+                });
+
+        DBZCCG.listActions.splice(0, 0, function() {
+            DBZCCG.defendingPlayer.addDefenderCallback({f: function(attackingCard) {
+                    if (attackingCard.success &&
+                            this.phase === DBZCCG.phaseCounter && this.turn === $('#turnCounterNumber').html &&
+                            attackingCard.effectType instanceof Array && attackingCard.effectType.indexOf(DBZCCG.Combat.Attack.Physical) !== -1) {
+                        attackingCard.success = false;
+                        DBZCCG.Combat.flashCard(card);
+                        return {skipDefense: true};
+                    }
+                    // destroy floating effect created
+                }, priority: 100000,
+                life: false, turn: $('#turnCounterNumber').html, phase: DBZCCG.phaseCounter + 1});
+            //createFloatingEffect to stop next energy attack in his next attack phase
+        });
+    },
+    postEffect: function(card) {
+        var cardIdx = DBZCCG.defendingPlayer.inPlay.getCardIdx(card.display);
+        DBZCCG.listActions.splice(0, 0, function() {
+            DBZCCG.defendingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
+        });
+    },
+    effectType: [DBZCCG.Combat.Defense.Physical, DBZCCG.Combat.Effect.Floating]
+};
+
+DBZCCG.Saiyan['097'] = {
+    type: DBZCCG.Card.Type['Non-Combat'],
+    style: DBZCCG.Card.Style.Freestyle,
+    description: "Power up 6 power stages.",
+    name: "Power Up More!",
+    number: '097',
+    rarity: DBZCCG.Card.Rarity.Common,
+    texturePath: "images/DBZCCG/saiyan/097.jpg",
+    saga: DBZCCG.Card.Saga.Saiyan,
+    playable: DBZCCG.Combat.defaultNonCombatCheck,
+    activable: DBZCCG.Combat.defaultAttackerCheck,
+    effect: function() {
+        this.success = true;
+
+        DBZCCG.listActions.splice(0, 0, function() {
+            DBZCCG.attackingPlayer.getPersonalityInControl().raiseZScouter(6);
+        });
+
+    },
+    postEffect: function(card) {
+        var cardIdx = DBZCCG.attackingPlayer.nonCombats.getCardIdx(card.display);
+        DBZCCG.listActions.splice(0, 0, function() {
+            DBZCCG.attackingPlayer.transferCards("nonCombats", [cardIdx], "discardPile");
+        });
+    },
+    effectType: [DBZCCG.Combat.Effect.StageUp]
+};
 
 DBZCCG.Saiyan['099'] = {
     type: DBZCCG.Card.Type['Non-Combat'],
@@ -2742,6 +3917,723 @@ DBZCCG.Saiyan['099'] = {
             DBZCCG.attackingPlayer.transferCards("nonCombats", [cardIdx], "discardPile");
         });
     }
+};
+
+DBZCCG.Saiyan['100'] = {
+    type: DBZCCG.Card.Type['Combat'],
+    style: DBZCCG.Card.Style.Freestyle,
+    description: "Stops a physical or energy attack. Remove from the game after use.",
+    name: "Vegeta's Surprise Defense",
+    number: '100',
+    personality: DBZCCG.Personality.Personalities.VEGETA,
+    rarity: DBZCCG.Card.Rarity.Uncommon,
+    texturePath: "images/DBZCCG/saiyan/100.jpg",
+    saga: DBZCCG.Card.Saga.Saiyan,
+    activable: function(player) {
+        return DBZCCG.currentCard && DBZCCG.currentCard.effectType instanceof Array &&
+                (DBZCCG.currentCard.effectType.indexOf(DBZCCG.Combat.Attack.Energy) !== -1 ||
+                        DBZCCG.currentCard.effectType.indexOf(DBZCCG.Combat.Attack.Physical) !== -1) &&
+                DBZCCG.Combat.defaultDefenderCheck(player, this);
+    },
+    effect: function() {
+        this.targetCard.success = false;
+    },
+    postEffect: function(card) {
+        var cardIdx = DBZCCG.defendingPlayer.inPlay.getCardIdx(card.display);
+        DBZCCG.listActions.splice(0, 0, function() {
+            DBZCCG.defendingPlayer.transferCards("inPlay", [cardIdx], "removedFromTheGame");
+        });
+    },
+    effectType: [DBZCCG.Combat.Defense.Omni, DBZCCG.Combat.Defense.Physical, DBZCCG.Combat.Defense.Energy]
+};
+
+DBZCCG.Saiyan['108'] = {
+    type: DBZCCG.Card.Type['Energy Combat'],
+    style: DBZCCG.Card.Style.Freestyle,
+    description: "Prevents 3 life card of damage from an energy attack. If used by Goku, this card stays on the table to be used one more time this combat.",
+    name: "Goku's Energy Defense",
+    number: '108',
+    personality: DBZCCG.Personality.Personalities.GOKU,
+    rarity: DBZCCG.Card.Rarity.Uncommon,
+    texturePath: "images/DBZCCG/saiyan/108.jpg",
+    saga: DBZCCG.Card.Saga.Saiyan,
+    numberOfUses: 0,
+    activable: function(player) {
+        return DBZCCG.currentCard && DBZCCG.currentCard.effectType instanceof Array
+                && DBZCCG.currentCard.effectType.indexOf(DBZCCG.Combat.Attack.Energy) !== -1
+                && DBZCCG.Combat.defaultDefenderCheck(player, this);
+    },
+    effect: function() {
+        DBZCCG.defendingPlayer.addBeforeDamageCallback({
+            priority: 50,
+            f: function(powerStages, lifeCards) {
+                var ret;
+                if (this.phase === DBZCCG.phaseCounter && $('#turnCounterNumber').html() === this.turn) {
+                    ret = {
+                        powerStages: powerStages,
+                        lifeCards: lifeCards >= 3 ? lifeCards - 3 : lifeCards
+                    };
+                } else {
+                    ret = {
+                        powerStages: powerStages,
+                        lifeCards: lifeCards
+                    };
+                }
+                return ret;
+            },
+            turn: $('#turnCounterNumber').html(),
+            life: false,
+            phase: DBZCCG.phaseCounter
+        });
+
+        DBZCCG.defendingPlayer.addCombatLeavingCallback({
+            priority: 1,
+            player: DBZCCG.defendingPlayer,
+            card: card,
+            f: function() {
+                if (this.player.inPlay.getCardIdx(this.card.display) !== -1) {
+                    var cardIdx = this.player.inPlay.getCardIdx(this.card.display);
+                    this.player.transferCards("inPlay", [cardIdx], "discardPile");
+                }
+            },
+            life: false
+        });
+    },
+    postEffect: function(card) {
+        var cardIdx = DBZCCG.defendingPlayer.inPlay.getCardIdx(card.display);
+        this.numberOfUses++;
+        if ((this.numberOfUses === 2 && ClassHelper.checkValue(DBZCCG.defendingPlayer.getPersonalityInControl().personality, DBZCCG.Personality.Personalities.GOKU)) ||
+                !ClassHelper.checkValue(DBZCCG.defendingPlayer.getPersonalityInControl().personality, DBZCCG.Personality.Personalities.GOKU)) {
+            this.numberOfUses = 0;
+            DBZCCG.listActions.splice(0, 0, function() {
+                DBZCCG.defendingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
+            });
+        }
+    },
+    effectType: [DBZCCG.Combat.Defense.Energy, DBZCCG.Combat.Defense.Prevention]
+};
+
+DBZCCG.Saiyan['109'] = {
+    type: DBZCCG.Card.Type['Energy Combat'],
+    style: DBZCCG.Card.Style.Freestyle,
+    description: "Energy attack doing 6 power life cards of damage. Costs 5 power stages to perform.",
+    rarity: DBZCCG.Card.Rarity.Uncommon,
+    personality: DBZCCG.Personality.Personalities.PICCOLO,
+    name: "Piccolo's Energy Attack",
+    number: '109',
+    texturePath: "images/DBZCCG/saiyan/109.jpg",
+    saga: DBZCCG.Card.Saga.Saiyan,
+    activable: DBZCCG.Combat.defaultAttackerCheck,
+    cost: function() {
+        return {powerStage: 5};
+    },
+    effect: function() {
+        this.success = true;
+        this.targetCard = DBZCCG.defendingPlayer.getPersonalityInControl();
+    },
+    damage: function() {
+        return DBZCCG.Combat.attack(false, function(damage) {
+            damage.cards = 6;
+            return damage;
+        }, DBZCCG.attackingPlayer.getPersonalityInControl().currentPowerLevel(), DBZCCG.defendingPlayer.getPersonalityInControl().currentPowerLevel());
+    },
+    successfulEffect: function(defendingPlayer) {
+        var damage = this.damage();
+        DBZCCG.listActions.splice(0, 0, function() {
+            defendingPlayer.takeDamage(damage);
+        });
+    },
+    postEffect: function(card) {
+        var cardIdx = DBZCCG.attackingPlayer.inPlay.getCardIdx(card.display);
+        DBZCCG.listActions.splice(0, 0, function() {
+            DBZCCG.attackingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
+        });
+    },
+    effectType: [DBZCCG.Combat.Attack.Energy]
+};
+
+DBZCCG.Saiyan['110'] = {
+    type: DBZCCG.Card.Type['Physical Combat'],
+    style: DBZCCG.Card.Style.Freestyle,
+    description: "Stops a physical attack. Power up 4 stages.",
+    name: "Piccolo's Physical Defense",
+    number: '110',
+    personality: DBZCCG.Personality.Personalities.PICCOLO,
+    rarity: DBZCCG.Card.Rarity.Uncommon,
+    texturePath: "images/DBZCCG/saiyan/110.jpg",
+    saga: DBZCCG.Card.Saga.Saiyan,
+    activable: function(player) {
+        return DBZCCG.currentCard && DBZCCG.currentCard.effectType instanceof Array &&
+                DBZCCG.currentCard.effectType.indexOf(DBZCCG.Combat.Attack.Physical) !== -1 &&
+                DBZCCG.Combat.defaultDefenderCheck(player, this);
+    },
+    effect: function() {
+        this.targetCard.success = false;
+
+        DBZCCG.listActions.splice(0, 0, function() {
+            DBZCCG.defendingPlayer.getPersonalityInControl().raiseZScouter(4);
+        });
+    },
+    postEffect: function(card) {
+        var cardIdx = DBZCCG.defendingPlayer.inPlay.getCardIdx(card.display);
+        DBZCCG.listActions.splice(0, 0, function() {
+            DBZCCG.defendingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
+        });
+    },
+    effectType: [DBZCCG.Combat.Effect.StageUp, DBZCCG.Combat.Defense.Physical]
+};
+
+DBZCCG.Saiyan['111'] = {
+    type: DBZCCG.Card.Type['Energy Combat'],
+    style: DBZCCG.Card.Style.Freestyle,
+    description: "Stops an energy attack. Raise your anger 1 level.",
+    name: "Gohan's Energy Defense",
+    number: '111',
+    rarity: DBZCCG.Card.Rarity.Uncommon,
+    texturePath: "images/DBZCCG/saiyan/111.jpg",
+    saga: DBZCCG.Card.Saga.Saiyan,
+    activable: function(player) {
+        return DBZCCG.currentCard && DBZCCG.currentCard.effectType instanceof Array &&
+                DBZCCG.currentCard.effectType.indexOf(DBZCCG.Combat.Attack.Energy) !== -1 &&
+                DBZCCG.Combat.defaultDefenderCheck(player, this);
+    },
+    effect: function() {
+        this.targetCard.success = false;
+
+        DBZCCG.listActions.splice(0, 0, function() {
+            DBZCCG.defendingPlayer.mainPersonality.changeAnger(1);
+        });
+    },
+    postEffect: function(card) {
+        var cardIdx = DBZCCG.defendingPlayer.inPlay.getCardIdx(card.display);
+        DBZCCG.listActions.splice(0, 0, function() {
+            DBZCCG.defendingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
+        });
+    },
+    effectType: [DBZCCG.Combat.Defense.Energy, DBZCCG.Combat.Effect.RaiseAnger]
+};
+
+DBZCCG.Saiyan['112'] = {
+    type: DBZCCG.Card.Type['Combat'],
+    style: DBZCCG.Card.Style.Freestyle,
+    description: "Play this card as a defense. If your opponent's attack does life cards of damage to you, you may take the first life card of damage from that attack and place it in your hand instead of discarding it. If used by Krillin, this card stays in play to be used on more time this Combat.",
+    name: "Krillin's Physical Defense",
+    number: '112',
+    personality: DBZCCG.Personality.Personalities.KRILLIN,
+    rarity: DBZCCG.Card.Rarity.Uncommon,
+    texturePath: "images/DBZCCG/saiyan/112.jpg",
+    saga: DBZCCG.Card.Saga.Saiyan,
+    numberOfUses: 0,
+    activable: function(player) {
+        return DBZCCG.currentCard && DBZCCG.currentCard.effectType instanceof Array
+                && (DBZCCG.currentCard.effectType.indexOf(DBZCCG.Combat.Attack.Energy) !== -1 ||
+                DBZCCG.currentCard.effectType.indexOf(DBZCCG.Combat.Attack.Physical) !== -1)
+                && DBZCCG.Combat.defaultDefenderCheck(player, this);
+    },
+    effect: function() {
+        DBZCCG.defendingPlayer.discardPile.addAddCallback({
+            priority: Infinity,
+            f: function(cardIdx, increaseIndex, cards, card, owner) {
+                if (DBZCCG.defendingPlayer.sufferedAttack) {
+                    if (!this.run && this.phase === DBZCCG.phaseCounter
+                            && $('#turnCounterNumber').html() === this.turn) {
+                        this.run = true;
+                        DBZCCG.defendingPlayer.transferCards("discardPile", [cardIdx], "hand");
+                        return {increaseIndex: 0};
+                    }
+                    this.life = false;
+                }
+            },
+            turn: $('#turnCounterNumber').html(),
+            life: true,
+            run: false,
+            phase: DBZCCG.phaseCounter
+        });
+
+        DBZCCG.defendingPlayer.addCombatLeavingCallback({
+            priority: 1,
+            player: DBZCCG.defendingPlayer,
+            card: card,
+            f: function() {
+                if (this.player.inPlay.getCardIdx(this.card.display) !== -1) {
+                    var cardIdx = this.player.inPlay.getCardIdx(this.card.display);
+                    this.player.transferCards("inPlay", [cardIdx], "discardPile");
+                }
+            },
+            life: false
+        });
+    },
+    postEffect: function(card) {
+        var cardIdx = DBZCCG.defendingPlayer.inPlay.getCardIdx(card.display);
+        this.numberOfUses++;
+        if ((this.numberOfUses === 2 && ClassHelper.checkValue(DBZCCG.defendingPlayer.getPersonalityInControl().personality, DBZCCG.Personality.Personalities.KRILLIN)) ||
+                !ClassHelper.checkValue(DBZCCG.defendingPlayer.getPersonalityInControl().personality, DBZCCG.Personality.Personalities.KRILLIN)) {
+            this.numberOfUses = 0;
+            DBZCCG.listActions.splice(0, 0, function() {
+                DBZCCG.defendingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
+            });
+        }
+    },
+    effectType: [DBZCCG.Combat.Effect.DrawCard]
+};
+
+DBZCCG.Saiyan['113'] = {
+    type: DBZCCG.Card.Type['Energy Combat'],
+    style: DBZCCG.Card.Style.Freestyle,
+    personality: DBZCCG.Personality.Personalities.KRILLIN,
+    description: "Energy attack doing 2 life cards of damage. If used by Krillin this card stays on the table to be used one more time this combat.",
+    name: "Krillin's Energy Attack",
+    number: '113',
+    rarity: DBZCCG.Card.Rarity.Uncommon,
+    texturePath: "images/DBZCCG/saiyan/113.jpg",
+    saga: DBZCCG.Card.Saga.Saiyan,
+    activable: DBZCCG.Combat.defaultAttackerCheck,
+    numberOfUses: 0,
+    effect: function() {
+        this.success = true;
+        this.targetCard = DBZCCG.defendingPlayer.getPersonalityInControl();
+
+        var card = this;
+
+        DBZCCG.attackingPlayer.addCombatLeavingCallback({
+            priority: 1,
+            player: DBZCCG.attackingPlayer,
+            card: card,
+            f: function() {
+                if (this.player.inPlay.getCardIdx(this.card.display) !== -1) {
+                    var cardIdx = this.player.inPlay.getCardIdx(this.card.display);
+                    this.player.transferCards("inPlay", [cardIdx], "discardPile");
+                }
+            },
+            life: false
+        });
+
+    },
+    damage: function() {
+        return DBZCCG.Combat.attack(false, function(damage) {
+            damage.cards = 2;
+            return damage;
+        }, DBZCCG.attackingPlayer.getPersonalityInControl().currentPowerLevel(), DBZCCG.defendingPlayer.getPersonalityInControl().currentPowerLevel());
+    },
+    successfulEffect: function(defendingPlayer) {
+        var damage = this.damage();
+
+        DBZCCG.listActions.splice(0, 0, function() {
+            defendingPlayer.takeDamage(damage);
+        });
+    },
+    postEffect: function(card) {
+        var cardIdx = DBZCCG.attackingPlayer.inPlay.getCardIdx(card.display);
+        this.numberOfUses++;
+        if ((this.numberOfUses === 2 && ClassHelper.checkValue(DBZCCG.attackingPlayer.getPersonalityInControl().personality, DBZCCG.Personality.Personalities.KRILLIN)) ||
+                !ClassHelper.checkValue(DBZCCG.attackingPlayer.getPersonalityInControl().personality, DBZCCG.Personality.Personalities.KRILLIN)) {
+            this.numberOfUses = 0;
+            DBZCCG.listActions.splice(0, 0, function() {
+                DBZCCG.attackingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
+            });
+        }
+    },
+    effectType: [DBZCCG.Combat.Attack.Energy]
+};
+
+DBZCCG.Saiyan['114'] = {
+    type: DBZCCG.Card.Type['Energy Combat'],
+    style: DBZCCG.Card.Style.Freestyle,
+    description: "Stops an energy attack.",
+    name: "Tien's Energy Defense",
+    number: '114',
+    personality: DBZCCG.Personality.Personalities.TIEN,
+    rarity: DBZCCG.Card.Rarity.Uncommon,
+    texturePath: "images/DBZCCG/saiyan/114.jpg",
+    saga: DBZCCG.Card.Saga.Saiyan,
+    activable: function(player) {
+        return DBZCCG.currentCard && DBZCCG.currentCard.effectType instanceof Array &&
+                DBZCCG.currentCard.effectType.indexOf(DBZCCG.Combat.Attack.Energy) !== -1 &&
+                DBZCCG.Combat.defaultDefenderCheck(player, this);
+    },
+    effect: function() {
+        this.targetCard.success = false;
+    },
+    postEffect: function(card) {
+        var cardIdx = DBZCCG.defendingPlayer.inPlay.getCardIdx(card.display);
+        DBZCCG.listActions.splice(0, 0, function() {
+            DBZCCG.defendingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
+        });
+    },
+    effectType: [DBZCCG.Combat.Defense.Energy]
+};
+
+DBZCCG.Saiyan['115'] = {
+    type: DBZCCG.Card.Type['Energy Combat'],
+    style: DBZCCG.Card.Style.Freestyle,
+    description: "Energy attack doing 2 power life cards of damage. Costs 3 power stages to perform.",
+    rarity: DBZCCG.Card.Rarity.Uncommon,
+    personality: DBZCCG.Personality.Personalities.YAMCHA,
+    name: "Yamcha's Energy Attack",
+    number: '115',
+    texturePath: "images/DBZCCG/saiyan/115.jpg",
+    saga: DBZCCG.Card.Saga.Saiyan,
+    activable: DBZCCG.Combat.defaultAttackerCheck,
+    cost: function() {
+        return {powerStage: 3};
+    },
+    effect: function() {
+        this.success = true;
+        this.targetCard = DBZCCG.defendingPlayer.getPersonalityInControl();
+    },
+    damage: function() {
+        return DBZCCG.Combat.attack(false, function(damage) {
+            damage.cards = 2;
+            return damage;
+        }, DBZCCG.attackingPlayer.getPersonalityInControl().currentPowerLevel(), DBZCCG.defendingPlayer.getPersonalityInControl().currentPowerLevel());
+    },
+    successfulEffect: function(defendingPlayer) {
+        var damage = this.damage();
+        DBZCCG.listActions.splice(0, 0, function() {
+            defendingPlayer.takeDamage(damage);
+        });
+    },
+    postEffect: function(card) {
+        var cardIdx = DBZCCG.attackingPlayer.inPlay.getCardIdx(card.display);
+        DBZCCG.listActions.splice(0, 0, function() {
+            DBZCCG.attackingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
+        });
+    },
+    effectType: [DBZCCG.Combat.Attack.Energy]
+};
+
+DBZCCG.Saiyan['116'] = {
+    type: DBZCCG.Card.Type['Physical Combat'],
+    style: DBZCCG.Card.Style.Freestyle,
+    description: "Prevents 3 life card of damage from a physical attack.",
+    name: "Yamcha's Physical Defense",
+    number: '116',
+    rarity: DBZCCG.Card.Rarity.Uncommon,
+    texturePath: "images/DBZCCG/saiyan/116.jpg",
+    saga: DBZCCG.Card.Saga.Saiyan,
+    activable: function(player) {
+        return DBZCCG.currentCard && DBZCCG.currentCard.effectType instanceof Array
+                && DBZCCG.currentCard.effectType.indexOf(DBZCCG.Combat.Attack.Physical) !== -1
+                && DBZCCG.Combat.defaultDefenderCheck(player, this);
+    },
+    effect: function() {
+        DBZCCG.defendingPlayer.addBeforeDamageCallback({
+            priority: 50,
+            f: function(powerStages, lifeCards) {
+                var ret;
+                if (this.phase === DBZCCG.phaseCounter && $('#turnCounterNumber').html() === this.turn) {
+                    ret = {
+                        powerStages: powerStages,
+                        lifeCards: lifeCards >= 3 ? lifeCards - 3 : lifeCards
+                    };
+                } else {
+                    ret = {
+                        powerStages: powerStages,
+                        lifeCards: lifeCards
+                    };
+                }
+                return ret;
+            },
+            turn: $('#turnCounterNumber').html(),
+            life: false,
+            phase: DBZCCG.phaseCounter
+        });
+    },
+    postEffect: function(card) {
+        var cardIdx = DBZCCG.defendingPlayer.inPlay.getCardIdx(card.display);
+        DBZCCG.listActions.splice(0, 0, function() {
+            DBZCCG.defendingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
+        });
+    },
+    effectType: [DBZCCG.Combat.Defense.Physical, DBZCCG.Combat.Defense.Prevention]
+};
+
+DBZCCG.Saiyan['117'] = {
+    type: DBZCCG.Card.Type['Combat'],
+    style: DBZCCG.Card.Style.Freestyle,
+    description: "Forces a hero opponent to discard the top card of his life deck. Remove from the game after use.",
+    name: "Raditz Energy Wall",
+    number: '117',
+    rarity: DBZCCG.Card.Rarity.Uncommon,
+    personality: DBZCCG.Personality.Personalities.RADITZ,
+    texturePath: "images/DBZCCG/saiyan/117.jpg",
+    saga: DBZCCG.Card.Saga.Saiyan,
+    activable: function(player) {
+        return DBZCCG.defendingPlayer && ClassHelper.checkValue(DBZCCG.defendingPlayer.mainPersonality.alignment,
+                DBZCCG.Personality.alignment.Hero) && DBZCCG.Combat.defaultAttackerCheck(player, this);
+    },
+    effect: function() {
+        DBZCCG.listActions.splice(0, 0, function() {
+            DBZCCG.defendingPlayer.transferCards("lifeDeck",
+                    [DBZCCG.defendingPlayer.lifeDeck.cards.length - 1],
+                    "discardPile");
+        });
+    },
+    postEffect: function(card) {
+        var cardIdx = DBZCCG.performingAction.inPlay.getCardIdx(card.display);
+        DBZCCG.listActions.splice(0, 0, function() {
+            DBZCCG.performingAction.transferCards("inPlay", [cardIdx], "removedFromTheGame");
+        });
+    },
+    effectType: [DBZCCG.Combat.Effect.DiscardCard]
+};
+
+DBZCCG.Saiyan['118'] = {
+    type: DBZCCG.Card.Type['Combat'],
+    style: DBZCCG.Card.Style.Freestyle,
+    description: "Lower a hero opponent's anger 2 levels. Remove from the game after use.",
+    name: "Raditz Physical Defense",
+    number: '118',
+    rarity: DBZCCG.Card.Rarity.Uncommon,
+    personality: DBZCCG.Personality.Personalities.RADITZ,
+    texturePath: "images/DBZCCG/saiyan/118.jpg",
+    saga: DBZCCG.Card.Saga.Saiyan,
+    activable: function(player) {
+        return DBZCCG.defendingPlayer && ClassHelper.checkValue(DBZCCG.defendingPlayer.mainPersonality.alignment,
+                DBZCCG.Personality.alignment.Hero) && DBZCCG.Combat.defaultAttackerCheck(player, this);
+    },
+    effect: function() {
+        DBZCCG.listActions.splice(0, 0, function() {
+            DBZCCG.defendingPlayer.mainPersonality.changeAnger(-2);
+        });
+    },
+    postEffect: function(card) {
+        var cardIdx = DBZCCG.performingAction.inPlay.getCardIdx(card.display);
+        DBZCCG.listActions.splice(0, 0, function() {
+            DBZCCG.performingAction.transferCards("inPlay", [cardIdx], "removedFromTheGame");
+        });
+    },
+    effectType: [DBZCCG.Combat.Effect.LowerAnger]
+};
+
+DBZCCG.Saiyan['120'] = {
+    type: DBZCCG.Card.Type['Energy Combat'],
+    style: DBZCCG.Card.Style.Freestyle,
+    personality: DBZCCG.Personality.Personalities.NAPPA,
+    limit: 1,
+    description: "Stops an energy attack. For the remainder of combat stops all your opponent's energy attacks. Remove from the game after use. Limit 1 per deck.",
+    name: "Nappa's Energy Aura",
+    number: '120',
+    rarity: DBZCCG.Card.Rarity.Uncommon,
+    texturePath: "images/DBZCCG/saiyan/120.jpg",
+    saga: DBZCCG.Card.Saga.Saiyan,
+    activable: function(player) {
+        return DBZCCG.currentCard && DBZCCG.currentCard.effectType instanceof Array
+                && DBZCCG.currentCard.effectType.indexOf(DBZCCG.Combat.Attack.Energy) !== -1
+                && DBZCCG.Combat.defaultDefenderCheck(player, this);
+    },
+    effect: function() {
+        this.targetCard.success = false;
+        var card = this;
+
+        DBZCCG.Card.FloatingEffect.create(
+                {card: DBZCCG.Saiyan['120'],
+                    player: DBZCCG.performingAction,
+                    scene: DBZCCG.mainScene,
+                    combat: true
+                });
+
+        DBZCCG.defendingPlayer.addDefenderCallback({f: function(attackingCard) {
+                if ($('#turnCounterNumber').html() !== this.turn) {
+                    this.life = false;
+                    return;
+                } else if (attackingCard.success && attackingCard.effectType instanceof Array
+                        && attackingCard.effectType.indexOf(DBZCCG.Combat.Attack.Energy) !== -1) {
+                    attackingCard.success = false;
+                    DBZCCG.Combat.flashCard(card);
+                    return {skipDefense: true};
+                }
+            }, priority: 100000, life: true, turn: $('#turnCounterNumber').html()});
+        DBZCCG.performingTurn = false;
+    },
+    postEffect: function(card) {
+        var cardIdx = DBZCCG.defendingPlayer.inPlay.getCardIdx(card.display);
+        DBZCCG.listActions.splice(0, 0, function() {
+            DBZCCG.defendingPlayer.transferCards("inPlay", [cardIdx], "removedFromTheGame");
+        });
+    },
+    effectType: [DBZCCG.Combat.Defense.Energy, DBZCCG.Combat.Defense.Floating, DBZCCG.Combat.Defense.All]
+};
+
+DBZCCG.Saiyan['121'] = {
+    type: DBZCCG.Card.Type['Physical Combat'],
+    style: DBZCCG.Card.Style.Freestyle,
+    personality: DBZCCG.Personality.Personalities.NAPPA,
+    limit: 1,
+    description: "Stops a physical attack. For the remainder of combat stops all your opponent's physical attacks. Remove from the game after use. Limit 1 per deck.",
+    name: "Nappa's Physical Resistance",
+    number: '121',
+    rarity: DBZCCG.Card.Rarity.Uncommon,
+    texturePath: "images/DBZCCG/saiyan/121.jpg",
+    saga: DBZCCG.Card.Saga.Saiyan,
+    activable: function(player) {
+        return DBZCCG.currentCard && DBZCCG.currentCard.effectType instanceof Array
+                && DBZCCG.currentCard.effectType.indexOf(DBZCCG.Combat.Attack.Physical) !== -1
+                && DBZCCG.Combat.defaultDefenderCheck(player, this);
+    },
+    effect: function() {
+        this.targetCard.success = false;
+        var card = this;
+
+        DBZCCG.Card.FloatingEffect.create(
+                {card: DBZCCG.Saiyan['121'],
+                    player: DBZCCG.performingAction,
+                    scene: DBZCCG.mainScene,
+                    combat: true
+                });
+
+        DBZCCG.defendingPlayer.addDefenderCallback({f: function(attackingCard) {
+                if ($('#turnCounterNumber').html() !== this.turn) {
+                    this.life = false;
+                    return;
+                } else if (attackingCard.success && attackingCard.effectType instanceof Array && attackingCard.effectType.indexOf(DBZCCG.Combat.Attack.Physical) !== -1) {
+                    attackingCard.success = false;
+                    DBZCCG.Combat.flashCard(card);
+                    return {skipDefense: true};
+                }
+            }, priority: 100000, life: true, turn: $('#turnCounterNumber').html()});
+        DBZCCG.performingTurn = false;
+    },
+    postEffect: function(card) {
+        var cardIdx = DBZCCG.defendingPlayer.inPlay.getCardIdx(card.display);
+        DBZCCG.listActions.splice(0, 0, function() {
+            DBZCCG.defendingPlayer.transferCards("inPlay", [cardIdx], "removedFromTheGame");
+        });
+    },
+    effectType: [DBZCCG.Combat.Defense.Energy, DBZCCG.Combat.Defense.Floating, DBZCCG.Combat.Defense.All]
+};
+
+DBZCCG.Saiyan['122'] = {
+    type: DBZCCG.Card.Type['Energy Combat'],
+    style: DBZCCG.Card.Style.Freestyle,
+    personality: DBZCCG.Personality.Personalities.YAJIROBE,
+    description: "Energy attack doing 1 life card of damage. Remove from the game after use.",
+    name: "Yajirobe's Energy Attack",
+    number: '122',
+    rarity: DBZCCG.Card.Rarity.Uncommon,
+    texturePath: "images/DBZCCG/saiyan/122.jpg",
+    saga: DBZCCG.Card.Saga.Saiyan,
+    activable: DBZCCG.Combat.defaultAttackerCheck,
+    effect: function() {
+        this.success = true;
+        this.targetCard = DBZCCG.defendingPlayer.getPersonalityInControl();
+    },
+    cost: function() {
+        return {powerStage: 2};
+    },
+    damage: function() {
+        return DBZCCG.Combat.attack(false, function(damage) {
+            damage.cards = 1;
+            return damage;
+        }, DBZCCG.attackingPlayer.getPersonalityInControl().currentPowerLevel(), DBZCCG.defendingPlayer.getPersonalityInControl().currentPowerLevel());
+    },
+    successfulEffect: function(defendingPlayer) {
+        var damage = this.damage();
+        DBZCCG.listActions.splice(0, 0, function() {
+            defendingPlayer.takeDamage(damage);
+        });
+    },
+    postEffect: function(card) {
+        var cardIdx = DBZCCG.attackingPlayer.inPlay.getCardIdx(card.display);
+        DBZCCG.listActions.splice(0, 0, function() {
+            DBZCCG.attackingPlayer.transferCards("inPlay", [cardIdx], "removedFromTheGame");
+        });
+    },
+    effectType: [DBZCCG.Combat.Attack.Energy]
+};
+
+DBZCCG.Saiyan['123'] = {
+    type: DBZCCG.Card.Type['Energy Combat'],
+    style: DBZCCG.Card.Style.Freestyle,
+    personality: DBZCCG.Personality.Personalities.CHIAOTZU,
+    description: "Energy attack doing 3 life card of damage. Remove from the game after use.",
+    name: "Chiaotzu's Energy Manipulation",
+    limit: 1,
+    number: '123',
+    rarity: DBZCCG.Card.Rarity.Uncommon,
+    texturePath: "images/DBZCCG/saiyan/123.jpg",
+    saga: DBZCCG.Card.Saga.Saiyan,
+    activable: DBZCCG.Combat.defaultAttackerCheck,
+    effect: function() {
+        this.success = true;
+        this.targetCard = DBZCCG.defendingPlayer.getPersonalityInControl();
+    },
+    cost: function() {
+        return {powerStage: 2};
+    },
+    damage: function() {
+        return DBZCCG.Combat.attack(false, function(damage) {
+            damage.cards = 3;
+            return damage;
+        }, DBZCCG.attackingPlayer.getPersonalityInControl().currentPowerLevel(), DBZCCG.defendingPlayer.getPersonalityInControl().currentPowerLevel());
+    },
+    successfulEffect: function(defendingPlayer) {
+        var damage = this.damage();
+        DBZCCG.listActions.splice(0, 0, function() {
+            defendingPlayer.takeDamage(damage);
+        });
+    },
+    postEffect: function(card) {
+        var cardIdx = DBZCCG.attackingPlayer.inPlay.getCardIdx(card.display);
+        DBZCCG.listActions.splice(0, 0, function() {
+            DBZCCG.attackingPlayer.transferCards("inPlay", [cardIdx], "removedFromTheGame");
+        });
+    },
+    effectType: [DBZCCG.Combat.Attack.Energy]
+};
+
+DBZCCG.Saiyan['153'] = {
+    type: DBZCCG.Card.Type['Energy Combat'],
+    style: DBZCCG.Card.Style.Freestyle,
+    description: "Stops a physical attack. Remove from the game after use.",
+    name: "Goku's Energy Blast!",
+    number: '153',
+    personality: DBZCCG.Personality.Personalities.GOKU,
+    rarity: DBZCCG.Card.Rarity.Uncommon,
+    texturePath: "images/DBZCCG/saiyan/153.jpg",
+    saga: DBZCCG.Card.Saga.Saiyan,
+    activable: function(player) {
+        return DBZCCG.currentCard && DBZCCG.currentCard.effectType instanceof Array &&
+                DBZCCG.currentCard.effectType.indexOf(DBZCCG.Combat.Attack.Physical) !== -1 &&
+                DBZCCG.Combat.defaultDefenderCheck(player, this);
+    },
+    effect: function() {
+        this.targetCard.success = false;
+    },
+    postEffect: function(card) {
+        var cardIdx = DBZCCG.defendingPlayer.inPlay.getCardIdx(card.display);
+        DBZCCG.listActions.splice(0, 0, function() {
+            DBZCCG.defendingPlayer.transferCards("inPlay", [cardIdx], "removedFromTheGame");
+        });
+    },
+    effectType: [DBZCCG.Combat.Defense.Physical]
+};
+
+DBZCCG.Saiyan['154'] = {
+    type: DBZCCG.Card.Type['Energy Combat'],
+    style: DBZCCG.Card.Style.Freestyle,
+    description: "Stops an energy attack. Remove from the game after use.",
+    name: "Piccolo Sidestep!",
+    number: '154',
+    personality: DBZCCG.Personality.Personalities.PICCOLO,
+    rarity: DBZCCG.Card.Rarity.Uncommon,
+    texturePath: "images/DBZCCG/saiyan/154.jpg",
+    saga: DBZCCG.Card.Saga.Saiyan,
+    activable: function(player) {
+        return DBZCCG.currentCard && DBZCCG.currentCard.effectType instanceof Array &&
+                DBZCCG.currentCard.effectType.indexOf(DBZCCG.Combat.Attack.Energy) !== -1 &&
+                DBZCCG.Combat.defaultDefenderCheck(player, this);
+    },
+    effect: function() {
+        this.targetCard.success = false;
+    },
+    postEffect: function(card) {
+        var cardIdx = DBZCCG.defendingPlayer.inPlay.getCardIdx(card.display);
+        DBZCCG.listActions.splice(0, 0, function() {
+            DBZCCG.defendingPlayer.transferCards("inPlay", [cardIdx], "removedFromTheGame");
+        });
+    },
+    effectType: [DBZCCG.Combat.Defense.Energy]
 };
 
 DBZCCG.Saiyan['158'] = {
@@ -2991,9 +4883,934 @@ DBZCCG.Saiyan['175'] = {
             DBZCCG.combat = false;
             DBZCCG.Combat.effectHappening = false;
         });
-        
+
         // effect still happening
         return true;
     },
     effectType: [DBZCCG.Combat.Effect.CaptureDragonball, DBZCCG.Combat.Effect.EndCombat]
+};
+
+DBZCCG.Saiyan['186'] = {
+    type: DBZCCG.Card.Type['Dragonball'],
+    style: DBZCCG.Card.Style.Freestyle,
+    description: "This card has an active power that reads \"End's a Combat. Power up to full.\"."
+            + " When this card comes first into play, lower all your opponent's anger 2 levels.",
+    limit: 1,
+    name: "Earth Dragon Ball 6",
+    number: '186',
+    rarity: DBZCCG.Card.Rarity.Rare,
+    texturePath: "images/DBZCCG/saiyan/186.jpg",
+    saga: DBZCCG.Card.Saga.Saiyan,
+    dbCode: DBZCCG.Dragonball['Earth Dragonball 6'],
+    activable: function(player) {
+        return DBZCCG.combat &&
+                player === this.control && this.cameIntoPlay && this.charges > 0 && DBZCCG.Combat.defaultAttackerCheck(player, this);
+    },
+    playable: DBZCCG.Combat.defaultDragonballCheck,
+    effect: function() {
+        var control = this.control;
+        var firstUse = false;
+        if (!this.cameIntoPlay) {
+            DBZCCG.listActions.splice(0, 0, function() {
+                for (var i = 0; i < DBZCCG.table.players.length; i++) {
+                    if (DBZCCG.table.players[i] !== control) {
+                        DBZCCG.table.players[i].mainPersonality.changeAnger(-2);
+                    }
+                }
+            });
+            this.cameIntoPlay = true;
+            firstUse = true;
+        }
+
+        if (this.lastControl !== this.control) {
+            this.charges = 1;
+            firstUse = true;
+        }
+        this.lastControl = control;
+
+        if (DBZCCG.combat && !firstUse && this.charges > 0) {
+            DBZCCG.listActions.splice(0, 0, function() {
+                DBZCCG.combat = false;
+            });
+
+            DBZCCG.listActions.splice(0, 0, function() {
+                control.getPersonalityInControl().moveZScouter("max");
+            });
+
+            this.charges--;
+        }
+    },
+    effectType: [DBZCCG.Combat.Effect.EndCombat, DBZCCG.Combat.Effect.StageUp, DBZCCG.Combat.Effect.LowerAnger]
+};
+
+DBZCCG.Saiyan['188'] = {
+    type: DBZCCG.Card.Type['Combat'],
+    style: DBZCCG.Card.Style.Freestyle,
+    description: "Capture an opponent's Dragon Ball.",
+    name: "Earth Dragon Ball Capture",
+    number: '188',
+    rarity: DBZCCG.Card.Rarity.Rare,
+    texturePath: "images/DBZCCG/saiyan/188.jpg",
+    saga: DBZCCG.Card.Saga.Saiyan,
+    activable: function(player) {
+        return DBZCCG.Combat.checkDragonballControl(DBZCCG.defendingPlayer).length > 0 &&
+                DBZCCG.Combat.defaultAttackerCheck(player, this);
+    },
+    effect: function() {
+        this.success = true;
+        DBZCCG.defendingPlayer.captureDragonballs(false, false, true, "Due to the effects of <b>" + this.name + "</b> it is not possible to capture a dragonball.");
+
+        DBZCCG.listActions.splice(0, 0, function() {
+            DBZCCG.Combat.effectHappening = false;
+        });
+
+        // effect still happening
+        return true;
+    },
+    postEffect: function(card) {
+        var cardIdx = DBZCCG.performingAction.inPlay.getCardIdx(card.display);
+        DBZCCG.listActions.splice(0, 0, function() {
+            DBZCCG.performingAction.transferCards("inPlay", [cardIdx], "discardPile");
+        });
+    },
+    effectType: [DBZCCG.Combat.Effect.CaptureDragonball]
+};
+
+DBZCCG.Saiyan['189'] = {
+    type: DBZCCG.Card.Type['Energy Combat'],
+    style: DBZCCG.Card.Style.Freestyle,
+    description: "Energy attack. If successful, capture a Dragon Ball.",
+    rarity: DBZCCG.Card.Rarity.Rare,
+    name: "Earth Dragon Ball Combat",
+    number: '189',
+    texturePath: "images/DBZCCG/saiyan/189.jpg",
+    saga: DBZCCG.Card.Saga.Saiyan,
+    activable: DBZCCG.Combat.defaultAttackerCheck,
+    cost: function() {
+        return {powerStage: 2};
+    },
+    effect: function() {
+        this.success = true;
+        this.targetCard = DBZCCG.defendingPlayer.getPersonalityInControl();
+    },
+    damage: function() {
+        return DBZCCG.Combat.attack(false, function(damage) {
+            damage.cards = 4;
+            return damage;
+        }, DBZCCG.attackingPlayer.getPersonalityInControl().currentPowerLevel(), DBZCCG.defendingPlayer.getPersonalityInControl().currentPowerLevel());
+    },
+    successfulEffect: function(defendingPlayer) {
+        var damage = this.damage();
+
+        DBZCCG.listActions.splice(0, 0, function() {
+            defendingPlayer.takeDamage(damage);
+        });
+
+        DBZCCG.defendingPlayer.captureDragonballs(false, false, true, "Due to the effects of <b>" + this.name + "</b> it is not possible to capture a dragonball.");
+
+        DBZCCG.listActions.splice(0, 0, function() {
+            DBZCCG.Combat.effectHappening = false;
+        });
+
+        // effect still happening
+        return true;
+    },
+    postEffect: function(card) {
+        var cardIdx = DBZCCG.attackingPlayer.inPlay.getCardIdx(card.display);
+        DBZCCG.listActions.splice(0, 0, function() {
+            DBZCCG.attackingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
+        });
+    },
+    effectType: [DBZCCG.Combat.Attack.Energy, DBZCCG.Combat.Effect.CaptureDragonball]
+};
+
+DBZCCG.Saiyan['192'] = {
+    type: DBZCCG.Card.Type['Non-Combat'],
+    style: DBZCCG.Card.Style.Freestyle,
+    description: "Use this card during your non-combat step. Choose an opponent. That opponent skip his next declare phase. Limit 2 per deck. Remove from the game after use.",
+    name: "Teaching the Unteachable Forces Observation",
+    number: '192',
+    limit: 2,
+    texturePath: "images/DBZCCG/saiyan/192.jpg",
+    saga: DBZCCG.Card.Saga.Saiyan,
+    rarity: DBZCCG.Card.Rarity.Rare,
+    playable: DBZCCG.Combat.defaultNonCombatCheck,
+    activable: function(player) {
+        return $('.selectedTurn').html() === 'N-CMB' && DBZCCG.performingAction === player && player.checkOwnership(this.display);
+    },
+    effect: function() {
+        this.success = true;
+        var card = this;
+        var opponent;
+
+        for (var i = 0; i < DBZCCG.table.players.length && !opponent; i++) {
+            if (DBZCCG.performingAction !== DBZCCG.table.players[i]) {
+                opponent = DBZCCG.table.players[i];
+            }
+        }
+
+        DBZCCG.Card.FloatingEffect.create(
+                {card: DBZCCG.Saiyan['192'],
+                    player: DBZCCG.performingAction,
+                    turn: $('#turnCounterNumber').html() + 1,
+                    scene: DBZCCG.mainScene,
+                    appendText: "Opponent " + opponent.name + " will skip the next declare phase."
+                });
+
+        opponent.addTurnCallback({
+            priority: 50,
+            f: function() {
+                var player = this.player;
+                DBZCCG.listActions.push(function() {
+                    DBZCCG.Combat.flashCard(card);
+                    player.declarePhaseEnabled = false;
+
+                    opponent.addTurnCallback({
+                        turn: $('#turnCounterNumber').html(),
+                        f: function() {
+                            if ($('#turnCounterNumber').html() !== this.turn) {
+                                DBZCCG.performingAction.declarePhaseEnabled = true;
+                                this.life = false;
+                            }
+                        },
+                        life: true,
+                        priority: 100
+                    });
+                });
+            },
+            life: false
+        });
+
+    },
+    postEffect: function(card) {
+        var cardIdx = DBZCCG.performingAction.nonCombats.getCardIdx(card.display);
+        DBZCCG.listActions.splice(0, 0, function() {
+            DBZCCG.performingAction.transferCards("nonCombats", [cardIdx], "removedFromTheGame");
+            DBZCCG.performingAction.nonCombatPhase();
+        });
+    }
+};
+
+DBZCCG.Saiyan['199'] = {
+    type: DBZCCG.Card.Type['Combat'],
+    style: DBZCCG.Card.Style.Freestyle,
+    description: "Ends a combat. Place the bottom card from your discard pile at the bottom of your life deck. Remove from the game after use.",
+    name: "Dream Fighting",
+    number: '199',
+    rarity: DBZCCG.Card.Rarity.Rare,
+    texturePath: "images/DBZCCG/saiyan/199.jpg",
+    saga: DBZCCG.Card.Saga.Saiyan,
+    activable: DBZCCG.Combat.defaultAttackerCheck,
+    effect: function() {
+
+        DBZCCG.listActions.splice(0, 0, function() {
+            var cardIdx = [];
+
+            if (DBZCCG.attackingPlayer.discardPile.cards.length > 0) {
+                cardIdx.push(0);
+            }
+
+            DBZCCG.attackingPlayer.transferCards('discardPile', cardIdx, 'lifeDeck', 0);
+        });
+
+        DBZCCG.listActions.splice(0, 0, function() {
+            DBZCCG.combat = false;
+        });
+    },
+    postEffect: function(card) {
+        var cardIdx = DBZCCG.performingAction.inPlay.getCardIdx(card.display);
+        DBZCCG.listActions.splice(0, 0, function() {
+            DBZCCG.performingAction.transferCards("inPlay", [cardIdx], "removedFromTheGame");
+        });
+    },
+    effectType: [DBZCCG.Combat.Effect.Regenerate, DBZCCG.Combat.Effect.EndCombat]
+};
+
+
+DBZCCG.Saiyan['200'] = {
+    type: DBZCCG.Card.Type['Combat'],
+    style: DBZCCG.Card.Style.Freestyle,
+    description: "Set your opponent's anger to 0. Remove from the game after use.",
+    name: "Cutting the Tail",
+    number: '200',
+    rarity: DBZCCG.Card.Rarity.Rare,
+    texturePath: "images/DBZCCG/saiyan/200.jpg",
+    saga: DBZCCG.Card.Saga.Saiyan,
+    activable: DBZCCG.Combat.defaultAttackerCheck,
+    effect: function() {
+        DBZCCG.listActions.splice(0, 0, function() {
+            DBZCCG.defendingPlayer.mainPersonality.setAnger(0);
+        });
+    },
+    postEffect: function(card) {
+        var cardIdx = DBZCCG.performingAction.inPlay.getCardIdx(card.display);
+        DBZCCG.listActions.splice(0, 0, function() {
+            DBZCCG.performingAction.transferCards("inPlay", [cardIdx], "removedFromTheGame");
+        });
+    },
+    effectType: [DBZCCG.Combat.Effect.LowerAnger]
+};
+
+DBZCCG.Saiyan['201'] = {
+    type: DBZCCG.Card.Type['Combat'],
+    style: DBZCCG.Card.Style.Freestyle,
+    description: "Raise your active personality to it's highest power stage. Remove from the game after use.",
+    name: "The Tail Grows Back",
+    number: '200',
+    rarity: DBZCCG.Card.Rarity.Rare,
+    texturePath: "images/DBZCCG/saiyan/200.jpg",
+    saga: DBZCCG.Card.Saga.Saiyan,
+    activable: DBZCCG.Combat.defaultAttackerCheck,
+    effect: function() {
+        DBZCCG.listActions.splice(0, 0, function() {
+            DBZCCG.attackingPlayer.getPersonalityInControl().moveZScouter("max");
+        });
+    },
+    postEffect: function(card) {
+        var cardIdx = DBZCCG.performingAction.inPlay.getCardIdx(card.display);
+        DBZCCG.listActions.splice(0, 0, function() {
+            DBZCCG.performingAction.transferCards("inPlay", [cardIdx], "removedFromTheGame");
+        });
+    },
+    effectType: [DBZCCG.Combat.Effect.StageUp]
+};
+
+DBZCCG.Saiyan['203'] = {
+    type: DBZCCG.Card.Type['Combat'],
+    style: DBZCCG.Card.Style.Saiyan,
+    description: "Ends a combat. Skip your discard phase until your next turn. Limit 1 per deck. Remove from the game after use.",
+    name: "Saiyan Truce Card",
+    limit: 1,
+    number: '203',
+    rarity: DBZCCG.Card.Rarity.Rare,
+    texturePath: "images/DBZCCG/saiyan/203.jpg",
+    saga: DBZCCG.Card.Saga.Saiyan,
+    activable: DBZCCG.Combat.defaultAttackerCheck,
+    effect: function() {
+        var card = this;
+
+        DBZCCG.Card.FloatingEffect.create(
+                {card: DBZCCG.Saiyan['203'],
+                    player: DBZCCG.performingAction,
+                    nextTurn: true,
+                    scene: DBZCCG.mainScene,
+                    appendText: "Will skip the discard phase until his next turn"
+                });
+
+        DBZCCG.performingAction.discardPhaseEnabled = false;
+
+        DBZCCG.performingAction.addTurnCallback({
+            priority: 50,
+            f: function() {
+                var player = this.player;
+                DBZCCG.listActions.push(function() {
+                    DBZCCG.Combat.flashCard(card);
+                    player.discardPhaseEnabled = true;
+                });
+            },
+            life: false
+        });
+
+        DBZCCG.listActions.splice(0, 0, function() {
+            DBZCCG.combat = false;
+        });
+    },
+    postEffect: function(card) {
+        var cardIdx = DBZCCG.performingAction.inPlay.getCardIdx(card.display);
+        DBZCCG.listActions.splice(0, 0, function() {
+            DBZCCG.performingAction.transferCards("inPlay", [cardIdx], "removedFromTheGame");
+        });
+    },
+    effectType: [DBZCCG.Combat.Effect.Regenerate, DBZCCG.Combat.Effect.EndCombat]
+};
+
+DBZCCG.Saiyan['204'] = {
+    type: DBZCCG.Card.Type['Combat'],
+    style: DBZCCG.Card.Style.Freestyle,
+    description: "Your opponent main personality gains 5 power stages. Draw the top 2 cards of your discard pile. Limit 1 per deck. Remove from the game after use.",
+    name: "Battle Pausing",
+    limit: 1,
+    number: '204',
+    rarity: DBZCCG.Card.Rarity.Rare,
+    texturePath: "images/DBZCCG/saiyan/204.jpg",
+    saga: DBZCCG.Card.Saga.Saiyan,
+    activable: DBZCCG.Combat.defaultAttackerCheck,
+    effect: function() {
+
+        DBZCCG.listActions.splice(0, 0, function() {
+            var cardIdx = [];
+
+            if (DBZCCG.attackingPlayer.discardPile.cards.length > 0) {
+                cardIdx.push(DBZCCG.attackingPlayer.discardPile.cards.length - 1);
+            }
+
+            if (DBZCCG.attackingPlayer.discardPile.cards.length > 1) {
+                cardIdx.push(DBZCCG.attackingPlayer.discardPile.cards.length - 2);
+            }
+
+            DBZCCG.attackingPlayer.transferCards('discardPile', cardIdx, 'hand');
+        });
+
+        DBZCCG.listActions.splice(0, 0, function() {
+            DBZCCG.defendingPlayer.mainPersonality.raiseZScouter(5);
+        });
+    },
+    postEffect: function(card) {
+        var cardIdx = DBZCCG.performingAction.inPlay.getCardIdx(card.display);
+        DBZCCG.listActions.splice(0, 0, function() {
+            DBZCCG.performingAction.transferCards("inPlay", [cardIdx], "removedFromTheGame");
+        });
+    },
+    effectType: [DBZCCG.Combat.Effect.DrawCard, DBZCCG.Combat.Effect.RaiseStage]
+};
+
+DBZCCG.Saiyan['205'] = {
+    type: DBZCCG.Card.Type['Combat'],
+    style: DBZCCG.Card.Style.Freestyle,
+    description: "Your opponent's main personality loses 4 stages to a minimum of 0. Remove from the game after use.",
+    name: "Grabbing the Tail",
+    number: '205',
+    rarity: DBZCCG.Card.Rarity.Rare,
+    texturePath: "images/DBZCCG/saiyan/205.jpg",
+    saga: DBZCCG.Card.Saga.Saiyan,
+    activable: DBZCCG.Combat.defaultAttackerCheck,
+    effect: function() {
+        DBZCCG.listActions.splice(0, 0, function() {
+            DBZCCG.defendingPlayer.mainPersonality.raiseZScouter(-4);
+        });
+    },
+    postEffect: function(card) {
+        var cardIdx = DBZCCG.performingAction.inPlay.getCardIdx(card.display);
+        DBZCCG.listActions.splice(0, 0, function() {
+            DBZCCG.performingAction.transferCards("inPlay", [cardIdx], "removedFromTheGame");
+        });
+    },
+    effectType: [DBZCCG.Combat.Effect.StageDown]
+};
+
+DBZCCG.Saiyan['206'] = {
+    type: DBZCCG.Card.Type['Combat'],
+    style: DBZCCG.Card.Style.Freestyle,
+    description: "Ends a combat. Remove from the game after use.",
+    name: "Nappa's Blinding Stare",
+    number: '206',
+    personality: DBZCCG.Personality.Personalities.NAPPA,
+    rarity: DBZCCG.Card.Rarity.Rare,
+    texturePath: "images/DBZCCG/saiyan/206.jpg",
+    saga: DBZCCG.Card.Saga.Saiyan,
+    activable: DBZCCG.Combat.defaultAttackerCheck,
+    effect: function() {
+        DBZCCG.listActions.splice(0, 0, function() {
+            DBZCCG.combat = false;
+        });
+    },
+    postEffect: function(card) {
+        var cardIdx = DBZCCG.performingAction.inPlay.getCardIdx(card.display);
+        DBZCCG.listActions.splice(0, 0, function() {
+            DBZCCG.performingAction.transferCards("inPlay", [cardIdx], "removedFromTheGame");
+        });
+    },
+    effectType: [DBZCCG.Combat.Effect.EndCombat]
+};
+
+DBZCCG.Saiyan['209'] = {
+    type: DBZCCG.Card.Type['Non-Combat'],
+    style: DBZCCG.Card.Style.Freestyle,
+    description: "Power up to full. Remove from the game after use.",
+    name: "Broken Scouter",
+    number: '209',
+    rarity: DBZCCG.Card.Rarity.Rare,
+    texturePath: "images/DBZCCG/saiyan/209.jpg",
+    saga: DBZCCG.Card.Saga.Saiyan,
+    playable: DBZCCG.Combat.defaultNonCombatCheck,
+    activable: DBZCCG.Combat.defaultAttackerCheck,
+    effect: function() {
+        this.success = true;
+
+        DBZCCG.listActions.splice(0, 0, function() {
+            DBZCCG.attackingPlayer.getPersonalityInControl().raiseZScouter("max");
+        });
+
+    },
+    postEffect: function(card) {
+        var cardIdx = DBZCCG.attackingPlayer.nonCombats.getCardIdx(card.display);
+        DBZCCG.listActions.splice(0, 0, function() {
+            DBZCCG.attackingPlayer.transferCards("nonCombats", [cardIdx], "removedFromTheGame");
+        });
+    },
+    effectType: [DBZCCG.Combat.Effect.StageUp]
+};
+
+DBZCCG.Saiyan['210'] = {
+    type: DBZCCG.Card.Type['Physical Combat'],
+    style: DBZCCG.Card.Style.Freestyle,
+    personality: DBZCCG.Personality.Personalities.RADITZ,
+    description: "Physical attack doing triple physical attack table damage.",
+    name: "Raditz Flying Kick",
+    number: '210',
+    rarity: DBZCCG.Card.Rarity.Rare,
+    texturePath: "images/DBZCCG/saiyan/210.jpg",
+    saga: DBZCCG.Card.Saga.Saiyan,
+    activable: DBZCCG.Combat.defaultAttackerCheck,
+    effect: function() {
+        this.success = true;
+        this.targetCard = DBZCCG.defendingPlayer.getPersonalityInControl();
+    },
+    damage: function() {
+        return DBZCCG.Combat.attack(true, function(damage) {
+            damage.stages *= 3;
+            return damage;
+        }, DBZCCG.attackingPlayer.getPersonalityInControl().currentPowerLevel(), DBZCCG.defendingPlayer.getPersonalityInControl().currentPowerLevel());
+    },
+    successfulEffect: function(defendingPlayer) {
+        var damage = this.damage();
+        DBZCCG.listActions.splice(0, 0, function() {
+            defendingPlayer.takeDamage(damage);
+        });
+    },
+    postEffect: function(card) {
+        var cardIdx = DBZCCG.attackingPlayer.inPlay.getCardIdx(card.display);
+        DBZCCG.listActions.splice(0, 0, function() {
+            DBZCCG.attackingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
+        });
+    },
+    effectType: [DBZCCG.Combat.Attack.Physical]
+};
+
+DBZCCG.Saiyan['212'] = {
+    type: DBZCCG.Card.Type['Non-Combat'],
+    style: DBZCCG.Card.Style.Freestyle,
+    description: "Stops a physical or energy attack.",
+    name: "Piccolo's Flight",
+    number: '212',
+    personality: DBZCCG.Personality.Personalities.PICCOLO,
+    rarity: DBZCCG.Card.Rarity.Rare,
+    texturePath: "images/DBZCCG/saiyan/212.jpg",
+    saga: DBZCCG.Card.Saga.Saiyan,
+    playable: DBZCCG.Combat.defaultNonCombatCheck,
+    activable: function(player) {
+        return DBZCCG.currentCard && DBZCCG.currentCard.effectType instanceof Array &&
+                (DBZCCG.currentCard.effectType.indexOf(DBZCCG.Combat.Attack.Energy) !== -1 ||
+                        DBZCCG.currentCard.effectType.indexOf(DBZCCG.Combat.Attack.Physical) !== -1) &&
+                DBZCCG.Combat.defaultDefenderCheck(player, this);
+    },
+    effect: function() {
+        this.targetCard.success = false;
+    },
+    postEffect: function(card) {
+        var cardIdx = DBZCCG.defendingPlayer.nonCombats.getCardIdx(card.display);
+        DBZCCG.listActions.splice(0, 0, function() {
+            DBZCCG.defendingPlayer.transferCards("nonCombats", [cardIdx], "discardPile");
+        });
+    },
+    effectType: [DBZCCG.Combat.Defense.Omni, DBZCCG.Combat.Defense.Physical, DBZCCG.Combat.Defense.Energy]
+};
+
+DBZCCG.Saiyan['216'] = {
+    type: DBZCCG.Card.Type['Energy Combat'],
+    style: DBZCCG.Card.Style.Freestyle,
+    personality: DBZCCG.Personality.Personalities.KRILLIN,
+    description: "Energy attack. Costs 1 power stage to perform.",
+    rarity: DBZCCG.Card.Rarity.Rare,
+    name: "Krillin's Energy Disk",
+    number: '216',
+    texturePath: "images/DBZCCG/saiyan/216.jpg",
+    saga: DBZCCG.Card.Saga.Saiyan,
+    activable: DBZCCG.Combat.defaultAttackerCheck,
+    cost: function() {
+        return {powerStage: 1};
+    },
+    effect: function() {
+        this.success = true;
+        this.targetCard = DBZCCG.defendingPlayer.getPersonalityInControl();
+    },
+    damage: function() {
+        return DBZCCG.Combat.attack(false, function(damage) {
+            damage.cards = 4;
+            return damage;
+        }, DBZCCG.attackingPlayer.getPersonalityInControl().currentPowerLevel(), DBZCCG.defendingPlayer.getPersonalityInControl().currentPowerLevel());
+    },
+    successfulEffect: function(defendingPlayer) {
+        var damage = this.damage();
+        DBZCCG.listActions.splice(0, 0, function() {
+            defendingPlayer.takeDamage(damage);
+        });
+    },
+    postEffect: function(card) {
+        var cardIdx = DBZCCG.attackingPlayer.inPlay.getCardIdx(card.display);
+        DBZCCG.listActions.splice(0, 0, function() {
+            DBZCCG.attackingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
+        });
+    },
+    effectType: [DBZCCG.Combat.Attack.Energy]
+};
+
+DBZCCG.Saiyan['219'] = {
+    type: DBZCCG.Card.Type['Energy Combat'],
+    style: DBZCCG.Card.Style.Freestyle,
+    personality: DBZCCG.Personality.Personalities.RADITZ,
+    description: "Energy attack doing 2 life cards. Costs 0 power stages to perform.",
+    rarity: DBZCCG.Card.Rarity.Rare,
+    name: "Raditz Energy Burst",
+    number: '219',
+    texturePath: "images/DBZCCG/saiyan/219.jpg",
+    saga: DBZCCG.Card.Saga.Saiyan,
+    activable: DBZCCG.Combat.defaultAttackerCheck,
+    effect: function() {
+        this.success = true;
+        this.targetCard = DBZCCG.defendingPlayer.getPersonalityInControl();
+    },
+    damage: function() {
+        return DBZCCG.Combat.attack(false, function(damage) {
+            damage.cards = 2;
+            return damage;
+        }, DBZCCG.attackingPlayer.getPersonalityInControl().currentPowerLevel(), DBZCCG.defendingPlayer.getPersonalityInControl().currentPowerLevel());
+    },
+    successfulEffect: function(defendingPlayer) {
+        var damage = this.damage();
+        DBZCCG.listActions.splice(0, 0, function() {
+            defendingPlayer.takeDamage(damage);
+        });
+    },
+    postEffect: function(card) {
+        var cardIdx = DBZCCG.attackingPlayer.inPlay.getCardIdx(card.display);
+        DBZCCG.listActions.splice(0, 0, function() {
+            DBZCCG.attackingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
+        });
+    },
+    effectType: [DBZCCG.Combat.Attack.Energy]
+};
+
+DBZCCG.Saiyan['220'] = {
+    type: DBZCCG.Card.Type['Energy Combat'],
+    style: DBZCCG.Card.Style.Freestyle,
+    description: "Takes a maximum of 1 life card of damage from an energy attack. Remove from the game after use.",
+    name: "Vegeta's Stance",
+    personality: DBZCCG.Personality.Personalities.VEGETA,
+    number: '220',
+    rarity: DBZCCG.Card.Rarity.Rare,
+    texturePath: "images/DBZCCG/saiyan/220.jpg",
+    saga: DBZCCG.Card.Saga.Saiyan,
+    activable: function(player) {
+        return DBZCCG.currentCard && DBZCCG.currentCard.effectType instanceof Array &&
+                DBZCCG.currentCard.effectType.indexOf(DBZCCG.Combat.Attack.Energy) !== -1 &&
+                DBZCCG.Combat.defaultDefenderCheck(player, this);
+    },
+    effect: function() {
+        DBZCCG.defendingPlayer.addBeforeDamageCallback({
+            priority: 50,
+            f: function(powerStages, lifeCards) {
+                var ret;
+                if (DBZCCG.phaseCounter === this.phase && $('#turnCounterNumber').html() === this.turn) {
+                    ret = {
+                        powerStages: powerStages,
+                        lifeCards: 1
+                    };
+                } else {
+                    ret = {
+                        powerStages: powerStages,
+                        lifeCards: lifeCards
+                    };
+                }
+                return ret;
+            },
+            life: false,
+            turn: $('#turnCounterNumber').html(),
+            phase: DBZCCG.phaseCounter
+        });
+    },
+    postEffect: function(card) {
+        var cardIdx = DBZCCG.defendingPlayer.inPlay.getCardIdx(card.display);
+        DBZCCG.listActions.splice(0, 0, function() {
+            DBZCCG.defendingPlayer.transferCards("inPlay", [cardIdx], "removedFromTheGame");
+        });
+    },
+    effectType: [DBZCCG.Combat.Defense.Energy, DBZCCG.Combat.Defense.Prevention]
+};
+
+DBZCCG.Saiyan['226'] = {
+    type: DBZCCG.Card.Type['Non-Combat'],
+    style: DBZCCG.Card.Style.Freestyle,
+    description: "Defense Shield: Stops the first unstopped physical or energy attack made against you. Remove from the game after use.",
+    name: "T-Rex Defense",
+    number: '226',
+    rarity: DBZCCG.Card.Rarity.Rare,
+    texturePath: "images/DBZCCG/saiyan/226.jpg",
+    saga: DBZCCG.Card.Saga.Saiyan,
+    playable: DBZCCG.Combat.defaultNonCombatCheck,
+    defenseShield: function(player) {
+        return DBZCCG.openCard && DBZCCG.openCard.effectType instanceof Array
+                && (DBZCCG.openCard.effectType.indexOf(DBZCCG.Combat.Attack.Physical) !== -1 ||
+                DBZCCG.openCard.effectType.indexOf(DBZCCG.Combat.Attack.Energy) !== -1)
+                && DBZCCG.Combat.defaultDefenderCheck(player, this);
+    },
+    effect: function() {
+        DBZCCG.openCard.success = false;
+    },
+    postEffect: function(card) {
+        var cardIdx = DBZCCG.defendingPlayer.nonCombats.getCardIdx(card.display);
+        DBZCCG.listActions.splice(0, 0, function() {
+            DBZCCG.defendingPlayer.transferCards("nonCombats", [cardIdx], "removedFromTheGame");
+        });
+    },
+    effectType: [DBZCCG.Combat.Defense.Energy, DBZCCG.Combat.Defense.Omni, DBZCCG.Combat.Defense.Physical, DBZCCG.Combat.Defense.DefenseShield]
+};
+
+DBZCCG.Saiyan['240'] = {
+    type: DBZCCG.Card.Type['Non-Combat'],
+    style: DBZCCG.Card.Style.Freestyle,
+    description: "Reveal the top cards on your opponent's Life Deck until you find a Dragon Ball. Set the Dragon Ball aside. Shuffle your opponent's Life Deck. Place the Dragon Ball at the bottom of your opponent's Life Deck. Limit 1 per deck.",
+    name: "Vegeta's Trick",
+    number: '240',
+    rarity: DBZCCG.Card.Rarity.Rare,
+    texturePath: "images/DBZCCG/saiyan/240.jpg",
+    saga: DBZCCG.Card.Saga.Saiyan,
+    playable: DBZCCG.Combat.defaultNonCombatCheck,
+    activable: DBZCCG.Combat.defaultAttackerCheck,
+    effect: function() {
+
+        var opponent;
+
+        for (var i = 0; i < DBZCCG.table.players.length && !opponent; i++) {
+            if (DBZCCG.performingAction !== DBZCCG.table.players[i]) {
+                opponent = DBZCCG.table.players[i];
+            }
+        }
+
+        DBZCCG.listActions.splice(0, 0, function() {
+            opponent.canLose = true;
+        });
+
+        var lifeDeckCards = [];
+        var oLifeDeck = opponent.lifeDeck.cards;
+
+        var j = 0;
+        var idx = [];
+        var dragonballFound = false;
+        var dragonball = null;
+
+        DBZCCG.listActions.splice(0, 0, function() {
+            DBZCCG.performingAnimation = true;
+            opponent.lifeDeck.shuffle();
+            if (dragonball) {
+                DBZCCG.listActions.splice(0, 0, function() {
+                    opponent.transferCards('setAside', [opponent.setAside.getCardIdx(dragonball.display)], 'lifeDeck', 0);
+                });
+            }
+        });
+
+        DBZCCG.listActions.splice(0, 0, function() {
+            if (dragonballFound) {
+                dragonball = lifeDeckCards.pop();
+            }
+
+            var idx;
+            for (var i = lifeDeckCards.length - 1; i >= 0; i--) {
+                idx = opponent.setAside.getCardIdx(lifeDeckCards[i].display);
+                DBZCCG.listActions.splice(0, 0, function() {
+                    DBZCCG.performingTurn = true;
+                    opponent.transferCards('setAside', [idx], 'lifeDeck');
+                    window.setTimeout(function() {
+                        DBZCCG.performingTurn = false;
+                    }, 175);
+                });
+            }
+        });
+
+        for (var i = oLifeDeck.length - 1; i >= 0 && !dragonballFound; i--) {
+            if (ClassHelper.checkValue(oLifeDeck[i].type, DBZCCG.Card.Type.Dragonball)) {
+                dragonballFound = true;
+            }
+
+            lifeDeckCards.push(oLifeDeck[i]);
+            idx.push(i);
+
+            DBZCCG.listActions.splice(0, 0, function() {
+                DBZCCG.Combat.flashCard(lifeDeckCards[j]);
+                j++;
+            });
+
+            DBZCCG.listActions.splice(0, 0, function() {
+                opponent.transferCards('lifeDeck', [idx[j]], 'setAside');
+            });
+        }
+
+        DBZCCG.listActions.splice(0, 0, function() {
+            opponent.canLose = false;
+        });
+
+    },
+    postEffect: function(card) {
+        var cardIdx = DBZCCG.performingAction.nonCombats.getCardIdx(card.display);
+        DBZCCG.listActions.splice(0, 0, function() {
+            DBZCCG.performingAction.transferCards("nonCombats", [cardIdx], "discardPile");
+        });
+    },
+    effectType: [DBZCCG.Combat.Effect.ShufflePile]
+};
+
+DBZCCG.Saiyan['247'] = {
+    type: DBZCCG.Card.Type['Combat'],
+    style: DBZCCG.Card.Style.Freestyle,
+    description: "Stops a physical or energy attack.",
+    name: "Goku's Truce",
+    number: '247',
+    personality: DBZCCG.Personality.Personalities.GOKU,
+    rarity: DBZCCG.Card.Rarity['Ultra Rare'],
+    texturePath: "images/DBZCCG/saiyan/247.jpg",
+    saga: DBZCCG.Card.Saga.Saiyan,
+    activable: function(player) {
+        return DBZCCG.currentCard && DBZCCG.currentCard.effectType instanceof Array &&
+                (DBZCCG.currentCard.effectType.indexOf(DBZCCG.Combat.Attack.Energy) !== -1 ||
+                        DBZCCG.currentCard.effectType.indexOf(DBZCCG.Combat.Attack.Physical) !== -1) &&
+                DBZCCG.Combat.defaultDefenderCheck(player, this);
+    },
+    effect: function() {
+        this.targetCard.success = false;
+    },
+    postEffect: function(card) {
+        var cardIdx = DBZCCG.defendingPlayer.inPlay.getCardIdx(card.display);
+        DBZCCG.listActions.splice(0, 0, function() {
+            DBZCCG.defendingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
+        });
+    },
+    effectType: [DBZCCG.Combat.Defense.Omni, DBZCCG.Combat.Defense.Physical, DBZCCG.Combat.Defense.Energy]
+};
+
+DBZCCG.Saiyan['248'] = {
+    type: DBZCCG.Card.Type['Energy Combat'],
+    style: DBZCCG.Card.Style.Freestyle,
+    personality: DBZCCG.Personality.Personalities.RADITZ,
+    description: "Energy attack doing 5 life cards. Costs 0 power stages to perform.",
+    rarity: DBZCCG.Card.Rarity['Ultra Rare'],
+    name: "Goku's Plan",
+    number: '248',
+    texturePath: "images/DBZCCG/saiyan/248.jpg",
+    saga: DBZCCG.Card.Saga.Saiyan,
+    activable: DBZCCG.Combat.defaultAttackerCheck,
+    effect: function() {
+        this.success = true;
+        this.targetCard = DBZCCG.defendingPlayer.getPersonalityInControl();
+    },
+    damage: function() {
+        return DBZCCG.Combat.attack(false, function(damage) {
+            damage.cards = 5;
+            return damage;
+        }, DBZCCG.attackingPlayer.getPersonalityInControl().currentPowerLevel(), DBZCCG.defendingPlayer.getPersonalityInControl().currentPowerLevel());
+    },
+    successfulEffect: function(defendingPlayer) {
+        var damage = this.damage();
+        DBZCCG.listActions.splice(0, 0, function() {
+            defendingPlayer.takeDamage(damage);
+        });
+    },
+    postEffect: function(card) {
+        var cardIdx = DBZCCG.attackingPlayer.inPlay.getCardIdx(card.display);
+        DBZCCG.listActions.splice(0, 0, function() {
+            DBZCCG.attackingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
+        });
+    },
+    effectType: [DBZCCG.Combat.Attack.Energy]
+};
+
+DBZCCG.Saiyan['249'] = {
+    type: DBZCCG.Card.Type['Non-Combat'],
+    style: DBZCCG.Card.Style.Freestyle,
+    description: "Heroes only. Place the top 3 cards from your discard pile on the bottom of your Life Deck. Limit 1 per deck.",
+    name: "Medic Kit",
+    number: '249',
+    rarity: DBZCCG.Card.Rarity['Ultra Rare'],
+    texturePath: "images/DBZCCG/saiyan/249.jpg",
+    saga: DBZCCG.Card.Saga.Saiyan,
+    playable: DBZCCG.Combat.defaultNonCombatCheck,
+    activable: function(player) {
+        return DBZCCG.performingAction.getPersonalityInControl() && ClassHelper.checkValue(DBZCCG.performingAction.mainPersonality.alignment,
+                DBZCCG.Personality.alignment.Hero) && DBZCCG.Combat.defaultAttackerCheck(player, this);
+    },
+    effect: function() {
+        this.success = true;
+
+        DBZCCG.listActions.splice(0, 0, function() {
+            var cardIdx = [];
+
+            if (DBZCCG.attackingPlayer.discardPile.cards.length > 0) {
+                cardIdx.push(DBZCCG.attackingPlayer.discardPile.cards.length - 1);
+            }
+
+            if (DBZCCG.attackingPlayer.discardPile.cards.length > 1) {
+                cardIdx.push(DBZCCG.attackingPlayer.discardPile.cards.length - 2);
+            }
+
+            if (DBZCCG.attackingPlayer.discardPile.cards.length > 2) {
+                cardIdx.push(DBZCCG.attackingPlayer.discardPile.cards.length - 3);
+            }
+
+            DBZCCG.attackingPlayer.transferCards('discardPile', cardIdx, 'lifeDeck', 0);
+        });
+    },
+    postEffect: function(card) {
+        var cardIdx = DBZCCG.performingAction.nonCombats.getCardIdx(card.display);
+        DBZCCG.listActions.splice(0, 0, function() {
+            DBZCCG.performingAction.transferCards("nonCombats", [cardIdx], "discardPile");
+        });
+    },
+    effectType: [DBZCCG.Combat.Effect.Regenerate, DBZCCG.Combat.Effect.HeroOnly]
+};
+
+DBZCCG.Saiyan['250'] = {
+    type: DBZCCG.Card.Type['Combat'],
+    style: DBZCCG.Card.Style.Freestyle,
+    description: "Stops all heroes from losing 1 life card of damage from every attack for the remainder of Combat. Remove from the game after use.",
+    name: "Chiaotzu's Physical Defense",
+    number: '250',
+    rarity: DBZCCG.Card.Rarity['Ultra Rare'],
+    texturePath: "images/DBZCCG/saiyan/250.jpg",
+    saga: DBZCCG.Card.Saga.Saiyan,
+    activable: DBZCCG.Combat.defaultAttackerCheck,
+    effect: function() {
+        for (var i = 0; i < DBZCCG.table.players.length; i++) {
+            var player = DBZCCG.table.players[i];
+            if (ClassHelper.checkValue(player.mainPersonality.alignment,
+                    DBZCCG.Personality.alignment.Hero)) {
+
+                DBZCCG.Card.FloatingEffect.create(
+                        {card: DBZCCG.Saiyan['250'],
+                            player: player,
+                            scene: DBZCCG.mainScene,
+                            combat: true,
+                            appendText: "All damage is being reduced by 1 life card."
+                        });
+
+                player.addBeforeDamageCallback({
+                    priority: 50,
+                    f: function(powerStages, lifeCards) {
+                        var ret;
+                        if ($('#turnCounterNumber').html() === this.turn) {
+                            ret = {
+                                powerStages: powerStages,
+                                lifeCards: lifeCards > 0 ? lifeCards - 1 : lifeCards
+                            };
+                        } else {
+                            ret = {
+                                powerStages: powerStages,
+                                lifeCards: lifeCards
+                            };
+                            this.life = false;
+                        }
+
+                        return ret;
+                    },
+                    life: true,
+                    turn: $('#turnCounterNumber').html()
+                });
+            }
+        }
+    },
+    postEffect: function(card) {
+        var cardIdx = DBZCCG.performingAction.inPlay.getCardIdx(card.display);
+        DBZCCG.listActions.splice(0, 0, function() {
+            DBZCCG.performingAction.transferCards("inPlay", [cardIdx], "removedFromTheGame");
+        });
+    },
+    effectType: [DBZCCG.Combat.Defense.Physical, DBZCCG.Combat.Defense.Energy, DBZCCG.Combat.Defense.Prevention]
 };

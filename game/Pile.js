@@ -56,6 +56,7 @@ DBZCCG.Pile.create = function(data, faceUp, owner) {
             if (cards instanceof Array && cards.length > 0) {
                 DBZCCG.performingAnimation = true;
                 var card = cards.shift();
+                card.cameIntoPlay = false;
 
                 if (!(card.display.offDescriptionBox instanceof Function)) {
                     card.display.turnGameDisplay();
@@ -465,7 +466,7 @@ DBZCCG.Pile.create = function(data, faceUp, owner) {
                     for (var i = 0; i < pile.display.children.length; i++) {
                         pile.display.children[i].position.x = Math.sin(Math.random()) * 2.5;
                     }
-                    
+
                     if ((++sound % 7) === 0 && sound < 18) {
                         DBZCCG.Sound.shuffle();
                     }

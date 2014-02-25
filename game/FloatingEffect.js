@@ -146,6 +146,8 @@ DBZCCG.Card.FloatingEffect.create = function(dataObject) {
                     DBZCCG.performingAction === this.player &&
                     $('.selectedTurn').length === 0) {
                 remove = true;
+            } else if (this.kill) {
+                remove = true;
             }
 
             if (remove) {

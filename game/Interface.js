@@ -207,4 +207,15 @@ DBZCCG.Interface.fixWebkitGfx = function() {
 
     document.getElementById('fixElement').style.webkitTransform = 'scale(1)';
     $('#fixElement').remove();
-}
+};
+
+DBZCCG.Interface.hideDialogClose = function(dialogContentId) {
+    // Hide top close icon
+    $(dialogContentId)
+            .parent()
+            .children('.ui-dialog-titlebar')
+            .children('.ui-dialog-titlebar-close')
+            .hide();
+
+    $(dialogContentId).dialog('option', 'closeOnEscape', false);
+};

@@ -16,6 +16,8 @@ DBZCCG.Personality.Personalities.YAJIROBE = 11;
 DBZCCG.Personality.Personalities.BULMA = 12;
 DBZCCG.Personality.Personalities.CHICHI = 13;
 DBZCCG.Personality.Personalities.SAIBAIMEN = 14;
+DBZCCG.Personality.Personalities.ROSHI = 15;
+DBZCCG.Personality.Personalities.BABA = 16;
 
 DBZCCG.Personality.FemaleList = [
     DBZCCG.Personality.Personalities.BULMA,
@@ -29,7 +31,19 @@ DBZCCG.Personality.alignment.Rogue = 3;
 
 DBZCCG.Personality.SaiyanHeritage = [DBZCCG.Personality.Personalities.GOKU, DBZCCG.Personality.Personalities.NAPPA, DBZCCG.Personality.Personalities.VEGETA, DBZCCG.Personality.Personalities.RADITZ, DBZCCG.Personality.Personalities.GOHAN];
 DBZCCG.Personality.NamekianHeritage = [DBZCCG.Personality.Personalities.PICCOLO];
-DBZCCG.Personality.Hero = [DBZCCG.Personality.Personalities.GOKU, DBZCCG.Personality.Personalities.VEGETA, DBZCCG.Personality.Personalities.PICCOLO, DBZCCG.Personality.Personalities.CHIAOTZU, DBZCCG.Personality.Personalities.TIEN, DBZCCG.Personality.Personalities.KRILLIN, DBZCCG.Personality.Personalities.GOHAN, DBZCCG.Personality.Personalities.YAMCHA, DBZCCG.Personality.Personalities.YAJIROBE, DBZCCG.Personality.Personalities.BULMA, DBZCCG.Personality.Personalities.CHICHI];
+DBZCCG.Personality.Hero = [DBZCCG.Personality.Personalities.BABA,
+    DBZCCG.Personality.Personalities.ROSHI,
+    DBZCCG.Personality.Personalities.GOKU,
+    DBZCCG.Personality.Personalities.VEGETA,
+    DBZCCG.Personality.Personalities.PICCOLO,
+    DBZCCG.Personality.Personalities.CHIAOTZU, 
+    DBZCCG.Personality.Personalities.TIEN, 
+    DBZCCG.Personality.Personalities.KRILLIN, 
+    DBZCCG.Personality.Personalities.GOHAN, 
+    DBZCCG.Personality.Personalities.YAMCHA, 
+    DBZCCG.Personality.Personalities.YAJIROBE, 
+    DBZCCG.Personality.Personalities.BULMA, 
+    DBZCCG.Personality.Personalities.CHICHI];
 DBZCCG.Personality.Villain = [DBZCCG.Personality.Personalities.SAIBAIMEN, DBZCCG.Personality.Personalities.RADITZ, DBZCCG.Personality.Personalities.PICCOLO, DBZCCG.Personality.Personalities.VEGETA, DBZCCG.Personality.Personalities.NAPPA];
 
 DBZCCG.Personality.zScouterMaterial = new THREE.MeshLambertMaterial({shading: THREE.SmoothShading, color: 0xFF2233});

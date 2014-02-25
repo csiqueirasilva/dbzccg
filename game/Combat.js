@@ -41,6 +41,15 @@ DBZCCG.Combat.Effect.CaptureDragonball = 20;
 
 DBZCCG.Combat.Effect.EndCombat = 21;
 
+DBZCCG.Combat.Effect.HeroOnly = 22;
+DBZCCG.Combat.Effect.VillainOnly = 23;
+
+DBZCCG.Combat.Defense.Omni = 24;
+
+DBZCCG.Combat.Defense.All = 25;
+
+DBZCCG.Combat.Effect.ShufflePile = 26;
+
 // End of effect types
 
 DBZCCG.Combat.inUsePAT = DBZCCG.Card.Saga.Saiyan;
@@ -379,9 +388,10 @@ DBZCCG.Combat.checkDragonballControl = function(player) {
                 null,
                 true);
 
-        if ((((clicked.type instanceof Array && clicked.type.indexOf(DBZCCG.Card.Type.Dragonball) !== -1) ||
-                clicked.type === DBZCCG.Card.Type.Dragonball) && !(clicked.activable instanceof Function)) ||
-                clicked.activable === true) {
+        clicked.display.addCallback(DBZCCG.Combat.activateEffectCallback);
+
+        if (((clicked.type instanceof Array && clicked.type.indexOf(DBZCCG.Card.Type.Dragonball) !== -1) ||
+                clicked.type === DBZCCG.Card.Type.Dragonball) || clicked.activable === true) {
             var performingTurn = DBZCCG.performingTurn;
             var mouseCommand = DBZCCG.waitingMainPlayerMouseCommand;
 
@@ -431,8 +441,8 @@ DBZCCG.Combat.checkDragonballControl = function(player) {
                     });
                 }
 
-                if (((clicked.type instanceof Array && clicked.type.indexOf(DBZCCG.Card.Type.Dragonball) !== -1) ||
-                        clicked.type === DBZCCG.Card.Type.Dragonball) && !(clicked.activable instanceof Function)) {
+                if ((clicked.type instanceof Array && clicked.type.indexOf(DBZCCG.Card.Type.Dragonball) !== -1) ||
+                        clicked.type === DBZCCG.Card.Type.Dragonball) {
                     clicked.control = DBZCCG.performingAction;
                 }
 
@@ -442,7 +452,6 @@ DBZCCG.Combat.checkDragonballControl = function(player) {
             DBZCCG.performingTurn = false;
 
         } else {
-            clicked.display.addCallback(DBZCCG.Combat.activateEffectCallback);
             DBZCCG.performingAction.clearUsableCards();
             DBZCCG.performingAction.checkUsableCards();
             if (DBZCCG.performingAction === DBZCCG.mainPlayer) {
@@ -463,7 +472,8 @@ DBZCCG.Combat.checkDragonballControl = function(player) {
         f: function() {
             var clicked = DBZCCG.toolTip.parent.parentCard;
 
-            if (clicked.playable(DBZCCG.performingAction)) {
+            if (clicked.playable instanceof Function && 
+                    clicked.playable(DBZCCG.performingAction)) {
                 DBZCCG.currentCard = clicked;
                 DBZCCG.Combat.setCardSource(clicked.display);
 
@@ -517,7 +527,7 @@ DBZCCG.Combat.checkDragonballControl = function(player) {
         DBZCCG.listActions.splice(0, 0, function() {
             var effectHappening = clicked.effect() || false;
 
-            if (clicked.targetCard && clicked.targetCard.display === DBZCCG.defendingPlayer.getPersonalityInControl().display) {
+            if (DBZCCG.combat && clicked.targetCard && clicked.targetCard.display === DBZCCG.defendingPlayer.getPersonalityInControl().display) {
                 DBZCCG.Combat.selectionArrow(DBZCCG.attackingPlayer.getPersonalityInControl().display,
                         DBZCCG.defendingPlayer.getPersonalityInControl().display);
             }

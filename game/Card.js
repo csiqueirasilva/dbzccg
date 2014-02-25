@@ -291,6 +291,8 @@ DBZCCG.Card.create = function(dataObject) {
         card.activators = dataObject.activators;
         card.defenseShield = dataObject.defenseShield;
 
+        card.canActivate = true;
+
         card.getTextureImg = function () {
             if(card.display.children[0].material.materials[5].map && card.display.children[0].material.materials[5].map.sourceFile) {
                 return card.display.children[0].material.materials[5].map.sourceFile;
