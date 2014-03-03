@@ -18,10 +18,12 @@ DBZCCG.Personality.Personalities.CHICHI = 13;
 DBZCCG.Personality.Personalities.SAIBAIMEN = 14;
 DBZCCG.Personality.Personalities.ROSHI = 15;
 DBZCCG.Personality.Personalities.BABA = 16;
+DBZCCG.Personality.Personalities['KING KAI'] = 17;
 
 DBZCCG.Personality.FemaleList = [
     DBZCCG.Personality.Personalities.BULMA,
-    DBZCCG.Personality.Personalities.CHICHI
+    DBZCCG.Personality.Personalities.CHICHI,
+    DBZCCG.Personality.Personalities.BABA
 ];
 
 DBZCCG.Personality.alignment = {};

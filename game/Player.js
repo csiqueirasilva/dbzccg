@@ -344,9 +344,10 @@ DBZCCG.Player.create = function(dataObject, vec) {
         this.captureDragonballs = function(notUsePower, notDontUsePower, notNotCapture, msg, player) {
             var dragonballs = DBZCCG.Combat.checkDragonballControl(this);
             var oldClickCallback = [];
+            var capturingPlayer = player || DBZCCG.attackingPlayer;
 
             if (dragonballs.length > 0) {
-                if (DBZCCG.attackingPlayer === DBZCCG.mainPlayer) {
+                if (capturingPlayer === DBZCCG.mainPlayer) {
                     var doNotUseEffect = false;
                     DBZCCG.Combat.effectHappening = true;
 
@@ -372,7 +373,7 @@ DBZCCG.Player.create = function(dataObject, vec) {
                     }
 
                     function capture() {
-                        this.parentCard.capture(DBZCCG.attackingPlayer, doNotUseEffect);
+                        this.parentCard.capture(capturingPlayer, doNotUseEffect);
                         finishCaptureDialog();
                         return false;
                     }
@@ -439,7 +440,7 @@ DBZCCG.Player.create = function(dataObject, vec) {
 
                 } else /* CPU */ {
                     var db = dragonballs.shift();
-                    db.capture(player || DBZCCG.attackingPlayer, notUsePower);
+                    db.capture(capturingPlayer, notUsePower);
                 }
             }
         };
@@ -495,15 +496,11 @@ DBZCCG.Player.create = function(dataObject, vec) {
 
             DBZCCG.listActions.splice(0, 0, function() {
                 player.sufferedAttack = false;
-                var typeDamage = null;
+                var typeDamage = DBZCCG.Combat.attackType;
 
-                if (DBZCCG.openCard) {
-                    if (ClassHelper.checkValue(DBZCCG.openCard.effectType, DBZCCG.Combat.Attack.Physical)) {
-                        typeDamage = DBZCCG.Combat.Attack.Physical;
-                    } else if (ClassHelper.checkValue(DBZCCG.openCard.effectType, DBZCCG.Combat.Attack.Energy)) {
-                        typeDamage = DBZCCG.Combat.Attack.Energy;
-                    }
-                }
+                var log = DBZCCG.Log.logEntry('Suffered ' + ClassHelper.getKeyByValue(DBZCCG.Combat.Attack, DBZCCG.Combat.attackType) + ' attack.', DBZCCG.openCard);
+                log.type = DBZCCG.Log.Type.sufferedAttack;
+                log.typeAttack = DBZCCG.Combat.attackType;
 
                 var log = DBZCCG.Log.logEntry('Suffered damage' + (typeDamage ? (typeDamage === DBZCCG.Combat.Attack.Energy ?
                         ' from an energy attack' : ' from a physical attack') : '') + ': ' +
@@ -550,45 +547,52 @@ DBZCCG.Player.create = function(dataObject, vec) {
             DBZCCG.performingTurn = true;
 
             DBZCCG.listActions.splice(0, 0, function() {
-
                 DBZCCG.openCard = DBZCCG.currentCard = null;
-                DBZCCG.performingTurn = true;
-                DBZCCG.performingAction = DBZCCG.attackingPlayer;
-
                 DBZCCG.listActions.splice(0, 0, DBZCCG.swapPlayers);
 
-                DBZCCG.performingAction.clearUsableCards();
-                DBZCCG.performingAction.checkUsableCards();
+                if (DBZCCG.combat) {
+                    DBZCCG.performingTurn = true;
+                    DBZCCG.performingAction = DBZCCG.attackingPlayer;
 
-                DBZCCG.passLog = DBZCCG.attackingPlayer.displayName() + " has passed the chance to perform an action.";
+                    DBZCCG.performingAction.clearUsableCards();
+                    DBZCCG.performingAction.checkUsableCards();
 
-                if (!DBZCCG.attackingPlayer.onlyDefend && !DBZCCG.attackingPlayer.onlyPass) {
-                    // TODO: run floating effects
-                    if (DBZCCG.attackingPlayer === DBZCCG.mainPlayer) {
+                    DBZCCG.passLog = DBZCCG.attackingPlayer.displayName() + " has passed the chance to perform an action.";
 
-                        for (var i = 0; i < player.usableCards.length; i++) {
-                            DBZCCG.Combat.addSelectionParticle(player.usableCards[i], 0.3);
-                        }
+                    if (!DBZCCG.attackingPlayer.onlyDefend && !DBZCCG.attackingPlayer.onlyPass) {
+                        // TODO: run floating effects
+                        if (DBZCCG.attackingPlayer === DBZCCG.mainPlayer) {
 
-                        DBZCCG.waitingMainPlayerMouseCommand = true;
-                        DBZCCG.passMessage = 'Pass the chance to perform an action?';
-                        $('#pass-btn').show();
-                        if (DBZCCG.attackingPlayer.hand.cards.length > 0 && player.checkActivation(DBZCCG.General['Final Physical Attack'])) {
-                            $('#final-physical-btn').show();
-                        }
+                            for (var i = 0; i < player.usableCards.length; i++) {
+                                DBZCCG.Combat.addSelectionParticle(player.usableCards[i], 0.3);
+                            }
 
-                        if (player.usableCards.length === 0) {
-                            player.passDialog();
+                            DBZCCG.waitingMainPlayerMouseCommand = true;
+                            DBZCCG.passMessage = 'Pass the chance to perform an action?';
+                            $('#pass-btn').show();
+                            if (DBZCCG.attackingPlayer.hand.cards.length > 0 && player.checkActivation(DBZCCG.General['Final Physical Attack'])) {
+                                $('#final-physical-btn').show();
+                            }
+
+                            if (player.usableCards.length === 0) {
+                                player.passDialog();
+                            }
+                        } else {
+                            DBZCCG.Player.AIPlay(DBZCCG.attackingPlayer, true);
+                            DBZCCG.performingTurn = false;
                         }
                     } else {
-                        DBZCCG.Player.AIPlay(DBZCCG.attackingPlayer, true);
+                        DBZCCG.attackingPlayer.passed = true;
                         DBZCCG.performingTurn = false;
                     }
-                } else {
-                    DBZCCG.attackingPlayer.passed = true;
-                    DBZCCG.performingTurn = false;
                 }
             });
+
+            if (DBZCCG.openCard) {
+                DBZCCG.listActions.splice(0, 0, function() {
+                    DBZCCG.Combat.checkUseWhenNeeded(DBZCCG.Combat.Events['Combat Chain finished']);
+                });
+            }
 
             DBZCCG.defendingPlayer.checkPassiveEffects();
             DBZCCG.defendingPlayer.checkRulesCompliance();
@@ -797,7 +801,7 @@ DBZCCG.Player.create = function(dataObject, vec) {
         };
 
         this.discardCard = function() {
-            $('#hud').qtip('hide');
+            DBZCCG.qtipElement.qtip('hide');
 
             if (DBZCCG.mainPlayer === player) {
                 DBZCCG.Combat.removeSelectionParticles();
@@ -1024,6 +1028,48 @@ DBZCCG.Player.create = function(dataObject, vec) {
         DBZCCG.Callbacks.create(this, 'transferCallback', function(callback) {
             callback.player = player;
         });
+
+        this.drawEffectCard =
+                function(card, pile, cardIdx) {
+                    var player = this;
+                    DBZCCG.listActions.splice(0, 0, function() {
+                        DBZCCG.performingAction = player;
+                        if (player.discardPile.cards.length > 0) {
+                            DBZCCG.listActions.splice(0, 0, function() {
+                                DBZCCG.performingAnimation = true;
+                                var card = player.hand.cards[player.hand.cards.length - 1];
+
+                                if (card.display.offDescriptionBox !== null) {
+                                    card.display.turnGameDisplay();
+                                }
+
+                                var cardRotation = card.display.rotation.y;
+                                var animation = new TWEEN.Tween(new THREE.Vector3(0, cardRotation, 0)).to(new THREE.Vector3(0, cardRotation - Math.PI, 0), 300);
+                                animation.onUpdate(function() {
+                                    card.display.rotation.y = this.y;
+                                });
+
+                                var secondAnimation = new TWEEN.Tween(new THREE.Vector3(0, cardRotation - Math.PI, 0)).to(new THREE.Vector3(0, cardRotation, 0), 300);
+                                secondAnimation.delay(200);
+
+                                animation.chain(secondAnimation);
+                                secondAnimation.onUpdate(function() {
+                                    card.display.rotation.y = this.y;
+                                });
+
+                                secondAnimation.onComplete(function() {
+                                    DBZCCG.Combat.flashCard(card);
+                                    DBZCCG.performingAnimation = false;
+                                });
+
+                                animation.start();
+                            });
+
+                            player.transferCards(pile || 'discardPile', [cardIdx || 0], 'hand');
+                        }
+                    });
+
+                };
 
         this.transferCards = function(src, srcCards, destiny, pilePosition, noMessage, addToScene) {
 

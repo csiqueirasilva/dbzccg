@@ -5,15 +5,9 @@ var DBZCCG = {};
 DBZCCG.searchFormHTML = '<div class="search-box"><input id="search-form" type="text"></input><div id="search-result"></div></div>';
 
 DBZCCG.searchFormContent = function(dialogContentId, matchCallback, sourceElements, searchResult) {
-    var buttons = $(dialogContentId)
-            .parent()
-            .children('.ui-dialog-buttonpane')
-            .children()
-            .children();
+    var buttons = DBZCCG.Interface.disableButtons(dialogContentId);
 
     DBZCCG.Interface.hideDialogClose(dialogContentId);
-
-    buttons.button('disable');
 
     $('#search-form').keyup(function() {
         if (matchCallback($(this).val())) {
@@ -66,6 +60,22 @@ DBZCCG.createDialog = function(title, content, id) {
     return true;
 };
 
+DBZCCG.effectDialog = function() {
+    DBZCCG.confirmDialog('Opportunity to use an effect', 'Skip opportunity to use an effect?', null,
+            {
+                "Check field": function() {
+                    $(this).dialog('close');
+                },
+                "Skip opportunity": function() {
+                    DBZCCG.Combat.removeSelectionParticles();
+                    $('#effect-btn').hide();
+                    DBZCCG.performingTurn = false;
+                    DBZCCG.waitingMainPlayerMouseCommand = false;
+                    $(this).dialog('close');
+                }
+            });
+};
+
 DBZCCG.declareDialog = function() {
     DBZCCG.confirmDialog('Declaring combat', 'Do you wish to declare combat?', null,
             {
@@ -107,7 +117,7 @@ DBZCCG.rejuvenateDialog = function() {
 DBZCCG.hideCombatIcons = function() {
     $('#pass-btn').hide();
     $('#final-physical-btn').hide();
-    $('#hud').qtip('hide');
+    DBZCCG.qtipElement.qtip('hide');
 };
 
 DBZCCG.finalPhysicalDialog = function() {
@@ -135,7 +145,7 @@ DBZCCG.finalPhysicalDialog = function() {
                                             life: false,
                                             f: function() {
                                                 DBZCCG.toolTip.idxHand = player.hand.getCardIdx(DBZCCG.toolTip.parent);
-                                                $('#hud').qtip('hide');
+                                                DBZCCG.qtipElement.qtip('hide');
                                                 $('#final-physical-btn').hide();
 
                                                 player.transferCards("hand", [DBZCCG.toolTip.idxHand], "discardPile");
@@ -181,8 +191,14 @@ DBZCCG.passDialog = function(msg) {
 
 DBZCCG.confirmDialog = function(title, content, ok_cb, buttons, width, height) {
 
-    var wrapperDiv = document.createElement('div');
-    wrapperDiv.innerHTML = content;
+    var wrapperDiv;
+
+    if (content instanceof Object) {
+        wrapperDiv = content;
+    } else {
+        wrapperDiv = document.createElement('div');
+        wrapperDiv.innerHTML = content;
+    }
 
     var ret = DBZCCG.createDialog(title, wrapperDiv, 'confirmDialog');
 
@@ -217,6 +233,10 @@ DBZCCG.removeObject = function(obj) {
 };
 /* End of dialog */
 
+DBZCCG.checkAlbumLoad = function() {
+    return DBZCCG.Album.pageModel;
+};
+
 DBZCCG.checkObjectLoad = function() {
 
     // check if models are loaded
@@ -242,6 +262,9 @@ DBZCCG.selectionColor = 0xDD4444;
 DBZCCG.clearSelectionColor = 0x000000;
 DBZCCG.selectionParticles = null;
 DBZCCG.clock = new THREE.Clock();
+
+/* Interface variables */
+DBZCCG.toolTip = {};
 
 DBZCCG.updateBillboards = function(camera) {
 
@@ -290,6 +313,184 @@ DBZCCG.selectionEffect = function(color, objects) {
     }
 };
 
+DBZCCG.album = function() {
+    /* Three related */
+    var mouse = new THREE.Vector2();
+    var projector;
+    var intersected;
+
+    /* Game related */
+    var table = null;
+    var listActions = [];
+    var scr = null;
+    var album;
+
+    /* Interface related */
+    DBZCCG.qtipElement = $('body');
+
+    function buildScene(scene, camera) {
+        //ThreeHelper.createSkybox(scene, 'skybox_carro');
+        DBZCCG.mainScene = scene;
+        album = DBZCCG.Album.create(scene);
+        camera.position.set(0, 0, 50);
+        DBZCCG.finishedLoading = true;
+    }
+
+    function render(cameraControl, renderer, scene, camera, stats) {
+        cameraControl.update(DBZCCG.clock.getDelta());
+
+        DBZCCG.Album.updateReflections(renderer, scene);
+
+        renderer.render(scene, camera);
+    }
+
+    function controls(camera, renderer, scene, stats) {
+        var control = new THREE.OrbitControls(camera);
+        var element;
+        var display = element = document.getElementById('renderer-wrapper');
+        var faceIndex;
+        
+        var projector = new THREE.Projector();
+        
+        Mousetrap.bind('z', function() {
+            if (album) {
+                album.previousPage();
+            }
+        });
+
+        Mousetrap.bind('x', function() {
+            if (album) {
+                album.nextPage();
+            }
+        });
+
+
+        // MOUSE
+        function onDocumentMouseMove(event) {
+
+            if (DBZCCG.waitingMainPlayerMouseCommand) {
+                mouse.x = ((event.clientX - element.offsetLeft) / element.offsetWidth) * 2 - 1;
+                mouse.y = -((event.clientY - element.offsetTop) / element.offsetHeight) * 2 + 1;
+
+                var vector = new THREE.Vector3(mouse.x, mouse.y, 0.5);
+                projector.unprojectVector(vector, camera);
+                var raycaster = new THREE.Raycaster(camera.position, vector.sub(camera.position).normalize());
+                var intersections = raycaster.intersectObjects(DBZCCG.objects, true);
+
+                var intersectionIndex = DBZCCG.Screen.invalidIntersection(intersections);
+                
+                if (intersections.length > 0 && intersectionIndex !== -1) {
+                    if (intersected !== intersections[ intersectionIndex ].object) {
+                        if (intersected) {
+                            var parent = DBZCCG.Screen.findCallbackObject(intersected, "mouseOut");
+                            if (parent.mouseOut instanceof Function) {
+                                parent.mouseOut(event);
+                            }
+                        }
+                        if ($('.ui-dialog:visible').length === 0) {
+                            intersected = intersections[ intersectionIndex ].object;
+                            faceIndex = intersections[ intersectionIndex ].faceIndex;
+                        }
+                    }
+                    
+                    if ($('.ui-dialog:visible').length === 0 
+                            && (faceIndex === 10 || faceIndex === 11)
+                            && album.checkCurrentPage(intersected.parent)) {
+                        var parent = DBZCCG.Screen.findCallbackObject(intersected, "mouseOver");
+
+                        if (parent.mouseOver instanceof Function) {
+                            parent.mouseOver(event);
+                        }
+                    }
+                }
+                else if (intersected) {
+                    // check if it is in the scene
+                    if (intersected.parent.parent) {
+                        var parent = DBZCCG.Screen.findCallbackObject(intersected, "mouseOut");
+
+                        if (parent.mouseOut instanceof Function) {
+                            parent.mouseOut(event);
+                        }
+                    }
+                    intersected = null;
+                }
+            } else if (intersected) {
+                // check if it is in the scene
+                if (intersected.parent.parent) {
+                    var parent = DBZCCG.Screen.findCallbackObject(intersected, "mouseOut");
+                    if (parent.mouseOut instanceof Function) {
+                        parent.mouseOut(event);
+                    }
+                }
+                intersected = null;
+            }
+        }
+
+        display.addEventListener('mousemove', onDocumentMouseMove, false);
+
+        // resize
+        window.onresize = function() {
+            
+            $('#object-info').dialog('option', 'width', window.innerWidth * 0.5);
+            $('#object-info').dialog('option', 'height', window.innerHeight * 0.6);
+            
+            // Hide tooltips
+            DBZCCG.qtipElement.qtip('hide');
+
+            // RESIZE Main Screen
+            var WIDTH = window.innerWidth,
+                    HEIGHT = window.innerHeight;
+            camera.aspect = WIDTH / HEIGHT;
+            camera.updateProjectionMatrix();
+
+            renderer.setSize(WIDTH, HEIGHT);
+            document.getElementById('renderer-wrapper').style.width = WIDTH + 'px';
+            document.getElementById('renderer-wrapper').style.height = HEIGHT + 'px';
+        };
+
+        $('body').qtip({
+            content: {
+                text: function(event, api) {
+                    return DBZCCG.toolTip.customContent ? DBZCCG.toolTip.customContent : DBZCCG.toolTip.content;
+                }
+            },
+            position: {
+                my: 'bottom center',
+                at: 'center',
+                target: 'mouse',
+                adjust: {mouse: false},
+                viewport: $(window)
+            },
+            style: {
+                classes: "qtip-rounded qtip-tipsy"
+            },
+            show: false,
+            hide: {
+                effect: false
+            }
+        });
+
+        return control;
+    }
+
+    var loadModelInterval = window.setInterval(function() {
+        if (DBZCCG.checkAlbumLoad()) {
+            window.clearInterval(loadModelInterval);
+            scr = DBZCCG.Screen.create(buildScene, render, controls);
+            var interval = window.setInterval(function() {
+                if (DBZCCG.finishedLoading) {
+                    window.clearInterval(interval);
+                    // Remove loading screen
+                    $("#loadingText").remove();
+                    scr.start();
+                    window.onresize();
+                    DBZCCG.waitingMainPlayerMouseCommand = true;
+                }
+            }, 1000);
+        }
+    }, 1000);
+};
+
 DBZCCG.create = function() {
 
     /* Three related */
@@ -301,34 +502,9 @@ DBZCCG.create = function() {
     var table = null;
     var listActions = [];
     var scr = null;
-
-    function createSkybox(scene, skybox, ext) {
-
-        ext = ext || "jpg";
-
-        var urlPrefix = "images/bg/" + skybox + "/";
-        var urls = [urlPrefix + "posx." + ext, urlPrefix + "negx." + ext,
-            urlPrefix + "posy." + ext, urlPrefix + "negy." + ext,
-            urlPrefix + "posz." + ext, urlPrefix + "negz." + ext];
-        var textureCube = THREE.ImageUtils.loadTextureCube(urls);
-
-        var shader = THREE.ShaderLib.cube;
-        var uniforms = THREE.UniformsUtils.clone(shader.uniforms);
-        uniforms['tCube'].value = textureCube;
-
-        var material = new THREE.ShaderMaterial({
-            fragmentShader: shader.fragmentShader, //document.getElementById('skybox_fragment_shader').textContent,
-            vertexShader: document.getElementById('skybox-shader-vs').textContent,
-            uniforms: uniforms,
-            side: THREE.BackSide
-        });
-
-        var skybox = new THREE.Mesh(
-                new THREE.CubeGeometry(4000, 4000, 4000),
-                material);
-
-        scene.add(skybox);
-    }
+    
+    /* Interface related */
+    DBZCCG.qtipElement = $('#hud');
 
     function loadDefaultBackground() {
         var particleImage = new THREE.ImageUtils.loadTexture('images/gfx/particles/particleTexture.png');
@@ -490,13 +666,13 @@ DBZCCG.create = function() {
         plane.vertices[2].set(-sizeX / 2, -sizeY / 2, 0);
         plane.vertices[3].set(sizeX / 2, -sizeY / 2, 0);
 
-        var planeMaterial = new THREE.MeshBasicMaterial({side: THREE.FrontSide, map: DBZCCG.background.texture, depthTest: true, depthWrite: false});
+        var planeMaterial = new THREE.MeshBasicMaterial({side: THREE.FrontSide, map: DBZCCG.background.texture, depthWrite: false});
 
-        loadDefaultBackground();
+        //loadDefaultBackground();
         //loadTimeChamber();
         //loadBarrenTerrains(sizeX, sizeY);
         //loadKameHouse(sizeX, sizeY);
-        //loadSupremeKaiPlanet(sizeX, sizeY);
+        loadSupremeKaiPlanet(sizeX, sizeY);
         //loadKamiPalace(sizeX, sizeY);
 
         DBZCCG.background.resize = function() {
@@ -562,6 +738,7 @@ DBZCCG.create = function() {
         var light = new THREE.PointLight(0xF0F0F0); // soft white light
         light.position.set(0, 100, 0);
         scene.add(light);
+
         createBackground(scene, camera);
         //createSkybox(scene);
         DBZCCG.table = table = DBZCCG.Table.create([
@@ -584,6 +761,11 @@ DBZCCG.create = function() {
         // set onclick callback for pass
         document.getElementById('final-physical-btn').onclick = function() {
             DBZCCG.finalPhysicalDialog();
+        };
+
+        // set onclick callback for combat
+        document.getElementById('effect-btn').onclick = function() {
+            DBZCCG.effectDialog();
         };
 
         // set onclick callback for combat
@@ -755,6 +937,12 @@ DBZCCG.create = function() {
             }) !== DBZCCG.cancelAction) {
 
                 var player = DBZCCG.performingAction;
+                DBZCCG.turnOwner = player;
+
+                listActions.push(function() {
+                    DBZCCG.performingAction = player;
+                    DBZCCG.Combat.checkUseWhenNeeded(DBZCCG.Combat.Events['Entering Draw Phase']);
+                });
 
                 listActions.push(function() {
                     if (player.drawPhaseEnabled) {
@@ -763,6 +951,11 @@ DBZCCG.create = function() {
                                     player.drawPhase();
                                 });
                     }
+                });
+
+                listActions.push(function() {
+                    DBZCCG.performingAction = player;
+                    DBZCCG.Combat.checkUseWhenNeeded(DBZCCG.Combat.Events['Entering Non-Combat Phase']);
                 });
 
                 listActions.push(function() {
@@ -777,6 +970,11 @@ DBZCCG.create = function() {
                 });
 
                 listActions.push(function() {
+                    DBZCCG.performingAction = player;
+                    DBZCCG.Combat.checkUseWhenNeeded(DBZCCG.Combat.Events['Entering PUR Phase']);
+                });
+
+                listActions.push(function() {
                     if (player.purPhaseEnabled) {
                         displayPhaseMessage('#pur-phase-warn',
                                 function() {
@@ -786,6 +984,10 @@ DBZCCG.create = function() {
 
                 });
 
+                listActions.push(function() {
+                    DBZCCG.performingAction = player;
+                    DBZCCG.Combat.checkUseWhenNeeded(DBZCCG.Combat.Events['Entering Declare Phase']);
+                });
 
                 listActions.push(function() {
                     if (player.declarePhaseEnabled) {
@@ -795,6 +997,11 @@ DBZCCG.create = function() {
                                 });
                     }
 
+                });
+
+                listActions.push(function() {
+                    DBZCCG.performingAction = player;
+                    DBZCCG.Combat.checkUseWhenNeeded(DBZCCG.Combat.Events['Entering Combat Phase']);
                 });
 
                 listActions.push(function() {
@@ -819,7 +1026,10 @@ DBZCCG.create = function() {
 
                 });
 
-
+                listActions.push(function() {
+                    DBZCCG.performingAction = player;
+                    DBZCCG.Combat.checkUseWhenNeeded(DBZCCG.Combat.Events['Entering Discard Phase']);
+                });
 
                 listActions.push(function() {
                     displayPhaseMessage('#discard-phase-warn', function() {
@@ -842,6 +1052,12 @@ DBZCCG.create = function() {
                     });
                 });
 
+                listActions.push(function() {
+                    DBZCCG.performingAction = player;
+                    if (!hadCombat && player.rejuvenationPhaseEnabled) {
+                        DBZCCG.Combat.checkUseWhenNeeded(DBZCCG.Combat.Events['Entering Rejuvenation Phase']);
+                    }
+                });
 
                 listActions.push(function() {
                     DBZCCG.performingAction = player;
@@ -886,6 +1102,7 @@ DBZCCG.create = function() {
         function checkAction() {
 
             if (!DBZCCG.performingTurn &&
+                    !DBZCCG.removingCard &&
                     !DBZCCG.performingAnimation &&
                     listActions.length > 0 &&
                     !$('.phase-warn').is(':visible') &&
@@ -1076,7 +1293,7 @@ DBZCCG.create = function() {
         display.addEventListener('mousemove', onDocumentMouseMove, false);
 
         DBZCCG.clearMouseOver = function() {
-            $('#hud').qtip('hide');
+            DBZCCG.qtipElement.qtip('hide');
             intersected = null;
             document.getElementById('body').style.cursor = 'auto';
         };
@@ -1091,10 +1308,9 @@ DBZCCG.create = function() {
         }
 
         display.addEventListener('mousedown', documentOnMouseDown);
-        DBZCCG.toolTip = {};
 
         function documentOnClick(event) {
-            $('#hud').qtip('hide');
+            DBZCCG.qtipElement.qtip('hide');
 
             if (!DBZCCG.typingSpeech && DBZCCG.displayingText) {
                 $('#card-speech').remove();
@@ -1115,9 +1331,9 @@ DBZCCG.create = function() {
                 var parent = DBZCCG.Screen.findCallbackObject(intersected, "descriptionBox");
 
                 DBZCCG.toolTip.parent = parent;
-                
-                if(parent.parentCard && parent.parentCard.canActivate) {
-                
+
+                if ((parent.parentCard && parent.parentCard.canActivate) || !parent.parentCard) {
+
                     var ret = true;
                     if (parent.click instanceof Function) {
                         ret = parent.click();
@@ -1134,7 +1350,7 @@ DBZCCG.create = function() {
                         }
 
                         if (tooltip) {
-                            $('#hud').qtip('show');
+                            DBZCCG.qtipElement.qtip('show');
                         }
                     }
                 }
@@ -1163,7 +1379,7 @@ DBZCCG.create = function() {
          */
 
         /* Tooltip for the renderer */
-        $('#hud').qtip({
+        DBZCCG.qtipElement.qtip({
             content: {
                 text: function(event, api) {
                     return DBZCCG.toolTip.customContent ? DBZCCG.toolTip.customContent : DBZCCG.toolTip.content;
@@ -1219,7 +1435,7 @@ DBZCCG.create = function() {
 
         document.getElementById('log-btn').onclick = function(event) {
             if (event.button === 0) {
-                $('#hud').qtip('hide');
+                DBZCCG.qtipElement.qtip('hide');
                 window.onresize();
                 if ($('#communication-box').is(':visible')) {
                     $('#communication-box').hide();
@@ -1283,11 +1499,25 @@ DBZCCG.create = function() {
 
                         if (elem.material instanceof THREE.MeshFaceMaterial) {
                             materials = [];
+                            var envMap;
                             for (var i = 0; i < elem.material.materials.length; i++) {
-                                materials.push(new THREE.MeshBasicMaterial({
+                                if (elem.material.materials[i].envMap) {
+                                    envMap = [];
+                                    for (var k = 0; k < elem.material.materials[i].envMap.image.length; k++) {
+                                        envMap.push(elem.material.materials[i].envMap.image[k].src);
+                                    }
+                                    envMap = THREE.ImageUtils.loadTextureCube(envMap);
+                                } else {
+                                    envMap = null;
+                                }
+                                materials.push(new THREE.MeshPhongMaterial({
                                     map: (elem.material.materials[i].map ?
                                             THREE.ImageUtils.loadTexture(elem.material.materials[i].map.sourceFile) : null),
-                                    vertexColors: elem.material.materials[i].vertexColors
+                                    vertexColors: elem.material.materials[i].vertexColors,
+                                    envMap: envMap,
+                                    specularMap: (elem.material.materials[i].specularMap ?
+                                            THREE.ImageUtils.loadTexture(elem.material.materials[i].specularMap.sourceFile) : null),
+                                    reflectivity: elem.material.materials[i].reflectivity
                                 }));
                             }
                             material = new THREE.MeshFaceMaterial(materials);
@@ -1370,17 +1600,13 @@ DBZCCG.create = function() {
             $('#object-info').dialog('option', 'height', window.innerHeight * 0.6);
 
             // Hide tooltips
-            $('#hud').qtip('hide');
+            DBZCCG.qtipElement.qtip('hide');
 
             // RESIZE Main Screen
             var WIDTH = window.innerWidth,
                     HEIGHT = window.innerHeight;
             camera.aspect = WIDTH / HEIGHT;
             camera.updateProjectionMatrix();
-
-            if (DBZCCG.background.resize instanceof Function) {
-                DBZCCG.background.resize();
-            }
 
             DBZCCG.leftScreen.width = document.getElementById('display-object-screen').offsetWidth;
             DBZCCG.leftScreen.height = document.getElementById('display-object-screen').offsetHeight;
@@ -1404,6 +1630,10 @@ DBZCCG.create = function() {
 
             // Resize Scrollbars
             $('.niceScrollBar').getNiceScroll().resize();
+
+            if (DBZCCG.background.resize instanceof Function) {
+                DBZCCG.background.resize();
+            }
         };
 
         return null;

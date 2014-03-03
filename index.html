@@ -4,11 +4,9 @@
         <title>Game</title>
         <meta charset="utf-8">
 
-        <link rel="stylesheet" href="css/alertify.css" />
-        <link rel="stylesheet" href="css/alertify.dbzccg.css" />
         <link rel="stylesheet" href="css/dbzccg.css" />
         <link rel="stylesheet" href="css/jquery.qtip.min.css" />
-        <link rel="stylesheet" href="css/jqueryui/theme-1.10.3.css" />
+        <link rel="stylesheet" href="css/jqueryui/jquery-ui-1.9.2.custom.min.css" />
 
         <!--        <script type="x-shader/x-fragment" id="skybox-shader-vs" src="util/fs">
         <%@include file="game/skyboxvertexshader.glsl"%>
@@ -63,6 +61,8 @@
             </div>
             <div id="combat-btn" class="btn">
             </div>
+            <div id="effect-btn" class="btn">
+            </div>
             <div id="pass-btn" class="btn">
             </div>
             <div id="log-btn" class="btn">
@@ -87,8 +87,6 @@
         </div>
 
         <div id="log-dialog">
-            <!--            <div id="logBox">
-                        </div>-->
         </div>
 
         <div id="turnCounter">
@@ -111,15 +109,14 @@
             <%@include file="game/skyboxfragmentshader.glsl"%>
         </script>
         <!-- libs -->
-        <script src="lib/annyang.min.js"></script>
         <script src="lib/jquery.min.js"></script>
-        <script src="lib/jquery-ui-1.10.3.custom.min.js"></script>
+        <script src="lib/jquery-ui-1.9.2.custom.min.js"></script>
+        <script src="lib/annyang.min.js"></script>
         <script src="lib/mousetrap.min.js"></script>
         <script src="lib/ClassHelper.js"></script>
         <script src="lib/imagesloaded.pkg.min.js"></script>
         <script src="lib/jquery.nicescroll.min.js"></script>
         <script src="lib/jquery.qtip.min.js"></script>
-        <script src="lib/alertify.min.js"></script>
         <script src="lib/three.min.js"></script>
         <script src="lib/stats.min.js"></script>
         <script src="lib/MTLLoader.js"></script>
@@ -151,6 +148,7 @@
         <script src="game/Table.js"></script>
         <script src="game/Screen.js"></script>
         <script src="game/SaiyanSaga.js"></script>
+        <script src="game/FriezaSaga.js"></script>
         <script src="game/General.js"></script>
         <script src="game/FloatingEffect.js"></script>
         <script src="game/Sound.js"></script>

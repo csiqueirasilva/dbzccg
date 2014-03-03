@@ -184,13 +184,13 @@ DBZCCG.Table.create = function(extPlayers, camera, scene) {
 
         this.setCameraTopView = function() {
             DBZCCG.cameraStyle = DBZCCG.Table.Camera.Top;
-            camera.position.z = position.z * DBZCCG.Table.basePlayerDistance * 80;
+            camera.position.z = position.z * DBZCCG.Table.basePlayerDistance * 70;
             camera.position.y = 60;
             camera.position.x = position.x;
             camera.lookAt(new THREE.Vector3(position.x, -10, -position.z));
 
             this.players[0].hand.rotation.x = camera.rotation.x;
-            this.players[0].hand.position.y = (camera.position.y + 10) * 0.5;
+            this.players[0].hand.position.y = (camera.position.y + DBZCCG.Card.cardHeight*0.95) * 0.5;
             this.players[0].hand.position.z = (camera.position.z + position.z) * 0.78;
             this.players[0].hand.addCard([]);
         };

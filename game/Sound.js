@@ -5,12 +5,20 @@ DBZCCG.Sound.on = true;
 
 DBZCCG.Sound.Background = {};
 
-DBZCCG.Sound.Background.bgm = ['w3flpmg0GPM',
-    'Q9XzM2VLToA',
-    '6JQ2BAkHJQI',
-    '82sCdTx1wGc',
-    '91cWRhs9VPg',
-    'ZPy0C957UmQ'];
+DBZCCG.Sound.Background.bgm = [
+//    'w3flpmg0GPM',
+//    'ksPd-IFslVk',
+//    'SkzT3Xy2hCs',
+//    'T4JjE5I2kLI',
+    '1qsecA6w5jg',
+//    'klEPURFho-o',
+//    '-tHSXwRAoZg',
+//    'Q9XzM2VLToA',
+//    '6JQ2BAkHJQI',
+//    '82sCdTx1wGc',
+//    '91cWRhs9VPg',
+//    'ZPy0C957UmQ'
+];
 
 DBZCCG.Sound.Background.index = 0;
 
@@ -104,7 +112,7 @@ function onYouTubeIframeAPIReady() {
                 var element = document.createElement('div');
 
                 element.innerHTML = '<iframe id="player_' + id +
-                        '" width="100%" height="100%" src="http://www.youtube.com/embed/' +
+                        '" width="100%" height="100%" src="https://www.youtube.com/embed/' +
                         id + '?enablejsapi=1&html5=1&autoplay=1&autohide=1&showinfo=0" ' +
                         'frameborder="0"></iframe>';
 
@@ -169,11 +177,13 @@ function onYouTubeIframeAPIReady() {
             }
         }, 100);
     }, 2000);
+    
+    DBZCCG.Sound.loaded = true;
 }
 
 
 (function() {
-    lowLag.init({sm2url: "lib/sm2/swf/"});
+    lowLag.init({sm2url: "lib/sm2/swf/", debug: false});
 
     DBZCCG.Sound.damageSounds = [
         'hit0',

@@ -269,14 +269,13 @@ DBZCCG.MainPersonality.create = function(data) {
 
         this.advanceLevels = function(n) {
             var mp = this;
-            var desiredLevels = n;
             var previousLevel = mp.personalities[mp.currentMainPersonalityLevel - 1];
             previousLevel.canActivate = false;
-            DBZCCG.performingAnimation = true;
             this.removePowerStageLabelText();
 
             function advanceLevel() {
                 if (mp.currentMainPersonalityLevel !== mp.personalities.length && n > 0) {
+                    DBZCCG.performingAnimation = true;
                     // Reorder personalities array
                     var rp = [];
 
@@ -324,7 +323,7 @@ DBZCCG.MainPersonality.create = function(data) {
                         lastPosition.y = pos.y;
                         lastPosition.z = pos.z;
                     }
-                    
+
                     var putOldLevelBehind = new TWEEN.Tween(stepAside).to(lastPosition, 80);
 
                     lastTween.chain(putOldLevelBehind);
@@ -338,18 +337,23 @@ DBZCCG.MainPersonality.create = function(data) {
                         rp[0].display.position.x = currentPosition.x;
                     });
 
-
                     n--;
 
-
-                    currentLevelStepAside.onComplete(function() {
-                        if (n > 0) {
+                    putOldLevelBehind.onComplete(function() {
+                        if (mp.currentMainPersonalityLevel !== mp.personalities.length && n > 0) {
                             window.setTimeout(function() {
                                 advanceLevel(mp, n);
                             }, 750);
+                        } else if (mp.currentMainPersonalityLevel === mp.personalities.length ||
+                                n === 0) {
+                            DBZCCG.performingAnimation = false;
+                            var currentLevel = mp.personalities[mp.currentMainPersonalityLevel - 1];
+                            currentLevel.canActivate = true;
+                            DBZCCG.Log.logEntry(previousLevel.logName() + " advanced to " + currentLevel.logName() + ".");
+                            mp.moveZScouter("max");
+                            mp.setAnger(0, true);
                         }
                     });
-
 
                     rp[1].currentPowerStageAboveZero = rp[0].currentPowerStageAboveZero;
                     rp[1].zScouter = rp[0].zScouter;
@@ -376,32 +380,138 @@ DBZCCG.MainPersonality.create = function(data) {
                     mp.currentMainPersonalityLevel++;
                     DBZCCG.Sound.level(1);
                     currentLevelStepAside.start();
+                } else if (mp.currentMainPersonalityLevel !== 1 && n < 0) {
+                    DBZCCG.performingAnimation = true;
+                    // Reorder personalities array
+                    var rp = [];
+
+                    var qttLevels = mp.personalities.length;
+                    for (var i = mp.currentMainPersonalityLevel - 1;
+                            rp.length !== qttLevels;
+                            i++) {
+                        if (i === qttLevels) {
+                            i = 0;
+                        }
+                        rp.push(mp.personalities[i]);
+                    }
+
+                    var lastPosition = rp[rp.length - 1].display.position.clone();
+                    var lastPosition = {x: lastPosition.x, y: lastPosition.y, z: lastPosition.z};
+
+                    var currentPosition = {x: lastPosition.x, y: lastPosition.y, z: lastPosition.z};
+                    var stepAside = {y: 3};
+                    var previousLevelStepAside = new TWEEN.Tween(currentPosition).to(stepAside, 120);
+
+                    var lastTween = previousLevelStepAside;
+
+                    var j = rp.length - 1;
+                    var position = [];
+                    var target = [];
+                    for (var i = rp.length - 1; i >= 0; i--) {
+                        var pos = rp[i].display.position.clone();
+                        position[i] = {x: pos.x, y: pos.y, z: pos.z};
+                        target[i] = lastPosition;
+                        var currTween = new TWEEN.Tween(position[i]).to(target[i], 80);
+                        currTween.onUpdate(function() {
+                            rp[j].display.position.x = position[j].x;
+                            rp[j].display.position.y = position[j].y;
+                            rp[j].display.position.z = position[j].z;
+                        });
+
+                        currTween.onComplete(function() {
+                            j--;
+                        });
+
+                        lastTween.chain(currTween);
+                        lastTween = currTween;
+                        lastPosition = {};
+                        lastPosition.x = pos.x;
+                        lastPosition.y = pos.y;
+                        lastPosition.z = pos.z;
+                    }
+
+                    var putOldLevelBehind = new TWEEN.Tween(stepAside).to(lastPosition, 80);
+
+                    lastTween.chain(putOldLevelBehind);
+                    putOldLevelBehind.onUpdate(function() {
+                        rp[rp.length - 1].display.position.x = stepAside.x;
+                        rp[rp.length - 1].display.position.y = stepAside.y;
+                        rp[rp.length - 1].display.position.z = stepAside.z;
+                    });
+
+                    previousLevelStepAside.onUpdate(function() {
+                        rp[rp.length - 1].display.position.x = currentPosition.x;
+                    });
+
+                    n--;
+
+                    putOldLevelBehind.onComplete(function() {
+                        if (mp.currentMainPersonalityLevel !== 1 && n < 0) {
+                            window.setTimeout(function() {
+                                advanceLevel(mp, n);
+                            }, 750);
+                        } else if (mp.currentMainPersonalityLevel === 1 ||
+                                n === 0) {
+                            DBZCCG.performingAnimation = false;
+                            var currentLevel = mp.personalities[mp.currentMainPersonalityLevel - 1];
+                            currentLevel.canActivate = true;
+                            DBZCCG.Log.logEntry(previousLevel.logName() + " to " + currentLevel.logName() + ".");
+                            mp.moveZScouter(5);
+                            mp.setAnger(0, true);
+                        }
+                    });
+
+                    rp[rp.length - 1].zScouter = rp[0].zScouter;
+
+                    rp[rp.length - 1].zScouter.displayName = function() {
+                        return 'Z-Scouter: ' + rp[rp.length - 1].displayName();
+                    };
+
+                    rp[rp.length - 1].zScouter.descriptionBox = function() {
+                        var descriptionBoxText = "<div><b>" + rp[rp.length - 1].displayName() + "</b> current power stage level: " + rp[rp.length - 1].powerStages[rp[rp.length - 1].currentPowerStageAboveZero];
+
+                        if (rp[rp.length - 1].currentPowerStageAboveZero === rp[rp.length - 1].powerStages.length - 1) {
+                            descriptionBoxText += " (max)";
+                        } else if (rp[rp.length - 1].currentPowerStageAboveZero !== 0) {
+                            descriptionBoxText += " (" + rp[rp.length - 1].currentPowerStageAboveZero + " above 0)";
+                        }
+
+                        descriptionBoxText += ".</div>";
+
+                        DBZCCG.descriptionBox(descriptionBoxText);
+                    };
+
+                    mp.currentMainPersonalityLevel--;
+                    DBZCCG.Sound.level(-1);
+                    previousLevelStepAside.start();
+                } else {
+                    var currentLevel = mp.personalities[mp.currentMainPersonalityLevel - 1];
+                    currentLevel.canActivate = true;
+                    if (n !== 0) {
+                        if (mp.currentMainPersonalityLevel !== mp.personalities.length) {
+                            DBZCCG.Log.logEntry(previousLevel.logName() + " already is the personality maximum level.");
+                            mp.moveZScouter("max");
+                        } else {
+                            DBZCCG.Log.logEntry(previousLevel.logName() + " already is the personality minimum level.");
+                            mp.moveZScouter(5);
+                        }
+                    }
+                    mp.setAnger(0, true);
                 }
             }
 
             advanceLevel();
-
-            if (desiredLevels !== n) {
-                window.setTimeout(function() {
-                    DBZCCG.performingAnimation = false;
-                    var currentLevel = mp.personalities[mp.currentMainPersonalityLevel - 1];
-                    currentLevel.canActivate = true;
-                    DBZCCG.Log.logEntry(previousLevel.logName() + " advanced to " + currentLevel.logName() + ".");
-                    mp.moveZScouter("max");
-                    mp.setAnger(0, true);
-                }, (160 + 120 + 750) * (desiredLevels - n) + 200);
-            }
         };
 
         this.display = new THREE.Object3D();
 
         var mp = this;
-        
+
         this.display.displayName = function() {
             return 'Main Personality: ' + mp.personalities[mp.currentMainPersonalityLevel - 1].displayName();
         };
 
-        function atribCallback () {
+        function atribCallback() {
         }
 
         DBZCCG.Callbacks.create(this.display, 'callback', atribCallback);
@@ -415,10 +525,13 @@ DBZCCG.MainPersonality.create = function(data) {
                 priority: 50000,
                 f: function() {
                     DBZCCG.toolTip.parent = mp.currentPersonality().display;
-                    
-                    function argsCallback (cb) { return cb.f() }
-                    function solveCallback (ret) {}
-                    
+
+                    function argsCallback(cb) {
+                        return cb.f()
+                    }
+                    function solveCallback(ret) {
+                    }
+
                     mp.currentPersonality().display.solveCallback(argsCallback, solveCallback);
                 }
             });

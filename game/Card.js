@@ -173,7 +173,7 @@ DBZCCG.Card.generateRandom = function() {
     var card = {type: DBZCCG.Card.Type.Personality, style: DBZCCG.Card.Style.Freestyle, PUR: 2, alignment: DBZCCG.Personality.alignment.Rogue, description: "Power: Once per combat, reduces the damage of an energy attack by 2 life cards.", level: 1, name: "VEGETA", highTech: false, number: 173, texturePath: "images/DBZCCG/saiyan/" + (parseInt(Math.random() * 1000 % 250) + 1001).toString().substring(1) + ".jpg",
         personality: DBZCCG.Personality.Personalities.VEGETA, saga: DBZCCG.Card.Saga.Saiyan, powerStages: [0, 2000, 2200, 2400, 2600, 2800, 3000, 3200, 3400, 3600, 3800]};
     return DBZCCG.Card.createCard(card);
-}
+};
 
 DBZCCG.Card.createCard = function(card) {
     var retCard;
@@ -212,17 +212,18 @@ DBZCCG.Card.create = function(dataObject) {
         function createCard(texturePath) {
             var card = new THREE.Object3D();
             var frontTexture = texturePath ? THREE.ImageUtils.loadTexture(texturePath) : null;
-
+            var specularMap = THREE.ImageUtils.loadTexture('images/DBZCCG/saiyan/specularmap.jpg');
+            
             cardCoverBackMaterials = [];
             for (var i = 0; i < 4; i++) {
-                cardCoverBackMaterials.push(new THREE.MeshBasicMaterial({vertexColors: THREE.VertexColors})); // sides
+                cardCoverBackMaterials.push(new THREE.MeshBasicMaterial({emissive: 0xFFFFFF, vertexColors: THREE.VertexColors})); // sides
             }
 
-            cardCoverBackMaterials[4] = new THREE.MeshBasicMaterial({map: DBZCCG.Card.backTexture}); // back
-            cardCoverBackMaterials[5] = new THREE.MeshBasicMaterial({map: frontTexture}); // front
+            cardCoverBackMaterials[4] = new THREE.MeshBasicMaterial({emissive: 0xFFFFFF, map: DBZCCG.Card.backTexture}); // back
+            cardCoverBackMaterials[5] = new THREE.MeshBasicMaterial({reflectivity: dataObject.foil ? dataObject.foil.reflectivity : 1, specularMap: specularMap, envMap: dataObject.foil ? dataObject.foil.texture : null, emissive: 0xFFFFFF, map: frontTexture}); // front
 
             for (var i = 0; i < 4; i++) {
-                cardCoverBackMaterials.push(new THREE.MeshBasicMaterial({wireframe: true})); // sides
+                cardCoverBackMaterials.push(new THREE.MeshBasicMaterial({emissive: 0xFFFFFF, wireframe: true})); // sides
             }
 
             var cube = new THREE.Mesh(DBZCCG.Card.cubeGeo, new THREE.MeshFaceMaterial(cardCoverBackMaterials));
@@ -265,8 +266,12 @@ DBZCCG.Card.create = function(dataObject) {
         this.number = dataObject.number;
         this.type = dataObject.type;
         this.numberOfUses = dataObject.numberOfUses;
+        
+        // Hard coded for testing
+        dataObject.foil = Math.random() > 0.5 ? DBZCCG.Saiyan.Foil.default : Math.random() > 0.5 ? DBZCCG.Frieza.Foil.default : null;
 
         this.display = createCard(dataObject.texturePath);
+        
         this.display.name = this.name;
         this.display.parentCard = this;
         var card = this;
@@ -384,7 +389,7 @@ DBZCCG.Card.create = function(dataObject) {
 
             ret += '<div style="clear:both;"/>';
 
-            if (DBZCCG.performingAction.checkOwnership(this.parentCard.display) && this.parentCard.activable instanceof Function &&
+            if (DBZCCG.performingAction && DBZCCG.performingAction.checkOwnership(this.parentCard.display) && this.parentCard.activable instanceof Function &&
                     this.parentCard.activable(DBZCCG.performingAction) && this.parentCard.effectType instanceof Array &&
                     (this.parentCard.effectType.indexOf(DBZCCG.Combat.Attack.Physical) !== -1 ||
                             this.parentCard.effectType.indexOf(DBZCCG.Combat.Attack.Energy) !== -1)) {

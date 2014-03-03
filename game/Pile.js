@@ -2,9 +2,11 @@ DBZCCG.Pile = {};
 
 DBZCCG.Pile.Face = {};
 
-DBZCCG.Pile.cardBase = DBZCCG.Card.create();
-
 DBZCCG.Pile.create = function(data, faceUp, owner) {
+
+    if(!DBZCCG.Pile.cardBase) {
+        DBZCCG.Pile.cardBase = DBZCCG.Card.create();
+    }
 
     function PileObject(data, faceUp, owner) {
 
@@ -56,6 +58,7 @@ DBZCCG.Pile.create = function(data, faceUp, owner) {
             if (cards instanceof Array && cards.length > 0) {
                 DBZCCG.performingAnimation = true;
                 var card = cards.shift();
+                card.control = undefined;
                 card.cameIntoPlay = false;
 
                 if (!(card.display.offDescriptionBox instanceof Function)) {
@@ -237,10 +240,11 @@ DBZCCG.Pile.create = function(data, faceUp, owner) {
             var otherCards = pile.display.children;
 
             card.beginRemoveCallback = function() {
+                DBZCCG.removingCard = true;
 
                 /* Everyone above the removed card get down by 1 card (aka get the position of the card below it) */
-                for (var i = otherCards.length - 1; i > cardIdx; i--) {
-                    otherCards[i].position.y = otherCards[i - 1].position.y;
+                for (var i = otherCards.length - 1; i >= 0; i--) {
+                    otherCards[i].position.y = DBZCCG.Card.cornerWidth * DBZCCG.Card.cardThicknessScale * i * 2;
                 }
 
                 pile.display.remove(removedCard);
@@ -265,7 +269,8 @@ DBZCCG.Pile.create = function(data, faceUp, owner) {
 
                 pile.currentCards = pile.display.children.length;
 
-                if (cardIdx === pile.cards.length && otherCards.length > 0 && faceUp === true) {
+                if (cardIdx === pile.cards.length && otherCards.length > 0 &&
+                        faceUp === true) {
                     pile.firstCardFaceUp();
                 }
 
@@ -273,6 +278,8 @@ DBZCCG.Pile.create = function(data, faceUp, owner) {
                 if (otherCards.length > 0) {
                     DBZCCG.objects.push(otherCards[otherCards.length - 1]);
                 }
+
+                DBZCCG.removingCard = false;
             };
 
             return card;
@@ -531,7 +538,6 @@ DBZCCG.Pile.create = function(data, faceUp, owner) {
                 this.descriptionBox();
             }
         };
-
     }
 
     return new PileObject(data || {number: 50}, faceUp, owner);

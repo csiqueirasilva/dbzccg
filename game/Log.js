@@ -5,6 +5,7 @@ DBZCCG.Log.entries = [];
 DBZCCG.Log.Type = {};
 
 DBZCCG.Log.Type.sufferedDamage = 0;
+DBZCCG.Log.Type.sufferedAttack = 1;
 
 // create the log
 DBZCCG.Log.logEntry = function(msg, card, type) {
@@ -50,6 +51,7 @@ DBZCCG.Log.checkEventThisPhase = function (event, check) {
                 for(var j in check) {
                     if(DBZCCG.Log.entries[i][j] !== check[j]) {
                         ret = false;
+                        break;
                     }
                 }
             }

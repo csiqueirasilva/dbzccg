@@ -14,7 +14,9 @@ DBZCCG.LifeDeck.create = function(deckObject) {
             var allowedCards = [];
             
             for(var i in DBZCCG.Saiyan) {
-                allowedCards.push(i);
+                if(!isNaN(parseInt(i))) {
+                    allowedCards.push(i);
+                }
             }
             
             //exceptions

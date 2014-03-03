@@ -186,7 +186,18 @@ canvas {
     background: url('../images/icons/energyattack.png') no-repeat;
 }
 
-#combat-btn, #rejuvenate-btn, #capture-btn {
+.image-card-list {
+    float: left;
+    height: 100%;
+}
+
+.image-card-list img {
+    height: 90%;
+    padding-left: 1vmax;
+    padding-right: 1vmax;
+}
+
+#effect-btn, #combat-btn, #rejuvenate-btn, #capture-btn {
     background: url('../images/icons/combat.png') no-repeat;
     left: 10%;
     position: absolute;
@@ -240,7 +251,7 @@ canvas {
 }
 
 .btn {
-    width: 2.5vmax;
+    width: 1.8vmax;
     height: 100%;
     top: 0.5vmax;
 }
@@ -460,11 +471,23 @@ canvas {
 .saga-label-number {
 }
 
-#card-list .ui-selecting { background: #FF6A40; }
-#card-list .ui-selected { background: #FF2814; color: white; }
-#card-list{ list-style-type: none; margin: 0; padding: 0; width: 100%; }
-#card-list li { margin: 3px; padding: 0.4em; font-size: 1em; height: 18px; }
-#card-list li:hover { cursor: pointer; }
+#card-list{ list-style-type: none; margin-top: 0.2vmax; padding: 0; height: 94%; overflow: hidden;}
+#card-list h2 {float: left; margin-top: 4vmax; padding-left: 1vmax; padding-right: 1vmax;}
+.arrow-scroll:hover { cursor: pointer; }
+.arrow-scroll { text-align: center; float: left; width: 4%; }
+#mid-wrapper-card-list { width: 92%; height: 84%; overflow: hidden; float: left;}
+.card-list-selected {
+    box-sizing:border-box;
+    -moz-box-sizing:border-box;
+    -webkit-box-sizing:border-box;
+    border: 5px dashed #FFFFFF;
+    height: auto;
+    width: auto;
+    border: 1px solid #FFFFFF;
+}
+#card-select-list-label {position: absolute; height: 9%; margin-top: -4%;}
+
+#selection-box-card-list { bottom: 0px; width: 100%; border: 1px solid #FFFFFF; position: relative; height: 15%;}
 
 #mainDialog {
 }

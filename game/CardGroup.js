@@ -161,9 +161,9 @@ DBZCCG.CardGroup.create = function(cardGroup) {
                     });
                 }
 
-                if (this.cards[0].display.rotation.x !== this.rotation.x ||
+                if ((this.cards[0].display.rotation.x !== this.rotation.x ||
                         this.cards[0].display.rotation.y !== this.rotation.y ||
-                        this.cards[0].display.rotation.z !== this.rotation.z) {
+                        this.cards[0].display.rotation.z !== this.rotation.z) && !this.cards[0].control) {
 
                     itAnimation = new TWEEN.Tween(this.cards[0].display.rotation)
                             .to(this.rotation, 1);
@@ -221,9 +221,9 @@ DBZCCG.CardGroup.create = function(cardGroup) {
                         this.cards[i].display.position.copy(target);
                     }
 
-                    if (this.cards[i].display.rotation.x !== this.rotation.x ||
+                    if ((this.cards[i].display.rotation.x !== this.rotation.x ||
                             this.cards[i].display.rotation.y !== this.rotation.y ||
-                            this.cards[i].display.rotation.z !== this.rotation.z) {
+                            this.cards[i].display.rotation.z !== this.rotation.z) && !this.cards[i].control) {
 
                         if (card === this.cards[i]) {
                             this.cards[i].display.position.rotation = this.cards[i].display.rotation;

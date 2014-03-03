@@ -2,12 +2,12 @@ DBZCCG.General = {};
 
 DBZCCG.General['Final Physical Attack'] = DBZCCG.Card.create({
     style: DBZCCG.Card.Style.Freestyle,
-    description: "Physical attack.",
+    description: "Physical attack. Discard a card from your hand in order to perform this attack.",
     name: "Final Physical Attack",
-//    texturePath: "images/DBZCCG/saiyan/250.jpg",
     activable: DBZCCG.Combat.defaultAttackerCheck,
     effect: function() {
         this.success = true;
+        DBZCCG.Combat.attackType = DBZCCG.Combat.Attack.Physical;
         this.targetCard = DBZCCG.defendingPlayer.getPersonalityInControl();
     },
     damage: function() {

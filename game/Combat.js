@@ -52,6 +52,29 @@ DBZCCG.Combat.Effect.ShufflePile = 26;
 
 // End of effect types
 
+// Use events
+
+DBZCCG.Combat.Events = {};
+DBZCCG.Combat.Events['Entering Draw Phase'] = 1;
+DBZCCG.Combat.Events['Leaving Draw Phase'] = 2;
+DBZCCG.Combat.Events['Entering Non-Combat Phase'] = 3;
+DBZCCG.Combat.Events['Leaving Non-Combat Phase'] = 4;
+DBZCCG.Combat.Events['Entering PUR Phase'] = 5;
+DBZCCG.Combat.Events['Leaving PUR Phase'] = 6;
+DBZCCG.Combat.Events['Entering Declare Phase'] = 7;
+DBZCCG.Combat.Events['Leaving Declare Phase'] = 8;
+DBZCCG.Combat.Events['Entering Combat Phase'] = 9;
+DBZCCG.Combat.Events['Leaving Combat Phase'] = 10;
+DBZCCG.Combat.Events['Entering Discard Phase'] = 11;
+DBZCCG.Combat.Events['Leaving Discard Phase'] = 12;
+DBZCCG.Combat.Events['Entering Rejuvenation Phase'] = 13;
+DBZCCG.Combat.Events['Leaving Rejuvenation Phase'] = 14;
+DBZCCG.Combat.Events['Before Playing'] = 15;
+DBZCCG.Combat.Events['After Playing'] = 16;
+DBZCCG.Combat.Events['Before Activating'] = 17;
+DBZCCG.Combat.Events['After Activating'] = 18;
+DBZCCG.Combat.Events['Combat Chain finished'] = 19;
+
 DBZCCG.Combat.inUsePAT = DBZCCG.Card.Saga.Saiyan;
 
 DBZCCG.Combat.flashCard = function(card) {
@@ -126,7 +149,7 @@ DBZCCG.Combat.payCosts = function(card) {
                                         f: function() {
                                             DBZCCG.toolTip.idxHand = player.hand.getCardIdx(DBZCCG.toolTip.parent);
 
-                                            $('#hud').qtip('hide');
+                                            DBZCCG.qtipElement.qtip('hide');
 
                                             discardCounter++;
 
@@ -200,8 +223,8 @@ DBZCCG.Combat.defaultDragonballCheck = function(player) {
 DBZCCG.Combat.defaultNonCombatCheck = function(player) {
     var result = false;
 
-    if (player === DBZCCG.performingAction && !DBZCCG.Combat.effectHappening &&
-            $('.selectedTurn')[0].id === 'noncombat-phase' && DBZCCG.Combat.checkCosts(this)
+    if (!DBZCCG.Combat.actionATM && player === DBZCCG.performingAction && !DBZCCG.Combat.effectHappening &&
+            $('.selectedTurn').length > 0 && $('.selectedTurn')[0].id === 'noncombat-phase' && DBZCCG.Combat.checkCosts(this)
             && player.nonCombats.getCardIdx(this.display) === -1) {
         result = true;
         $(DBZCCG.toolTip.content).children('#tooltipEffect').show();
@@ -229,7 +252,7 @@ DBZCCG.Combat.multipleActivation = function(player, card) {
 DBZCCG.Combat.defaultAttackerCheck = function(player, card) {
     var result = false;
     var checkCard = card || this;
-    if (player.checkActivation(checkCard) && DBZCCG.combat && player === DBZCCG.performingAction && player === DBZCCG.attackingPlayer && !DBZCCG.Combat.effectHappening &&
+    if (!DBZCCG.Combat.actionATM && player.checkActivation(checkCard) && DBZCCG.combat && player === DBZCCG.performingAction && player === DBZCCG.attackingPlayer && !DBZCCG.Combat.effectHappening &&
             !DBZCCG.displayingText && DBZCCG.Combat.checkCosts(checkCard) && DBZCCG.Combat.checkInPlay(player, checkCard)) {
         result = true;
         $(DBZCCG.toolTip.content).children('#tooltipEffect').show();
@@ -240,7 +263,7 @@ DBZCCG.Combat.defaultAttackerCheck = function(player, card) {
 DBZCCG.Combat.defaultDefenderCheck = function(player, card) {
     var result = false;
     var checkCard = card || this;
-    if (player.checkActivation(checkCard) && DBZCCG.combat && player === DBZCCG.performingAction && player === DBZCCG.defendingPlayer && !DBZCCG.Combat.effectHappening &&
+    if (!DBZCCG.Combat.actionATM && player.checkActivation(checkCard) && DBZCCG.combat && player === DBZCCG.performingAction && player === DBZCCG.defendingPlayer && !DBZCCG.Combat.effectHappening &&
             !DBZCCG.displayingText && DBZCCG.Combat.checkCosts(checkCard) && DBZCCG.Combat.checkInPlay(player, checkCard)) {
         result = true;
         $(DBZCCG.toolTip.content).children('#tooltipEffect').show();
@@ -305,6 +328,123 @@ DBZCCG.Combat.targetGroup = function(card) {
             return 'dragonballs';
     }
 };
+
+DBZCCG.Combat.nameCard = function(title,
+        msg,
+        okFnc,
+        matchFunction,
+        listFunction,
+        resultFunction) {
+
+    if (DBZCCG.performingAction === DBZCCG.mainPlayer) {
+        DBZCCG.performingTurn = true;
+        DBZCCG.waitingMainPlayerMouseCommand = true;
+
+        DBZCCG.confirmDialog(title,
+                msg +
+                DBZCCG.searchFormHTML,
+                null, {'OK': function() {
+                okFnc();
+                $(this).dialog('close');
+                DBZCCG.performingTurn =
+                        DBZCCG.waitingMainPlayerMouseCommand =
+                        DBZCCG.Combat.effectHappening = false;
+            }}, window.innerWidth * 0.35,
+                window.innerHeight * 0.35
+                );
+
+        DBZCCG.searchFormContent('#confirmDialog',
+                matchFunction,
+                listFunction,
+                resultFunction);
+
+        // effect still happening
+        return true;
+    } else /* AI */ {
+        okFnc();
+    }
+};
+
+DBZCCG.Combat.pickCardsFromTheField = function(msg, cards, action) {
+
+    DBZCCG.Combat.removeSelectionParticles();
+
+    var oldClickCallback = [];
+
+    if (cards.length > 0) {
+        if (DBZCCG.performingAction === DBZCCG.mainPlayer) {
+            DBZCCG.Combat.effectHappening = true;
+
+            function finishCaptureDialog() {
+                for (var k = 0; k < cards.length; k++) {
+                    cards[k].display.click = oldClickCallback.shift();
+                }
+
+                $('#capture-btn').hide();
+                DBZCCG.waitingMainPlayerMouseCommand = false;
+                DBZCCG.performingTurn = false;
+                DBZCCG.Combat.effectHappening = false;
+                DBZCCG.Combat.removeSelectionParticles();
+            }
+
+            function capture() {
+                action(this);
+                finishCaptureDialog();
+                return false;
+            }
+
+            function showCaptureHelp() {
+                DBZCCG.confirmDialog('Picking a card',
+                        msg, null,
+                        {'OK': function() {
+                                $(this).dialog('close');
+                            }
+                        });
+            }
+
+            function beginCapture() {
+                for (var k = 0; k < cards.length; k++) {
+                    oldClickCallback.push(cards[k].display.click);
+                    cards[k].display.click = capture;
+                }
+                $('#capture-btn')[0].onclick = showCaptureHelp;
+            }
+
+            var buttons = {'OK': function() {
+                    beginCapture();
+                    $(this).dialog('close');
+                }};
+
+            function showCaptureDialog() {
+                DBZCCG.confirmDialog('Picking a card',
+                        msg, null,
+                        buttons,
+                        window.innerWidth * 0.35,
+                        window.innerHeight * 0.35);
+            }
+
+            $('#capture-btn')[0].onclick = showCaptureDialog;
+
+            DBZCCG.listActions.splice(0, 0, function() {
+                DBZCCG.waitingMainPlayerMouseCommand = true;
+                DBZCCG.performingTurn = true;
+
+                for (var k = 0; k < cards.length; k++) {
+                    DBZCCG.Combat.addSelectionParticle(cards[k].display);
+                }
+
+                showCaptureDialog();
+                $('#capture-btn').show();
+            });
+
+        } else /* CPU */ {
+            var card = cards.shift();
+            action(card);
+        }
+    }
+};
+
+
 
 DBZCCG.Combat.setCardSource = function(display) {
     // Need to check where the card is
@@ -418,10 +558,13 @@ DBZCCG.Combat.checkDragonballControl = function(player) {
                         $('#pass-btn').show();
                     }
 
-                    if (DBZCCG.mainPlayer === DBZCCG.performingAction && DBZCCG.mainPlayer.usableCards.length === 0) {
+                    if ($('.selectedTurn')[0].id !== 'combat-phase' && DBZCCG.mainPlayer === DBZCCG.performingAction && DBZCCG.mainPlayer.usableCards.length === 0) {
                         window.setTimeout(function() {
                             DBZCCG.performingAction.passDialog();
                         }, 250);
+                    } else if ($('.selectedTurn')[0].id === 'combat-phase') {
+                        $('#pass-btn').hide();
+                        DBZCCG.performingTurn = DBZCCG.waitingMainPlayerMouseCommand = false;
                     }
                 });
 
@@ -472,12 +615,14 @@ DBZCCG.Combat.checkDragonballControl = function(player) {
         f: function() {
             var clicked = DBZCCG.toolTip.parent.parentCard;
 
-            if (clicked.playable instanceof Function && 
-                    clicked.playable(DBZCCG.performingAction)) {
+            if (clicked.playable instanceof Function &&
+                    clicked.playable(DBZCCG.performingAction) &&
+                    DBZCCG.performingAction.checkOwnership(clicked.display)) {
                 DBZCCG.currentCard = clicked;
                 DBZCCG.Combat.setCardSource(clicked.display);
 
-                $('#hud').qtip('hide');
+                $('#effect-btn').hide();
+                DBZCCG.qtipElement.qtip('hide');
 
                 createEffectPlayedCard(clicked);
 
@@ -489,6 +634,8 @@ DBZCCG.Combat.checkDragonballControl = function(player) {
 
     function executeEffect(clicked) {
         DBZCCG.Combat.removeSelectionParticles();
+
+        DBZCCG.Combat.attackType = null;
 
         DBZCCG.Combat.effectHappening = true;
 
@@ -516,12 +663,18 @@ DBZCCG.Combat.checkDragonballControl = function(player) {
             });
         });
 
-        // Invoke defender's turn, if possible
-        if (DBZCCG.performingAction === DBZCCG.attackingPlayer &&
-                (ClassHelper.checkValue(clicked.effectType, DBZCCG.Combat.Attack.Physical) ||
-                        ClassHelper.checkValue(clicked.effectType, DBZCCG.Combat.Attack.Energy))) {
-            DBZCCG.Combat.setDefenderTurn(DBZCCG.defendingPlayer);
-        }
+        DBZCCG.listActions.splice(0, 0, function() {
+            // Invoke defender's turn, if possible
+            if (DBZCCG.performingAction === DBZCCG.attackingPlayer &&
+                    (DBZCCG.Combat.attackType === DBZCCG.Combat.Attack.Physical ||
+                            DBZCCG.Combat.attackType === DBZCCG.Combat.Attack.Energy)) {
+                DBZCCG.Combat.setDefenderTurn(DBZCCG.defendingPlayer);
+            }
+        });
+
+        DBZCCG.listActions.splice(0, 0, function() {
+            DBZCCG.Combat.checkUseWhenNeeded(DBZCCG.Combat.Events['After Activating']);
+        });
 
         // Card effect
         DBZCCG.listActions.splice(0, 0, function() {
@@ -533,6 +686,10 @@ DBZCCG.Combat.checkDragonballControl = function(player) {
             }
 
             DBZCCG.Combat.effectHappening = effectHappening;
+        });
+
+        DBZCCG.listActions.splice(0, 0, function() {
+            DBZCCG.Combat.checkUseWhenNeeded(DBZCCG.Combat.Events['Before Activating']);
         });
 
         DBZCCG.Combat.payCosts(clicked);
@@ -549,8 +706,20 @@ DBZCCG.Combat.checkDragonballControl = function(player) {
 
             if (DBZCCG.toolTip.idxCard !== undefined && DBZCCG.performingAction !== undefined) {
 
-                if (DBZCCG.toolTip.cardSource === 'hand') {
-                    DBZCCG.performingAction.transferCards("hand", [DBZCCG.toolTip.idxCard], "inPlay", null, null, true);
+                var destination;
+
+                switch (DBZCCG.currentCard.type) {
+                    case DBZCCG.Card.Type['Physical Combat']:
+                    case DBZCCG.Card.Type['Combat']:
+                    case DBZCCG.Card.Type['Energy Combat']:
+                        destination = 'inPlay';
+                        break;
+                    case DBZCCG.Card.Type['Dragonball']:
+                        destination = 'dragonballs';
+                }
+
+                if (destination && destination !== DBZCCG.toolTip.cardSource) {
+                    DBZCCG.performingAction.transferCards(DBZCCG.toolTip.cardSource, [DBZCCG.toolTip.idxCard], destination, null, null, true);
                 }
 
                 DBZCCG.toolTip.idxCard = undefined;
@@ -579,9 +748,12 @@ DBZCCG.Combat.checkDragonballControl = function(player) {
     };
 
     DBZCCG.Combat.activateEffectCallback = {f: function() {
+
             var clicked = DBZCCG.toolTip.parent.parentCard;
 
             if (clicked.activable instanceof Function && clicked.activable(DBZCCG.performingAction)) {
+
+                $('#effect-btn').hide();
 
                 DBZCCG.Combat.setCardSource(clicked.display);
 
@@ -690,7 +862,7 @@ DBZCCG.Combat.setDefenderTurn = function(player) {
         this.element = new THREE.ParticleSystem(geo, new THREE.ParticleSystemMaterial({
             size: 1,
             map: THREE.ImageUtils.loadTexture("images/gfx/particles/particleTexture.png"),
-            depthTest: false,
+            depthTest: true,
             vertexColors: true,
             blending: THREE.AdditiveBlending,
             transparent: true,
@@ -698,7 +870,7 @@ DBZCCG.Combat.setDefenderTurn = function(player) {
         }));
 
         this.element.rotation.x = -Math.PI / 2;
-        this.element.position.z = -0.3;
+        this.element.position.z = -0.044;
         this.baseColor = 0.62;
         this.element.scale.multiplyScalar(0.95);
         this.element.scale.x = 0.9;
@@ -855,6 +1027,60 @@ DBZCCG.Combat.setDefenderTurn = function(player) {
     };
 })();
 
+DBZCCG.Combat.checkUseWhenNeeded = function(action) {
+    DBZCCG.Combat.removeSelectionParticles();
+
+    DBZCCG.Combat.actionATM = action;
+
+    var originalPlayer = DBZCCG.performingAction;
+
+    DBZCCG.listActions.splice(0, 0, function() {
+        DBZCCG.Combat.actionATM = null;
+        DBZCCG.performingAction = originalPlayer;
+    });
+
+    var players = DBZCCG.table.players;
+    var activePlayers = [];
+    for (var i = 0; i < players.length; i++) {
+        players[i].clearUsableCards();
+        players[i].checkUsableCards();
+
+        if (players[i].usableCards.length > 0) {
+            activePlayers.push(players[i]);
+
+            if (DBZCCG.mainPlayer === players[i]) {
+
+                for (var k = 0; k < players[i].usableCards.length; k++) {
+                    DBZCCG.Combat.addSelectionParticle(players[i].usableCards[k]);
+                }
+
+                DBZCCG.listActions.splice(0, 0, function() {
+                    DBZCCG.performingAction = activePlayers.shift();
+                    DBZCCG.performingTurn = DBZCCG.waitingMainPlayerMouseCommand = true;
+                    DBZCCG.confirmDialog('Action possible',
+                            ClassHelper.getKeyByValue(DBZCCG.Combat.Events, DBZCCG.Combat.actionATM)
+                            + '. Do you want to use a card?', null,
+                            {
+                                'Check Field': function() {
+                                    $(this).dialog('close');
+                                },
+                                'Skip': function() {
+                                    $('#effect-btn').hide();
+                                    DBZCCG.Combat.removeSelectionParticles();
+                                    $(this).dialog('close');
+                                    DBZCCG.performingTurn = DBZCCG.waitingMainPlayerMouseCommand = false;
+                                }
+                            });
+                    $('#effect-btn').show();
+                });
+            } else /* AI */ {
+                DBZCCG.performingAction = activePlayers.shift();
+                DBZCCG.Combat.activateEffectAI(players[i].usableCards.shift());
+            }
+        }
+    }
+};
+
 DBZCCG.Combat.flashContent = function(content, type) {
     DBZCCG.displayingText = true;
     DBZCCG.performingAnimation = true;
@@ -918,8 +1144,8 @@ DBZCCG.Combat.setMouseOverCallback = function(display) {
         if (!$('.qtip').is(':visible')) {
             DBZCCG.toolTip.customContent = this.displayHoverText();
 
-            $('#hud').qtip('option', {'position.adjust.y': -30});
-            $('#hud').qtip('option', {'position.adjust.mouse': true});
+            DBZCCG.qtipElement.qtip('option', {'position.adjust.y': -30});
+            DBZCCG.qtipElement.qtip('option', {'position.adjust.mouse': true});
 
             if (display.parentCard) {
                 if (display.children[0].material.materials[5].map && display.children[0].material.materials[5].map.sourceFile) {
@@ -929,15 +1155,15 @@ DBZCCG.Combat.setMouseOverCallback = function(display) {
                 var wrapper = document.createElement('div');
                 wrapper.id = 'description-right';
                 wrapper.innerHTML = DBZCCG.toolTip.customContent;
-                wrapper.style.width = ($('#descriptionBoxContent')
+                wrapper.style.width = Math.floor($('#descriptionBoxContent')
                         .parent()
                         .parent()
-                        .parent()[0].style.width.replace('px', '') * 0.4) + 'px';
+                        .parent().width() * 0.4) + 'px';
 
                 DBZCCG.toolTip.customContent = cardImage + wrapper.outerHTML + "<div style='clear:both;' />";
             }
 
-            $('#hud').qtip('show');
+            DBZCCG.qtipElement.qtip('show');
 
             //fix for personality cards display
             // power stages
@@ -951,9 +1177,9 @@ DBZCCG.Combat.setMouseOverCallback = function(display) {
 
     display.click = display.mouseOut = function() {
         if (DBZCCG.toolTip.customContent) {
-            $('#hud').qtip('option', {'position.adjust.y': 0});
-            $('#hud').qtip('option', {'position.adjust.mouse': false});
-            $('#hud').qtip('hide');
+            DBZCCG.qtipElement.qtip('option', {'position.adjust.y': 0});
+            DBZCCG.qtipElement.qtip('option', {'position.adjust.mouse': false});
+            DBZCCG.qtipElement.qtip('hide');
             $(DBZCCG.toolTip.customContent).remove();
             DBZCCG.toolTip.customContent = undefined;
         }
