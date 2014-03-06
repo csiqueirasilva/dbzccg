@@ -234,7 +234,7 @@ DBZCCG.removeObject = function(obj) {
 /* End of dialog */
 
 DBZCCG.checkAlbumLoad = function() {
-    return DBZCCG.Album.pageModel;
+    return DBZCCG.Album.pageModel && DBZCCG.Album.lockerModel;
 };
 
 DBZCCG.checkObjectLoad = function() {
@@ -506,16 +506,19 @@ DBZCCG.album = function() {
             window.clearInterval(loadModelInterval);
             scr = DBZCCG.Screen.create(buildScene, render, controls);
             var interval = window.setInterval(function() {
-                if (DBZCCG.finishedLoading && DBZCCG.loadCounter === DBZCCG.loadIcr) {
+                $("#loadingText")[0].innerHTML = DBZCCG.loadIcr + "/" + DBZCCG.loadCounter;
+                if (DBZCCG.finishedLoading && DBZCCG.loadCounter <= DBZCCG.loadIcr) {
                     window.clearInterval(interval);
                     // Remove loading screen
-                    $("#loadingText").remove();
+                    window.setTimeout(function() {
+                        $("#loadingText").remove();
 
-                    loadUI();
+                        loadUI();
 
-                    scr.start();
-                    window.onresize();
-                    DBZCCG.waitingMainPlayerMouseCommand = true;
+                        scr.start();
+                        window.onresize();
+                        DBZCCG.waitingMainPlayerMouseCommand = true;
+                    }, 1000);
                 }
             }, 1000);
         }
@@ -1678,17 +1681,20 @@ DBZCCG.create = function() {
             DBZCCG.loadIcr = 0;
             scr = DBZCCG.Screen.create(buildScene, render, controls);
             var interval = window.setInterval(function() {
-                if (DBZCCG.finishedLoading && DBZCCG.loadCounter === DBZCCG.loadIcr) {
+                $("#loadingText")[0].innerHTML = DBZCCG.loadIcr + "/" + DBZCCG.loadCounter;
+                if (DBZCCG.finishedLoading && DBZCCG.loadCounter <= DBZCCG.loadIcr) {
                     window.clearInterval(interval);
-                    // Remove loading screen
-                    $("#loadingText").remove();
-                    //show HUD
-                    DBZCCG.clearDescriptionBox();
-                    document.getElementById("hud").style.display = "block";
-                    $('#turnCounter').show();
-                    $('#toolbar').show();
-                    scr.start();
-                    window.onresize();
+                    window.setTimeout(function() {
+                        // Remove loading screen
+                        $("#loadingText").remove();
+                        //show HUD
+                        DBZCCG.clearDescriptionBox();
+                        document.getElementById("hud").style.display = "block";
+                        $('#turnCounter').show();
+                        $('#toolbar').show();
+                        scr.start();
+                        window.onresize();
+                    }, 1000);
                 }
             }, 1000);
         }

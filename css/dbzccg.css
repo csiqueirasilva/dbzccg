@@ -32,7 +32,10 @@ canvas {
 }
 
 #loadingText {
-    color: #000000;
+    color: #FF0000;
+    position: absolute;
+    top: 44%;
+    left: 44%;
 }
 
 #leftBar {
