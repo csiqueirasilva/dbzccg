@@ -263,6 +263,10 @@ DBZCCG.clearSelectionColor = 0x000000;
 DBZCCG.selectionParticles = null;
 DBZCCG.clock = new THREE.Clock();
 
+DBZCCG.incrementLoad = function() {
+    DBZCCG.loadIcr++;
+};
+
 /* Interface variables */
 DBZCCG.toolTip = {};
 
@@ -329,9 +333,12 @@ DBZCCG.album = function() {
     DBZCCG.qtipElement = $('body');
 
     function buildScene(scene, camera) {
-        //ThreeHelper.createSkybox(scene, 'skybox_carro');
+        /* Load variables */
+        DBZCCG.loadCounter = 0;
+        DBZCCG.loadIcr = 0;
+        var textureCube = ThreeHelper.createSkybox(scene, 'purplenebula');
         DBZCCG.mainScene = scene;
-        album = DBZCCG.Album.create(scene);
+        album = DBZCCG.Album.create(scene, textureCube);
         camera.position.set(0, 0, 50);
         DBZCCG.finishedLoading = true;
     }
@@ -341,6 +348,10 @@ DBZCCG.album = function() {
 
         DBZCCG.Album.updateReflections(renderer, scene);
 
+        TWEEN.update();
+
+        album.adjust();
+
         renderer.render(scene, camera);
     }
 
@@ -349,19 +360,29 @@ DBZCCG.album = function() {
         var element;
         var display = element = document.getElementById('renderer-wrapper');
         var faceIndex;
-        
+
+        renderer.setClearColor(0xFFFFFF);
+
         var projector = new THREE.Projector();
-        
-        Mousetrap.bind('z', function() {
-            if (album) {
+
+        DBZCCG.previousPage = function() {
+            if (album && !DBZCCG.performingAnimation) {
                 album.previousPage();
             }
+        };
+
+        DBZCCG.nextPage = function() {
+            if (album && !DBZCCG.performingAnimation) {
+                album.nextPage();
+            }
+        };
+
+        Mousetrap.bind('z', function() {
+            DBZCCG.previousPage();
         });
 
         Mousetrap.bind('x', function() {
-            if (album) {
-                album.nextPage();
-            }
+            DBZCCG.nextPage();
         });
 
 
@@ -378,7 +399,7 @@ DBZCCG.album = function() {
                 var intersections = raycaster.intersectObjects(DBZCCG.objects, true);
 
                 var intersectionIndex = DBZCCG.Screen.invalidIntersection(intersections);
-                
+
                 if (intersections.length > 0 && intersectionIndex !== -1) {
                     if (intersected !== intersections[ intersectionIndex ].object) {
                         if (intersected) {
@@ -392,8 +413,8 @@ DBZCCG.album = function() {
                             faceIndex = intersections[ intersectionIndex ].faceIndex;
                         }
                     }
-                    
-                    if ($('.ui-dialog:visible').length === 0 
+
+                    if ($('.ui-dialog:visible').length === 0
                             && (faceIndex === 10 || faceIndex === 11)
                             && album.checkCurrentPage(intersected.parent)) {
                         var parent = DBZCCG.Screen.findCallbackObject(intersected, "mouseOver");
@@ -430,10 +451,10 @@ DBZCCG.album = function() {
 
         // resize
         window.onresize = function() {
-            
+
             $('#object-info').dialog('option', 'width', window.innerWidth * 0.5);
             $('#object-info').dialog('option', 'height', window.innerHeight * 0.6);
-            
+
             // Hide tooltips
             DBZCCG.qtipElement.qtip('hide');
 
@@ -473,15 +494,25 @@ DBZCCG.album = function() {
         return control;
     }
 
+    function loadUI() {
+        $('.album-btn').button();
+        $('#next-page-button').click(DBZCCG.nextPage);
+        $('#previous-page-button').click(DBZCCG.previousPage);
+        $('.album-btn').show();
+    }
+
     var loadModelInterval = window.setInterval(function() {
         if (DBZCCG.checkAlbumLoad()) {
             window.clearInterval(loadModelInterval);
             scr = DBZCCG.Screen.create(buildScene, render, controls);
             var interval = window.setInterval(function() {
-                if (DBZCCG.finishedLoading) {
+                if (DBZCCG.finishedLoading && DBZCCG.loadCounter === DBZCCG.loadIcr) {
                     window.clearInterval(interval);
                     // Remove loading screen
                     $("#loadingText").remove();
+
+                    loadUI();
+
                     scr.start();
                     window.onresize();
                     DBZCCG.waitingMainPlayerMouseCommand = true;
@@ -502,7 +533,7 @@ DBZCCG.create = function() {
     var table = null;
     var listActions = [];
     var scr = null;
-    
+
     /* Interface related */
     DBZCCG.qtipElement = $('#hud');
 
@@ -1642,9 +1673,12 @@ DBZCCG.create = function() {
     var loadModelInterval = window.setInterval(function() {
         if (DBZCCG.checkObjectLoad()) {
             window.clearInterval(loadModelInterval);
+            /* Load variables */
+            DBZCCG.loadCounter = -1;
+            DBZCCG.loadIcr = 0;
             scr = DBZCCG.Screen.create(buildScene, render, controls);
             var interval = window.setInterval(function() {
-                if (DBZCCG.finishedLoading) {
+                if (DBZCCG.finishedLoading && DBZCCG.loadCounter === DBZCCG.loadIcr) {
                     window.clearInterval(interval);
                     // Remove loading screen
                     $("#loadingText").remove();

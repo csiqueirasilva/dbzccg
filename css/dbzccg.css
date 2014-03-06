@@ -9,6 +9,22 @@ body, html {
     padding: 0px;
 }
 
+.album-btn {
+    display: none;
+}
+
+#next-page-button {
+    position: absolute;
+    bottom: 2%;
+    right: 2%;
+}
+
+#previous-page-button {
+    position: absolute;
+    bottom: 2%;
+    left: 2%;
+}
+
 canvas {
     position: absolute;
     margin: 0px;

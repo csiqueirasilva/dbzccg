@@ -37,6 +37,10 @@
             <div style='clear: both;'></div>
         </div>
 
+        <button class='album-btn' id="next-page-button">Next Page (X)</button>
+        
+        <button class='album-btn' id='previous-page-button'>Previous Page (Z)</button>
+        
         <h1 id="loadingText">Loading!!!!</h1>
 
         <!-- libs -->
@@ -81,7 +85,7 @@
 
         <script type="text/javascript">
             $(document).ready(function() {
-            DBZCCG.album('saiyan', 'foil');
+                DBZCCG.album('saiyan');
             });
         </script>
 

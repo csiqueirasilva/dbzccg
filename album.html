@@ -8,6 +8,22 @@
         <link rel="stylesheet" href="css/jquery.qtip.min.css" />
         <link rel="stylesheet" href="css/jqueryui/jquery-ui-1.9.2.custom.min.css" />
 
+        <script id='skybox_vertex_shader' type="x-shader/x-fragment">
+            varying vec3 vWorldPosition;
+            varying vec2 vUv;
+            varying vec3 vViewPosition;
+
+            void main() {
+            vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
+            vec4 worldPosition = modelMatrix * vec4( position, 1.0 );
+            vUv = uv;
+            vWorldPosition = worldPosition.xyz;
+            vViewPosition = -mvPosition.xyz;
+            gl_Position = (projectionMatrix * modelViewMatrix * vec4( position , 0.0 )).xyww;
+            }
+        </script>
+
+
     </head>
 
     <body id='body' style="margin: 0; overflow: hidden;" oncontextmenu="return false;">
@@ -29,6 +45,10 @@
 
             <div style='clear: both;'></div>
         </div>
+
+        <button class='album-btn' id="next-page-button">Next Page (X)</button>
+
+        <button class='album-btn' id='previous-page-button'>Previous Page (Z)</button>
 
         <h1 id="loadingText">Loading!!!!</h1>
 
@@ -74,7 +94,7 @@
 
         <script type="text/javascript">
             $(document).ready(function() {
-            DBZCCG.album('saiyan', 'foil');
+            DBZCCG.album('saiyan');
             });
         </script>
 

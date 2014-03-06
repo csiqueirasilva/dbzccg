@@ -58,7 +58,7 @@ DBZCCG.Card.Rarity['Ubber Rare'] = 7;
 
 /* To reduce load on card creation */
 (function() {
-    DBZCCG.Card.backTexture = THREE.ImageUtils.loadTexture("images/DBZCCG/back.jpg");
+    DBZCCG.Card.backTexture = THREE.ImageUtils.loadTexture("images/DBZCCG/back.jpg", THREE.UVMapping, DBZCCG.incrementLoad);
     var columnGeo = new THREE.CylinderGeometry(DBZCCG.Card.cornerWidth, DBZCCG.Card.cornerWidth, DBZCCG.Card.cardHeight, 32, 16, true);
     var lineGeo = new THREE.CylinderGeometry(DBZCCG.Card.cornerWidth, DBZCCG.Card.cornerWidth, DBZCCG.Card.cardWidth - DBZCCG.Card.cornerWidth, 32, 16, true);
     DBZCCG.Card.cardMaterial = new THREE.MeshLambertMaterial({shading: THREE.SmoothShading, color: 0x000000, side: THREE.FrontSide});
@@ -211,10 +211,13 @@ DBZCCG.Card.create = function(dataObject) {
 
         function createCard(texturePath) {
             var card = new THREE.Object3D();
-            var frontTexture = texturePath ? THREE.ImageUtils.loadTexture(texturePath) : null;
-            var specularMap = THREE.ImageUtils.loadTexture('images/DBZCCG/saiyan/specularmap.jpg');
-            
-            cardCoverBackMaterials = [];
+            DBZCCG.loadCounter++;
+            var frontTexture = texturePath ? THREE.ImageUtils.loadTexture(texturePath, THREE.UVMapping, DBZCCG.incrementLoad) : null;
+            DBZCCG.loadCounter++;
+            var specularMap = THREE.ImageUtils.loadTexture('images/DBZCCG/saiyan/specularmap.jpg',
+                    THREE.UVMapping, DBZCCG.incrementLoad);
+
+            var cardCoverBackMaterials = [];
             for (var i = 0; i < 4; i++) {
                 cardCoverBackMaterials.push(new THREE.MeshBasicMaterial({emissive: 0xFFFFFF, vertexColors: THREE.VertexColors})); // sides
             }
@@ -266,17 +269,17 @@ DBZCCG.Card.create = function(dataObject) {
         this.number = dataObject.number;
         this.type = dataObject.type;
         this.numberOfUses = dataObject.numberOfUses;
-        
+
         // Hard coded for testing
         dataObject.foil = Math.random() > 0.5 ? DBZCCG.Saiyan.Foil.default : Math.random() > 0.5 ? DBZCCG.Frieza.Foil.default : null;
 
         this.display = createCard(dataObject.texturePath);
-        
+
         this.display.name = this.name;
         this.display.parentCard = this;
         var card = this;
 
-        DBZCCG.Callbacks.create(card.display, 'callback', function (cb) {
+        DBZCCG.Callbacks.create(card.display, 'callback', function(cb) {
         });
 
         if (!dataObject.playable && dataObject.effect) {
@@ -298,8 +301,8 @@ DBZCCG.Card.create = function(dataObject) {
 
         card.canActivate = true;
 
-        card.getTextureImg = function () {
-            if(card.display.children[0].material.materials[5].map && card.display.children[0].material.materials[5].map.sourceFile) {
+        card.getTextureImg = function() {
+            if (card.display.children[0].material.materials[5].map && card.display.children[0].material.materials[5].map.sourceFile) {
                 return card.display.children[0].material.materials[5].map.sourceFile;
             }
         };
@@ -400,11 +403,11 @@ DBZCCG.Card.create = function(dataObject) {
                             <div class="damage-hover-helper">\
                             \
                             <div style="margin-left: 40%"><div style="float:left;" class="hover-icon physical-attack-icon" title="Power Stage Damage"></div><div style="float:left; font-size: 3em;" class="hover-damage-text">' + damage.stages + '</div>';
-                    ret += '</div><div style="clear:both;"/><div style="padding-top: 10px; margin-left: 40%"><div style="float:left;" class="hover-icon energy-attack-icon" title="Life Card Damage"></div><div style="float:left; font-size: 3em;" class="hover-damage-text">' + damage.cards + '</div>' 
-                    + '</div></div></div>';
+                    ret += '</div><div style="clear:both;"/><div style="padding-top: 10px; margin-left: 40%"><div style="float:left;" class="hover-icon energy-attack-icon" title="Life Card Damage"></div><div style="float:left; font-size: 3em;" class="hover-damage-text">' + damage.cards + '</div>'
+                            + '</div></div></div>';
                 }
             }
-            
+
             return ret;
         };
 

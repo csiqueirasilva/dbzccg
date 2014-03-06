@@ -16,7 +16,6 @@ DBZCCG.Album.reflections = [];
         object.children[0].rotation.y = 0;
         object.children[0].rotation.x = Math.PI / 2;
         DBZCCG.Album.pageModel = object;
-//        DBZCCG.Album.pageModel.children[0].material.emissive.setRGB(1, 1, 1);
         DBZCCG.Album.pageModel.children[0].material.transparent = true;
         DBZCCG.Album.pageModel.children[0].material.opacity = 0.1;
     });
@@ -24,9 +23,8 @@ DBZCCG.Album.reflections = [];
     // model locker
     var loader = new THREE.OBJLoader(manager);
     loader.load('model/album-locker.obj', function(object) {
-        object.scale.z = 1.5;
+        object.scale.z = 0.65;
         DBZCCG.Album.lockerModel = object;
-//        DBZCCG.Album.lockerModel.children[0].material.emissive.setRGB(1, 1, 1);
         DBZCCG.Album.lockerModel.children[0].material.metal = true;
     });
 
@@ -48,7 +46,7 @@ DBZCCG.Album.getCoordsSlot = function(idx, back) {
 
 };
 
-DBZCCG.Album.create = function(scene) {
+DBZCCG.Album.create = function(scene, globalReflections) {
     var saga = 'Saiyan';
     var cardData = [];
     var currentPage = 0;
@@ -80,54 +78,145 @@ DBZCCG.Album.create = function(scene) {
         });
     }
 
-    var total = cardData.length % 18;
+    var total = 14;
 
     var display = new THREE.Object3D();
-
-    // cover parts
-    var backCover = new THREE.Mesh(
-            new THREE.CubeGeometry(14, 18, 0.2),
-            new THREE.MeshBasicMaterial({
-        color: 0x777777
-    }));
-
-    backCover.position.x = 10;
     
-    var midCover = new THREE.Mesh(
-            new THREE.CubeGeometry(4, 18, 0.2),
-            new THREE.MeshBasicMaterial({
-        color: 0xFF0000
+    DBZCCG.loadCounter++;
+    DBZCCG.loadCounter++;
+    var middleTexture = THREE.ImageUtils.loadTexture('images/textures/album/saiyan/middle-texture.jpg', THREE.UVMapping, DBZCCG.incrementLoad);
+    var innerTexture = THREE.ImageUtils.loadTexture('images/textures/album/saiyan/inner-texture.jpg', THREE.UVMapping, DBZCCG.incrementLoad);
+
+    innerTexture.wrapS = innerTexture.wrapT = THREE.RepeatWrapping;
+    innerTexture.repeat.set(8, 8);
+
+    middleTexture.wrapS = middleTexture.wrapT = THREE.RepeatWrapping;
+    middleTexture.repeat.set(1, 1);
+
+    var materials = [];
+
+    for (var i = 0; i < 4; i++) {
+        materials.push(new THREE.MeshBasicMaterial({
+            color: 0xFFFFFF,
+            map: middleTexture
+        }));
+    }
+
+    // inner
+    materials.push(new THREE.MeshBasicMaterial({
+        color: 0xFFFFFF,
+        map: innerTexture
     }));
 
-    midCover.position.x = 1;
+    DBZCCG.loadCounter++;
+
+    // outer
+    materials.push(new THREE.MeshBasicMaterial({
+        color: 0xFFFFFF,
+        envMap: globalReflections,
+        reflectivity: 0.3,
+        map: THREE.ImageUtils.loadTexture('images/textures/album/saiyan/cover2.jpg', THREE.UVMapping, DBZCCG.incrementLoad)
+    }));
+
+    var backMaterial = new THREE.MeshFaceMaterial(materials);
 
     // cover parts
-    var frontCover = new THREE.Mesh(
-            new THREE.CubeGeometry(14, 18, 0.2),
-            new THREE.MeshBasicMaterial({
-        color: 0x777777
+    this.backCover = new THREE.Mesh(
+            new THREE.CubeGeometry(17, 18, 0.2),
+            backMaterial);
+
+    this.backCover.name = 'backCover';
+
+    this.backCover.position.x = 11.5;
+
+    var materials = [];
+
+    for (var i = 0; i < 4; i++) {
+        materials.push(new THREE.MeshBasicMaterial({
+            color: 0xFFFFFF,
+            map: middleTexture
+        }));
+    }
+
+    // inner
+    materials.push(new THREE.MeshBasicMaterial({
+        color: 0xFFFFFF,
+        map: innerTexture
     }));
 
-    frontCover.position.x = -8;
+    DBZCCG.loadCounter++;
 
-    frontCover.position.z = backCover.position.z = midCover.position.z = -0.3;
+    // outer
+    materials.push(new THREE.MeshBasicMaterial({
+        color: 0xFFFFFF,
+        envMap: globalReflections,
+        reflectivity: 0.3,
+        map: THREE.ImageUtils.loadTexture('images/textures/album/saiyan/cover1.jpg', THREE.UVMapping, DBZCCG.incrementLoad)
+    }));
 
-    display.add(frontCover);
-    display.add(midCover);
-    display.add(backCover);
+    var frontMaterial = new THREE.MeshFaceMaterial(materials);
+
+    // cover parts
+    this.frontCover = new THREE.Mesh(
+            new THREE.CubeGeometry(17, 18, 0.2),
+            frontMaterial);
+
+    this.frontCover.name = 'frontCover';
+
+    this.frontCover.position.x = -9.5;
+
+// Leaving it here for the future. Try to turn the cover pages without mixing the objects.
+//    var shader = THREE.ShaderLib.basic;
+//    var uniforms = THREE.UniformsUtils.clone(shader.uniforms);
+//
+//    uniforms['map'].value = middleTexture;
+//    uniforms['envMap'].value = globalReflections;
+//    uniforms['reflectivity'].value = 0.1;
+//    uniforms['frontCoverMat'] = {type: "m4", value: this.frontCover.matrixWorld};
+//    uniforms['backCoverMat'] = {type: "m4", value: this.backCover.matrixWorld};
+//
+//    var midMaterial = new THREE.ShaderMaterial({
+//        fragmentShader: document.getElementById('skinned_fragment_shader').textContent,
+//        vertexShader: document.getElementById('skinned_vertex_shader').textContent,
+//        uniforms: uniforms,
+//        side: THREE.FrontSide
+//    });
+
+    var midMaterial = new THREE.MeshBasicMaterial({
+        map: middleTexture,
+        envMap: globalReflections,
+        reflectivity: 0.1
+    });
+
+    this.midCover = new THREE.Mesh(
+            new THREE.CubeGeometry(4, 18, 0.2),
+            midMaterial);
+
+    this.midCover.name = 'midCover';
+
+    this.frontCover.position.z = this.backCover.position.z = -0.3;
+
+    this.pagesGroupDisplay = new THREE.Object3D();
+    this.pagesGroupDisplay.name = 'pagesGroupDisplay';
+    display.add(this.pagesGroupDisplay);
+
+    var reflection = new THREE.CubeCamera(0.1, 1000, 24);
+    scene.add(reflection);
+    DBZCCG.Album.reflections.push({open: true, page: this.pagesGroupDisplay, reflection: reflection});
+
+    this.lockers = new THREE.Object3D();
+
+    this.lockers.position.z = -0.3;
+    this.lockers.position.x = 1;
+    this.lockers.name = 'lockers';
 
     // add lockers
     for (var i = 0; i < 3; i++) {
         var mesh = DBZCCG.Album.lockerModel.clone();
-        midCover.add(mesh);
+        this.lockers.add(mesh);
         mesh.position.x = 0.9;
         mesh.position.y = 6 - i * 6;
-        mesh.position.z = 0.2;
-
-        var reflection = new THREE.CubeCamera(0.1, 1000, 24);
-        scene.add(reflection);
-
-        DBZCCG.Album.reflections.push({open: false, page: mesh, reflection: reflection});
+        mesh.position.z = 0.1;
 
         mesh.children[0].material = new THREE.MeshBasicMaterial(
                 {
@@ -137,31 +226,74 @@ DBZCCG.Album.create = function(scene) {
                 });
     }
 
+    scene.add(this.lockers);
+
+    var inputBack = [5, 4, 7, 6];
+    var inputFront = [1, 0, 3, 2];
+
+    var leftGeo = this.frontCover;
+    var rightGeo = this.backCover;
+
+    this.adjustMid = function() {
+        var mInverse = new THREE.Matrix4().getInverse(this.midCover.matrixWorld);
+
+        var i = 0;
+
+        for (; i < 4; i++) {
+            this.midCover.geometry.vertices[i].x = rightGeo.geometry.vertices[inputBack[i]].x;
+            this.midCover.geometry.vertices[i].y = rightGeo.geometry.vertices[inputBack[i]].y;
+            this.midCover.geometry.vertices[i].z = rightGeo.geometry.vertices[inputBack[i]].z;
+            this.midCover.geometry.vertices[i].applyMatrix4(rightGeo.matrixWorld);
+            this.midCover.geometry.vertices[i].applyMatrix4(mInverse);
+        }
+
+        for (; i < 8; i++) {
+            this.midCover.geometry.vertices[i].x = leftGeo.geometry.vertices[inputFront[i - 4]].x;
+            this.midCover.geometry.vertices[i].y = leftGeo.geometry.vertices[inputFront[i - 4]].y;
+            this.midCover.geometry.vertices[i].z = leftGeo.geometry.vertices[inputFront[i - 4]].z;
+            this.midCover.geometry.vertices[i].applyMatrix4(leftGeo.matrixWorld);
+            this.midCover.geometry.vertices[i].applyMatrix4(mInverse);
+        }
+
+        this.midCover.geometry.
+                verticesNeedUpdate = true;
+    };
+
+//    this.adjustMid();
+
+    mid = this.midCover;
+    back = this.backCover;
+    front = this.frontCover;
+
+    display.add(this.frontCover);
+    this.lockers.add(this.midCover);
+    display.add(this.backCover);
+
+    DBZCCG.objects.push(this.frontCover);
+    DBZCCG.objects.push(this.midCover);
+    DBZCCG.objects.push(this.backCover);
+
     // add pages
     for (var i = total - 1; i >= 0; i--) {
         var mesh = DBZCCG.Album.pageModel.clone();
-        var reflection = new THREE.CubeCamera(0.1, 1000, 24);
-        scene.add(reflection);
         mesh.position.x = 8.25;
         var page = new THREE.Object3D();
         page.add(mesh);
         page.position.z = (total - 1) * 0.1 + -i * 0.1;
-        reflection.position = page.position;
         mesh.children[0].material = new THREE.MeshBasicMaterial(
                 {
-                    envMap: reflection.renderTarget,
+                    envMap: globalReflections,
                     transparent: true,
-                    color: 0x333333,
-                    opacity: 0.1,
-                    reflectivity: 0.1
+                    color: 0xAAAAAA,
+                    opacity: 0.3,
+                    reflectivity: 0.2
                 });
 
-        DBZCCG.Album.reflections.push({open: false, page: mesh, reflection: reflection});
-        display.add(page);
+        this.pagesGroupDisplay.add(page);
         pages.splice(0, 0, page);
 
         // fill the page
-        for (var j = cardData.length - 1; j >= 0 && cardData[j].idx >= i * 17; j--) {
+        for (var j = cardData.length - 1; j >= 0 && cardData[j].idx >= i * 18; j--) {
             var data = cardData.pop();
             var reverse = false;
             if ((data.idx % 18) / 9 >= 1) {
@@ -190,49 +322,463 @@ DBZCCG.Album.create = function(scene) {
 
     var leftSide = 0;
     var rightSide = pages.length - 1;
+    var frontCoverClosed = false;
+    var backCoverClosed = false;
 
+    var closeFrontPosition = {
+        "frontCover": {
+            position: new THREE.Vector3(2.5, 0, 3.8),
+            rotation: new THREE.Euler(0, Math.PI, 0)
+        },
+        "lockers": {
+            position: new THREE.Vector3(3, 0, 1.75),
+            rotation: new THREE.Euler(0, Math.PI / 2, 0)
+        },
+        "pagesGroupDisplay": {
+            position: new THREE.Vector3(4, 0, 1.2),
+            rotation: new THREE.Euler(0, 0, 0)
+        },
+        "backCover": {
+            position: new THREE.Vector3(11.5, 0, -0.3),
+            rotation: new THREE.Euler(0, 0, 0)
+        },
+        "original": {
+            "frontCover": {
+                rotation: new THREE.Euler(0, Math.PI, 0),
+                position: new THREE.Vector3(11.5, 0, 3.8)
+            }
+        }
+    };
+
+    var closeBackPosition = {
+        "frontCover": {
+            position: new THREE.Vector3(-9.5, 0, -0.3),
+            rotation: new THREE.Euler(0, 0, 0)
+        },
+        "lockers": {
+            position: new THREE.Vector3(-1, 0, 1.75),
+            rotation: new THREE.Euler(0, -Math.PI / 2, 0)
+        },
+        "pagesGroupDisplay": {
+            position: new THREE.Vector3(-3.5, 0, 1.2),
+            rotation: new THREE.Euler(0, 0, 0)
+        },
+        "backCover": {
+            position: new THREE.Vector3(1.5, 0, 3.8),
+            rotation: new THREE.Euler(0, -Math.PI, 0)
+        },
+        "original": {
+            "backCover": {
+                rotation: new THREE.Euler(0, -Math.PI, 0),
+                position: new THREE.Vector3(-9.5, 0, 3.8)
+            }
+        }
+    };
+
+    var openPosition = {
+        "frontCover": {
+            position: new THREE.Vector3(-1, 0, -0.3),
+            rotation: new THREE.Euler(0, -Math.PI, 0)
+        },
+        "lockers": {
+            position: new THREE.Vector3(1, 0, -0.3),
+            rotation: new THREE.Euler(0, 0, 0)
+        },
+        "pagesGroupDisplay": {
+            position: new THREE.Vector3(0, 0, 0),
+            rotation: new THREE.Euler(0, 0, 0)
+        },
+        "backCover": {
+            position: new THREE.Vector3(0.5, 0, -0.3),
+            rotation: new THREE.Euler(0, Math.PI, 0)
+        },
+        "original": {
+            "lockers": {
+                rotation: new THREE.Euler(0, 0, 0),
+                position: new THREE.Vector3(1, 0, -0.3)
+            },
+            "frontCover": {
+                rotation: new THREE.Euler(0, 0, 0),
+                position: new THREE.Vector3(-9.5, 0, -0.3)
+            },
+            "backCover": {
+                rotation: new THREE.Euler(0, 0, 0),
+                position: new THREE.Vector3(11.5, 0, -0.3)
+            }
+        }
+    };
+
+    var rotationFix = function(vec) {
+        var v = vec || this;
+        v.order = "XYZ";
+    };
+
+    function createRotationOffset(offset, element, sourceRef) {
+        var o = new THREE.Object3D();
+        scene.add(o);
+
+        element.originalParent = element.parent;
+
+        o.resetToOriginal = function() {
+            var elem = this.children[0];
+
+            if (elem && elem.originalParent) {
+                elem.originalParent.add(elem);
+
+                elem.rotation.copy(sourceRef.original[elem.name].rotation);
+                elem.position.copy(sourceRef.original[elem.name].position);
+
+                album[elem.name] = elem;
+            }
+
+            delete this;
+        };
+
+        o.position = element.position.clone();
+        o.position.add(offset.clone().multiplyScalar(-0.5));
+        element.position.copy(offset.clone().multiplyScalar(0.5));
+        o.add(element);
+        return o;
+    }
+
+    this.openBackAlbum = function() {
+        if (currentPage === pages.length) {
+            DBZCCG.performingAnimation = true;
+            backCoverClosed = false;
+
+            var timer = 300;
+            var animation = [];
+            var animationCounter = 0;
+            var animationLength = 0;
+
+            var completeFunc = function() {
+                if (this.parent && this.parent.resetToOriginal instanceof Function) {
+                    this.parent.resetToOriginal();
+                }
+
+                if (++animationCounter === animationLength) {
+                    DBZCCG.performingAnimation = false;
+                }
+            };
+
+            this.backCover = createRotationOffset(new THREE.Vector3(-22, 0, 0), this.backCover, openPosition);
+
+            var values = {
+                'lockers': {rotation: true, position: true},
+                'pagesGroupDisplay': {rotation: true, position: true},
+                'backCover': {rotation: true, position: true}
+            };
+
+            for (var key in values) {
+                if (values[key].rotation) {
+                    var aniRot = new TWEEN.Tween(this[key].rotation).to(openPosition[key].rotation, timer);
+                    this[key].rotation.parent = this[key];
+                    aniRot.onUpdate(function() {
+                        rotationFix(this);
+                    });
+                    aniRot.onComplete(completeFunc);
+                    animation.push(aniRot);
+                }
+
+                if (values[key].position) {
+                    var aniPos = new TWEEN.Tween(this[key].position).to(openPosition[key].position.clone(), timer);
+                    aniPos.onComplete(completeFunc);
+                    this[key].position.parent = this[key];
+                    animation.push(aniPos);
+                }
+            }
+
+            animationLength = animation.length;
+
+            for (var i = 0; i < animation.length; i++) {
+                animation[i].start();
+            }
+        }
+    };
+
+    this.openFrontAlbum = function() {
+        if (currentPage === 0) {
+            DBZCCG.performingAnimation = true;
+            frontCoverClosed = false;
+
+            var timer = 300;
+            var animation = [];
+            var animationCounter = 0;
+            var animationLength = 0;
+
+            var completeFunc = function() {
+                if (this.parent && this.parent.resetToOriginal instanceof Function) {
+                    this.parent.resetToOriginal();
+                }
+
+                if (++animationCounter === animationLength) {
+                    DBZCCG.performingAnimation = false;
+                }
+            };
+
+            this.frontCover = createRotationOffset(new THREE.Vector3(17, 0, 0), this.frontCover, openPosition);
+
+            var values = {
+                'frontCover': {rotation: true, position: true},
+                'lockers': {rotation: true, position: true},
+                'pagesGroupDisplay': {rotation: true, position: true}
+            };
+
+            for (var key in values) {
+                if (values[key].rotation) {
+                    var aniRot = new TWEEN.Tween(this[key].rotation).to(openPosition[key].rotation, timer);
+                    this[key].rotation.parent = this[key];
+                    aniRot.onUpdate(function() {
+                        rotationFix(this);
+                    });
+                    aniRot.onComplete(completeFunc);
+                    animation.push(aniRot);
+                }
+
+                if (values[key].position) {
+                    var aniPos = new TWEEN.Tween(this[key].position).to(openPosition[key].position.clone(), timer);
+                    aniPos.onComplete(completeFunc);
+                    this[key].position.parent = this[key];
+                    animation.push(aniPos);
+                }
+            }
+
+            animationLength = animation.length;
+
+            for (var i = 0; i < animation.length; i++) {
+                animation[i].start();
+            }
+        }
+    };
+
+    this.closeBackAlbum = function() {
+        if (currentPage === pages.length) {
+            DBZCCG.performingAnimation = true;
+            backCoverClosed = true;
+
+            var timer = 300;
+            var animation = [];
+            var animationCounter = 0;
+            var animationLength = 0;
+
+            var completeFunc = function() {
+                if (this.parent && this.parent.resetToOriginal instanceof Function) {
+                    this.parent.resetToOriginal();
+                }
+
+                if (++animationCounter === animationLength) {
+                    DBZCCG.performingAnimation = false;
+                }
+            };
+
+            this.backCover = createRotationOffset(new THREE.Vector3(22, 0, 0), this.backCover, closeBackPosition);
+
+            var values = {
+                'lockers': {rotation: true, position: true},
+                'pagesGroupDisplay': {rotation: true, position: true},
+                'backCover': {rotation: true, position: true}
+            };
+
+            for (var key in values) {
+                if (values[key].rotation) {
+                    var aniRot = new TWEEN.Tween(this[key].rotation).to(closeBackPosition[key].rotation, timer);
+                    this[key].rotation.parent = this[key];
+                    aniRot.onUpdate(function() {
+                        rotationFix(this);
+                    });
+                    aniRot.onComplete(completeFunc);
+                    animation.push(aniRot);
+                }
+
+                if (values[key].position) {
+                    var aniPos = new TWEEN.Tween(this[key].position).to(closeBackPosition[key].position.clone(), timer);
+                    aniPos.onComplete(completeFunc);
+                    this[key].position.parent = this[key];
+                    animation.push(aniPos);
+                }
+            }
+
+            animationLength = animation.length;
+
+            for (var i = 0; i < animation.length; i++) {
+                animation[i].start();
+            }
+        }
+    };
+
+    this.closeFrontAlbum = function() {
+        if (currentPage === 0) {
+            DBZCCG.performingAnimation = true;
+            frontCoverClosed = true;
+
+            var timer = 300;
+            var animation = [];
+            var animationCounter = 0;
+            var animationLength = 0;
+
+            var completeFunc = function() {
+                if (this.parent && this.parent.resetToOriginal instanceof Function) {
+                    this.parent.resetToOriginal();
+                }
+
+                if (++animationCounter === animationLength) {
+                    DBZCCG.performingAnimation = false;
+                }
+            };
+
+            this.frontCover = createRotationOffset(new THREE.Vector3(-17, 0, 0), this.frontCover, closeFrontPosition);
+
+            var values = {
+                'frontCover': {rotation: true, position: true},
+                'lockers': {rotation: true, position: true},
+                'pagesGroupDisplay': {rotation: true, position: true},
+                'backCover': {rotation: true, position: true}
+            };
+
+            for (var key in values) {
+                if (values[key].rotation) {
+                    var aniRot = new TWEEN.Tween(this[key].rotation).to(closeFrontPosition[key].rotation, timer);
+                    this[key].rotation.parent = this[key];
+                    aniRot.onUpdate(function() {
+                        rotationFix(this);
+                    });
+                    aniRot.onComplete(completeFunc);
+                    animation.push(aniRot);
+                }
+
+                if (values[key].position) {
+                    var aniPos = new TWEEN.Tween(this[key].position).to(closeFrontPosition[key].position.clone(), timer);
+                    aniPos.onComplete(completeFunc);
+                    this[key].position.parent = this[key];
+                    animation.push(aniPos);
+                }
+            }
+
+            animationLength = animation.length;
+
+            for (var i = 0; i < animation.length; i++) {
+                animation[i].start();
+            }
+        }
+    };
+
+    var album = this;
     return {
+        adjust: function() {
+            //album.adjustMid();
+        },
         nextPage: function() {
-            if (currentPage !== pages.length) {
-                pages[currentPage].rotation.y = Math.PI;
-                pages[currentPage].position.x = 1.5;
-                pages[currentPage].position.z = leftSide * 0.1;
-                leftSide++;
-                rightSide--;
-                currentPage++;
+            if (currentPage !== pages.length && !frontCoverClosed) {
+                DBZCCG.performingAnimation = true;
+                var timer = 600;
+                var rotation = pages[currentPage].rotation.clone();
+                rotation.y = -Math.PI;
+                var position = pages[currentPage].position.clone();
+                position.x = 1.5;
+                position.z = leftSide * 0.1;
+
+                var animationCounter = 0;
+                var animationLength = 2;
+
+                var completeFunc = function() {
+                    if (++animationCounter === animationLength) {
+                        DBZCCG.performingAnimation = false;
+                        leftSide++;
+                        rightSide--;
+                        currentPage++;
+                    }
+                };
+
+                var rotAni = new TWEEN.Tween(pages[currentPage].rotation).to(
+                        rotation, timer);
+                var rotPos = new TWEEN.Tween(pages[currentPage].position).to(
+                        position, timer);
+
+                rotAni.easing(TWEEN.Easing.Sinusoidal.In);
+                rotPos.easing(TWEEN.Easing.Circular.In);
+
+                rotAni.onUpdate(function() {
+                    rotationFix(this);
+                });
+
+                rotAni.onComplete(completeFunc);
+                rotPos.onComplete(completeFunc);
+
+                rotAni.start();
+                rotPos.start();
+            } else if (frontCoverClosed) {
+                album.openFrontAlbum();
+            } else if (!backCoverClosed) {
+                album.closeBackAlbum();
             }
         },
         previousPage: function() {
-            if (currentPage !== 0) {
-                pages[currentPage - 1].rotation.y = 0;
-                pages[currentPage - 1].position.x = 0;
-                pages[currentPage - 1].position.z = rightSide * 0.1;
-                leftSide--;
-                rightSide++;
-                currentPage--;
+            if (currentPage !== 0 && !backCoverClosed) {
+                DBZCCG.performingAnimation = true;
+                var timer = 600;
+                var rotation = pages[currentPage - 1].rotation.clone();
+                rotation.y = 0;
+                var position = pages[currentPage - 1].position.clone();
+                position.x = 0;
+                position.z = rightSide * 0.1;
+
+                var animationCounter = 0;
+                var animationLength = 2;
+
+                var completeFunc = function() {
+                    if (++animationCounter === animationLength) {
+                        DBZCCG.performingAnimation = false;
+                        leftSide--;
+                        rightSide++;
+                        currentPage--;
+                    }
+                };
+
+                var rotAni = new TWEEN.Tween(pages[currentPage - 1].rotation).to(
+                        rotation, timer);
+                var rotPos = new TWEEN.Tween(pages[currentPage - 1].position).to(
+                        position, timer);
+
+                rotAni.easing(TWEEN.Easing.Sinusoidal.In);
+                rotPos.easing(TWEEN.Easing.Circular.In);
+
+                rotAni.onUpdate(function() {
+                    rotationFix(this);
+                });
+
+                rotAni.onComplete(completeFunc);
+                rotPos.onComplete(completeFunc);
+
+                rotAni.start();
+                rotPos.start();
+
+            } else if (backCoverClosed) {
+                album.openBackAlbum();
+            } else if (!frontCoverClosed) {
+                album.closeFrontAlbum();
             }
         },
-        checkCurrentPage: function (display) {
+        checkCurrentPage: function(display) {
             var ret = false;
-            
+
             // leftPage
-            if(currentPage > 0) {
-                for(var i = 0; i < pages[currentPage - 1].children[0].children.length && !ret; i++) {
-                    if(display === pages[currentPage - 1].children[0].children[i]) {
+            if (currentPage > 0) {
+                for (var i = 0; i < pages[currentPage - 1].children[0].children.length && !ret; i++) {
+                    if (display === pages[currentPage - 1].children[0].children[i]) {
                         ret = true;
                     }
                 }
             }
-            
+
             // rightPage
-            if(currentPage !== pages.length) {
-                for(var i = 0; i < pages[currentPage].children[0].children.length && !ret; i++) {
-                    if(display === pages[currentPage].children[0].children[i]) {
+            if (currentPage !== pages.length) {
+                for (var i = 0; i < pages[currentPage].children[0].children.length && !ret; i++) {
+                    if (display === pages[currentPage].children[0].children[i]) {
                         ret = true;
                     }
                 }
             }
-            
+
             return ret;
         }
     };
