@@ -2,13 +2,20 @@ DBZCCG.Saiyan = {};
 
 DBZCCG.Saiyan.Foil = {};
 
-DBZCCG.Saiyan.Foil.default = (function() {
+DBZCCG.Saiyan.Foil.Default = (function() {
     var ext = 'jpg';
     var urlPrefix = "images/bg/saiyan-saga-foil2/";
     var urls = [urlPrefix + "posx." + ext, urlPrefix + "negx." + ext,
         urlPrefix + "posy." + ext, urlPrefix + "negy." + ext,
         urlPrefix + "posz." + ext, urlPrefix + "negz." + ext];
-    var textureCube = THREE.ImageUtils.loadTextureCube(urls);
+    var textureCube = THREE.ImageUtils.loadTextureCube(urls, undefined, function() {
+        DBZCCG.Load.foilSaiyanDefault = true;
+        console.log('Saiyan Saga Default Foil effect loaded');
+    },
+    function() {
+        DBZCCG.Load.error = true;
+        console.log('Error while loading Saiyan Saga Foil effect');
+    });
     return {texture: textureCube, reflectivity: 5};
 }());
 
@@ -5278,6 +5285,7 @@ DBZCCG.Saiyan['187'] = {
     },
     effect: function() {
         var control = this.control;
+        var card = this;
 
         if (DBZCCG.combat && DBZCCG.currentCard === this && DBZCCG.toolTip.cardSource === 'hand') {
             DBZCCG.listActions.splice(0, 0, function() {
@@ -5428,6 +5436,7 @@ DBZCCG.Saiyan['190'] = {
     playable: DBZCCG.Combat.defaultNonCombatCheck,
     activable: DBZCCG.Combat.defaultAttackerCheck,
     effect: function() {
+        var card = this;
         this.success = true;
 
         if (DBZCCG.performingAction !== DBZCCG.mainPlayer) /* CPU */ {
@@ -5501,7 +5510,7 @@ DBZCCG.Saiyan['192'] = {
         DBZCCG.Card.FloatingEffect.create(
                 {card: DBZCCG.Saiyan['192'],
                     player: DBZCCG.performingAction,
-                    turn: $('#turnCounterNumber').html() + 1,
+                    turn: $('#turnCounterNumber').html(),
                     scene: DBZCCG.mainScene,
                     appendText: "Opponent " + opponent.name + " will skip the next declare phase."
                 });

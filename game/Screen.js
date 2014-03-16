@@ -4,7 +4,7 @@ DBZCCG.Screen = {};
 
 DBZCCG.Screen.findCallbackObject = function(object, callback) {
     var parent;
-    
+
     if (object instanceof THREE.Mesh || object instanceof THREE.Object3D) {
         parent = object;
         while (parent && !parent.ownParent && !(parent.parent instanceof THREE.Scene)) {
@@ -16,6 +16,18 @@ DBZCCG.Screen.findCallbackObject = function(object, callback) {
     }
 
     return parent;
+};
+
+DBZCCG.Screen.getRawWorldCoords = function(x, y, camera) {
+    var coords = new THREE.Vector3();
+    var projector = new THREE.Projector();
+    coords.x = (x / window.innerWidth) * 2 - 1;
+    coords.y = -(y / window.innerHeight) * 2 + 1;
+
+    var ret = new THREE.Vector3(coords.x, coords.y, 0.5);
+    projector.unprojectVector(ret, camera);
+
+    return ret;
 };
 
 DBZCCG.Screen.getWorldCoords = function(element, camera) {
@@ -44,7 +56,7 @@ DBZCCG.Screen.getWindowCoords = function(display, camera) {
 
         var projector = new THREE.Projector();
 
-        projector.projectVector(vector.getPositionFromMatrix(display.matrixWorld), camera || DBZCCG.playerCamera);
+        projector.projectVector(vector.setFromMatrixPosition(display.matrixWorld), camera || DBZCCG.playerCamera);
 
         vector.x = Math.round((vector.x * widthHalf) + widthHalf);
         vector.y = Math.round(-(vector.y * heightHalf) + heightHalf);
@@ -71,7 +83,7 @@ DBZCCG.Screen.customAddChild = function(pos, father, child) {
         scene.__addObject(child);
     }
     /* End of the custom routine to add a child element */
-}
+};
 
 DBZCCG.Screen.invalidIntersection = function(intersections) {
     for (var i = 0; i < intersections.length; i++) {
@@ -81,73 +93,59 @@ DBZCCG.Screen.invalidIntersection = function(intersections) {
     }
 
     return -1;
-}
+};
 
-DBZCCG.Screen.create = function(buildScene, render, controls) {
-    function GFX(extBuildScene, extRender, extControls) {
-        var renderer;
-        var scene;
-        var camera;
-        var cameraControl;
-        var buildScene = extBuildScene;
-        var render = extRender;
-        var running = false;
-        var stats = new Stats();
+DBZCCG.isActive = true;
 
-        function animate() {
-            window.setTimeout(function() {
-
-                requestAnimationFrame(animate);
-
-            }, 0);//33 - DBZCCG.clock.getDelta() * 1000);
-
-            render(cameraControl, renderer, scene, camera, stats);
-        }
-
-        this.animate = animate;
-
-        function initWebGL() {
-            if (!running && buildScene instanceof Function && render instanceof Function) {
-                scene = new THREE.Scene();
-                var w = window.innerWidth,
-                        h = window.innerHeight;
-
-                // renderer
-                renderer = new THREE.WebGLRenderer({antialias: true});
-                renderer.domElement.id = 'main-canvas';
-                renderer.setClearColor(0x000000, 1);
-                renderer.setSize(w, h);
-
-                document.getElementById('renderer-wrapper').appendChild(renderer.domElement);
-
-                // camera
-                camera = new THREE.PerspectiveCamera(45, w / h, 1, 6000);
-                camera.position.set(0, 0, 0);
-                scene.add(camera);
-
-                window.addEventListener('resize', function() {
-                    var WIDTH = window.innerWidth,
-                            HEIGHT = window.innerHeight;
-                    renderer.setSize(WIDTH, HEIGHT);
-                });
-
-                // controls, return camera control if any
-                if (extControls instanceof Function) {
-                    cameraControl = extControls(camera, renderer, scene, stats);
-                }
-
-                // Build scene
-                buildScene(scene, camera);
-
-                running = true;
-            }
-        }
-
-        this.init = initWebGL;
+window.onfocus = function() {
+    if (window.onresize instanceof Function) {
+        window.onresize();
     }
 
-    var gfx = new GFX(buildScene, render, controls);
-    gfx.init();
+    DBZCCG.isActive = true;
+};
 
-    return {start: gfx.animate};
+window.onblur = function() {
+    DBZCCG.isActive = false;
+};
+
+DBZCCG.Screen.create = function(buildScene, render, controls) {
+    var renderer;
+    var scene;
+    var camera;
+    var cameraControl;
+    var stats = new Stats();
+
+    function rendering() {
+        requestAnimationFrame(rendering);
+        render(cameraControl, renderer, scene, camera, stats);
+    }
+
+    scene = new THREE.Scene();
+    var w = window.innerWidth,
+            h = window.innerHeight;
+
+    // renderer
+    renderer = new THREE.WebGLRenderer({antialias: true});
+    renderer.domElement.id = 'main-canvas';
+    renderer.setClearColor(0xFFFFFF, 1);
+    renderer.setSize(w, h);
+
+    // camera
+    camera = new THREE.PerspectiveCamera(45, w / h, 1, 6000);
+    scene.add(camera);
+
+    // controls, return camera control if any
+    if (controls instanceof Function) {
+        cameraControl = controls(camera, renderer, scene, stats);
+    }
+
+    // Build scene
+    buildScene(scene, camera);
+
+    document.getElementById('renderer-wrapper').appendChild(renderer.domElement);
+
+    DBZCCG.Screen.renderer = renderer;
+
+    return {start: rendering};
 };

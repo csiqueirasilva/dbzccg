@@ -4,9 +4,10 @@
         <title>Game</title>
         <meta charset="utf-8">
 
-        <link rel="stylesheet" href="css/dbzccg.css" />
-        <link rel="stylesheet" href="css/jquery.qtip.min.css" />
-        <link rel="stylesheet" href="css/jqueryui/jquery-ui-1.9.2.custom.min.css" />
+
+        <style type="text/css">
+            <jsp:include page="build/dbzccg.min.css" />
+        </style>
 
         <script id="skybox_vertex_shader" type="x-shader/x-fragment">
             <%@include file="game/skyboxvertexshader.glsl"%>
@@ -38,53 +39,19 @@
         </div>
 
         <button class='album-btn' id="next-page-button">Next Page (X)</button>
-        
+
         <button class='album-btn' id='previous-page-button'>Previous Page (Z)</button>
-        
-        <h1 id="loadingText">Loading!!!!</h1>
 
         <!-- libs -->
-        <script src="lib/jquery.min.js"></script>
-        <script src="lib/jquery-ui-1.9.2.custom.min.js"></script>
-        <script src="lib/annyang.min.js"></script>
-        <script src="lib/mousetrap.min.js"></script>
-        <script src="lib/ClassHelper.js"></script>
-        <script src="lib/imagesloaded.pkg.min.js"></script>
-        <script src="lib/jquery.nicescroll.min.js"></script>
-        <script src="lib/jquery.qtip.min.js"></script>
-        <script src="lib/three.min.js"></script>
-        <script src="lib/stats.min.js"></script>
-        <script src="lib/MTLLoader.js"></script>
-        <script src="lib/OBJLoader.js"></script>
-        <script src="lib/OBJMTLLoader.js"></script>
-        <script src="lib/JSONLoader.js"></script>
-        <script src="lib/OrbitControls.js"></script>
-        <script src="lib/tween.min.js"></script>
-        <script src="lib/MathHelper.js"></script>
-        <script src="lib/ThreeHelper.js"></script>
-        <script src="lib/numeral.min.js"></script>
-        <script src="lib/buzz.min.js"></script>
-        <script src="lib/lowlag.js"></script>
-        <script src="lib/sm2/js/soundmanager2-jsmin.js"></script>
-
-        <!-- game -->
-        <script src="game/DBZCCG.js"></script>
-        <script src="game/Dragonball.js"></script>
-        <script src="game/Callbacks.js"></script>
-        <script src="game/Card.js"></script>
-        <script src="game/Personality.js"></script>
-        <script src="game/Screen.js"></script>
-        <script src="game/Combat.js"></script>
-        <script src="game/SaiyanSaga.js"></script>
-        <script src="game/FriezaSaga.js"></script>
-        <script src="game/Album.js"></script>
-        <script src="game/Interface.js"></script>
+        <script>
+            <jsp:include page="build/dbzccg.min.js" />
+        </script>
 
         <!-- libs that require callbacks -->
         <script src="http://www.youtube.com/iframe_api"></script>
 
         <script type="text/javascript">
-            $(document).ready(function() {
+            $(window).load(function() {
                 DBZCCG.album('saiyan');
             });
         </script>

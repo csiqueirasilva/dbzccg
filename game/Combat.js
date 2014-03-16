@@ -808,6 +808,19 @@ DBZCCG.Combat.setDefenderTurn = function(player) {
     });
 };
 
+(function() {
+
+    DBZCCG.Combat.particleTexture = THREE.ImageUtils.loadTexture("images/gfx/particles/particleTexture.png",
+            new THREE.UVMapping(), function() {
+        DBZCCG.Load.particleTexture = true;
+        console.log('Loaded particle texture');
+    },
+            function() {
+                DBZCCG.Load.error = true;
+                console.log('Error on loading particle texture');
+            });
+})();
+
 (function selectionParticles() {
     var geo = new THREE.Geometry();
 
@@ -861,7 +874,7 @@ DBZCCG.Combat.setDefenderTurn = function(player) {
     function selectionParticles() {
         this.element = new THREE.ParticleSystem(geo, new THREE.ParticleSystemMaterial({
             size: 1,
-            map: THREE.ImageUtils.loadTexture("images/gfx/particles/particleTexture.png"),
+            map: DBZCCG.Combat.particleTexture,
             depthTest: true,
             vertexColors: true,
             blending: THREE.AdditiveBlending,
@@ -998,7 +1011,7 @@ DBZCCG.Combat.setDefenderTurn = function(player) {
         var selectionArrow = new THREE.ParticleSystem(geo, new THREE.ParticleSystemMaterial({
             size: 2,
             vertexColors: true,
-            map: THREE.ImageUtils.loadTexture("images/gfx/particles/particleTexture.png"),
+            map: DBZCCG.Combat.particleTexture,
             blending: THREE.AdditiveBlending,
             transparent: true
         }));

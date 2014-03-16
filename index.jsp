@@ -4,18 +4,10 @@
         <title>Game</title>
         <meta charset="utf-8">
 
-        <link rel="stylesheet" href="css/dbzccg.css" />
-        <link rel="stylesheet" href="css/jquery.qtip.min.css" />
-        <link rel="stylesheet" href="css/jqueryui/jquery-ui-1.9.2.custom.min.css" />
-
-        <!--        <script type="x-shader/x-fragment" id="skybox-shader-vs" src="util/fs">
-        <%@include file="game/skyboxvertexshader.glsl"%>
-    </script>
-
-    <script type="x-shader/x-fragment" id="skybox-shader-fs" src="util/fs">
-        <%@include file="game/skyboxfragmentshader.glsl"%>
-    </script>-->
-
+        <style type="text/css">
+            <jsp:include page="build/dbzccg.min.css" />
+        </style>
+        
     </head>
 
     <body id='body' style="margin: 0; overflow: hidden;" oncontextmenu="return false;">
@@ -30,7 +22,6 @@
             <div class="phase-warn" id="pur-phase-warn"></div>
         </div>
 
-        <h1 id="loadingText">Loading!!!!</h1>
         <div id='hud'>
         </div>
 
@@ -102,63 +93,15 @@
             <div id="turnCounterNumber">0</div>
         </div>
 
-        <script id="skybox_vertex_shader" type="x-shader/x-fragment">
-            <%@include file="game/skyboxvertexshader.glsl"%>
+        <script>
+            <jsp:include page="build/dbzccg.min.js" />
         </script>
-        <script id="skybox_fragment_shader" type="x-shader/x-fragment">
-            <%@include file="game/skyboxfragmentshader.glsl"%>
-        </script>
-        <!-- libs -->
-        <script src="lib/jquery.min.js"></script>
-        <script src="lib/jquery-ui-1.9.2.custom.min.js"></script>
-        <script src="lib/annyang.min.js"></script>
-        <script src="lib/mousetrap.min.js"></script>
-        <script src="lib/ClassHelper.js"></script>
-        <script src="lib/imagesloaded.pkg.min.js"></script>
-        <script src="lib/jquery.nicescroll.min.js"></script>
-        <script src="lib/jquery.qtip.min.js"></script>
-        <script src="lib/three.min.js"></script>
-        <script src="lib/stats.min.js"></script>
-        <script src="lib/MTLLoader.js"></script>
-        <script src="lib/OBJMTLLoader.js"></script>
-        <script src="lib/JSONLoader.js"></script>
-        <script src="lib/OrbitControls.js"></script>
-        <script src="lib/tween.min.js"></script>
-        <script src="lib/MathHelper.js"></script>
-        <script src="lib/numeral.min.js"></script>
-        <script src="lib/buzz.min.js"></script>
-        <script src="lib/lowlag.js"></script>
-        <script src="lib/sm2/js/soundmanager2-jsmin.js"></script>
-        
-        <!-- game -->
-        <script src="game/DBZCCG.js"></script>
-        <script src="game/Log.js"></script>
-        <script src="game/Callbacks.js"></script>
-        <script src="game/Dragonball.js"></script>
-        <script src="game/Card.js"></script>
-        <script src="game/Combat.js"></script>
-        <script src="game/Personality.js"></script>
-        <script src="game/MainPersonality.js"></script>
-        <script src="game/Pile.js"></script>
-        <script src="game/DiscardPile.js"></script>
-        <script src="game/RemovedPile.js"></script>
-        <script src="game/CardGroup.js"></script>
-        <script src="game/LifeDeck.js"></script>
-        <script src="game/Player.js"></script>
-        <script src="game/Table.js"></script>
-        <script src="game/Screen.js"></script>
-        <script src="game/SaiyanSaga.js"></script>
-        <script src="game/FriezaSaga.js"></script>
-        <script src="game/General.js"></script>
-        <script src="game/FloatingEffect.js"></script>
-        <script src="game/Sound.js"></script>
-        <script src="game/Interface.js"></script>
         
         <!-- libs that require callbacks -->
         <script src="http://www.youtube.com/iframe_api"></script>
 
         <script type="text/javascript">
-            $(document).ready(function() {
+            $(window).load(function() {
                 DBZCCG.create();
             });
         </script>

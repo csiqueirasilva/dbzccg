@@ -1,7 +1,7 @@
 body, html {
     overflow:hidden;
     height:100%;
-    font-family: Verdana;
+    font-family: 'as-regular', sans-serif;
     font-size: .9em;
     color: #FFFFFF;
     margin: 0px;
@@ -31,7 +31,7 @@ canvas {
     padding: 0px;
 }
 
-#loadingText {
+#loadingText, #startButton {
     color: #FF0000;
     position: absolute;
     top: 44%;
@@ -42,7 +42,7 @@ canvas {
     position: absolute;
     left: 0px;
     top: 0px;
-    background: url('../images/gfx/hud/left-bar-hud2.png');
+    background: url('images/gfx/hud/left-bar-hud2.png');
     background-size: 100% 100%;
     z-index: 1100;
     width: 25%;
@@ -57,7 +57,7 @@ canvas {
     padding: 0px;
     display: none;
     top: 0px;
-    background: url('../images/gfx/hud/right-bar-hud2.png');
+    background: url('images/gfx/hud/right-bar-hud2.png');
     background-size: 100% 100%;
     z-index: 1100;
     width: 25%;
@@ -74,7 +74,7 @@ canvas {
 #hud {
     padding: 0px;
     margin: 0px;
-    background: url('../images/gfx/hud/top-bar-hud2.png'); 
+    background: url('images/gfx/hud/top-bar-hud2.png'); 
     display: none; 
     background-size: 100% 100%; 
     width: 100%; 
@@ -140,7 +140,7 @@ canvas {
     color: #FF0000;
     font-size: 2em;
     text-shadow: -2px 0 black, 0 2px black, 2px 0 black, 0 -2px black;
-    background: url('../images/gfx/hud/pur-bg.png') no-repeat;
+    background: url('images/gfx/hud/pur-bg.png') no-repeat;
     background-size: 80%;
     background-position-y: 0.1em;
 }
@@ -176,7 +176,7 @@ canvas {
 }
 
 .close-btn {
-    background: url('../images/icons/close.png') no-repeat;
+    background: url('images/icons/close.png') no-repeat;
     width: 8.4%;
     height: 4.5%;
     position: relative;
@@ -198,11 +198,11 @@ canvas {
 }
 
 .physical-attack-icon {
-    background: url('../images/icons/physicalattack.png') no-repeat;
+    background: url('images/icons/physicalattack.png') no-repeat;
 }
 
 .energy-attack-icon {
-    background: url('../images/icons/energyattack.png') no-repeat;
+    background: url('images/icons/energyattack.png') no-repeat;
 }
 
 .image-card-list {
@@ -217,7 +217,7 @@ canvas {
 }
 
 #effect-btn, #combat-btn, #rejuvenate-btn, #capture-btn {
-    background: url('../images/icons/combat.png') no-repeat;
+    background: url('images/icons/combat.png') no-repeat;
     left: 10%;
     position: absolute;
     background-size: 100%;
@@ -225,7 +225,7 @@ canvas {
 }
 
 #final-physical-btn {
-    background: url('../images/icons/final-physical-icon.png') no-repeat;
+    background: url('images/icons/final-physical-icon.png') no-repeat;
     left: 22%;
     position: absolute;
     background-size: 100%;
@@ -233,7 +233,7 @@ canvas {
 }
 
 #pass-btn {
-    background: url('../images/icons/pass.png') no-repeat;
+    background: url('images/icons/pass.png') no-repeat;
     left: 10%;
     position: absolute;
     background-size: 100%;
@@ -241,17 +241,17 @@ canvas {
 }
 
 #log-btn {
-    background: url('../images/icons/log2.png') no-repeat;
+    background: url('images/icons/log2.png') no-repeat;
     position: absolute;
     background-size: 100%;
 }
 
 .sound-on {
-    background: url('../images/icons/sound-on-icon.png') no-repeat;
+    background: url('images/icons/sound-on-icon.png') no-repeat;
 }
 
 .sound-off {
-    background: url('../images/icons/sound-off-icon.png') no-repeat;
+    background: url('images/icons/sound-off-icon.png') no-repeat;
 }
 
 #sound-btn {
@@ -280,7 +280,7 @@ canvas {
 }
 
 #turnCounter {
-    background: url('../images/gfx/hud/turn-counter-hud2.png') no-repeat;
+    background: url('images/gfx/hud/turn-counter-hud2.png') no-repeat;
     position: absolute;
     left: 39.4%;
     width: 21.4%;
@@ -375,44 +375,44 @@ canvas {
 }
 
 #tooltipEffect {
-    background: url('../images/icons/explosion.png') no-repeat;
+    background: url('images/icons/explosion.png') no-repeat;
     background-size: 100% 100%;
 }
 
 #tooltipEffect:hover {
-    background: url('../images/icons/explosion-selected.png') no-repeat;
+    background: url('images/icons/explosion-selected.png') no-repeat;
     background-size: 100% 100%;
 }
 
 #tooltipDiscard {
     display: none;
-    background: url('../images/icons/trash.png') no-repeat;
+    background: url('images/icons/trash.png') no-repeat;
     background-size: 100% 100%;
 }
 
 #tooltipDiscard:hover {
-    background: url('../images/icons/trash-selected.png') no-repeat;
+    background: url('images/icons/trash-selected.png') no-repeat;
     background-size: 100% 100%;
 }
 
 .tooltipEffectDisabled {
-    background: url('../images/icons/explosion-disabled.png') no-repeat;
+    background: url('images/icons/explosion-disabled.png') no-repeat;
     background-size: 100% 100%;
 }
 
 .tooltipEffectDisabled:hover {
-    background: url('../images/icons/explosion-disabled.png') no-repeat;
+    background: url('images/icons/explosion-disabled.png') no-repeat;
     background-size: 100% 100%;
     cursor: auto;
 }
 
 #tooltipDescription {
-    background: url('../images/icons/description.png') no-repeat;
+    background: url('images/icons/description.png') no-repeat;
     background-size: 100% 100%;
 }
 
 #tooltipDescription:hover {
-    background: url('../images/icons/description-selected.png') no-repeat;
+    background: url('images/icons/description-selected.png') no-repeat;
     background-size: 100% 100%;
 }
 
@@ -516,31 +516,31 @@ canvas {
 }
 
 #draw-phase-warn {
-    background: url('../images/gfx/text/drawphase.png') no-repeat;
+    background: url('images/gfx/text/drawphase.png') no-repeat;
 }
 
 #noncombat-phase-warn {
-    background: url('../images/gfx/text/noncombatstep.png') no-repeat;
+    background: url('images/gfx/text/noncombatstep.png') no-repeat;
 }
 
 #pur-phase-warn {
-    background: url('../images/gfx/text/powerupstep.png') no-repeat;
+    background: url('images/gfx/text/powerupstep.png') no-repeat;
 }
 
 #declare-phase-warn {
-    background: url('../images/gfx/text/declarestep.png') no-repeat;
+    background: url('images/gfx/text/declarestep.png') no-repeat;
 }
 
 #combat-phase-warn {
-    background: url('../images/gfx/text/combatstep.png') no-repeat;
+    background: url('images/gfx/text/combatstep.png') no-repeat;
 }
 
 #discard-phase-warn {
-    background: url('../images/gfx/text/discardstep.png') no-repeat;
+    background: url('images/gfx/text/discardstep.png') no-repeat;
 }
 
 #rejuvenation-phase-warn {
-    background: url('../images/gfx/text/rejuvenationstep.png') no-repeat;
+    background: url('images/gfx/text/rejuvenationstep.png') no-repeat;
 }
 
 #flash-card {

@@ -42,10 +42,6 @@ DBZCCG.Album.updateReflections = function(renderer, scene) {
 
 };
 
-DBZCCG.Album.getCoordsSlot = function(idx, back) {
-
-};
-
 DBZCCG.Album.create = function(scene, globalReflections) {
     var saga = 'Saiyan';
     var cardData = [];
@@ -81,11 +77,27 @@ DBZCCG.Album.create = function(scene, globalReflections) {
     var total = 14;
 
     var display = new THREE.Object3D();
-    
+
     DBZCCG.loadCounter++;
     DBZCCG.loadCounter++;
-    var middleTexture = THREE.ImageUtils.loadTexture('images/textures/album/saiyan/middle-texture.jpg', THREE.UVMapping, DBZCCG.incrementLoad);
-    var innerTexture = THREE.ImageUtils.loadTexture('images/textures/album/saiyan/inner-texture.jpg', THREE.UVMapping, DBZCCG.incrementLoad);
+    var middleTexture = THREE.ImageUtils.loadTexture('images/textures/album/saiyan/middle-texture.jpg', new THREE.UVMapping(),
+            function() {
+                DBZCCG.incrementLoad();
+                console.log('Loaded mid album texture');
+            }, function() {
+        DBZCCG.Load.error = true;
+        console.log('Error while loading mid album texture');
+    });
+
+    var innerTexture = THREE.ImageUtils.loadTexture('images/textures/album/saiyan/inner-texture.jpg',
+            new THREE.UVMapping(),
+            function() {
+                DBZCCG.incrementLoad();
+                console.log('Loaded inner album texture');
+            }, function() {
+        DBZCCG.Load.error = true;
+        console.log('Error while loading inner album texture');
+    });
 
     innerTexture.wrapS = innerTexture.wrapT = THREE.RepeatWrapping;
     innerTexture.repeat.set(8, 8);
@@ -115,7 +127,14 @@ DBZCCG.Album.create = function(scene, globalReflections) {
         color: 0xFFFFFF,
         envMap: globalReflections,
         reflectivity: 0.3,
-        map: THREE.ImageUtils.loadTexture('images/textures/album/saiyan/cover2.jpg', THREE.UVMapping, DBZCCG.incrementLoad)
+        map: THREE.ImageUtils.loadTexture('images/textures/album/saiyan/cover2.jpg', new THREE.UVMapping(),
+                function() {
+                    DBZCCG.incrementLoad();
+                    console.log('Loaded back album cover texture');
+                }, function() {
+            DBZCCG.Load.error = true;
+            console.log('Error while loading back album cover texture');
+        })
     }));
 
     var backMaterial = new THREE.MeshFaceMaterial(materials);
@@ -151,7 +170,14 @@ DBZCCG.Album.create = function(scene, globalReflections) {
         color: 0xFFFFFF,
         envMap: globalReflections,
         reflectivity: 0.3,
-        map: THREE.ImageUtils.loadTexture('images/textures/album/saiyan/cover1.jpg', THREE.UVMapping, DBZCCG.incrementLoad)
+        map: THREE.ImageUtils.loadTexture('images/textures/album/saiyan/cover1.jpg', new THREE.UVMapping(),
+                function() {
+                    DBZCCG.incrementLoad();
+                    console.log('Loaded cover album texture');
+                }, function() {
+            DBZCCG.Load.error = true;
+            console.log('Error while loading cover album texture');
+        })
     }));
 
     var frontMaterial = new THREE.MeshFaceMaterial(materials);
@@ -164,23 +190,6 @@ DBZCCG.Album.create = function(scene, globalReflections) {
     this.frontCover.name = 'frontCover';
 
     this.frontCover.position.x = -9.5;
-
-// Leaving it here for the future. Try to turn the cover pages without mixing the objects.
-//    var shader = THREE.ShaderLib.basic;
-//    var uniforms = THREE.UniformsUtils.clone(shader.uniforms);
-//
-//    uniforms['map'].value = middleTexture;
-//    uniforms['envMap'].value = globalReflections;
-//    uniforms['reflectivity'].value = 0.1;
-//    uniforms['frontCoverMat'] = {type: "m4", value: this.frontCover.matrixWorld};
-//    uniforms['backCoverMat'] = {type: "m4", value: this.backCover.matrixWorld};
-//
-//    var midMaterial = new THREE.ShaderMaterial({
-//        fragmentShader: document.getElementById('skinned_fragment_shader').textContent,
-//        vertexShader: document.getElementById('skinned_vertex_shader').textContent,
-//        uniforms: uniforms,
-//        side: THREE.FrontSide
-//    });
 
     var midMaterial = new THREE.MeshBasicMaterial({
         map: middleTexture,
@@ -226,44 +235,7 @@ DBZCCG.Album.create = function(scene, globalReflections) {
                 });
     }
 
-    scene.add(this.lockers);
-
-    var inputBack = [5, 4, 7, 6];
-    var inputFront = [1, 0, 3, 2];
-
-    var leftGeo = this.frontCover;
-    var rightGeo = this.backCover;
-
-    this.adjustMid = function() {
-        var mInverse = new THREE.Matrix4().getInverse(this.midCover.matrixWorld);
-
-        var i = 0;
-
-        for (; i < 4; i++) {
-            this.midCover.geometry.vertices[i].x = rightGeo.geometry.vertices[inputBack[i]].x;
-            this.midCover.geometry.vertices[i].y = rightGeo.geometry.vertices[inputBack[i]].y;
-            this.midCover.geometry.vertices[i].z = rightGeo.geometry.vertices[inputBack[i]].z;
-            this.midCover.geometry.vertices[i].applyMatrix4(rightGeo.matrixWorld);
-            this.midCover.geometry.vertices[i].applyMatrix4(mInverse);
-        }
-
-        for (; i < 8; i++) {
-            this.midCover.geometry.vertices[i].x = leftGeo.geometry.vertices[inputFront[i - 4]].x;
-            this.midCover.geometry.vertices[i].y = leftGeo.geometry.vertices[inputFront[i - 4]].y;
-            this.midCover.geometry.vertices[i].z = leftGeo.geometry.vertices[inputFront[i - 4]].z;
-            this.midCover.geometry.vertices[i].applyMatrix4(leftGeo.matrixWorld);
-            this.midCover.geometry.vertices[i].applyMatrix4(mInverse);
-        }
-
-        this.midCover.geometry.
-                verticesNeedUpdate = true;
-    };
-
-//    this.adjustMid();
-
-    mid = this.midCover;
-    back = this.backCover;
-    front = this.frontCover;
+    display.add(this.lockers);
 
     display.add(this.frontCover);
     this.lockers.add(this.midCover);
@@ -279,7 +251,7 @@ DBZCCG.Album.create = function(scene, globalReflections) {
         mesh.position.x = 8.25;
         var page = new THREE.Object3D();
         page.add(mesh);
-        page.position.z = (total - 1) * 0.1 + -i * 0.1;
+        page.position.z = (total - 1) * 0.075 + -i * 0.075;
         mesh.children[0].material = new THREE.MeshBasicMaterial(
                 {
                     envMap: globalReflections,
@@ -302,7 +274,11 @@ DBZCCG.Album.create = function(scene, globalReflections) {
 
             var card = DBZCCG.Card.createCard(DBZCCG[data.content.saga][data.content.number]);
             card.display.scale.z = DBZCCG.Card.cardThicknessScale;
-            DBZCCG.mainScene.add(card.display);
+
+            for (var p = 0; p < card.display.children[0].material.materials.length; p++) {
+                card.display.children[0].material.materials[p].transparent = false;
+            }
+
             var individualIdx = Math.floor(data.idx / 3);
             card.display.position.x = -3.5 + (reverse ? 2 - (data.idx % 3) : (data.idx % 3)) * 4.25;
             card.display.position.y = 5.75 - (individualIdx % 3) * 5.75;
@@ -317,8 +293,9 @@ DBZCCG.Album.create = function(scene, globalReflections) {
             mesh.add(card.display);
             DBZCCG.objects.push(card.display);
         }
-        scene.add(display);
     }
+
+    scene.add(display);
 
     var leftSide = 0;
     var rightSide = pages.length - 1;
@@ -783,4 +760,193 @@ DBZCCG.Album.create = function(scene, globalReflections) {
         }
     };
 
+};
+
+DBZCCG.checkAlbumLoad = function() {
+    return DBZCCG.Load.mustHave() && DBZCCG.Album.pageModel && DBZCCG.Album.lockerModel;
+};
+
+DBZCCG.album = function() {
+    /* Three related */
+    var mouse = new THREE.Vector2();
+    var intersected;
+
+    /* Game related */
+    var album;
+
+    /* Interface related */
+    DBZCCG.qtipElement = $('body');
+
+    function buildScene(scene, camera) {
+        /* Load variables */
+
+        DBZCCG.Album.bg = ThreeHelper.createSkybox(scene, 'purplenebula', function(textureCube) {
+            console.log('Skybox loaded');
+            DBZCCG.loadCounter = 0;
+            DBZCCG.loadIcr = 0;
+            DBZCCG.mainScene = scene;
+            camera.position.set(0, 0, 50);
+            album = DBZCCG.Album.create(scene, textureCube);
+            console.log('Album loaded');
+            DBZCCG.finishedLoading = true;
+        });
+    }
+
+    function render(cameraControl, renderer, scene, camera, stats) {
+        cameraControl.update(DBZCCG.clock.getDelta());
+
+        TWEEN.update();
+
+        DBZCCG.Album.updateReflections(renderer, scene);
+
+        renderer.render(scene, camera);
+    }
+
+    function controls(camera, renderer, scene, stats) {
+        var control = new THREE.OrbitControls(camera);
+        var element;
+        var display = element = document.getElementById('renderer-wrapper');
+        var faceIndex;
+
+        renderer.setClearColor(0xFFFFFF);
+
+        var projector = new THREE.Projector();
+
+        DBZCCG.previousPage = function() {
+            if (album && !DBZCCG.performingAnimation) {
+                album.previousPage();
+            }
+        };
+
+        DBZCCG.nextPage = function() {
+            if (album && !DBZCCG.performingAnimation) {
+                album.nextPage();
+            }
+        };
+
+        Mousetrap.bind('z', function() {
+            DBZCCG.previousPage();
+        });
+
+        Mousetrap.bind('x', function() {
+            DBZCCG.nextPage();
+        });
+
+        // MOUSE
+        function onDocumentMouseMove(event) {
+
+            if (DBZCCG.waitingMainPlayerMouseCommand) {
+                mouse.x = ((event.clientX - element.offsetLeft) / element.offsetWidth) * 2 - 1;
+                mouse.y = -((event.clientY - element.offsetTop) / element.offsetHeight) * 2 + 1;
+
+                var vector = new THREE.Vector3(mouse.x, mouse.y, 0.5);
+                projector.unprojectVector(vector, camera);
+                var raycaster = new THREE.Raycaster(camera.position, vector.sub(camera.position).normalize());
+                var intersections = raycaster.intersectObjects(DBZCCG.objects, true);
+
+                var intersectionIndex = DBZCCG.Screen.invalidIntersection(intersections);
+
+                if (intersections.length > 0 && intersectionIndex !== -1) {
+                    if (intersected !== intersections[ intersectionIndex ].object) {
+                        if (intersected) {
+                            var parent = DBZCCG.Screen.findCallbackObject(intersected, "mouseOut");
+                            if (parent.mouseOut instanceof Function) {
+                                parent.mouseOut(event);
+                            }
+                        }
+                        if ($('.ui-dialog:visible').length === 0) {
+                            intersected = intersections[ intersectionIndex ].object;
+                            faceIndex = intersections[ intersectionIndex ].faceIndex;
+                        }
+                    }
+
+                    if ($('.ui-dialog:visible').length === 0
+                            && (faceIndex === 10 || faceIndex === 11)
+                            && album.checkCurrentPage(intersected.parent)) {
+                        var parent = DBZCCG.Screen.findCallbackObject(intersected, "mouseOver");
+
+                        if (parent.mouseOver instanceof Function) {
+                            parent.mouseOver(event);
+                        }
+                    }
+                }
+                else if (intersected) {
+                    // check if it is in the scene
+                    if (intersected.parent.parent) {
+                        var parent = DBZCCG.Screen.findCallbackObject(intersected, "mouseOut");
+
+                        if (parent.mouseOut instanceof Function) {
+                            parent.mouseOut(event);
+                        }
+                    }
+                    intersected = null;
+                }
+            } else if (intersected) {
+                // check if it is in the scene
+                if (intersected.parent.parent) {
+                    var parent = DBZCCG.Screen.findCallbackObject(intersected, "mouseOut");
+                    if (parent.mouseOut instanceof Function) {
+                        parent.mouseOut(event);
+                    }
+                }
+                intersected = null;
+            }
+        }
+
+        display.addEventListener('mousemove', onDocumentMouseMove, false);
+
+        // resize
+        window.onresize = function() {
+
+            $('#object-info').dialog('option', 'width', window.innerWidth * 0.5);
+            $('#object-info').dialog('option', 'height', window.innerHeight * 0.6);
+
+            // Hide tooltips
+            DBZCCG.qtipElement.qtip('hide');
+
+            // RESIZE Main Screen
+            var WIDTH = window.innerWidth,
+                    HEIGHT = window.innerHeight;
+            camera.aspect = WIDTH / HEIGHT;
+            camera.updateProjectionMatrix();
+
+            renderer.setSize(WIDTH, HEIGHT);
+            document.getElementById('renderer-wrapper').style.width = WIDTH + 'px';
+            document.getElementById('renderer-wrapper').style.height = HEIGHT + 'px';
+        };
+
+        $('body').qtip({
+            content: {
+                text: function(event, api) {
+                    return DBZCCG.toolTip.customContent ? DBZCCG.toolTip.customContent : DBZCCG.toolTip.content;
+                }
+            },
+            position: {
+                my: 'bottom center',
+                at: 'center',
+                target: 'mouse',
+                adjust: {mouse: false},
+                viewport: $(window)
+            },
+            style: {
+                classes: "qtip-rounded qtip-tipsy"
+            },
+            show: false,
+            hide: {
+                effect: false
+            }
+        });
+
+        console.log('Controls loaded');
+        return control;
+    }
+
+    function loadUI() {
+        $('.album-btn').button();
+        $('#next-page-button').click(DBZCCG.nextPage);
+        $('#previous-page-button').click(DBZCCG.previousPage);
+        $('.album-btn').show();
+    }
+
+    DBZCCG.loadFunction(DBZCCG.checkAlbumLoad, buildScene, render, controls, loadUI, function() {});
 };

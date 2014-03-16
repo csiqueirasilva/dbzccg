@@ -228,7 +228,9 @@ DBZCCG.Player.create = function(dataObject, vec) {
         this.activePersonality.set = function(personality, source) {
             this.source = source;
             if (source === 'mainPersonality') {
-                this.personality = player.mainPersonality.currentPersonality;
+                this.personality = function () { 
+                    return player.mainPersonality.currentPersonality();
+                };
                 this.display = player.mainPersonality.display;
                 this.zScouter = player.mainPersonality.currentPersonality().zScouter;
             }
@@ -1100,7 +1102,7 @@ DBZCCG.Player.create = function(dataObject, vec) {
                     $($('.ui-dialog:visible').children('div')[1]).dialog('close');
                 }
 
-                if (this[src].constructor.name === "cardGroupObject") {
+                if (!(this[src] instanceof DBZCCG.Pile.PileObject)) {
                     var idx;
                     for (var i = 0; i < srcCards.length; i++) {
                         idx = srcCards[i];
@@ -1143,7 +1145,7 @@ DBZCCG.Player.create = function(dataObject, vec) {
                         cardString += " and " + card[card.length - 1].logName();
                     }
 
-                    if ("cardGroupObject" === this[destiny].constructor.name) {
+                    if (!(this[destiny] instanceof DBZCCG.Pile.PileObject)) {
                         this[destiny].addCard(card, addToScene);
 
                         if (destiny === "hand") {
@@ -1323,13 +1325,19 @@ DBZCCG.Player.create = function(dataObject, vec) {
             /* End of setting the positions */
 
             this.lifeDeck.addToField(lifeDeckPos, this.deckArea, this.dirVector);
-            this.lifeDeck.setOwnerCallback(this.mainPersonality.displayName);
+            this.lifeDeck.setOwnerCallback(function () {
+                return player.mainPersonality.displayName();
+            });
 
             this.discardPile.addToField(discardPilePos, this.deckArea, this.dirVector);
-            this.discardPile.setOwnerCallback(this.mainPersonality.displayName);
+            this.discardPile.setOwnerCallback(function () {
+                return player.mainPersonality.displayName();
+            });
 
             this.removedFromTheGame.addToField(removedFromTheGamePos, this.deckArea, this.dirVector);
-            this.removedFromTheGame.setOwnerCallback(this.mainPersonality.displayName);
+            this.removedFromTheGame.setOwnerCallback(function () {
+                return player.mainPersonality.displayName();
+            });
 
             this.hand.addToField(this.field, this.dirVector, this.posVector);
 
@@ -1387,7 +1395,7 @@ DBZCCG.Player.create = function(dataObject, vec) {
             }
         }
 
-        this.lifeDeck = DBZCCG.LifeDeck.create(dataObject.lifeDeck);
+        this.lifeDeck = DBZCCG.LifeDeck.create(dataObject.lifeDeck, this);
         //            this.sensei = Sensei.create(dataObject.sensei);
 
 

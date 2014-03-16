@@ -23,44 +23,46 @@ DBZCCG.Dragonball.checkInPlay = function(db) {
     return result;
 };
 
-DBZCCG.Dragonball.create = function(data) {
+DBZCCG.Dragonball.DragonballObject = function (data) {
+    DBZCCG.Card.CardObject.apply(this, arguments);
 
-    function DragonballObject(data) {
-        ClassHelper.extends(this, DBZCCG.Card.create(data));
+    this.display.parentCard = this;
 
-        this.display.parentCard = this;
+    this.dbCode = data.dbCode;
 
-        this.dbCode = data.dbCode;
+    this.capture = function(player, doNotUse) {
+        if (this.control !== player) {
+            var db = this;
 
-        this.capture = function(player, doNotUse) {
-            if(this.control !== player) {
-                var db = this;
-                
-                if(this.killFloatingEffect && this.floatingEffect) {
-                    this.floatingEffect.kill = true;
-                    this.floatingEffect = null;
-                }
-                
-                var animation = new TWEEN.Tween(new THREE.Vector3(0,
-                        0,
-                        db.display.rotation.z))
-                        .to(new THREE.Vector3(0, 0, (db.display.position.z < 0 && player.dirVector.z > 0) 
-                        || (db.display.position.z > 0 && player.dirVector.z < 0) ? Math.PI : 0), 200);
-
-                animation.onUpdate(function() {
-                    db.display.rotation.z = this.z;
-                });
-
-                animation.start();
-
-                db.control = player;
-                if(!doNotUse) {
-                    db.effect();
-                    DBZCCG.performingTurn = false;
-                }
+            if (this.killFloatingEffect && this.floatingEffect) {
+                this.floatingEffect.kill = true;
+                this.floatingEffect = null;
             }
-        };
-    }
 
-    return new DragonballObject(data);
+            var animation = new TWEEN.Tween(new THREE.Vector3(0,
+                    0,
+                    db.display.rotation.z))
+                    .to(new THREE.Vector3(0, 0, (db.display.position.z < 0 && player.dirVector.z > 0)
+                    || (db.display.position.z > 0 && player.dirVector.z < 0) ? Math.PI : 0), 200);
+
+            animation.onUpdate(function() {
+                db.display.rotation.z = this.z;
+            });
+
+            animation.start();
+
+            db.control = player;
+            if (!doNotUse) {
+                db.effect();
+                DBZCCG.performingTurn = false;
+            }
+        }
+    };
+};
+
+DBZCCG.Dragonball.DragonballObject.prototype = Object.create(DBZCCG.Card.CardObject.prototype);
+DBZCCG.Dragonball.DragonballObject.prototype.constructor = DBZCCG.Dragonball.DragonballObject;
+
+DBZCCG.Dragonball.create = function(data) {
+    return new DBZCCG.Dragonball.DragonballObject(data);
 };

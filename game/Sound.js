@@ -1,7 +1,6 @@
 DBZCCG.Sound = {};
 
-DBZCCG.Sound.on = true;
-
+DBZCCG.Sound.on = false;
 
 DBZCCG.Sound.Background = {};
 
@@ -51,52 +50,52 @@ function onYouTubeIframeAPIReady() {
     };
 
     function displayAudioInfo(id) {
-            var timeout;
-            var started = false;
+        var timeout;
+        var started = false;
 
-            function onPlayerStateChange(event) {
-                switch (event.data) {
-                    case YT.PlayerState.ENDED:
-                        DBZCCG.Sound.Background.nextTrack();
-                        break;
-                    case YT.PlayerState.PLAYING:
-                        document.getElementById('music-box').onmouseover = function() {
-                            window.clearTimeout(timeout);
-                        };
+        function onPlayerStateChange(event) {
+            switch (event.data) {
+                case YT.PlayerState.ENDED:
+                    DBZCCG.Sound.Background.nextTrack();
+                    break;
+                case YT.PlayerState.PLAYING:
+                    document.getElementById('music-box').onmouseover = function() {
+                        window.clearTimeout(timeout);
+                    };
 
-                        document.getElementById('music-box').onmouseout = function() {
-                            if (!this.toggled) {
-                                timeout = window.setTimeout(function() {
-                                    $('#music-box').fadeOut(1000, function() {
-                                    });
-                                }, 2500);
-                            }
-                        };
-
-                        if (!started) {
-                            $('#music-box').draggable({containment: "body",
-                                start: document.getElementById('music-box').onmouseover});
-
-                            $('#music-box').children('iframe').mouseover(
-                                    document.getElementById('music-box').onmouseover);
-                            started = true;
+                    document.getElementById('music-box').onmouseout = function() {
+                        if (!this.toggled) {
+                            timeout = window.setTimeout(function() {
+                                $('#music-box').fadeOut(1000, function() {
+                                });
+                            }, 2500);
                         }
+                    };
 
-                        if (DBZCCG.Sound.on) {
-                            $('#music-box').stop();
-                            $('#music-box').fadeIn(1000, function() {
-                                timeout = window.setTimeout(function() {
-                                    $('#music-box').fadeOut(1000, function() {
-                                    });
-                                }, 2500);
-                            });
-                        }
-                        
-                        break;
-                    case YT.PlayerState.PAUSED:
-                        document.getElementById('music-box').onmouseover = null;
-                        document.getElementById('music-box').onmouseout = null;
-                        break;
+                    if (!started) {
+                        $('#music-box').draggable({containment: "body",
+                            start: document.getElementById('music-box').onmouseover});
+
+                        $('#music-box').children('iframe').mouseover(
+                                document.getElementById('music-box').onmouseover);
+                        started = true;
+                    }
+
+                    if (DBZCCG.Sound.on) {
+                        $('#music-box').stop();
+                        $('#music-box').fadeIn(1000, function() {
+                            timeout = window.setTimeout(function() {
+                                $('#music-box').fadeOut(1000, function() {
+                                });
+                            }, 2500);
+                        });
+                    }
+
+                    break;
+                case YT.PlayerState.PAUSED:
+                    document.getElementById('music-box').onmouseover = null;
+                    document.getElementById('music-box').onmouseout = null;
+                    break;
 //                            case YT.PlayerState.BUFFERING:
 //                                log('Video is buffering.');
 //                                break;
@@ -105,63 +104,65 @@ function onYouTubeIframeAPIReady() {
 //                                break;
 //                            default:
 //                                log('Unrecognized state.');
+            }
+        }
+
+        function displayToolTip() {
+            var element = document.createElement('div');
+
+            element.innerHTML = '<iframe id="player_' + id +
+                    '" width="100%" height="100%" src="https://www.youtube.com/embed/' +
+                    id + '?enablejsapi=1&html5=1&autoplay=1&autohide=1&showinfo=0" ' +
+                    'frameborder="0"></iframe>';
+
+            element.id = 'music-box';
+            element.className = 'ui-corner-all';
+            document.body.appendChild(element);
+
+            player = new YT.Player('player_' + id, {
+                events: {
+                    'onStateChange': onPlayerStateChange,
+                    'onReady': onPlayerReady
                 }
-            }
+            });
+        }
 
-            function displayToolTip() {
-                var element = document.createElement('div');
-
-                element.innerHTML = '<iframe id="player_' + id +
-                        '" width="100%" height="100%" src="https://www.youtube.com/embed/' +
-                        id + '?enablejsapi=1&html5=1&autoplay=1&autohide=1&showinfo=0" ' +
-                        'frameborder="0"></iframe>';
-
-                element.id = 'music-box';
-                element.className = 'ui-corner-all';
-                document.body.appendChild(element);
-
-                player = new YT.Player('player_' + id, {
-                    events: {
-                        'onStateChange': onPlayerStateChange,
-                        'onReady': onPlayerReady
-                    }
-                });
-            }
-
-            if ($('#music-box').is(':visible')) {
-                var elem = document.getElementById('music-box');
-                window.clearTimeout(timeout);
-                elem.onmouseover = elem.onmouseout = null;
-                $(elem).stop();
-                $(elem).fadeOut(500, displayToolTip);
-            } else {
-                displayToolTip();
-            }
+        if ($('#music-box').is(':visible')) {
+            var elem = document.getElementById('music-box');
+            window.clearTimeout(timeout);
+            elem.onmouseover = elem.onmouseout = null;
+            $(elem).stop();
+            $(elem).fadeOut(500, displayToolTip);
+        } else {
+            displayToolTip();
+        }
 
 
-            if (DBZCCG.Sound.on) {
-                return true;
-            } else {
-                return false;
-            }
+        if (DBZCCG.Sound.on || firstLoad) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     var firstLoad = true;
-    function onPlayerReady () {
-        if(DBZCCG.Sound.on) {
-            if (firstLoad) {
+    function onPlayerReady() {
+        if (firstLoad) {
+            if(DBZCCG.Sound.on && player) {
                 player.setVolume(25);
-                firstLoad = false;
             }
+            player.mute();
+            firstLoad = false;
+        } else if (DBZCCG.Sound.on) {
         } else {
             player.mute();
         }
     }
 
-    DBZCCG.Sound.toggle = function () {
+    DBZCCG.Sound.toggle = function() {
         DBZCCG.Sound.on = !DBZCCG.Sound.on;
-        if(DBZCCG.Sound.on) {
-            if(player) {
+        if (DBZCCG.Sound.on) {
+            if (player) {
                 player.unMute();
             }
         } else if (player) {
@@ -177,7 +178,7 @@ function onYouTubeIframeAPIReady() {
             }
         }, 100);
     }, 2000);
-    
+
     DBZCCG.Sound.loaded = true;
 }
 
@@ -220,25 +221,25 @@ function onYouTubeIframeAPIReady() {
     lowLag.load("audio/fx/turn3.ogg", "turn");
     lowLag.load("audio/fx/power-up.ogg", "power-up");
     lowLag.load("audio/fx/power-down.ogg", "power-down");
-    
+
     lowLag.load("audio/fx/level-up.ogg", "level-up");
     lowLag.load("audio/fx/level-down.ogg", "level-down");
-    
+
     lowLag.load("audio/fx/anger-up.ogg", "anger-up");
-    lowLag.load("audio/fx/anger-down.ogg", "anger-down");    
-    
-    lowLag.load("audio/fx/wow-damage.ogg", "wow-damage");    
+    lowLag.load("audio/fx/anger-down.ogg", "anger-down");
+
+    lowLag.load("audio/fx/wow-damage.ogg", "wow-damage");
 }());
 
-DBZCCG.Sound.wowDamage = function (method) {
-    if(DBZCCG.Sound.on) {
+DBZCCG.Sound.wowDamage = function(method) {
+    if (DBZCCG.Sound.on) {
         lowLag.play("wow-damage");
     }
 };
 
-DBZCCG.Sound.floatingEffect = function (method) {
-    if(DBZCCG.Sound.on) {
-        lowLag.play("floating-"+method);
+DBZCCG.Sound.floatingEffect = function(method) {
+    if (DBZCCG.Sound.on) {
+        lowLag.play("floating-" + method);
     }
 };
 

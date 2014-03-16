@@ -1,9 +1,10 @@
 DBZCCG.Card.FloatingEffect = {};
+DBZCCG.Card.FloatingEffect.ParticleNumber = 15;
 
 (function floatingEffectParticles() {
     var geo = new THREE.Geometry();
 
-    for (var i = 0; i < 150; i++) {
+    for (var i = 0; i < DBZCCG.Card.FloatingEffect.ParticleNumber; i++) {
         var particle = new THREE.Vector3();
         geo.vertices.push(particle);
     }
@@ -11,7 +12,7 @@ DBZCCG.Card.FloatingEffect = {};
     function floatingEffect() {
         this.element = new THREE.ParticleSystem(geo.clone(), new THREE.ParticleSystemMaterial({
             size: 1,
-            map: THREE.ImageUtils.loadTexture("images/gfx/particles/particleTexture.png"),
+            map: DBZCCG.Combat.particleTexture,
             depthTest: false,
             vertexColors: true,
             opacity: 0.5,
@@ -123,130 +124,132 @@ DBZCCG.Card.FloatingEffect = {};
 
 })();
 
+DBZCCG.Card.FloatingEffect.FloatingEffectObject = function (dataObject) {
+    DBZCCG.Card.CardObject.apply(this, [dataObject.card]);
 
-DBZCCG.Card.FloatingEffect.create = function(dataObject) {
-    function floatingEffectObject(dataObject) {
-        ClassHelper.extends(this, DBZCCG.Card.createCard(dataObject.card));
+    this.display.parentCard = this;
 
-        this.display.parentCard = this;
+    this.checkLife = function() {
+        var currentTurn = $('#turnCounterNumber').html();
+        var currentPhase = DBZCCG.phaseCounter;
 
-        this.checkLife = function() {
-            var currentTurn = $('#turnCounterNumber').html();
-            var currentPhase = DBZCCG.phaseCounter;
+        var remove = false;
 
-            var remove = false;
+        if (currentTurn > this.turn) {
+            remove = true;
+        } else if (currentPhase > this.phase) {
+            remove = true;
+        } else if (this.combat && !DBZCCG.combat) {
+            remove = true;
+        } else if (this.nextTurn &&
+                DBZCCG.performingAction === this.player &&
+                $('.selectedTurn').length === 0) {
+            remove = true;
+        } else if (this.kill) {
+            remove = true;
+        }
 
-            if (currentTurn > this.turn) {
-                remove = true;
-            } else if (currentPhase > this.phase) {
-                remove = true;
-            } else if (this.combat && !DBZCCG.combat) {
-                remove = true;
-            } else if (this.nextTurn &&
-                    DBZCCG.performingAction === this.player &&
-                    $('.selectedTurn').length === 0) {
-                remove = true;
-            } else if (this.kill) {
-                remove = true;
-            }
+        if (remove) {
+            DBZCCG.listActions.splice(0, 0, function() {
 
-            if (remove) {
-                DBZCCG.listActions.splice(0, 0, function() {
+                var performingAnimation = DBZCCG.performingAnimation;
+                DBZCCG.Card.FloatingEffect.removeParticle(floatingEffect.display,
+                        function() {
 
-                    var performingAnimation = DBZCCG.performingAnimation;
-                    DBZCCG.Card.FloatingEffect.removeParticle(floatingEffect.display,
-                            function() {
+                            var animation = new TWEEN.Tween(new THREE.Vector3(1, 0, 0)).to(new THREE.Vector3(0, 0, 0), 250);
+                            var materials = floatingEffect.display.children[0].material.materials;
 
-                                var animation = new TWEEN.Tween(new THREE.Vector3(1, 0, 0)).to(new THREE.Vector3(0, 0, 0), 250);
-                                var materials = floatingEffect.display.children[0].material.materials;
-
-                                animation.onStart(function () {
-                                    DBZCCG.Sound.floatingEffect("disappear");
-                                });
-
-                                animation.onUpdate(function() {
-                                    for (var i = 0; i < materials.length; i++) {
-                                        materials[i].opacity = this.x;
-                                    }
-                                });
-
-                                animation.onComplete(function() {
-                                    floatingEffect.display.parent.remove(floatingEffect.display);
-                                    floatingEffect.player.floatingEffects.cards.splice(
-                                            floatingEffect.player.floatingEffects.cards.indexOf(floatingEffect),
-                                            1);
-                                    floatingEffect.player.floatingEffects.addCard([]);
-                                    delete floatingEffect;
-                                    DBZCCG.performingAnimation = performingAnimation;
-                                });
-
-                                animation.start();
+                            animation.onStart(function() {
+                                DBZCCG.Sound.floatingEffect("disappear");
                             });
 
-                    DBZCCG.performingAnimation = true;
-                });
-            }
+                            animation.onUpdate(function() {
+                                for (var i = 0; i < materials.length; i++) {
+                                    materials[i].opacity = this.x;
+                                }
+                            });
 
-            return remove;
-        };
+                            animation.onComplete(function() {
+                                floatingEffect.display.parent.remove(floatingEffect.display);
+                                floatingEffect.player.floatingEffects.cards.splice(
+                                        floatingEffect.player.floatingEffects.cards.indexOf(floatingEffect),
+                                        1);
+                                floatingEffect.player.floatingEffects.addCard([]);
+                                delete floatingEffect;
+                                DBZCCG.performingAnimation = performingAnimation;
+                            });
 
-        this.phase = dataObject.phase;
-        this.turn = dataObject.turn;
-        this.player = dataObject.player;
-        this.combat = dataObject.combat;
-        this.nextTurn = dataObject.nextTurn;
-
-        // default settings
-        this.activable = false;
-        this.playable = false;
-        this.postEffect = false;
-        
-        if(dataObject.appendText) {
-            if(this.display.displayHoverText instanceof Function) {
-                this.display.oldDisplayFunc = this.display.displayHoverText;
-                this.display.displayHoverText = function () {
-                    return this.oldDisplayFunc() + "<div><h2>Floating Effect:</h2>" + dataObject.appendText + "</div>";
-                };
-            }
-        }
-
-        var floatingEffect = this;
-
-        var addCallback = {f: function() {
-                dataObject.scene.add(floatingEffect.display);
+                            animation.start();
+                        });
 
                 DBZCCG.performingAnimation = true;
-
-                var animation = new TWEEN.Tween(new THREE.Vector3(0, 0, 0)).to(new THREE.Vector3(1, 0, 0), 250);
-                var materials = floatingEffect.display.children[0].material.materials;
-
-                animation.onStart(function() {
-                    DBZCCG.Sound.floatingEffect("appear");
-                    DBZCCG.Card.FloatingEffect.addParticle(floatingEffect);
-                });
-
-                animation.onUpdate(function() {
-                    for (var i = 0; i < materials.length; i++) {
-                        materials[i].opacity = this.x;
-                    }
-                });
-
-                animation.onComplete(function() {
-                    DBZCCG.performingAnimation = false;
-                });
-
-                animation.start();
-            }, priority: Infinity, life: false};
-
-        dataObject.player.floatingEffects.addAddCallback(addCallback);
-        var materials = this.display.children[0].material.materials;
-        for (var i = 0; i < materials.length; i++) {
-            materials[i].opacity = 0;
-            materials[i].transparent = true;
+            });
         }
 
-        dataObject.player.floatingEffects.addCard([this], true);
+        return remove;
+    };
+
+    this.phase = dataObject.phase;
+    this.turn = dataObject.turn;
+    this.player = dataObject.player;
+    this.combat = dataObject.combat;
+    this.nextTurn = dataObject.nextTurn;
+
+    // default settings
+    this.activable = false;
+    this.playable = false;
+    this.postEffect = false;
+
+    if (dataObject.appendText) {
+        if (this.display.displayHoverText instanceof Function) {
+            this.display.oldDisplayFunc = this.display.displayHoverText;
+            this.display.displayHoverText = function() {
+                return this.oldDisplayFunc() + "<div><h2>Floating Effect:</h2>" + dataObject.appendText + "</div>";
+            };
+        }
     }
 
-    return new floatingEffectObject(dataObject);
+    var floatingEffect = this;
+
+    var addCallback = {f: function() {
+            dataObject.scene.add(floatingEffect.display);
+
+            DBZCCG.performingAnimation = true;
+
+            var animation = new TWEEN.Tween(new THREE.Vector3(0, 0, 0)).to(new THREE.Vector3(1, 0, 0), 250);
+            var materials = floatingEffect.display.children[0].material.materials;
+
+            animation.onStart(function() {
+                DBZCCG.Sound.floatingEffect("appear");
+                DBZCCG.Card.FloatingEffect.addParticle(floatingEffect);
+            });
+
+            animation.onUpdate(function() {
+                for (var i = 0; i < materials.length; i++) {
+                    materials[i].opacity = this.x;
+                }
+            });
+
+            animation.onComplete(function() {
+                DBZCCG.performingAnimation = false;
+            });
+
+            animation.start();
+        }, priority: Infinity, life: false};
+
+    dataObject.player.floatingEffects.addAddCallback(addCallback);
+    var materials = this.display.children[0].material.materials;
+    for (var i = 0; i < materials.length; i++) {
+        materials[i].opacity = 0;
+        materials[i].transparent = true;
+    }
+
+    dataObject.player.floatingEffects.addCard([this], true);
+};
+
+DBZCCG.Card.FloatingEffect.FloatingEffectObject.prototype = Object.create(DBZCCG.Card.CardObject.prototype);
+DBZCCG.Card.FloatingEffect.FloatingEffectObject.prototype.constructor = DBZCCG.Card.FloatingEffect.FloatingEffectObject;
+
+DBZCCG.Card.FloatingEffect.create = function(dataObject) {
+    return new DBZCCG.Card.FloatingEffect.FloatingEffectObject(dataObject);
 };

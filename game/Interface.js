@@ -1,5 +1,3 @@
-$('.niceScrollBar').niceScroll({autohidemode: false});
-
 if (document.getElementById('log-dialog')) {
     $('#log-dialog').dialog({
         autoOpen: false,

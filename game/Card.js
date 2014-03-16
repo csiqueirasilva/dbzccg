@@ -58,53 +58,15 @@ DBZCCG.Card.Rarity['Ubber Rare'] = 7;
 
 /* To reduce load on card creation */
 (function() {
-    DBZCCG.Card.backTexture = THREE.ImageUtils.loadTexture("images/DBZCCG/back.jpg", THREE.UVMapping, DBZCCG.incrementLoad);
-    var columnGeo = new THREE.CylinderGeometry(DBZCCG.Card.cornerWidth, DBZCCG.Card.cornerWidth, DBZCCG.Card.cardHeight, 32, 16, true);
-    var lineGeo = new THREE.CylinderGeometry(DBZCCG.Card.cornerWidth, DBZCCG.Card.cornerWidth, DBZCCG.Card.cardWidth - DBZCCG.Card.cornerWidth, 32, 16, true);
-    DBZCCG.Card.cardMaterial = new THREE.MeshLambertMaterial({shading: THREE.SmoothShading, color: 0x000000, side: THREE.FrontSide});
-    var cornerMaterial = new THREE.MeshLambertMaterial({
-        side: THREE.FrontSide
+    DBZCCG.Card.backTexture = THREE.ImageUtils.loadTexture("images/DBZCCG/back.jpg", 
+    new THREE.UVMapping(), function () {
+        DBZCCG.Load.cardBack = true;
+        console.log('Loaded card back texture');
+    }, function () {
+        DBZCCG.Load.error = true;
+        console.log('Error while loading card back texture');
     });
-
-    borderMaterial = new THREE.MeshLambertMaterial({
-        side: THREE.FrontSide
-    });
-
-    cornerGeo = new THREE.SphereGeometry(DBZCCG.Card.cornerWidth, 32, 16);
-    DBZCCG.Card.cubeGeo = new THREE.CubeGeometry(DBZCCG.Card.cardWidth, DBZCCG.Card.cardHeight, DBZCCG.Card.cardDepth);
-
-    DBZCCG.Card.basicCardGeo = new THREE.Geometry();
-    var top = new THREE.Mesh(lineGeo, borderMaterial);
-    var bot = top.clone();
-
-    var left = new THREE.Mesh(columnGeo, borderMaterial);
-    var right = left.clone();
-
-    top.rotation.z += 90 * Math.PI / 180;
-    top.position.y += DBZCCG.Card.cardHeight / 2;
-    bot.rotation.z += 90 * Math.PI / 180;
-    bot.position.y -= DBZCCG.Card.cardHeight / 2;
-    left.position.x -= (DBZCCG.Card.cardWidth - DBZCCG.Card.cornerWidth) / 2;
-    right.position.x += (DBZCCG.Card.cardWidth - DBZCCG.Card.cornerWidth) / 2;
-
-    THREE.GeometryUtils.merge(DBZCCG.Card.basicCardGeo, top);
-    THREE.GeometryUtils.merge(DBZCCG.Card.basicCardGeo, bot);
-    THREE.GeometryUtils.merge(DBZCCG.Card.basicCardGeo, left);
-    THREE.GeometryUtils.merge(DBZCCG.Card.basicCardGeo, right);
-
-    var baseCorner = new THREE.Mesh(cornerGeo, cornerMaterial);
-
-    // Add circles in borders
-    for (var i = -1; i <= 1; i = i + 2) {
-        for (var j = -1; j <= 1; j = j + 2) {
-            corner = baseCorner.clone();
-            corner.position.x += i * DBZCCG.Card.cardWidth / 2 + i * (-1) * DBZCCG.Card.cornerWidth / 2;
-            corner.position.y += j * DBZCCG.Card.cardHeight / 2;
-            THREE.GeometryUtils.merge(DBZCCG.Card.basicCardGeo, corner);
-        }
-    }
-
-    DBZCCG.Card.borderMaterial = borderMaterial;
+    DBZCCG.Card.cubeGeo = new THREE.BoxGeometry(DBZCCG.Card.cardWidth, DBZCCG.Card.cardHeight, DBZCCG.Card.cardDepth);
 
     /* Vertex and face alterations */
     var cube = DBZCCG.Card.cubeGeo;
@@ -161,9 +123,12 @@ DBZCCG.Card.Rarity['Ubber Rare'] = 7;
         }
     }
 
-    DBZCCG.Card.basicCardGeo.computeFaceNormals();
+    DBZCCG.Card.cubeGeo.faceVertexUvs.push(
+            DBZCCG.Card.cubeGeo.faceVertexUvs[0].slice(0)
+            );
 
-    delete baseCorner;
+    DBZCCG.Card.cubeGeo.computeFaceNormals();
+    DBZCCG.Card.cubeGeo.computeVertexNormals();
 })();
 
 /* End of required materials for the cards */
@@ -205,239 +170,282 @@ DBZCCG.Card.createCard = function(card) {
     return retCard;
 };
 
-DBZCCG.Card.create = function(dataObject) {
+/* Beginning CardObject */
+DBZCCG.Card.CardObject = function(dataObject) {
+    this.name = dataObject.name;
+    this.rarity = dataObject.rarity;
+    this.highTech = dataObject.highTech;
+    this.saga = dataObject.saga;
+    this.personality = dataObject.personality;
+    this.style = dataObject.style;
+    this.description = dataObject.description;
+    this.number = dataObject.number;
+    this.type = dataObject.type;
+    this.numberOfUses = dataObject.numberOfUses;
 
-    function CardObject(dataObject) {
+    // Hard coded for testing
+    if (DBZCCG.Saiyan && DBZCCG.Frieza) {
+        dataObject.foil = Math.random() > 0.5 ? DBZCCG.Saiyan.Foil.Default : Math.random() > 0.5 ? DBZCCG.Frieza.Foil.Default : null;
+    }
 
-        function createCard(texturePath) {
-            var card = new THREE.Object3D();
-            DBZCCG.loadCounter++;
-            var frontTexture = texturePath ? THREE.ImageUtils.loadTexture(texturePath, THREE.UVMapping, DBZCCG.incrementLoad) : null;
-            DBZCCG.loadCounter++;
-            var specularMap = THREE.ImageUtils.loadTexture('images/DBZCCG/saiyan/specularmap.jpg',
-                    THREE.UVMapping, DBZCCG.incrementLoad);
+    this.effect = dataObject.effect;
+    this.activable = dataObject.activable;
+    this.postEffect = dataObject.postEffect;
+    this.successfulEffect = dataObject.successfulEffect;
+    this.playable = dataObject.playable;
+    this.effectType = dataObject.effectType;
+    this.damage = dataObject.damage;
+    this.cost = dataObject.cost;
+    this.activators = dataObject.activators;
+    this.defenseShield = dataObject.defenseShield;
+    this.canActivate = true;
 
-            var cardCoverBackMaterials = [];
-            for (var i = 0; i < 4; i++) {
-                cardCoverBackMaterials.push(new THREE.MeshBasicMaterial({emissive: 0xFFFFFF, vertexColors: THREE.VertexColors})); // sides
-            }
+    this.createDisplay(dataObject.texturePath, dataObject.foil);
+};
 
-            cardCoverBackMaterials[4] = new THREE.MeshBasicMaterial({emissive: 0xFFFFFF, map: DBZCCG.Card.backTexture}); // back
-            cardCoverBackMaterials[5] = new THREE.MeshBasicMaterial({reflectivity: dataObject.foil ? dataObject.foil.reflectivity : 1, specularMap: specularMap, envMap: dataObject.foil ? dataObject.foil.texture : null, emissive: 0xFFFFFF, map: frontTexture}); // front
+DBZCCG.Card.CardObject.prototype.logName = function() {
+    return '{' + ClassHelper.getKeyByValue(DBZCCG.Card.Saga, this.saga) + ' ' + this.number + '}';
+};
 
-            for (var i = 0; i < 4; i++) {
-                cardCoverBackMaterials.push(new THREE.MeshBasicMaterial({emissive: 0xFFFFFF, wireframe: true})); // sides
-            }
+DBZCCG.Card.CardObject.prototype.facedown = function() {
+    this.display.rotation.x = this.display.rotation.y = this.display.rotation.z = 0.0;
+    this.display.rotation.x += -90 * Math.PI / 180;
+};
 
-            var cube = new THREE.Mesh(DBZCCG.Card.cubeGeo, new THREE.MeshFaceMaterial(cardCoverBackMaterials));
+DBZCCG.Card.CardObject.prototype.faceup = function() {
+    this.display.rotation.x = this.display.rotation.y = this.display.rotation.z = 0.0;
+    this.display.rotation.x += -90 * Math.PI / 180;
+    this.display.rotation.y += -180 * Math.PI / 180;
+};
 
-            card.add(cube);
+DBZCCG.Card.CardObject.prototype.turnThisWay = function(vec) {
+    if (vec instanceof THREE.Vector3) {
+        this.display.rotation.z = Math.acos(vec.z / vec.length());
+    }
+};
 
-            return card;
-        }
+DBZCCG.Card.CardObject.prototype.moveY = function(n) {
+    if (typeof n === "number") {
+        this.display.position.y = DBZCCG.Card.cornerWidth * DBZCCG.Card.cardThicknessScale * n * 2;
+    }
+};
 
-        this.facedown = function() {
-            this.display.rotation.x = this.display.rotation.y = this.display.rotation.z = 0.0;
-            this.display.rotation.x += -90 * Math.PI / 180;
-        };
+DBZCCG.Card.CardObject.prototype.getTextureImg = function() {
+    if (this.display.children[0].material.materials[5].map && this.display.children[0].material.materials[5].map.sourceFile) {
+        return this.display.children[0].material.materials[5].map.sourceFile;
+    }
+};
 
-        this.faceup = function() {
-            this.display.rotation.x = this.display.rotation.y = this.display.rotation.z = 0.0;
-            this.display.rotation.x += -90 * Math.PI / 180;
-            this.display.rotation.y += -180 * Math.PI / 180;
-        };
+DBZCCG.Card.CardObject.prototype.createDisplay = function(texturePath, foil) {
+    var o = new DBZCCG.Card.CardDisplay(texturePath, foil);
+    o.name = this.name;
+    o.parentCard = this;
+    this.display = o;
 
-        this.turnThisWay = function(vec) {
-            if (vec instanceof THREE.Vector3) {
-                this.display.rotation.z = Math.acos(vec.z / vec.length());
-            }
-        };
+    if (!this.playable && this.effect) {
+        this.display.addCallback(DBZCCG.Combat.activateEffectCallback);
+    } else if (this.playable) {
+        this.display.addCallback(DBZCCG.Combat.placeCardInField);
+    }
+};
 
-        this.moveY = function(n) {
-            if (typeof n === "number") {
-                this.display.position.y = DBZCCG.Card.cornerWidth * DBZCCG.Card.cardThicknessScale * n * 2;
-            }
-        };
+/* Ending CardObject */
 
-        this.name = dataObject.name;
-        this.rarity = dataObject.rarity;
-        this.highTech = dataObject.highTech;
-        this.saga = dataObject.saga;
-        this.personality = dataObject.personality;
-        this.style = dataObject.style;
-        this.description = dataObject.description;
-        this.number = dataObject.number;
-        this.type = dataObject.type;
-        this.numberOfUses = dataObject.numberOfUses;
+/* Beginning CardDisplayObject */
 
-        // Hard coded for testing
-        dataObject.foil = Math.random() > 0.5 ? DBZCCG.Saiyan.Foil.default : Math.random() > 0.5 ? DBZCCG.Frieza.Foil.default : null;
+DBZCCG.Card.textureCache = {};
 
-        this.display = createCard(dataObject.texturePath);
-
-        this.display.name = this.name;
-        this.display.parentCard = this;
-        var card = this;
-
-        DBZCCG.Callbacks.create(card.display, 'callback', function(cb) {
+DBZCCG.Card.loadTexture = function(texturePath, UVMapping, onLoad, onError) {
+    if (!DBZCCG.Card.textureCache[texturePath]) {
+        DBZCCG.loadCounter++;
+        DBZCCG.Card.textureCache[texturePath] = THREE.ImageUtils.loadTexture(texturePath, 
+        new THREE.UVMapping(), 
+        function () {
+            console.log('Loaded card texture: '+texturePath);
+            DBZCCG.incrementLoad();
+        }, 
+        function(){
+            DBZCCG.Load.error = true;
+            console.log('Error while loading card texture: '+texturePath);
         });
+    }
 
-        if (!dataObject.playable && dataObject.effect) {
-            card.display.addCallback(DBZCCG.Combat.activateEffectCallback);
-        } else if (dataObject.playable) {
-            card.display.addCallback(DBZCCG.Combat.placeCardInField);
+    return DBZCCG.Card.textureCache[texturePath];
+};
+
+DBZCCG.Card.CardDisplay = function(texturePath, foil) {
+    THREE.Object3D.apply(this, arguments);
+
+    var frontTexture = texturePath ? DBZCCG.Card.loadTexture(texturePath) : null;
+    var specularMap = DBZCCG.Card.loadTexture('images/DBZCCG/saiyan/specularmap.jpg');
+
+    var cardCoverBackMaterials = [];
+    for (var i = 0; i < 4; i++) {
+        cardCoverBackMaterials.push(new THREE.MeshBasicMaterial(
+                {
+                    transparent: true,
+                    vertexColors: THREE.VertexColors
+                })); // sides
+    }
+
+    cardCoverBackMaterials[4] = new THREE.MeshBasicMaterial(
+            {
+                transparent: true,
+                map: DBZCCG.Card.backTexture
+            }); // back
+
+    cardCoverBackMaterials[5] = new THREE.MeshBasicMaterial(
+            {
+                transparent: true,
+                reflectivity: foil ? foil.reflectivity : 1,
+                specularMap: specularMap,
+                envMap: foil ? foil.texture : null,
+                map: frontTexture
+            }); // front
+
+    for (var i = 0; i < 4; i++) {
+        cardCoverBackMaterials.push(new THREE.MeshBasicMaterial({transparent: true})); // sides
+    }
+
+    var cube = new THREE.Mesh(DBZCCG.Card.cubeGeo.clone(), new THREE.MeshFaceMaterial(cardCoverBackMaterials));
+
+    this.add(cube);
+
+    DBZCCG.Callbacks.create(this, 'callback', function(cb) {
+    });
+
+    DBZCCG.Combat.setMouseOverCallback(this);
+};
+
+DBZCCG.Card.CardDisplay.prototype = Object.create(THREE.Object3D.prototype);
+DBZCCG.Card.CardDisplay.prototype.constructor = DBZCCG.Card.CardDisplay;
+
+DBZCCG.Card.CardDisplay.prototype.displayName = function() {
+    return this.parentCard.name;
+};
+
+DBZCCG.Card.CardDisplay.prototype.turnGameDisplay = function() {
+    if (this.leftScreenCallback === null) {
+        this.leftScreenCallback = this.offLeftScreenCallback;
+        this.offLeftScreenCallback = null;
+        this.descriptionBox = this.offDescriptionBox;
+        this.offDescriptionBox = null;
+        this.mouseOut = this.offMouseOut;
+        this.offMouseOut = null;
+        this.mouseOver = this.offMouseOver;
+        this.offMouseOver = null;
+    } else {
+        this.offLeftScreenCallback = this.leftScreenCallback;
+        this.leftScreenCallback = null;
+        this.offDescriptionBox = this.descriptionBox;
+        this.descriptionBox = null;
+        this.offMouseOut = this.mouseOut;
+        this.mouseOut = null;
+        this.offMouseOver = this.mouseOver;
+        this.mouseOver = null;
+    }
+};
+
+DBZCCG.Card.CardDisplay.prototype.leftScreenCallback = function(source, created) {
+    var obj = new THREE.Object3D();
+    created.scale.z = DBZCCG.Card.cardThicknessScale;
+    var rotate = false;
+    var firstRotationReversed = false;
+    if (created.position.z < 0) {
+        rotate = true;
+        if (created.rotation.y === 0) {
+            firstRotationReversed = true;
+        }
+    }
+
+    created.rotation.x = -Math.PI / 2;
+    created.rotation.y = -Math.PI / 2;
+
+    obj.add(created);
+    created.position.set(0, 0, 0);
+
+    if (rotate) {
+        if (!firstRotationReversed) {
+            obj.rotation.y = Math.PI;
+        } else {
+            obj.rotation.y = 0;
         }
 
-        card.effect = dataObject.effect;
-        card.activable = dataObject.activable;
-        card.postEffect = dataObject.postEffect;
-        card.successfulEffect = dataObject.successfulEffect;
-        card.playable = dataObject.playable;
-        card.effectType = dataObject.effectType;
-        card.damage = dataObject.damage;
-        card.cost = dataObject.cost;
-        card.activators = dataObject.activators;
-        card.defenseShield = dataObject.defenseShield;
+        obj.rotation.z = -Math.PI;
+    } else {
+        obj.rotation.z = Math.PI;
+    }
 
-        card.canActivate = true;
+    var firstRotation = obj.rotation.clone();
 
-        card.getTextureImg = function() {
-            if (card.display.children[0].material.materials[5].map && card.display.children[0].material.materials[5].map.sourceFile) {
-                return card.display.children[0].material.materials[5].map.sourceFile;
-            }
-        };
+    if (!firstRotationReversed) {
+        firstRotation.z = 0;
+    } else {
+        firstRotation.z = -2 * Math.PI;
+    }
 
-        card.display.displayName = function() {
-            return card.name;
-        };
+    var rotation = obj.rotation;
+    var animation = new TWEEN.Tween(rotation).to(firstRotation, 400);
+    animation.easing(TWEEN.Easing.Circular.In);
 
-        card.display.turnGameDisplay = function() {
-            if (card.display.leftScreenCallback === null) {
-                card.display.leftScreenCallback = card.display.offLeftScreenCallback;
-                card.display.offLeftScreenCallback = null;
-                card.display.descriptionBox = card.display.offDescriptionBox;
-                card.display.offDescriptionBox = null;
-                card.display.mouseOut = card.display.offMouseOut;
-                card.display.offMouseOut = null;
-                card.display.mouseOver = card.display.offMouseOver;
-                card.display.offMouseOver = null;
-            } else {
-                card.display.offLeftScreenCallback = card.display.leftScreenCallback;
-                card.display.leftScreenCallback = null;
-                card.display.offDescriptionBox = card.display.descriptionBox;
-                card.display.descriptionBox = null;
-                card.display.offMouseOut = card.display.mouseOut;
-                card.display.mouseOut = null;
-                card.display.offMouseOver = card.display.mouseOver;
-                card.display.mouseOver = null;
-            }
-        };
+    // It just wasnt working without this. I tried to pass directly created.rotation to Tween, but it just wasnt working.
+    // I know this is code is a bit messy. Sorry :-(
+    animation.onUpdate(function() {
+        created.rotation.y = rotation.z;
+    });
 
-        card.display.leftScreenCallback = function(source, created) {
-            var obj = new THREE.Object3D();
-            created.scale.z = DBZCCG.Card.cardThicknessScale;
-            var rotate = false;
-            var firstRotationReversed = false;
-            if (created.position.z < 0) {
-                rotate = true;
-                if (created.rotation.y === 0) {
-                    firstRotationReversed = true;
-                }
-            }
+    animation.start();
+    return obj;
+};
 
-            created.rotation.x = -Math.PI / 2;
-            created.rotation.y = -Math.PI / 2;
+DBZCCG.Card.CardDisplay.prototype.displayHoverText = function() {
+    var ret = '';
 
-            obj.add(created);
-            created.position.set(0, 0, 0);
+    ret += this.parentCard.display.descriptionBox();
 
-            if (rotate) {
-                if (!firstRotationReversed) {
-                    obj.rotation.y = Math.PI;
-                } else {
-                    obj.rotation.y = 0;
-                }
+    ret += '<div style="clear:both;"/>';
 
-                obj.rotation.z = -Math.PI;
-            } else {
-                obj.rotation.z = Math.PI;
-            }
+    if (DBZCCG.performingAction && DBZCCG.performingAction.checkOwnership(this.parentCard.display) && this.parentCard.activable instanceof Function &&
+            this.parentCard.activable(DBZCCG.performingAction) && this.parentCard.effectType instanceof Array &&
+            (this.parentCard.effectType.indexOf(DBZCCG.Combat.Attack.Physical) !== -1 ||
+                    this.parentCard.effectType.indexOf(DBZCCG.Combat.Attack.Energy) !== -1)) {
 
-            var firstRotation = obj.rotation.clone();
-
-            if (!firstRotationReversed) {
-                firstRotation.z = 0;
-            } else {
-                firstRotation.z = -2 * Math.PI;
-            }
-
-            var rotation = obj.rotation;
-            var animation = new TWEEN.Tween(rotation).to(firstRotation, 400);
-            animation.easing(TWEEN.Easing.Circular.In);
-
-            // It just wasnt working without this. I tried to pass directly created.rotation to Tween, but it just wasnt working.
-            // I know this is code is a bit messy. Sorry :-(
-            animation.onUpdate(function() {
-                created.rotation.y = rotation.z;
-            });
-
-            animation.start();
-            return obj;
-        };
-
-        card.display.displayHoverText = function() {
-            var ret = '';
-
-            ret += this.parentCard.display.descriptionBox();
-
-            ret += '<div style="clear:both;"/>';
-
-            if (DBZCCG.performingAction && DBZCCG.performingAction.checkOwnership(this.parentCard.display) && this.parentCard.activable instanceof Function &&
-                    this.parentCard.activable(DBZCCG.performingAction) && this.parentCard.effectType instanceof Array &&
-                    (this.parentCard.effectType.indexOf(DBZCCG.Combat.Attack.Physical) !== -1 ||
-                            this.parentCard.effectType.indexOf(DBZCCG.Combat.Attack.Energy) !== -1)) {
-
-                if (this.parentCard.damage instanceof Function && this.parentCard.damage() instanceof Object) {
-                    var damage = this.parentCard.damage();
-                    ret += '<div><h3 style="text-align: center;">Attack Damage</h3>\
+        if (this.parentCard.damage instanceof Function && this.parentCard.damage() instanceof Object) {
+            var damage = this.parentCard.damage();
+            ret += '<div><h3 style="text-align: center;">Attack Damage</h3>\
                             <div class="damage-hover-helper">\
                             \
                             <div style="margin-left: 40%"><div style="float:left;" class="hover-icon physical-attack-icon" title="Power Stage Damage"></div><div style="float:left; font-size: 3em;" class="hover-damage-text">' + damage.stages + '</div>';
-                    ret += '</div><div style="clear:both;"/><div style="padding-top: 10px; margin-left: 40%"><div style="float:left;" class="hover-icon energy-attack-icon" title="Life Card Damage"></div><div style="float:left; font-size: 3em;" class="hover-damage-text">' + damage.cards + '</div>'
-                            + '</div></div></div>';
-                }
-            }
-
-            return ret;
-        };
-
-        DBZCCG.Combat.setMouseOverCallback(card.display);
-
-        card.display.descriptionBox = function() {
-            var content = "<div class='property-description-box card-name'>" + card.name + "</div>\
-                            <div class='property-description-box card-type'>[" + ClassHelper.getKeyByValue(DBZCCG.Card.Type, card.type) + " Card]</div>\
-                            <div class='property-description-box card-description'>" + card.description + "</div>";
-            content += "<div class='card-collection-box'>";
-            if (card.personality) {
-                content += "<div class='card-personality'><div class='label-title'>[Personality]</div><div class='label-description-box'><div class='description-icon'><img class='left-screen-icon' src='images/icons/" + ClassHelper.getKeyByValue(DBZCCG.Personality.Personalities, card.personality).toLowerCase() + "-icon.png' title='" + ClassHelper.getKeyByValue(DBZCCG.Personality.Personalities, card.personality) + "'/></div></div></div>";
-            }
-
-            content += "<div class='card-style'><div class='label-title'>[Style]</div><div class='label-description-box'><div class='description-icon'><img class='left-screen-icon' src='images/icons/" + ClassHelper.getKeyByValue(DBZCCG.Card.Style, card.style).toLowerCase() + "-icon.png' title='" + ClassHelper.getKeyByValue(DBZCCG.Card.Style, card.style) + "'/></div></div></div>\
-                        <div class='card-saga-label'><div div class='label-title'>[Saga]</div><div class='label-description-box'><div class='description-icon'><img class='left-screen-icon' src='images/icons/" + ClassHelper.getKeyByValue(DBZCCG.Card.Saga, card.saga).toLowerCase() + "-saga-icon.png' title='" + ClassHelper.getKeyByValue(DBZCCG.Card.Saga, card.saga) + " Saga'/><img class='left-screen-icon' src='images/icons/" + ClassHelper.getKeyByValue(DBZCCG.Card.Rarity, card.rarity).toLowerCase().replace(" ", "") + "-icon.png' title='" + ClassHelper.getKeyByValue(DBZCCG.Card.Rarity, card.rarity) + "' /></div><div class='saga-label-number'>#" + card.number + "</div></div></div>";
-
-            content += "</div><div style='clear: both;'>";
-            return content;
-        };
-
-        card.logName = function() {
-            return '{' + ClassHelper.getKeyByValue(DBZCCG.Card.Saga, card.saga) + ' ' + card.number + '}';
+            ret += '</div><div style="clear:both;"/><div style="padding-top: 10px; margin-left: 40%"><div style="float:left;" class="hover-icon energy-attack-icon" title="Life Card Damage"></div><div style="float:left; font-size: 3em;" class="hover-damage-text">' + damage.cards + '</div>'
+                    + '</div></div></div>';
         }
-
     }
 
+    return ret;
+};
+
+DBZCCG.Card.CardDisplay.prototype.descriptionBox = function() {
+    var content = "<div class='property-description-box card-name'>" + this.parentCard.name + "</div>\
+                            <div class='property-description-box card-type'>[" + ClassHelper.getKeyByValue(DBZCCG.Card.Type, this.parentCard.type) + " Card]</div>\
+                            <div class='property-description-box card-description'>" + this.parentCard.description + "</div>";
+    content += "<div class='card-collection-box'>";
+    if (this.parentCard.personality) {
+        content += "<div class='card-personality'><div class='label-title'>[Personality]</div><div class='label-description-box'><div class='description-icon'><img class='left-screen-icon' src='images/icons/" + ClassHelper.getKeyByValue(DBZCCG.Personality.Personalities, this.parentCard.personality).toLowerCase() + "-icon.png' title='" + ClassHelper.getKeyByValue(DBZCCG.Personality.Personalities, this.parentCard.personality) + "'/></div></div></div>";
+    }
+
+    content += "<div class='card-style'><div class='label-title'>[Style]</div><div class='label-description-box'><div class='description-icon'><img class='left-screen-icon' src='images/icons/" + ClassHelper.getKeyByValue(DBZCCG.Card.Style, this.parentCard.style).toLowerCase() + "-icon.png' title='" + ClassHelper.getKeyByValue(DBZCCG.Card.Style, this.parentCard.style) + "'/></div></div></div>\
+                        <div class='card-saga-label'><div div class='label-title'>[Saga]</div><div class='label-description-box'><div class='description-icon'><img class='left-screen-icon' src='images/icons/" + ClassHelper.getKeyByValue(DBZCCG.Card.Saga, this.parentCard.saga).toLowerCase() + "-saga-icon.png' title='" + ClassHelper.getKeyByValue(DBZCCG.Card.Saga, this.parentCard.saga) + " Saga'/><img class='left-screen-icon' src='images/icons/" + ClassHelper.getKeyByValue(DBZCCG.Card.Rarity, this.parentCard.rarity).toLowerCase().replace(" ", "") + "-icon.png' title='" + ClassHelper.getKeyByValue(DBZCCG.Card.Rarity, this.parentCard.rarity) + "' /></div><div class='saga-label-number'>#" + this.parentCard.number + "</div></div></div>";
+
+    content += "</div><div style='clear: both;'>";
+    return content;
+};
+
+/* Ending CardDisplayObject */
+
+DBZCCG.Card.create = function(dataObject) {
     if (dataObject === "random") {
-        return new CardObject(DBZCCG.Card.generateRandom());
+        return new DBZCCG.Card.CardObject(DBZCCG.Card.generateRandom());
     } else {
-        return new CardObject(dataObject || {});
+        return new DBZCCG.Card.CardObject(dataObject || {});
     }
 };
