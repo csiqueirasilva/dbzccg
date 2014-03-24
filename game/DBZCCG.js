@@ -251,8 +251,8 @@ DBZCCG.confirmDialog = function(title, content, ok_cb, buttons, width, height) {
 
     if (ret) {
 
-        $('#confirmDialog').dialog('option', 'height', height || (window.innerHeight * 0.25));
-        $('#confirmDialog').dialog('option', 'width', width || (window.innerWidth * 0.25));
+        $('#confirmDialog').dialog('option', 'height', height || (window.innerHeight * 0.35));
+        $('#confirmDialog').dialog('option', 'width', width || (window.innerWidth * 0.35));
 
         if (!buttons) {
             $('#confirmDialog').dialog('option', 'buttons', {

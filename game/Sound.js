@@ -21,7 +21,7 @@ DBZCCG.Sound.Background.bgm = [
 
 DBZCCG.Sound.Background.index = 0;
 
-function onYouTubeIframeAPIReady() {
+window.onYouTubeIframeAPIReady = function() {
 
     var player;
 

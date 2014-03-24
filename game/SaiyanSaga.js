@@ -12,10 +12,10 @@ DBZCCG.Saiyan.Foil.Default = (function() {
         DBZCCG.Load.foilSaiyanDefault = true;
         console.log('Saiyan Saga Default Foil effect loaded');
     },
-    function() {
-        DBZCCG.Load.error = true;
-        console.log('Error while loading Saiyan Saga Foil effect');
-    });
+            function() {
+                DBZCCG.Load.error = true;
+                console.log('Error while loading Saiyan Saga Foil effect');
+            });
     return {texture: textureCube, reflectivity: 5};
 }());
 
@@ -5448,15 +5448,23 @@ DBZCCG.Saiyan['190'] = {
                         cardIdx.push(Math.floor(Math.random() * (DBZCCG.performingAction.discardPile.cards.length - 1)));
                     }
 
-                    DBZCCG.performingAction.transferCards('discardPile', cardIdx, 'lifeDeck');
+                    DBZCCG.performingAction.transferCards('discardPile', cardIdx, 'lifeDeck', 0);
                 });
             }
+
+            DBZCCG.listActions.splice(0, 0, function() {
+                DBZCCG.performingAction.mainPersonality.changeAnger(2);
+            });
+
         } else /* mainPlayer */ {
+            
+            DBZCCG.performingAction.mainPersonality.changeAnger(2);
+
             for (var k = 0; k < 2; k++) {
                 DBZCCG.listActions.splice(0, 0, function() {
                     var card = DBZCCG.Interface.lastSelectedCards.shift();
                     if (card) {
-                        DBZCCG.performingAction.transferCards('discardPile', [DBZCCG.performingAction.discardPile.cards.indexOf(card)], 'lifeDeck');
+                        DBZCCG.performingAction.transferCards('discardPile', [DBZCCG.performingAction.discardPile.cards.indexOf(card)], 'lifeDeck', 0);
                     }
                 });
             }
@@ -5472,10 +5480,6 @@ DBZCCG.Saiyan['190'] = {
             // effect still happening
             return true;
         }
-
-        DBZCCG.listActions.splice(0, 0, function() {
-            DBZCCG.performingAction.mainPersonality.changeAnger(2);
-        });
     },
     postEffect: function(card) {
         var cardIdx = DBZCCG.attackingPlayer.nonCombats.getCardIdx(card.display);

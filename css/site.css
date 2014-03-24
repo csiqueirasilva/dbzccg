@@ -1,0 +1,252 @@
+* {
+    margin: 0;
+    padding: 0;
+    font-family: Open Sans, Verdana;
+}
+
+body {
+    background: url('images/html/bg-body-pattern.jpg');
+    background-size: 100% 100%;
+}
+
+.desktop-menu-option a {
+    text-decoration: none;
+    color: #000000;
+}
+
+.desktop-menu-option a:hover {
+    text-decoration: underline;
+    color: #000000;
+}
+
+.desktop-menu-option a:active {
+    text-decoration: none;
+    color: #000000;
+}
+
+.desktop-menu-option a:visited {
+    text-decoration: none;
+    color: #000000;
+}
+
+#footer-content {
+}
+
+#contact-box {
+    padding-top: 2%;
+    margin: 0 auto;
+    width: 80%;
+    height: auto;
+}
+
+#creation-disclaimer {
+    margin-top: 5.75%;
+}
+
+#contact-box:after {
+    content: "";
+    clear:both;
+}
+
+.contact-icon {
+    display: block;
+    margin: 0 auto;
+    margin-top: 3.5%;
+    height: auto;
+    width: 100%;
+}
+
+.div-line {
+    width: 1px;
+    float: left;
+    background-color: #000000;
+    height: 100%;
+    margin-left: 1%;
+    display: none;
+    margin-right: 1%;
+}
+
+#email-logo {
+    width: 40%;
+}
+
+#trello-logo{
+}
+
+#github-logo {
+}
+
+.disclaimer {
+    font-size: 2em;
+    width: 100%;
+    text-align: center;
+    margin: 0 auto;
+}
+
+#legal-disclaimer {
+}
+
+#footer-content {
+    -webkit-box-shadow: 0px 0px 4px #000;
+    -moz-box-shadow: 0px 0px 4px #000;
+    box-shadow: 0px 0px 4px #000;
+    border-top: 1px #000000;
+    bottom: 0%;
+    min-height: 20vmax;
+    background: url('images/html/bg-pattern.jpg');
+    background-size: 100% 100%;
+}
+
+#main-wrapper {
+    margin: 0 auto;
+    width: 90%;
+    min-height: 70%;
+}
+
+.content-line > div > img {
+    width: 100%;
+}
+
+.content-line > div {
+    width: 100%;
+}
+
+.content-line > div > div {
+    text-align: justify;
+    width: 100%;
+    padding-bottom: 5%;
+    margin: 0 auto;
+    margin-top: 5%;
+}
+
+#main-content {
+    padding-top: 2%;
+    padding-bottom: 2%;
+}
+
+.content-line {
+    width: 80%;
+    margin: 0 auto;
+    text-align: center;
+}
+
+#header-content {
+    height: 20%;
+    background: url('images/html/bg-pattern.jpg');
+    border-bottom: 1px #000000;
+    -webkit-box-shadow: 0px 0px 4px #000;
+    -moz-box-shadow: 0px 0px 4px #000;
+    box-shadow: 0px 0px 4px #000;
+    background-size: 100% 100%;
+    display: table;
+}
+
+#logo {
+    width: 100%;
+    height: 100%;
+    vertical-align: middle;
+    display: table-cell;
+}
+
+#logo img {
+    width: 100%;
+    height: auto;
+}
+
+#desktop-menu {
+    float: left;
+    height:100%;
+    display: none;
+    width: 40%;
+    margin-left: 7.5%;
+}
+
+.desktop-menu-option {
+    float: left;
+    margin-left: 5%;
+    margin-top: 11%;
+    margin-right: 5%;
+}
+
+@media screen and (min-width: 1024px) {
+    .content-line > div { 
+        float:left;
+        width: 20%;
+        margin-left: 2%;
+        margin-right: 2%;
+    }
+
+    .content-line:after {
+        content: "";
+        display: block;
+        clear: both;
+    }
+
+    #contact-box {
+        height: 25%;
+    }
+
+    #email-logo {
+        width: auto;
+    }
+
+    #header-content {
+        display: block;
+    }
+
+    #logo > img {
+        margin-top: 7.5%;
+    }
+
+    #github-logo {
+        margin-left: 23.5%;
+    }
+
+    .div-line {
+        display: block;
+    }
+
+    #desktop-menu {
+        display: block;
+    }
+
+    .contact-icon {
+        margin-top: 3.5%;
+        float: left;
+        height: 50%;
+        width: auto;
+    }
+
+    #creation-disclaimer {
+        margin-top: 1.75%;
+    }
+
+    .disclaimer {
+        font-size: 1em;
+    }
+
+    #footer-content {
+        height: auto;
+    }
+
+    #email-logo {
+        margin-left: 1%;
+        margin-right: 1%;
+    }
+
+    #logo {
+        width: 20%;
+        margin-left: 5%;
+        height: 100%;
+        float: left;
+        display: block;
+    }
+}
+
+/* Index */
+#content-title {
+    margin-bottom: 2%;
+    margin-top: 2%;
+    text-align: center;
+}
+/* End of index */

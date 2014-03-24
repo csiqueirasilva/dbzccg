@@ -149,24 +149,25 @@ DBZCCG.Table.create = function(extPlayers, camera, scene) {
 
         var unparsedPlayers = [];
         var qttPlayers = extPlayers.length;
+        
 
         /* Special Case */
-        if (qttPlayers == 2) {
-            var p1 = {data: extPlayers[0], pos: new THREE.Vector3(0, 0, DBZCCG.Table.basePlayerDistance / 2)};
-            var p2 = {data: extPlayers[1], pos: new THREE.Vector3(0, 0, -DBZCCG.Table.basePlayerDistance / 2)};
-
-            unparsedPlayers.push(p1);
-            unparsedPlayers.push(p2);
-        } else /* Use the regular polygon law and cosin law to find all position vectors of the 3+ players */ {
-            for (var i = 0; i < qttPlayers; i++) {
-                var angleBetween = (qttPlayers - 2) * Math.PI / qttPlayers;
-                /* Use the regular polygon law and cosin law to find all position vectors of the players */
-                /* NYI */
-            }
+        var angleBetween = 2*Math.PI/qttPlayers;
+        var lastVector = new THREE.Vector3(0,0,1);
+        var vec = lastVector;
+        for(var i = 0; i < qttPlayers; i++) {
+            console.log(vec);
+            unparsedPlayers.push({
+                data: extPlayers[i],
+                pos: vec.multiplyScalar(DBZCCG.Table.basePlayerDistance/2),
+                angle: angleBetween*i
+            });
+            lastVector = vec.clone().normalize();
+            vec = MathHelper.rotateVector(lastVector, null, angleBetween*(i+1)); 
         }
 
         /* Player 1 hand adjustments */
-        this.players.push(DBZCCG.Player.create(unparsedPlayers[0].data, unparsedPlayers[0].pos));
+        this.players.push(DBZCCG.Player.create(unparsedPlayers[0].data, unparsedPlayers[0].pos, unparsedPlayers[0].angle));
 
         var position = this.players[0].dirVector.clone();
         this.setCameraSideView = function() {
@@ -203,7 +204,7 @@ DBZCCG.Table.create = function(extPlayers, camera, scene) {
 
         // Load other players
         for (var i = 1; i < unparsedPlayers.length; i++) {
-            this.players.push(DBZCCG.Player.create(unparsedPlayers[i].data, unparsedPlayers[i].pos));
+            this.players.push(DBZCCG.Player.create(unparsedPlayers[i].data, unparsedPlayers[i].pos, unparsedPlayers[i].angle));
             this.players[i].loadPlayerSpace(scene);
         }
 

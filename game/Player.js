@@ -50,12 +50,12 @@ DBZCCG.Player.pass = function() {
     DBZCCG.waitingMainPlayerMouseCommand = false;
 };
 
-DBZCCG.Player.create = function(dataObject, vec) {
+DBZCCG.Player.create = function(dataObject, vec, angle) {
 
-    function PlayerObject(dataObject, vec) {
-
+    function PlayerObject(dataObject, vec, angle) {
         var pronome;
 
+        this.angle = angle + Math.PI;
         this.dirVector = vec.clone().normalize();
         this.posVector = vec.clone();
         this.distanceFromCenter = vec.length();
@@ -77,7 +77,6 @@ DBZCCG.Player.create = function(dataObject, vec) {
         this.rejuvenationPhaseEnabled = true;
 
         /* Game functions */
-
         var player = this;
 
         this.passDialog = function() {
@@ -1036,7 +1035,9 @@ DBZCCG.Player.create = function(dataObject, vec) {
                     var player = this;
                     DBZCCG.listActions.splice(0, 0, function() {
                         DBZCCG.performingAction = player;
-                        if (player.discardPile.cards.length > 0) {
+                        if (player[pile || 'discardPile'].cards.length > 0) {
+                            player.transferCards(pile || 'discardPile', [cardIdx || 0], 'hand');
+                            
                             DBZCCG.listActions.splice(0, 0, function() {
                                 DBZCCG.performingAnimation = true;
                                 var card = player.hand.cards[player.hand.cards.length - 1];
@@ -1050,6 +1051,8 @@ DBZCCG.Player.create = function(dataObject, vec) {
                                 animation.onUpdate(function() {
                                     card.display.rotation.y = this.y;
                                 });
+
+                                animation.delay(500);
 
                                 var secondAnimation = new TWEEN.Tween(new THREE.Vector3(0, cardRotation - Math.PI, 0)).to(new THREE.Vector3(0, cardRotation, 0), 300);
                                 secondAnimation.delay(200);
@@ -1066,8 +1069,6 @@ DBZCCG.Player.create = function(dataObject, vec) {
 
                                 animation.start();
                             });
-
-                            player.transferCards(pile || 'discardPile', [cardIdx || 0], 'hand');
                         }
                     });
 
@@ -1411,7 +1412,6 @@ DBZCCG.Player.create = function(dataObject, vec) {
         }
 
     }
-    return new PlayerObject(dataObject, vec);
+    return new PlayerObject(dataObject, vec, angle);
 
-}
-;
+};

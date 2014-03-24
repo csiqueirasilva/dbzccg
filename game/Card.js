@@ -59,7 +59,7 @@ DBZCCG.Card.Rarity['Ubber Rare'] = 7;
 /* To reduce load on card creation */
 (function() {
     DBZCCG.Card.backTexture = THREE.ImageUtils.loadTexture("images/DBZCCG/back.jpg", 
-    new THREE.UVMapping(), function () {
+    new THREE.UVMapping(), function (cardBack) {
         DBZCCG.Load.cardBack = true;
         console.log('Loaded card back texture');
     }, function () {

@@ -1182,7 +1182,7 @@ DBZCCG.Combat.setMouseOverCallback = function(display) {
             // power stages
             $('.qtip-content').children().children().children('.personality-content').children().css({'font-size': '0.95em'});
             // level
-            $('.qtip-content').children().children().children('.personality-card-content').children('.property-description-box').children('.level-label').css({'margin-top': '0em', 'font-size': '2em', 'margin-left': '-0.8em'});
+            $('.qtip-content').children().children().children('.personality-card-content').children('.property-description-box').children('.level-label').css({'margin-top': '0em', 'font-size': '2em', 'margin-left': '-1em'});
             // pur
             $('.qtip-content').children().children().children('.personality-card-content').children('.property-description-box').children('.card-label-pur').children('div').css({'font-size': '1.9vmax', 'margin-left': '0.6vmax', 'margin-top': '0.75vmax'});
         }

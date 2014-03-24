@@ -42,9 +42,8 @@ DBZCCG.Dragonball.DragonballObject = function (data) {
             var animation = new TWEEN.Tween(new THREE.Vector3(0,
                     0,
                     db.display.rotation.z))
-                    .to(new THREE.Vector3(0, 0, (db.display.position.z < 0 && player.dirVector.z > 0)
-                    || (db.display.position.z > 0 && player.dirVector.z < 0) ? Math.PI : 0), 200);
-
+                    .to(new THREE.Vector3(0, 0, player.angle - Math.PI), 200);
+            
             animation.onUpdate(function() {
                 db.display.rotation.z = this.z;
             });
