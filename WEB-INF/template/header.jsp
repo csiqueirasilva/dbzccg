@@ -2,7 +2,7 @@
 
 <!-- header -->
 <div id="header-content">
-    <div id="logo-mobile"><img src="http://${header.host}/DBZWCG/images/html/main-logo.png" /></div>
+    <div id="logo-mobile"><img src="images/html/main-logo.png" /></div>
     <div id="desktop-menu">
 
 <!--        <div class="desktop-menu-option">
@@ -12,7 +12,7 @@
             <a target="_blank" href="album.htm">Album</a>
         </div>-->
 
-        <div id="logo"><img src="http://${header.host}/DBZWCG/images/html/main-logo.png" /></div>
+        <div id="logo"><img src="images/html/main-logo.png" /></div>
 
         <security:authorize access="isAnonymous()">
 <!--            <div class="div-line"></div>-->
@@ -24,7 +24,7 @@
 
 <security:authorize access="isAuthenticated()">
     <p>${pageContext.request.userPrincipal.principal.displayName}</p>
-    <p><a href="http://${header.host}/DBZWCG/auth/logout">Log out</a></p>
+    <p><a href="auth/logout">Log out</a></p>
 </security:authorize>
 
 <!-- Login Form -->
@@ -104,11 +104,11 @@
 
         $('.form-group:first').children('input').focus();
 
-        window.history.pushState(null, null, 'http://${header.host}/DBZWCG/index.htm#' + this.id);
+        window.history.pushState(null, null, 'index.htm#' + this.id);
     });
 
     $('.modal').on('hide.bs.modal', function() {
-        window.history.pushState(null, null, 'http://${header.host}/DBZWCG/index.htm');
+        window.history.pushState(null, null, 'index.htm');
     });
 
     $('#login-form').find('input').keypress(function(ev) {

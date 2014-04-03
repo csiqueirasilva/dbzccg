@@ -19,17 +19,6 @@
     <context:component-scan base-package="com.dbzwcg.controllers" />
  
     <mvc:annotation-driven />
-    
-    <bean id="propertyConfigurer"
-          class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer"
-          p:location="/WEB-INF/jdbc.properties" />
-    
-    <bean id="dataSource"
-          class="org.springframework.jdbc.datasource.DriverManagerDataSource"
-          p:driverClassName="${jdbc.driverClassName}"
-          p:url="${jdbc.url}"
-          p:username="${jdbc.username}"
-          p:password="${jdbc.password}" />
 
     <!-- SECURITY -->
         
@@ -48,18 +37,6 @@
     </security:http>
     <security:authentication-manager>
         <security:authentication-provider user-service-ref="customUserDetailsService">
-<!--            <security:jdbc-user-service data-source-ref="dataSource"
-            
-                                        users-by-username-query="SELECT email as username, password, enable 
-                                                                FROM users 
-                                                                WHERE email=?"
-                                                                
-                                        authorities-by-username-query="SELECT users.email as username, authorities.authority 
-                                                                    FROM users, authorities, user_roles
-                                                                    WHERE user_roles.id_user = users.id AND
-                                                                    user_roles.id_authority = authorities.id AND 
-                                                                    users.email = ?"
-            />-->
         </security:authentication-provider>
     </security:authentication-manager>
 

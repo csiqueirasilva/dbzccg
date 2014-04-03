@@ -2,8 +2,8 @@
 <img src='images/html/image-main-album-description.jpg' style='display: none;'/>
 
 <div id="main-description-image">
-    <button id="btn-demo" class="main-description-btn btn btn-inverse" href="http://${header.host}/DBZWCG/game.htm">PLAY THE DEMO</button>
-    <button id="btn-demo-album" class="main-description-btn btn btn-info" href="http://${header.host}/DBZWCG/album.htm">THE SAIYAN SAGA ALBUM</button>
+    <button id="btn-demo" class="main-description-btn btn btn-inverse" href="game.htm">PLAY THE DEMO</button>
+    <button id="btn-demo-album" class="main-description-btn btn btn-info" href="album.htm">THE SAIYAN SAGA ALBUM</button>
 
     <div id='main-description-image-overlay'>
         <h2 class='title'></h2>
@@ -55,28 +55,28 @@
 
 <div class="content-line">
     <div>
-        <img title='Styles' src="http://${header.host}/DBZWCG/images/html/styles-showcase.jpg" />
+        <img title='Styles' src="images/html/styles-showcase.jpg" />
         <div>
             <p>Rediscover all the styles! You can build a deck around a style of your choice.</p>
         </div>
     </div>
 
     <div>
-        <img title='Personalities' src="http://${header.host}/DBZWCG/images/html/personality-showcase.jpg" />
+        <img title='Personalities' src="images/html/personality-showcase.jpg" />
         <div>
             <p>Play with Villains, Heroes and Rogue personalities (Rogue personalities can be both Heroes and Villains).</p>
         </div>
     </div>
 
     <div>
-        <img title='Senseis' src="http://${header.host}/DBZWCG/images/html/sensei-showcase.jpg" />
+        <img title='Senseis' src="images/html/sensei-showcase.jpg" />
         <div>
             <p>Use a Sensei card to grant your character another advantage.</p>
         </div>
     </div>
 
     <div>
-        <img title='Locations/Battlegrounds' src="http://${header.host}/DBZWCG/images/html/location-showcase.jpg" />
+        <img title='Locations/Battlegrounds' src="images/html/location-showcase.jpg" />
         <div>
             <p>Locations and Battlegrounds cards can put yourself into an advantage towards your opponent (if you build your deck around it).</p>
         </div>
