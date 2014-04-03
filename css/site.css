@@ -1,12 +1,52 @@
 * {
     margin: 0;
     padding: 0;
-    font-family: Open Sans, Verdana;
+    font-family: 'Open Sans', 'Verdana';
 }
 
-body {
+#main-description-image {
+    display: none;
+}
+
+#header-content-bg-fix {
+    display: none;
+}
+
+.modal {
+    display: none;
+}
+
+.form-error {
+    color: #FF3333;
+    padding-bottom: 2%;
+}
+
+body {    
     background: url('images/html/bg-body-pattern.jpg');
     background-size: 100% 100%;
+}
+
+#resolution-error {
+    display: none;
+}
+
+#desktop-join-box {
+    float: right;
+    margin-top: 2%;
+}
+
+#desktop-join-box  > button {
+    display: block;
+    width: 100%;
+}
+
+.form-group > input {
+    display: block;
+    height: 5vmin;
+}
+
+#desktop-join-box  > button:first-child {
+    margin-bottom: 8%;
 }
 
 .desktop-menu-option a {
@@ -35,7 +75,7 @@ body {
 #contact-box {
     padding-top: 2%;
     margin: 0 auto;
-    width: 80%;
+    width: 50%;
     height: auto;
 }
 
@@ -45,7 +85,6 @@ body {
 
 #contact-box:after {
     content: "";
-    clear:both;
 }
 
 .contact-icon {
@@ -77,7 +116,7 @@ body {
 }
 
 .disclaimer {
-    font-size: 2em;
+    font-size: 1.25em;
     width: 100%;
     text-align: center;
     margin: 0 auto;
@@ -139,6 +178,7 @@ body {
     box-shadow: 0px 0px 4px #000;
     background-size: 100% 100%;
     display: table;
+    z-index: 10;
 }
 
 #logo {
@@ -148,7 +188,7 @@ body {
     display: table-cell;
 }
 
-#logo img {
+#logo-mobile img {
     width: 100%;
     height: auto;
 }
@@ -157,20 +197,104 @@ body {
     float: left;
     height:100%;
     display: none;
-    width: 40%;
+    width: 62%;
     margin-left: 7.5%;
 }
 
 .desktop-menu-option {
     float: left;
     margin-left: 5%;
-    margin-top: 11%;
+    margin-top: 9vmin;
     margin-right: 5%;
 }
 
+.jlink:hover {
+    cursor: pointer;
+}
+
+#signup-help {
+    margin-bottom: 5%;
+}
+
+@media screen and (max-height: 570px) {
+    * {
+        display: none;
+    }
+
+    #resolution-error {
+        display: block;
+    }
+}
+
 @media screen and (min-width: 1024px) {
+
+    #main-description-image-overlay {
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.333);
+        font-size: 2em;
+        color: #FFFFFF;
+        text-shadow: -2px 0 black, 0 2px black, 2px 0 black, 0 -2px black;
+        text-align: center;
+    }
+    
+    #main-description-image-overlay > .title {
+        padding-top: 10%;
+        font-size: 2em;
+    }
+
+    #main-description-image-overlay > .description {
+        padding-top: 5%;
+        margin: 0 auto;
+        display: block;
+    }
+    
+    #btn-demo-album {
+        left: 51%;
+        top: 85%;
+    }
+    
+    #btn-demo {
+        left: 20%;
+        top: 85%;
+    }
+    
+    #logo-mobile {
+        display: none;
+    }
+    
+    .desktop-menu-option {
+        margin-top: 4vmin;
+    }
+    
+    #header-content-margin-fix {
+        height: 4%;
+    }
+    
+    #header-content-bg-fix {
+        background: url('images/html/bg-body-pattern.jpg');
+        height: 5%;
+        z-index: 5;
+        position: fixed;
+        width: 100%;
+        display: block;
+    }
+
+    #main-description-image {
+        width: 100%;
+        position: relative;
+        height: 60%;
+        background-size: 100% 100%;
+        background: url('images/html/image-main-description.jpg');
+        background-position:center;
+        -webkit-box-shadow: 0px 0px 4px #000;
+        -moz-box-shadow: 0px 0px 4px #000;
+        box-shadow: 0px 0px 4px #000;
+        display: block;
+    }
+
     .content-line > div { 
-        float:left;
+        float: left;
         width: 20%;
         margin-left: 2%;
         margin-right: 2%;
@@ -183,7 +307,8 @@ body {
     }
 
     #contact-box {
-        height: 25%;
+        height: auto;
+        width: 65%;
     }
 
     #email-logo {
@@ -191,29 +316,36 @@ body {
     }
 
     #header-content {
+        height: 5%;
+        background: rgba(1,1,1,0.25);
         display: block;
-    }
-
-    #logo > img {
-        margin-top: 7.5%;
-    }
-
-    #github-logo {
-        margin-left: 23.5%;
+        position: fixed;
+        width: 100%;
     }
 
     .div-line {
         display: block;
     }
 
+    .main-description-btn {
+        width: 30%;
+        height: 10%;
+        font-size: 2em;
+        font-weight: bold;
+        position: absolute;
+    }
+    
     #desktop-menu {
+        width: 55%;
+        padding-left: 42.5%;
+        margin: 0 auto;
         display: block;
+        float: none;
     }
 
     .contact-icon {
-        margin-top: 3.5%;
-        float: left;
-        height: 50%;
+        margin-top: 1.5%;
+        height: 10%;
         width: auto;
     }
 
@@ -226,6 +358,7 @@ body {
     }
 
     #footer-content {
+        background: rgba(1,1,1,0.25);
         height: auto;
     }
 
@@ -235,11 +368,15 @@ body {
     }
 
     #logo {
-        width: 20%;
-        margin-left: 5%;
+        width: 30%;
         height: 100%;
         float: left;
         display: block;
+    }
+    
+    #logo > img {
+        height: 100%;
+        width: auto;
     }
 }
 
@@ -248,5 +385,6 @@ body {
     margin-bottom: 2%;
     margin-top: 2%;
     text-align: center;
+    font-weight: bold;
 }
 /* End of index */

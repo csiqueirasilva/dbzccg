@@ -95,6 +95,10 @@ DBZCCG.create = function() {
         };
     }
 
+    function loadWoodenTable(sizeX, sizeY) {
+        this.loadImage('images/bg/bg5.jpg', sizeX, sizeY);
+    }
+
     function loadKamiPalace(sizeX, sizeY) {
         this.loadImage('images/bg/bg1.jpg', sizeX, sizeY);
     }
@@ -160,7 +164,7 @@ DBZCCG.create = function() {
         DBZCCG.loadCounter = 0;
         DBZCCG.loadIcr = 0;
 
-        DBZCCG.background = ThreeHelper.createBackground(scene, camera, loadBarrenTerrains);
+        DBZCCG.background = ThreeHelper.createBackground(scene, camera, loadWoodenTable);
 
         var light = new THREE.PointLight(0xF0F0F0); // soft white light
         light.position.set(0, 100, 0);
