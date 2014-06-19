@@ -1,5 +1,5 @@
-DBZCCG.Card.FloatingEffect = {};
 DBZCCG.Card.FloatingEffect.ParticleNumber = 15;
+DBZCCG.Card.FloatingEffect.ParticleSystemIndexCardDisplay = 3;
 
 (function floatingEffectParticles() {
     var geo = new THREE.Geometry();
@@ -50,8 +50,7 @@ DBZCCG.Card.FloatingEffect.ParticleNumber = 15;
 
         if (this.parent && this.parent.checkLife()) {
             this.parent = null;
-        }
-        ;
+        };
 
         if (pCount === this.removed.length) {
             selections.splice(selections.indexOf(this), 1);
@@ -86,7 +85,6 @@ DBZCCG.Card.FloatingEffect.ParticleNumber = 15;
                 this.element.geometry.vertices[pCount].y += 0.075 + this.icr;
                 this.element.geometry.vertices[pCount].x += Math.sin(DBZCCG.clock.elapsedTime * Math.random()) / 20;
             }
-
         }
 
         this.element.geometry.colorsNeedUpdate = true;
@@ -113,7 +111,7 @@ DBZCCG.Card.FloatingEffect.ParticleNumber = 15;
 
     DBZCCG.Card.FloatingEffect.removeParticle = function(display, callback) {
         for (var i = 0; i < selections.length; i++) {
-            if (display.children[1] === selections[i].element) {
+            if (display.children[DBZCCG.Card.FloatingEffect.ParticleSystemIndexCardDisplay] === selections[i].element) {
                 selections[i].remove = true;
                 selections[i].removeCallback = callback;
                 selections[i].icr = 0.3;
@@ -128,7 +126,11 @@ DBZCCG.Card.FloatingEffect.FloatingEffectObject = function (dataObject) {
     DBZCCG.Card.CardObject.apply(this, [dataObject.card]);
 
     this.display.parentCard = this;
-
+    
+    for(var i = 0; i < this.display.children.length; i++) {
+        this.display.children[i].material = this.display.children[i].material.clone();
+    }
+    
     this.checkLife = function() {
         var currentTurn = $('#turnCounterNumber').html();
         var currentPhase = DBZCCG.phaseCounter;
@@ -157,10 +159,10 @@ DBZCCG.Card.FloatingEffect.FloatingEffectObject = function (dataObject) {
                         function() {
 
                             var animation = new TWEEN.Tween(new THREE.Vector3(1, 0, 0)).to(new THREE.Vector3(0, 0, 0), 250);
-                            var materials = floatingEffect.display.children[0].material.materials;
-
+                            var materials = floatingEffect.getDisplayMaterials();
+                            
                             animation.onStart(function() {
-                                DBZCCG.Sound.floatingEffect("disappear");
+                                //DBZCCG.Sound.floatingEffect("disappear");
                             });
 
                             animation.onUpdate(function() {
@@ -217,10 +219,10 @@ DBZCCG.Card.FloatingEffect.FloatingEffectObject = function (dataObject) {
             DBZCCG.performingAnimation = true;
 
             var animation = new TWEEN.Tween(new THREE.Vector3(0, 0, 0)).to(new THREE.Vector3(1, 0, 0), 250);
-            var materials = floatingEffect.display.children[0].material.materials;
+            var materials = floatingEffect.getDisplayMaterials();
 
             animation.onStart(function() {
-                DBZCCG.Sound.floatingEffect("appear");
+                //DBZCCG.Sound.floatingEffect("appear");
                 DBZCCG.Card.FloatingEffect.addParticle(floatingEffect);
             });
 
@@ -238,7 +240,7 @@ DBZCCG.Card.FloatingEffect.FloatingEffectObject = function (dataObject) {
         }, priority: Infinity, life: false};
 
     dataObject.player.floatingEffects.addAddCallback(addCallback);
-    var materials = this.display.children[0].material.materials;
+    var materials = floatingEffect.getDisplayMaterials();
     for (var i = 0; i < materials.length; i++) {
         materials[i].opacity = 0;
         materials[i].transparent = true;

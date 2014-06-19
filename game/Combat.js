@@ -1,86 +1,14 @@
-DBZCCG.Combat = {};
-
 DBZCCG.Combat.effectHappening = false;
 DBZCCG.Combat.selectionArrow = null;
-
-// Effect types
-DBZCCG.Combat.Attack = {};
-DBZCCG.Combat.Attack.Physical = 0;
-DBZCCG.Combat.Attack.Energy = 1;
-
-DBZCCG.Combat.Defense = {};
-DBZCCG.Combat.Defense.Physical = 2;
-DBZCCG.Combat.Defense.Energy = 3;
-
-DBZCCG.Combat.Effect = {};
-DBZCCG.Combat.Effect.Floating = 4;
-DBZCCG.Combat.Effect.LowerAnger = 5;
-DBZCCG.Combat.Effect.RaiseAnger = 6;
-DBZCCG.Combat.Effect.StageUp = 7;
-DBZCCG.Combat.Effect.StageDown = 8;
-DBZCCG.Combat.Effect.DrawCard = 9;
-DBZCCG.Combat.Effect.DiscardCard = 10;
-
-DBZCCG.Combat.Target = {};
-DBZCCG.Combat.Target.Self = 11;
-DBZCCG.Combat.Target.Enemy = 12;
-
-DBZCCG.Combat.Effect.StageSet = 13;
-
-DBZCCG.Combat.Target.Multiple = 14;
-DBZCCG.Combat.Target.Single = 15;
-
-DBZCCG.Combat.Defense.DefenseShield = 16;
-DBZCCG.Combat.Defense.Prevention = 17;
-
-DBZCCG.Combat.Effect.StrainingMove = 18;
-
-DBZCCG.Combat.Effect.Regenerate = 19;
-
-DBZCCG.Combat.Effect.CaptureDragonball = 20;
-
-DBZCCG.Combat.Effect.EndCombat = 21;
-
-DBZCCG.Combat.Effect.HeroOnly = 22;
-DBZCCG.Combat.Effect.VillainOnly = 23;
-
-DBZCCG.Combat.Defense.Omni = 24;
-
-DBZCCG.Combat.Defense.All = 25;
-
-DBZCCG.Combat.Effect.ShufflePile = 26;
-
-// End of effect types
-
-// Use events
-
-DBZCCG.Combat.Events = {};
-DBZCCG.Combat.Events['Entering Draw Phase'] = 1;
-DBZCCG.Combat.Events['Leaving Draw Phase'] = 2;
-DBZCCG.Combat.Events['Entering Non-Combat Phase'] = 3;
-DBZCCG.Combat.Events['Leaving Non-Combat Phase'] = 4;
-DBZCCG.Combat.Events['Entering PUR Phase'] = 5;
-DBZCCG.Combat.Events['Leaving PUR Phase'] = 6;
-DBZCCG.Combat.Events['Entering Declare Phase'] = 7;
-DBZCCG.Combat.Events['Leaving Declare Phase'] = 8;
-DBZCCG.Combat.Events['Entering Combat Phase'] = 9;
-DBZCCG.Combat.Events['Leaving Combat Phase'] = 10;
-DBZCCG.Combat.Events['Entering Discard Phase'] = 11;
-DBZCCG.Combat.Events['Leaving Discard Phase'] = 12;
-DBZCCG.Combat.Events['Entering Rejuvenation Phase'] = 13;
-DBZCCG.Combat.Events['Leaving Rejuvenation Phase'] = 14;
-DBZCCG.Combat.Events['Before Playing'] = 15;
-DBZCCG.Combat.Events['After Playing'] = 16;
-DBZCCG.Combat.Events['Before Activating'] = 17;
-DBZCCG.Combat.Events['After Activating'] = 18;
-DBZCCG.Combat.Events['Combat Chain finished'] = 19;
-
-DBZCCG.Combat.inUsePAT = DBZCCG.Card.Saga.Saiyan;
+DBZCCG.Combat.inUsePAT = DBZCCG.Card.Saga["Collectible Card Game"].Saiyan;
 
 DBZCCG.Combat.flashCard = function(card) {
-    if (card.display.children[0].material.materials[5].map && card.display.children[0].material.materials[5].map.sourceFile) {
-        var content = '<img src ="' + card.display.children[0].material.materials[5].map.sourceFile + '" />';
-        DBZCCG.Combat.flashContent(content, 'flash-card');
+    if (card.display.parentCard) {
+        var displayImg = card.display.parentCard.getTextureImg();
+        if (displayImg) {
+            var content = '<img src ="' + displayImg + '" />';
+            DBZCCG.Combat.flashContent(content, 'flash-card');
+        }
     }
 };
 
@@ -215,7 +143,7 @@ DBZCCG.Combat.defaultDragonballCheck = function(player) {
     var db = this;
     var result = DBZCCG.Combat.defaultNonCombatCheck(player);
     if (result) {
-        result = !DBZCCG.Dragonball.checkInPlay(db);
+        result = !DBZCCG.DragonBall.checkInPlay(db);
     }
     return result;
 };
@@ -234,7 +162,7 @@ DBZCCG.Combat.defaultNonCombatCheck = function(player) {
 
 DBZCCG.Combat.checkInPlay = function(player, card) {
     var ret = true;
-    if (card.type === DBZCCG.Card.Type['Non-Combat']) {
+    if (card.type.indexOf(DBZCCG.Card.Type['Non-Combat']) !== -1) {
         ret = player.nonCombats.getCardIdx(card.display) === -1 ? false : true;
     }
     return ret;
@@ -273,7 +201,7 @@ DBZCCG.Combat.defaultDefenderCheck = function(player, card) {
 
 DBZCCG.Combat.PAT = {};
 
-DBZCCG.Combat.PAT[DBZCCG.Card.Saga.Saiyan] = {
+DBZCCG.Combat.PAT[DBZCCG.Card.Saga["Collectible Card Game"].Saiyan] = {
     cardImage: 'images/DBZCCG/saiyan_pat.jpg',
     calcDamage: function(sourcePowerLevel, destinationPowerLevel) {
         function getDamage(power) {
@@ -321,7 +249,7 @@ DBZCCG.Combat.attack = function(table, tableModifier, sourcePowerLevel, destinat
 };
 
 DBZCCG.Combat.targetGroup = function(card) {
-    switch (card.type) {
+    switch (card.getPrimaryType()) {
         case DBZCCG.Card.Type['Non-Combat']:
             return 'nonCombats';
         case DBZCCG.Card.Type['Dragonball']:
@@ -381,6 +309,7 @@ DBZCCG.Combat.pickCardsFromTheField = function(msg, cards, action) {
                 }
 
                 $('#capture-btn').hide();
+                DBZCCG.Interface.leftSideMenuOnResize();
                 DBZCCG.waitingMainPlayerMouseCommand = false;
                 DBZCCG.performingTurn = false;
                 DBZCCG.Combat.effectHappening = false;
@@ -435,6 +364,7 @@ DBZCCG.Combat.pickCardsFromTheField = function(msg, cards, action) {
 
                 showCaptureDialog();
                 $('#capture-btn').show();
+                DBZCCG.Interface.leftSideMenuOnResize();
             });
 
         } else /* CPU */ {
@@ -543,6 +473,7 @@ DBZCCG.Combat.checkDragonballControl = function(player) {
 
             if (passVisible) {
                 $('#pass-btn').hide();
+                DBZCCG.Interface.leftSideMenuOnResize();
             }
 
             DBZCCG.effectHappening = true;
@@ -556,6 +487,7 @@ DBZCCG.Combat.checkDragonballControl = function(player) {
 
                     if (passVisible) {
                         $('#pass-btn').show();
+                        DBZCCG.Interface.leftSideMenuOnResize();
                     }
 
                     if ($('.selectedTurn')[0].id !== 'combat-phase' && DBZCCG.mainPlayer === DBZCCG.performingAction && DBZCCG.mainPlayer.usableCards.length === 0) {
@@ -564,6 +496,7 @@ DBZCCG.Combat.checkDragonballControl = function(player) {
                         }, 250);
                     } else if ($('.selectedTurn')[0].id === 'combat-phase') {
                         $('#pass-btn').hide();
+                        DBZCCG.Interface.leftSideMenuOnResize();
                         DBZCCG.performingTurn = DBZCCG.waitingMainPlayerMouseCommand = false;
                     }
                 });
@@ -622,6 +555,7 @@ DBZCCG.Combat.checkDragonballControl = function(player) {
                 DBZCCG.Combat.setCardSource(clicked.display);
 
                 $('#effect-btn').hide();
+                DBZCCG.Interface.leftSideMenuOnResize();
                 DBZCCG.qtipElement.qtip('hide');
 
                 createEffectPlayedCard(clicked);
@@ -708,7 +642,7 @@ DBZCCG.Combat.checkDragonballControl = function(player) {
 
                 var destination;
 
-                switch (DBZCCG.currentCard.type) {
+                switch (DBZCCG.currentCard.getPrimaryType()) {
                     case DBZCCG.Card.Type['Physical Combat']:
                     case DBZCCG.Card.Type['Combat']:
                     case DBZCCG.Card.Type['Energy Combat']:
@@ -754,6 +688,7 @@ DBZCCG.Combat.checkDragonballControl = function(player) {
             if (clicked.activable instanceof Function && clicked.activable(DBZCCG.performingAction)) {
 
                 $('#effect-btn').hide();
+                DBZCCG.Interface.leftSideMenuOnResize();
 
                 DBZCCG.Combat.setCardSource(clicked.display);
 
@@ -824,17 +759,6 @@ DBZCCG.Combat.setDefenderTurn = function(player) {
 (function selectionParticles() {
     var geo = new THREE.Geometry();
 
-    //old circular selection particles
-//    for (var z = -DBZCCG.Card.cardWidth / 2; z < DBZCCG.Card.cardWidth / 2; z = z + 0.01) {
-//        var x = Math.pow(Math.pow(DBZCCG.Card.cardWidth / 2, 2) - Math.pow(z, 2), 0.5);
-//        var particle = new THREE.Vector3(x, 0.6, z);
-//        particle.basePos = particle.clone();
-//        geo.vertices.push(particle);
-//        particle = new THREE.Vector3(-x, 0.6, z);
-//        particle.basePos = particle.clone();
-//        geo.vertices.push(particle);
-//    }
-
     // new square selection particles
     var y = DBZCCG.Card.cardHeight / 2;
     var x = DBZCCG.Card.cardWidth / 2;
@@ -842,22 +766,22 @@ DBZCCG.Combat.setDefenderTurn = function(player) {
     var particleIncrement = 0.12;
 
     for (var i = -y; i < y; i = i + particleIncrement) {
-        var particle = new THREE.Vector3(-x, 0, i);
+        var particle = new THREE.Vector3(-x, 0.1, i);
         geo.vertices.push(particle);
     }
 
     for (var j = -x; j < x; j = j + particleIncrement) {
-        var particle = new THREE.Vector3(j, 0, y);
+        var particle = new THREE.Vector3(j, 0.1, y);
         geo.vertices.push(particle);
     }
 
     for (var i = y - 0.1; i >= -y; i = i - particleIncrement) {
-        var particle = new THREE.Vector3(x, 0, i);
+        var particle = new THREE.Vector3(x, 0.1, i);
         geo.vertices.push(particle);
     }
 
     for (var j = x - 0.1; j >= -x; j = j - particleIncrement) {
-        var particle = new THREE.Vector3(j, 0, -y);
+        var particle = new THREE.Vector3(j, 0.1, -y);
         geo.vertices.push(particle);
     }
 
@@ -894,20 +818,13 @@ DBZCCG.Combat.setDefenderTurn = function(player) {
         var pCount = geo.vertices.length;
 
         this.element.material.size = 1 + Math.sin(DBZCCG.clock.elapsedTime * 4) / 4;
+        this.element.material.needsUpdate = true;
         var total = pCount;
         var position;
 
         while (pCount--) {
             position = (pCount + this.icr) % total;
-            // get the particle
-            var particle = geo.vertices[pCount];
-
             geo.colors[position].setHSL((-pCount * 2 / 4000) + this.baseColor, 1.0, 0.35 + Math.sin(DBZCCG.clock.elapsedTime) / 8);
-
-            //var icrVector = new THREE.Vector3(Math.cos(pCount) * 0.2, 0.6 + Math.sin(DBZCCG.clock.elapsedTime) * 0.15, Math.cos(pCount) * 0.2);
-            //particle.copy(particle.basePos.clone().multiplyScalar(Math.abs(Math.cos(DBZCCG.clock.elapsedTime)) * 1.5 + 0.5).add(icrVector));
-
-            //particle.y += Math.sin(Math.random());
         }
 
         this.icr = (this.icr + 2) % total;
@@ -1079,12 +996,14 @@ DBZCCG.Combat.checkUseWhenNeeded = function(action) {
                                 },
                                 'Skip': function() {
                                     $('#effect-btn').hide();
+                                    DBZCCG.Interface.leftSideMenuOnResize();
                                     DBZCCG.Combat.removeSelectionParticles();
                                     $(this).dialog('close');
                                     DBZCCG.performingTurn = DBZCCG.waitingMainPlayerMouseCommand = false;
                                 }
                             });
                     $('#effect-btn').show();
+                    DBZCCG.Interface.leftSideMenuOnResize();
                 });
             } else /* AI */ {
                 DBZCCG.performingAction = activePlayers.shift();
@@ -1154,24 +1073,25 @@ DBZCCG.Combat.speechBubble = function(text, display) {
 
 DBZCCG.Combat.setMouseOverCallback = function(display) {
     display.mouseOver = function() {
-        if (!$('.qtip').is(':visible')) {
-            DBZCCG.toolTip.customContent = this.displayHoverText();
 
+        if (!$('.qtip').is(':visible')) {
+            
             DBZCCG.qtipElement.qtip('option', {'position.adjust.y': -30});
             DBZCCG.qtipElement.qtip('option', {'position.adjust.mouse': true});
+            
+            DBZCCG.toolTip.customContent = this.displayHoverText();
 
             if (display.parentCard) {
-                if (display.children[0].material.materials[5].map && display.children[0].material.materials[5].map.sourceFile) {
-                    var cardImage = '<img src ="' + display.children[0].material.materials[5].map.sourceFile + '" style="float:left; width: 14vmax;" />';
+                var displayImg = display.parentCard.getTextureImg();
+                var cardImage = '';
+                if (displayImg) {
+                    cardImage = '<img class="hover-image-card" src ="' + displayImg + '" style="float:left; width: 14vmax;" />';
                 }
 
                 var wrapper = document.createElement('div');
                 wrapper.id = 'description-right';
                 wrapper.innerHTML = DBZCCG.toolTip.customContent;
-                wrapper.style.width = Math.floor($('#descriptionBoxContent')
-                        .parent()
-                        .parent()
-                        .parent().width() * 0.4) + 'px';
+                wrapper.style.width = Math.floor($('#object-info').width() * 0.25) + 'px';
 
                 DBZCCG.toolTip.customContent = cardImage + wrapper.outerHTML + "<div style='clear:both;' />";
             }

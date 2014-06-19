@@ -1,7 +1,3 @@
-DBZCCG.Player = {};
-
-DBZCCG.Player.Field = {};
-
 DBZCCG.Player.Field.cornerWidth = 0.1;
 DBZCCG.Player.Field.Height = 30;
 DBZCCG.Player.Field.Width = 100;
@@ -437,6 +433,7 @@ DBZCCG.Player.create = function(dataObject, vec, angle) {
 
                         showCaptureDialog();
                         $('#capture-btn').show();
+                        DBZCCG.Interface.leftSideMenuOnResize();
                     });
 
                 } else /* CPU */ {
@@ -490,7 +487,7 @@ DBZCCG.Player.create = function(dataObject, vec, angle) {
                 if (player.lastDamageTaken && player.lastDamageTaken.cards >= 5) {
                     player.captureDragonballs();
                     if (player.lastDamageTaken.cards > 7 || player.lastDamageTaken.stages > 7) {
-                        DBZCCG.Sound.wowDamage();
+                        //DBZCCG.Sound.wowDamage();
                     }
                 }
             });
@@ -575,6 +572,8 @@ DBZCCG.Player.create = function(dataObject, vec, angle) {
                                 $('#final-physical-btn').show();
                             }
 
+                            DBZCCG.Interface.leftSideMenuOnResize();
+
                             if (player.usableCards.length === 0) {
                                 player.passDialog();
                             }
@@ -591,7 +590,7 @@ DBZCCG.Player.create = function(dataObject, vec, angle) {
 
             if (DBZCCG.openCard) {
                 DBZCCG.listActions.splice(0, 0, function() {
-                    DBZCCG.Combat.checkUseWhenNeeded(DBZCCG.Combat.Events['Combat Chain finished']);
+                    DBZCCG.Combat.checkUseWhenNeeded(DBZCCG.Combat.Events['Combat Chain Finished']);
                 });
             }
 
@@ -638,6 +637,7 @@ DBZCCG.Player.create = function(dataObject, vec, angle) {
                             DBZCCG.waitingMainPlayerMouseCommand = true;
                             DBZCCG.passMessage = 'Pass the opportunity to defend?';
                             $('#pass-btn').show();
+                            DBZCCG.Interface.leftSideMenuOnResize();
 
                             if (player.usableCards.length === 0) {
                                 player.passDialog();
@@ -762,6 +762,7 @@ DBZCCG.Player.create = function(dataObject, vec, angle) {
                     DBZCCG.waitingMainPlayerMouseCommand = true;
                     document.getElementById('rejuvenate-btn').onclick();
                     $('#rejuvenate-btn').show();
+                    DBZCCG.Interface.leftSideMenuOnResize();
                 } else {
                     this.rejuvenate(true);
                 }
@@ -885,6 +886,7 @@ DBZCCG.Player.create = function(dataObject, vec, angle) {
                 DBZCCG.waitingMainPlayerMouseCommand = true;
                 document.getElementById('combat-btn').onclick();
                 $('#combat-btn').show();
+                DBZCCG.Interface.leftSideMenuOnResize();
             } else {
                 // AI OR P2
                 if (this.hand.cards.length > 2) {
@@ -898,7 +900,7 @@ DBZCCG.Player.create = function(dataObject, vec, angle) {
         };
 
         this.purPhase = function() {
-            var pur = this.mainPersonality.currentPersonality().PUR;
+            var pur = this.mainPersonality.currentPersonality().pur;
             this.mainPersonality.raiseZScouter(pur);
         };
 
@@ -918,6 +920,7 @@ DBZCCG.Player.create = function(dataObject, vec, angle) {
                 DBZCCG.passMessage = 'Advance to the Power UP Phase?';
                 DBZCCG.passLog = this.displayName() + " advanced to the Power UP Phase.";
                 $('#pass-btn').show();
+                DBZCCG.Interface.leftSideMenuOnResize();
 
                 if (this.usableCards.length === 0) {
                     this.passDialog();
@@ -1384,14 +1387,8 @@ DBZCCG.Player.create = function(dataObject, vec, angle) {
 
         this.name = dataObject.name;
 
-        if (this.mainPersonality.currentPersonality().personality instanceof Array) {
-            for (var i = 0; i < this.mainPersonality.currentPersonality().personality.length; i++) {
-                if (DBZCCG.Personality.FemaleList.indexOf(this.mainPersonality.currentPersonality().personality[i]) !== -1) {
-                    pronome = 'her';
-                }
-            }
-        } else {
-            if (DBZCCG.Personality.FemaleList.indexOf(this.mainPersonality.currentPersonality().personality) !== -1) {
+        for (var i = 0; i < this.mainPersonality.currentPersonality().personalities.length; i++) {
+            if (DBZCCG.Personality['Female List'].indexOf(this.mainPersonality.currentPersonality().personalities[i]) !== -1) {
                 pronome = 'her';
             }
         }

@@ -1,23 +1,21 @@
-DBZCCG.Saiyan = {};
-
-DBZCCG.Saiyan.Foil = {};
-
-DBZCCG.Saiyan.Foil.Default = (function() {
-    var ext = 'jpg';
-    var urlPrefix = "images/bg/saiyan-saga-foil2/";
-    var urls = [urlPrefix + "posx." + ext, urlPrefix + "negx." + ext,
-        urlPrefix + "posy." + ext, urlPrefix + "negy." + ext,
-        urlPrefix + "posz." + ext, urlPrefix + "negz." + ext];
-    var textureCube = THREE.ImageUtils.loadTextureCube(urls, undefined, function() {
-        DBZCCG.Load.foilSaiyanDefault = true;
-        console.log('Saiyan Saga Default Foil effect loaded');
-    },
-            function() {
-                DBZCCG.Load.error = true;
-                console.log('Error while loading Saiyan Saga Foil effect');
-            });
-    return {texture: textureCube, reflectivity: 5};
-}());
+if (typeof window !== "undefined" && window !== null) {
+    DBZCCG['Collectible Card Game'].Saiyan.Foil.Default = (function() {
+        var ext = 'jpg';
+        var urlPrefix = "images/bg/saiyan-saga-foil2/";
+        var urls = [urlPrefix + "posx." + ext, urlPrefix + "negx." + ext,
+            urlPrefix + "posy." + ext, urlPrefix + "negy." + ext,
+            urlPrefix + "posz." + ext, urlPrefix + "negz." + ext];
+        var textureCube = THREE.ImageUtils.loadTextureCube(urls, undefined, function() {
+            DBZCCG.Load.foilSaiyanDefault = true;
+            console.log('Saiyan Saga Default Foil effect loaded');
+        },
+                function() {
+                    DBZCCG.Load.error = true;
+                    console.log('Error while loading Saiyan Saga Foil effect');
+                });
+        return {texture: textureCube, reflectivity: 5};
+    }());
+}
 
 DBZCCG.Saiyan['001'] = {
     type: DBZCCG.Card.Type['Physical Combat'],
@@ -25,9 +23,10 @@ DBZCCG.Saiyan['001'] = {
     description: "Physical attack. Raise your anger 1 level.",
     name: "Orange Standing Fist Punch",
     number: '001',
-    texturePath: "images/DBZCCG/saiyan/001.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/001.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     rarity: DBZCCG.Card.Rarity.Common,
+    headshot: [DBZCCG.Personality.Personalities['Raditz'], DBZCCG.Personality.Personalities['Gohan']],
     activable: DBZCCG.Combat.defaultAttackerCheck,
     effect: function() {
         this.success = true;
@@ -53,7 +52,7 @@ DBZCCG.Saiyan['001'] = {
             DBZCCG.attackingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
         });
     },
-    effectType: [DBZCCG.Combat.Attack.Physical, DBZCCG.Combat.Effect.RaiseAnger]
+    effectType: [DBZCCG.Combat.Attack.Physical, DBZCCG.Combat.Effect.Anger["Raise"]]
 };
 
 DBZCCG.Saiyan['002'] = {
@@ -62,9 +61,10 @@ DBZCCG.Saiyan['002'] = {
     description: "Physical attack doing +1 power stage of damage. Raise your anger 1 level.",
     name: "Orange One Knuckle Punch",
     number: '002',
+    headshot: [DBZCCG.Personality.Personalities['Piccolo']],
     rarity: DBZCCG.Card.Rarity.Common,
-    texturePath: "images/DBZCCG/saiyan/002.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/002.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     activable: DBZCCG.Combat.defaultAttackerCheck,
     effect: function() {
         this.success = true;
@@ -93,7 +93,7 @@ DBZCCG.Saiyan['002'] = {
             DBZCCG.attackingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
         });
     },
-    effectType: [DBZCCG.Combat.Attack.Physical, DBZCCG.Combat.Effect.RaiseAnger]
+    effectType: [DBZCCG.Combat.Attack.Physical, DBZCCG.Combat.Effect.Anger["Raise"]]
 
 };
 
@@ -103,9 +103,10 @@ DBZCCG.Saiyan['003'] = {
     description: "Physical attack doing +1 power stage of damage. Raise your anger 1 level.",
     name: "Orange Two Knuckle Punch",
     number: '003',
+    headshot: [DBZCCG.Personality.Personalities['Raditz']],
     rarity: DBZCCG.Card.Rarity.Common,
-    texturePath: "images/DBZCCG/saiyan/003.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/003.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     activable: DBZCCG.Combat.defaultAttackerCheck,
     effect: function() {
         this.success = true;
@@ -136,7 +137,7 @@ DBZCCG.Saiyan['003'] = {
             DBZCCG.attackingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
         });
     },
-    effectType: [DBZCCG.Combat.Attack.Physical, DBZCCG.Combat.Effect.RaiseAnger]
+    effectType: [DBZCCG.Combat.Attack.Physical, DBZCCG.Combat.Effect.Anger["Raise"]]
 };
 
 DBZCCG.Saiyan['004'] = {
@@ -145,9 +146,10 @@ DBZCCG.Saiyan['004'] = {
     description: "Physical attack. Raise your anger 1 level.",
     name: "Orange Leg Sweep",
     number: '004',
+    headshot: [DBZCCG.Personality.Personalities['Bulma']],
     rarity: DBZCCG.Card.Rarity.Common,
-    texturePath: "images/DBZCCG/saiyan/004.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/004.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     activable: DBZCCG.Combat.defaultAttackerCheck,
     effect: function() {
         this.success = true;
@@ -174,7 +176,7 @@ DBZCCG.Saiyan['004'] = {
             DBZCCG.attackingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
         });
     },
-    effectType: [DBZCCG.Combat.Attack.Physical, DBZCCG.Combat.Effect.RaiseAnger]
+    effectType: [DBZCCG.Combat.Attack.Physical, DBZCCG.Combat.Effect.Anger["Raise"]]
 };
 
 DBZCCG.Saiyan['005'] = {
@@ -183,9 +185,10 @@ DBZCCG.Saiyan['005'] = {
     description: "Physical attack doing +3 power stages of damage. Raise your anger 1 level.",
     name: "Orange Arm Bar",
     number: '005',
+    headshot: [DBZCCG.Personality.Personalities['Raditz']],
     rarity: DBZCCG.Card.Rarity.Common,
-    texturePath: "images/DBZCCG/saiyan/005.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/005.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     activable: DBZCCG.Combat.defaultAttackerCheck,
     effect: function() {
         this.success = true;
@@ -216,7 +219,7 @@ DBZCCG.Saiyan['005'] = {
             DBZCCG.attackingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
         });
     },
-    effectType: [DBZCCG.Combat.Attack.Physical, DBZCCG.Combat.Effect.RaiseAnger]
+    effectType: [DBZCCG.Combat.Attack.Physical, DBZCCG.Combat.Effect.Anger["Raise"]]
 };
 
 DBZCCG.Saiyan['006'] = {
@@ -224,10 +227,11 @@ DBZCCG.Saiyan['006'] = {
     style: DBZCCG.Card.Style.Red,
     description: "Physical attack. Raise your anger 1 level.",
     name: "Red Lunge Punch",
+    headshot: [DBZCCG.Personality.Personalities['Goku']],
     number: '006',
     rarity: DBZCCG.Card.Rarity.Common,
-    texturePath: "images/DBZCCG/saiyan/006.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/006.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     activable: DBZCCG.Combat.defaultAttackerCheck,
     effect: function() {
         this.success = true;
@@ -255,7 +259,7 @@ DBZCCG.Saiyan['006'] = {
             DBZCCG.attackingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
         });
     },
-    effectType: [DBZCCG.Combat.Attack.Physical, DBZCCG.Combat.Effect.RaiseAnger]
+    effectType: [DBZCCG.Combat.Attack.Physical, DBZCCG.Combat.Effect.Anger["Raise"]]
 };
 
 DBZCCG.Saiyan['007'] = {
@@ -264,9 +268,10 @@ DBZCCG.Saiyan['007'] = {
     description: "Physical attack doing +3 power stages of damage. Raise your anger 1 level.",
     name: "Red Reverse Punch",
     number: '007',
+    headshot: [DBZCCG.Personality.Personalities['Raditz']],
     rarity: DBZCCG.Card.Rarity.Common,
-    texturePath: "images/DBZCCG/saiyan/007.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/007.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     activable: DBZCCG.Combat.defaultAttackerCheck,
     effect: function() {
         this.success = true;
@@ -296,7 +301,7 @@ DBZCCG.Saiyan['007'] = {
             DBZCCG.attackingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
         });
     },
-    effectType: [DBZCCG.Combat.Attack.Physical, DBZCCG.Combat.Effect.RaiseAnger]
+    effectType: [DBZCCG.Combat.Attack.Physical, DBZCCG.Combat.Effect.Anger["Raise"]]
 };
 
 DBZCCG.Saiyan['008'] = {
@@ -305,9 +310,10 @@ DBZCCG.Saiyan['008'] = {
     description: "Physical attack doing +3 power stages of damage. Raise your anger 1 level.",
     name: "Red Knife Hand",
     number: '008',
+    headshot: [DBZCCG.Personality.Personalities['Vegeta']],
     rarity: DBZCCG.Card.Rarity.Common,
-    texturePath: "images/DBZCCG/saiyan/008.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/008.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     activable: DBZCCG.Combat.defaultAttackerCheck,
     effect: function() {
         this.success = true;
@@ -337,7 +343,7 @@ DBZCCG.Saiyan['008'] = {
             DBZCCG.attackingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
         });
     },
-    effectType: [DBZCCG.Combat.Attack.Physical, DBZCCG.Combat.Effect.RaiseAnger]
+    effectType: [DBZCCG.Combat.Attack.Physical, DBZCCG.Combat.Effect.Anger["Raise"]]
 };
 
 DBZCCG.Saiyan['009'] = {
@@ -346,9 +352,10 @@ DBZCCG.Saiyan['009'] = {
     description: "Physical attack doing +3 power stages of damage. Raise your anger 1 level.",
     name: "Red Palm Heel Strike",
     number: '009',
+    headshot: [DBZCCG.Personality.Personalities['Chichi']],
     rarity: DBZCCG.Card.Rarity.Common,
-    texturePath: "images/DBZCCG/saiyan/009.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/009.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     activable: DBZCCG.Combat.defaultAttackerCheck,
     effect: function() {
         this.success = true;
@@ -378,7 +385,7 @@ DBZCCG.Saiyan['009'] = {
             DBZCCG.attackingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
         });
     },
-    effectType: [DBZCCG.Combat.Attack.Physical, DBZCCG.Combat.Effect.RaiseAnger]
+    effectType: [DBZCCG.Combat.Attack.Physical, DBZCCG.Combat.Effect.Anger["Raise"]]
 };
 
 DBZCCG.Saiyan['010'] = {
@@ -387,9 +394,10 @@ DBZCCG.Saiyan['010'] = {
     description: "Physical attack. Raise your anger 1 level.",
     name: "Red Elbow Strike",
     number: '010',
+    headshot: [DBZCCG.Personality.Personalities['Bulma']],
     rarity: DBZCCG.Card.Rarity.Common,
-    texturePath: "images/DBZCCG/saiyan/010.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/010.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     activable: DBZCCG.Combat.defaultAttackerCheck,
     effect: function() {
         this.success = true;
@@ -416,7 +424,7 @@ DBZCCG.Saiyan['010'] = {
             DBZCCG.attackingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
         });
     },
-    effectType: [DBZCCG.Combat.Attack.Physical, DBZCCG.Combat.Effect.RaiseAnger]
+    effectType: [DBZCCG.Combat.Attack.Physical, DBZCCG.Combat.Effect.Anger["Raise"]]
 };
 
 DBZCCG.Saiyan['011'] = {
@@ -425,9 +433,10 @@ DBZCCG.Saiyan['011'] = {
     description: "Physical attack doing +4 power stages of damage. Lower your opponent's anger 1 level. If successful, stops an energy attack performed in your opponent's next attack phase.",
     name: "Blue Forward Foot Sweep",
     number: '011',
+    headshot: [DBZCCG.Personality.Personalities['Nappa']],
     rarity: DBZCCG.Card.Rarity.Common,
-    texturePath: "images/DBZCCG/saiyan/011.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/011.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     activable: DBZCCG.Combat.defaultAttackerCheck,
     effect: function() {
         this.success = true;
@@ -481,7 +490,7 @@ DBZCCG.Saiyan['011'] = {
             DBZCCG.attackingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
         });
     },
-    effectType: [DBZCCG.Combat.Attack.Physical, DBZCCG.Combat.Effect.Floating, DBZCCG.Combat.Effect.LowerAnger]
+    effectType: [DBZCCG.Combat.Attack.Physical, DBZCCG.Combat.Effect.Combat.Floating, DBZCCG.Combat.Effect.Anger["Lower"]]
 };
 
 DBZCCG.Saiyan['012'] = {
@@ -490,9 +499,10 @@ DBZCCG.Saiyan['012'] = {
     description: "Physical attack doing +2 power stages of damage. Lower your opponent's anger 1 level. Stops a physical attack performed in your opponent's next attack phase.",
     name: "Blue Hip Spring Throw",
     number: '012',
+    headshot: [DBZCCG.Personality.Personalities['Nappa']],
     rarity: DBZCCG.Card.Rarity.Common,
-    texturePath: "images/DBZCCG/saiyan/012.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/012.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     activable: DBZCCG.Combat.defaultAttackerCheck,
     effect: function() {
         this.success = true;
@@ -548,7 +558,7 @@ DBZCCG.Saiyan['012'] = {
             DBZCCG.attackingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
         });
     },
-    effectType: [DBZCCG.Combat.Attack.Physical, DBZCCG.Combat.Effect.Floating, DBZCCG.Combat.Effect.LowerAnger]
+    effectType: [DBZCCG.Combat.Attack.Physical, DBZCCG.Combat.Effect.Combat.Floating, DBZCCG.Combat.Effect.Anger["Lower"]]
 };
 
 DBZCCG.Saiyan['013'] = {
@@ -557,9 +567,10 @@ DBZCCG.Saiyan['013'] = {
     description: "Physical attack doing +5 power stages of damage or stops an energy attack. Lower your opponent's anger 1 level.",
     name: "Blue Round Throw",
     number: '013',
+    headshot: [DBZCCG.Personality.Personalities['Nappa']],
     rarity: DBZCCG.Card.Rarity.Common,
-    texturePath: "images/DBZCCG/saiyan/013.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/013.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     activable: function(player) {
         var ret = false;
 
@@ -633,7 +644,7 @@ DBZCCG.Saiyan['013'] = {
         });
 
     },
-    effectType: [DBZCCG.Combat.Attack.Physical, DBZCCG.Combat.Defense.Energy, DBZCCG.Combat.Effect.LowerAnger]
+    effectType: [DBZCCG.Combat.Attack.Physical, DBZCCG.Combat.Defense.Energy, DBZCCG.Combat.Effect.Anger["Lower"]]
 };
 
 
@@ -643,9 +654,10 @@ DBZCCG.Saiyan['014'] = {
     description: "Physical attack doing +1 power stage of damage. Raise your anger 1 level. Lower your opponent's anger 1 level.",
     name: "Blue Shoulder Wheel",
     number: '014',
+    headshot: [DBZCCG.Personality.Personalities['Raditz']],
     rarity: DBZCCG.Card.Rarity.Common,
-    texturePath: "images/DBZCCG/saiyan/014.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/014.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     activable: DBZCCG.Combat.defaultAttackerCheck,
     effect: function() {
         this.success = true;
@@ -690,10 +702,11 @@ DBZCCG.Saiyan['015'] = {
     limit: 1,
     name: "Earth Dragon Ball 1",
     number: '015',
+    headshot: [DBZCCG.Personality.Personalities['Goku']],
     rarity: DBZCCG.Card.Rarity.Common,
-    texturePath: "images/DBZCCG/saiyan/015.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
-    dbCode: DBZCCG.Dragonball['Earth Dragonball 1'],
+    texturePath: "images/cardimages/CCG/saiyan/015.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
+    dbCode: DBZCCG.DragonBall.Type['Earth Dragon Ball 1'],
     playable: DBZCCG.Combat.defaultDragonballCheck,
     effect: function() {
         var control = this.control;
@@ -705,7 +718,7 @@ DBZCCG.Saiyan['015'] = {
             control.drawTopCards(1, 'lifeDeck');
         });
     },
-    effectType: [DBZCCG.Combat.Effect.StageUp, DBZCCG.Combat.Effect.DrawCard]
+    effectType: [DBZCCG.Combat.Effect.DragonBalls["Earth Dragon Ball"], DBZCCG.Combat.Effect["Power Stages"]["Raise Power Stages"], DBZCCG.Combat.Effect.Cards["Draw Cards"]]
 };
 
 DBZCCG.Saiyan['016'] = {
@@ -714,11 +727,12 @@ DBZCCG.Saiyan['016'] = {
     description: "Set all opponent's personalities to 2 power stages above 0.",
     limit: 1,
     name: "Earth Dragon Ball 2",
+    headshot: [DBZCCG.Personality.Personalities['Piccolo']],
     number: '016',
     rarity: DBZCCG.Card.Rarity.Common,
-    texturePath: "images/DBZCCG/saiyan/016.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
-    dbCode: DBZCCG.Dragonball['Earth Dragonball 2'],
+    texturePath: "images/cardimages/CCG/saiyan/016.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
+    dbCode: DBZCCG.DragonBall.Type['Earth Dragon Ball 2'],
     playable: DBZCCG.Combat.defaultDragonballCheck,
     effect: function() {
         var control = this.control;
@@ -732,7 +746,7 @@ DBZCCG.Saiyan['016'] = {
             }
         });
     },
-    effectType: [DBZCCG.Combat.Effect.StageSet, DBZCCG.Combat.Target.Enemy, DBZCCG.Combat.Target.Multiple]
+    effectType: [DBZCCG.Combat.Effect.DragonBalls["Earth Dragon Ball"], DBZCCG.Combat.Effect["Power Stages"]["Set"], DBZCCG.Combat.Effect.Target.Enemy, DBZCCG.Combat.Effect.Target.Multiple]
 };
 
 DBZCCG.Saiyan['017'] = {
@@ -741,9 +755,10 @@ DBZCCG.Saiyan['017'] = {
     description: "Physical attack. Power up to full.",
     name: "Hidden Power Level",
     number: '017',
+    headshot: [DBZCCG.Personality.Personalities['Krillin']],
     rarity: DBZCCG.Card.Rarity.Common,
-    texturePath: "images/DBZCCG/saiyan/017.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/017.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     activable: DBZCCG.Combat.defaultAttackerCheck,
     effect: function() {
         this.success = true;
@@ -770,7 +785,7 @@ DBZCCG.Saiyan['017'] = {
             DBZCCG.attackingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
         });
     },
-    effectType: [DBZCCG.Combat.Attack.Physical, DBZCCG.Combat.Effect.StageUp]
+    effectType: [DBZCCG.Combat.Attack.Physical, DBZCCG.Combat.Effect["Power Stages"]["Raise"]]
 };
 
 DBZCCG.Saiyan['018'] = {
@@ -779,9 +794,10 @@ DBZCCG.Saiyan['018'] = {
     description: "Saiyan Heritage Only. Physical attack. Name a personality. Your opponent cannot perform physical attacks with that personality on his next attack phase.",
     name: "Saiyan Arm Throw",
     number: '018',
+    headshot: [DBZCCG.Personality.Personalities['Gohan']],
     rarity: DBZCCG.Card.Rarity.Common,
-    texturePath: "images/DBZCCG/saiyan/018.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/018.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     activable: function(player) {
         return DBZCCG.Combat.defaultAttackerCheck(player, this) && DBZCCG.Personality.checkHeritage(player.activePersonality.personality().personality, 'saiyan');
     },
@@ -918,9 +934,10 @@ DBZCCG.Saiyan['019'] = {
     description: "Saiyan Heritage Only. Physical attack. Name a personality. Your opponent cannot perform energy attacks with that personality on his next attack phase.",
     name: "Saiyan Full Spin Kick",
     number: '019',
+    headshot: [DBZCCG.Personality.Personalities['Dream Saiyan 1']],
     rarity: DBZCCG.Card.Rarity.Common,
-    texturePath: "images/DBZCCG/saiyan/019.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/019.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     activable: function(player) {
         return DBZCCG.Combat.defaultAttackerCheck(player, this) && DBZCCG.Personality.checkHeritage(player.activePersonality.personality().personality, 'saiyan');
     },
@@ -1058,9 +1075,10 @@ DBZCCG.Saiyan['020'] = {
     description: "Saiyan Heritage Only. Physical attack doing +3 power stage of damage.",
     name: "Saiyan Pressure Punch",
     number: '020',
+    headshot: [DBZCCG.Personality.Personalities['Gohan']],
     rarity: DBZCCG.Card.Rarity.Common,
-    texturePath: "images/DBZCCG/saiyan/020.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/020.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     activable: function(player) {
         return DBZCCG.Combat.defaultAttackerCheck(player, this) && DBZCCG.Personality.checkHeritage(player.activePersonality.personality().personality, 'saiyan');
     },
@@ -1097,12 +1115,13 @@ DBZCCG.Saiyan['021'] = {
     description: "Saiyan Heritage Only. Physical attack. Name a personality. Your opponent cannot perform physical attacks with that personality on his next attack phase. Costs 2 power stages to perform.",
     name: "Saiyan Neck Hold",
     number: '021',
+    headshot: [DBZCCG.Personality.Personalities['Nappa'], DBZCCG.Personality.Personalities['Vegeta']],
     cost: function() {
         return {powerStage: 2};
     },
     rarity: DBZCCG.Card.Rarity.Common,
-    texturePath: "images/DBZCCG/saiyan/021.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/021.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     activable: function(player) {
         return DBZCCG.Combat.defaultAttackerCheck(player, this) && DBZCCG.Personality.checkHeritage(player.activePersonality.personality().personality, 'saiyan');
     },
@@ -1239,9 +1258,10 @@ DBZCCG.Saiyan['022'] = {
     description: "Power up 5 power stages. Take the top card in your discard pile and place it at the bottom of your life deck.",
     name: "Power Up!",
     number: '022',
+    headshot: [DBZCCG.Personality.Personalities['Goku']],
     rarity: DBZCCG.Card.Rarity.Common,
-    texturePath: "images/DBZCCG/saiyan/022.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/022.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     playable: DBZCCG.Combat.defaultNonCombatCheck,
     activable: DBZCCG.Combat.defaultAttackerCheck,
     effect: function() {
@@ -1268,7 +1288,7 @@ DBZCCG.Saiyan['022'] = {
             DBZCCG.attackingPlayer.transferCards("nonCombats", [cardIdx], "discardPile");
         });
     },
-    effectType: [DBZCCG.Combat.Effect.StageUp, DBZCCG.Combat.Effect.Regenerate]
+    effectType: [DBZCCG.Combat.Effect["Power Stages"]["Raise"], DBZCCG.Combat.Effect.Cards.Regenerate]
 };
 
 DBZCCG.Saiyan['023'] = {
@@ -1277,8 +1297,9 @@ DBZCCG.Saiyan['023'] = {
     description: "Increase your anger by 2 levels. Take the bottom 2 cards of your discard pile and place them at the bottom of your life deck. Remove from the game after use.",
     name: "Burning Rage",
     number: '023',
-    texturePath: "images/DBZCCG/saiyan/023.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    headshot: [DBZCCG.Personality.Personalities['Piccolo']],
+    texturePath: "images/cardimages/CCG/saiyan/023.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     rarity: DBZCCG.Card.Rarity.Common,
     playable: DBZCCG.Combat.defaultNonCombatCheck,
     activable: DBZCCG.Combat.defaultAttackerCheck,
@@ -1314,13 +1335,14 @@ DBZCCG.Saiyan['023'] = {
 DBZCCG.Saiyan['024'] = {
     type: DBZCCG.Card.Type['Physical Combat'],
     style: DBZCCG.Card.Style.Freestyle,
-    personality: DBZCCG.Personality.Personalities.GOKU,
+    personality: DBZCCG.Personality.Personalities['Goku'],
     description: "Physical attack doing 5 power stages of damage.",
     name: "Goku's Surprise Attack",
     number: '024',
+    headshot: [DBZCCG.Personality.Personalities['Goku']],
     rarity: DBZCCG.Card.Rarity.Common,
-    texturePath: "images/DBZCCG/saiyan/024.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/024.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     activable: DBZCCG.Combat.defaultAttackerCheck,
     effect: function() {
         this.success = true;
@@ -1352,14 +1374,15 @@ DBZCCG.Saiyan['024'] = {
 DBZCCG.Saiyan['025'] = {
     type: DBZCCG.Card.Type['Physical Combat'],
     style: DBZCCG.Card.Style.Freestyle,
-    personality: DBZCCG.Personality.Personalities.GOKU,
+    personality: DBZCCG.Personality.Personalities['Goku'],
     description: "Physical attack. If successful, draw the bottom card of your discard pile into your hand. If used by Goku this card stays on the table to be used one more time this combat. Remove from the game after use. Limit 2 per deck.",
     name: "Goku's Physical Attack",
     number: '025',
     limit: 2,
+    headshot: [DBZCCG.Personality.Personalities['Goku'], DBZCCG.Personality.Personalities['Raditz']],
     rarity: DBZCCG.Card.Rarity.Common,
-    texturePath: "images/DBZCCG/saiyan/025.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/025.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     activable: DBZCCG.Combat.defaultAttackerCheck,
     numberOfUses: 0,
     effect: function() {
@@ -1407,8 +1430,8 @@ DBZCCG.Saiyan['025'] = {
     postEffect: function(card) {
         var cardIdx = DBZCCG.attackingPlayer.inPlay.getCardIdx(card.display);
         this.numberOfUses++;
-        if ((this.numberOfUses === 2 && ClassHelper.checkValue(DBZCCG.attackingPlayer.getPersonalityInControl().personality, DBZCCG.Personality.Personalities.GOKU)) ||
-                !ClassHelper.checkValue(DBZCCG.attackingPlayer.getPersonalityInControl().personality, DBZCCG.Personality.Personalities.GOKU)) {
+        if ((this.numberOfUses === 2 && ClassHelper.checkValue(DBZCCG.attackingPlayer.getPersonalityInControl().personality, DBZCCG.Personality.Personalities['Goku'])) ||
+                !ClassHelper.checkValue(DBZCCG.attackingPlayer.getPersonalityInControl().personality, DBZCCG.Personality.Personalities['Goku'])) {
             this.numberOfUses = 0;
             DBZCCG.listActions.splice(0, 0, function() {
                 DBZCCG.attackingPlayer.transferCards("inPlay", [cardIdx], "removedFromTheGame");
@@ -1424,10 +1447,11 @@ DBZCCG.Saiyan['026'] = {
     description: "Physical attack. Raise your anger 1 level. The performing personality gains 5 power stages.",
     name: "Gohan's Physical Attack",
     number: '026',
-    personality: DBZCCG.Personality.Personalities.GOHAN,
+    personality: DBZCCG.Personality.Personalities['Gohan'],
+    headshot: [DBZCCG.Personality.Personalities['Gohan']],
     rarity: DBZCCG.Card.Rarity.Common,
-    texturePath: "images/DBZCCG/saiyan/026.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/026.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     activable: DBZCCG.Combat.defaultAttackerCheck,
     effect: function() {
         this.success = true;
@@ -1458,19 +1482,20 @@ DBZCCG.Saiyan['026'] = {
             DBZCCG.attackingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
         });
     },
-    effectType: [DBZCCG.Combat.Attack.Physical, DBZCCG.Combat.Effect.StageUp, DBZCCG.Combat.Effect.RaiseAnger]
+    effectType: [DBZCCG.Combat.Attack.Physical, DBZCCG.Combat.Effect["Power Stages"]["Raise"], DBZCCG.Combat.Effect.Anger["Raise"]]
 };
 
 DBZCCG.Saiyan['027'] = {
     type: DBZCCG.Card.Type['Physical Combat'],
     style: DBZCCG.Card.Style.Freestyle,
-    personality: DBZCCG.Personality.Personalities.TIEN,
+    headshot: [DBZCCG.Personality.Personalities['Tien']],
+    personality: DBZCCG.Personality.Personalities['Tien'],
     description: "Physical attack doing 5 life cards of damage.",
     name: "Tien's Physical Attack",
     number: '027',
     rarity: DBZCCG.Card.Rarity.Common,
-    texturePath: "images/DBZCCG/saiyan/027.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/027.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     activable: DBZCCG.Combat.defaultAttackerCheck,
     effect: function() {
         this.success = true;
@@ -1501,14 +1526,15 @@ DBZCCG.Saiyan['027'] = {
 DBZCCG.Saiyan['028'] = {
     type: DBZCCG.Card.Type['Physical Combat'],
     style: DBZCCG.Card.Style.Freestyle,
-    personality: DBZCCG.Personality.Personalities.VEGETA,
+    headshot: [DBZCCG.Personality.Personalities['Vegeta']],
+    personality: DBZCCG.Personality.Personalities['Vegeta'],
     limit: 1,
     description: "Stops a physical attack. For the remainder of combat stops all your opponent's physical attacks. Remove from the game after use. Limit 1 per deck.",
     name: "Vegeta's Physical Stance",
     number: '028',
     rarity: DBZCCG.Card.Rarity.Common,
-    texturePath: "images/DBZCCG/saiyan/028.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/028.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     activable: function(player) {
         return DBZCCG.currentCard && DBZCCG.Combat.attackType === DBZCCG.Combat.Attack.Physical
                 && DBZCCG.Combat.defaultDefenderCheck(player, this);
@@ -1548,13 +1574,14 @@ DBZCCG.Saiyan['028'] = {
 DBZCCG.Saiyan['029'] = {
     type: DBZCCG.Card.Type['Physical Combat'],
     style: DBZCCG.Card.Style.Freestyle,
-    personality: DBZCCG.Personality.Personalities.YAJIROBE,
+    headshot: [DBZCCG.Personality.Personalities['Yajirobe'], DBZCCG.Personality.Personalities['Krillin']],
+    personality: DBZCCG.Personality.Personalities['Yajirobe'],
     description: "Physical attack doing 2 life cards of damage. Remove from the game after use.",
     name: "Yajirobe's Physical Attack",
     number: '029',
     rarity: DBZCCG.Card.Rarity.Common,
-    texturePath: "images/DBZCCG/saiyan/029.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/029.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     activable: DBZCCG.Combat.defaultAttackerCheck,
     effect: function() {
         this.success = true;
@@ -1586,12 +1613,13 @@ DBZCCG.Saiyan['029'] = {
 DBZCCG.Saiyan['030'] = {
     type: DBZCCG.Card.Type['Non-Combat'],
     style: DBZCCG.Card.Style.Freestyle,
+    headshot: [DBZCCG.Personality.Personalities['Goku']],
     description: "Defense Shield: Stops the first unstopped physical attack made against you. Remove from the game after use.",
     name: "Fall 7 Times, Get up 8 times.",
     number: '030',
     rarity: DBZCCG.Card.Rarity.Common,
-    texturePath: "images/DBZCCG/saiyan/030.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/030.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     playable: DBZCCG.Combat.defaultNonCombatCheck,
     defenseShield: function(player) {
         return DBZCCG.openCard && DBZCCG.Combat.attackType === DBZCCG.Combat.Attack.Physical
@@ -1606,18 +1634,19 @@ DBZCCG.Saiyan['030'] = {
             DBZCCG.defendingPlayer.transferCards("nonCombats", [cardIdx], "removedFromTheGame");
         });
     },
-    effectType: [DBZCCG.Combat.Defense.Physical, DBZCCG.Combat.Defense.DefenseShield]
+    effectType: [DBZCCG.Combat.Defense.Physical, DBZCCG.Combat.Defense["Defense Shield"]]
 };
 
 DBZCCG.Saiyan['031'] = {
+    headshot: [DBZCCG.Personality.Personalities['Krillin']],
     type: DBZCCG.Card.Type['Non-Combat'],
     style: DBZCCG.Card.Style.Freestyle,
     description: "Defense Shield: Stops the first unstopped energy attack made against you. Remove from the game after use.",
     name: "Fortify Your Spirit",
     number: '031',
     rarity: DBZCCG.Card.Rarity.Common,
-    texturePath: "images/DBZCCG/saiyan/031.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/031.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     playable: DBZCCG.Combat.defaultNonCombatCheck,
     defenseShield: function(player) {
         return DBZCCG.openCard && DBZCCG.Combat.attackType === DBZCCG.Combat.Attack.Energy && DBZCCG.Combat.defaultDefenderCheck(player, this);
@@ -1631,23 +1660,25 @@ DBZCCG.Saiyan['031'] = {
             DBZCCG.defendingPlayer.transferCards("nonCombats", [cardIdx], "removedFromTheGame");
         });
     },
-    effectType: [DBZCCG.Combat.Defense.Energy, DBZCCG.Combat.Defense.DefenseShield]
+    effectType: [DBZCCG.Combat.Defense.Energy, DBZCCG.Combat.Defense["Defense Shield"]]
 };
 
 DBZCCG.Saiyan['033'] = {
+    headshot: [DBZCCG.Personality.Personalities['Krillin']],
     type: DBZCCG.Card.Type['Non-Combat'],
     style: DBZCCG.Card.Style.Freestyle,
     description: "Prevents 1 life card of damage. Remove from the game after use.",
     name: "It's the Little Things That Matter",
     number: '033',
     rarity: DBZCCG.Card.Rarity.Common,
-    texturePath: "images/DBZCCG/saiyan/033.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/033.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     playable: DBZCCG.Combat.defaultNonCombatCheck,
     activable: function(player) {
         return DBZCCG.currentCard && (DBZCCG.Combat.attackType === DBZCCG.Combat.Attack.Physical ||
                 DBZCCG.Combat.attackType === DBZCCG.Combat.Attack.Energy)
-                && DBZCCG.Combat.defaultDefenderCheck(player, this);
+                && DBZCCG.Combat.defaultDefenderCheck(player, this) &&
+                player.nonCombats.getCardIdx(this.display) !== -1;
     },
     effect: function() {
         DBZCCG.defendingPlayer.addBeforeDamageCallback({
@@ -1683,6 +1714,7 @@ DBZCCG.Saiyan['033'] = {
 };
 
 DBZCCG.Saiyan['034'] = {
+    headshot: [DBZCCG.Personality.Personalities['Goku']],
     type: DBZCCG.Card.Type['Physical Combat'],
     style: DBZCCG.Card.Style.Freestyle,
     description: "Physical attack doing 1 life card of damage. Costs 3 power stages to perform. Limit 1 per deck.",
@@ -1690,8 +1722,8 @@ DBZCCG.Saiyan['034'] = {
     limit: 1,
     number: '034',
     rarity: DBZCCG.Card.Rarity.Common,
-    texturePath: "images/DBZCCG/saiyan/034.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/034.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     activable: DBZCCG.Combat.defaultAttackerCheck,
     effect: function() {
         this.success = true;
@@ -1719,10 +1751,11 @@ DBZCCG.Saiyan['034'] = {
             DBZCCG.attackingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
         });
     },
-    effectType: [DBZCCG.Combat.Attack.Physical, DBZCCG.Combat.Effect.StrainingMove]
+    effectType: [DBZCCG.Combat.Attack.Physical, DBZCCG.Combat.Effect.Combat["Straining Move"]]
 };
 
 DBZCCG.Saiyan['035'] = {
+    headshot: [DBZCCG.Personality.Personalities['Goku']],
     type: DBZCCG.Card.Type['Physical Combat'],
     style: DBZCCG.Card.Style.Freestyle,
     description: "Physical attack doing 3 life card of damage. Costs 3 power stages to perform. Limit 1 per deck.",
@@ -1730,8 +1763,8 @@ DBZCCG.Saiyan['035'] = {
     limit: 1,
     number: '035',
     rarity: DBZCCG.Card.Rarity.Common,
-    texturePath: "images/DBZCCG/saiyan/035.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/035.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     activable: DBZCCG.Combat.defaultAttackerCheck,
     effect: function() {
         this.success = true;
@@ -1759,18 +1792,19 @@ DBZCCG.Saiyan['035'] = {
             DBZCCG.attackingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
         });
     },
-    effectType: [DBZCCG.Combat.Attack.Physical, DBZCCG.Combat.Effect.StrainingMove]
+    effectType: [DBZCCG.Combat.Attack.Physical, DBZCCG.Combat.Effect.Combat["Straining Move"]]
 };
 
 DBZCCG.Saiyan['036'] = {
+    headshot: [DBZCCG.Personality.Personalities['Goku'], DBZCCG.Personality.Personalities['Raditz']],
     type: DBZCCG.Card.Type['Energy Combat'],
     style: DBZCCG.Card.Style.Freestyle,
     description: "Prevents 3 life card of damage from an energy attack. Costs 4 power stages to use.",
     name: "Straining Fake Left Move",
     number: '036',
     rarity: DBZCCG.Card.Rarity.Common,
-    texturePath: "images/DBZCCG/saiyan/036.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/036.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     activable: function(player) {
         return DBZCCG.currentCard && DBZCCG.Combat.attackType === DBZCCG.Combat.Attack.Energy
                 && DBZCCG.Combat.defaultDefenderCheck(player, this);
@@ -1811,6 +1845,7 @@ DBZCCG.Saiyan['036'] = {
 };
 
 DBZCCG.Saiyan['037'] = {
+    headshot: [DBZCCG.Personality.Personalities['Goku']],
     type: DBZCCG.Card.Type['Physical Combat'],
     style: DBZCCG.Card.Style.Freestyle,
     description: "Physical attack doing 4 power stages of damage. Costs 2 life cards to perform. Limit 1 per deck.",
@@ -1818,8 +1853,8 @@ DBZCCG.Saiyan['037'] = {
     limit: 1,
     number: '037',
     rarity: DBZCCG.Card.Rarity.Common,
-    texturePath: "images/DBZCCG/saiyan/037.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/037.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     activable: DBZCCG.Combat.defaultAttackerCheck,
     effect: function() {
         this.success = true;
@@ -1847,18 +1882,19 @@ DBZCCG.Saiyan['037'] = {
             DBZCCG.attackingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
         });
     },
-    effectType: [DBZCCG.Combat.Attack.Physical, DBZCCG.Combat.Effect.StrainingMove]
+    effectType: [DBZCCG.Combat.Attack.Physical, DBZCCG.Combat.Effect.Combat["Straining Move"]]
 };
 
 DBZCCG.Saiyan['038'] = {
+    headshot: [DBZCCG.Personality.Personalities['Goku']],
     type: DBZCCG.Card.Type['Physical Combat'],
     style: DBZCCG.Card.Style.Freestyle,
     description: "Physical attack doing 1 life card of damage. You cannot perform any more attacks this combat.",
     name: "Straining Arm Drag Move",
     number: '038',
     rarity: DBZCCG.Card.Rarity.Common,
-    texturePath: "images/DBZCCG/saiyan/038.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/038.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     activable: DBZCCG.Combat.defaultAttackerCheck,
     effect: function() {
         this.success = true;
@@ -1884,18 +1920,19 @@ DBZCCG.Saiyan['038'] = {
             DBZCCG.attackingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
         });
     },
-    effectType: [DBZCCG.Combat.Attack.Physical, DBZCCG.Combat.Effect.StrainingMove]
+    effectType: [DBZCCG.Combat.Attack.Physical, DBZCCG.Combat.Effect.Combat["Straining Move"]]
 };
 
 DBZCCG.Saiyan['039'] = {
+    headshot: [DBZCCG.Personality.Personalities['Piccolo']],
     type: DBZCCG.Card.Type['Energy Combat'],
     style: DBZCCG.Card.Style.Freestyle,
     description: "Use immediately after your opponent attacks you (this can be a physical or energy attack) and pays any costs for that attack. Lower your opponent's Main Personality 4 power stages immediately when played.",
     name: "Straining Ankle Smash Move",
     number: '039',
     rarity: DBZCCG.Card.Rarity.Common,
-    texturePath: "images/DBZCCG/saiyan/039.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/039.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     activable: function(player) {
         return DBZCCG.currentCard && (DBZCCG.Combat.attackType === DBZCCG.Combat.Attack.Energy ||
                 DBZCCG.Combat.attackType === DBZCCG.Combat.Attack.Physical) &&
@@ -1910,18 +1947,19 @@ DBZCCG.Saiyan['039'] = {
             DBZCCG.defendingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
         });
     },
-    effectType: [DBZCCG.Combat.Effect.StrainingMove]
+    effectType: [DBZCCG.Combat.Effect.Combat["Straining Move"]]
 };
 
 DBZCCG.Saiyan['040'] = {
+    headshot: [DBZCCG.Personality.Personalities['Raditz']],
     type: DBZCCG.Card.Type['Energy Combat'],
     style: DBZCCG.Card.Style.Freestyle,
     description: "Stops an energy attack. You have to discard another card from your hand in order to use this card.",
     name: "Straining Energy Defense Move",
     number: '040',
     rarity: DBZCCG.Card.Rarity.Common,
-    texturePath: "images/DBZCCG/saiyan/040.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/040.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     cost: function() {
         return {handCard: 1};
     },
@@ -1938,18 +1976,19 @@ DBZCCG.Saiyan['040'] = {
             DBZCCG.defendingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
         });
     },
-    effectType: [DBZCCG.Combat.Defense.Energy, DBZCCG.Combat.Effect.StrainingMove]
+    effectType: [DBZCCG.Combat.Defense.Energy, DBZCCG.Combat.Effect.Combat["Straining Move"]]
 };
 
 DBZCCG.Saiyan['041'] = {
+    headshot: [DBZCCG.Personality.Personalities['Piccolo'], DBZCCG.Personality.Personalities['Raditz'], DBZCCG.Personality.Personalities['Goku']],
     type: DBZCCG.Card.Type['Physical Combat'],
     style: DBZCCG.Card.Style.Freestyle,
     description: "Stops a physical attack. You have to discard another card from your hand in order to use this card.",
     name: "Straining Head Lock Move",
     number: '041',
     rarity: DBZCCG.Card.Rarity.Common,
-    texturePath: "images/DBZCCG/saiyan/041.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/041.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     cost: function() {
         return {handCard: 1};
     },
@@ -1967,18 +2006,19 @@ DBZCCG.Saiyan['041'] = {
             DBZCCG.defendingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
         });
     },
-    effectType: [DBZCCG.Combat.Defense.Physical, DBZCCG.Combat.Effect.StrainingMove]
+    effectType: [DBZCCG.Combat.Defense.Physical, DBZCCG.Combat.Effect.Combat["Straining Move"]]
 };
 
 DBZCCG.Saiyan['042'] = {
+    headshot: [DBZCCG.Personality.Personalities['Raditz']],
     type: DBZCCG.Card.Type['Energy Combat'],
     style: DBZCCG.Card.Style.Freestyle,
     description: "Stops an energy attack. You cannot attack for the remainder of combat.",
     name: "Straining Rolling Escape Move",
     number: '042',
     rarity: DBZCCG.Card.Rarity.Common,
-    texturePath: "images/DBZCCG/saiyan/042.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/042.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     activable: function(player) {
         return DBZCCG.currentCard &&
                 DBZCCG.Combat.attackType === DBZCCG.Combat.Attack.Energy &&
@@ -1994,18 +2034,19 @@ DBZCCG.Saiyan['042'] = {
             DBZCCG.defendingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
         });
     },
-    effectType: [DBZCCG.Combat.Defense.Energy, DBZCCG.Combat.Effect.StrainingMove]
+    effectType: [DBZCCG.Combat.Defense.Energy, DBZCCG.Combat.Effect.Combat["Straining Move"]]
 };
 
 DBZCCG.Saiyan['043'] = {
+    headshot: [DBZCCG.Personality.Personalities['Goku']],
     type: DBZCCG.Card.Type['Non-Combat'],
     style: DBZCCG.Card.Style.Freestyle,
     description: "When you place this card in play, immediately raise your Main Personality to its highest power stage. Remove from the game after use.",
     name: "Senzu Bean",
     number: '043',
     rarity: DBZCCG.Card.Rarity.Common,
-    texturePath: "images/DBZCCG/saiyan/043.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/043.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     activable: true,
     effect: function() {
         DBZCCG.performingAction.mainPersonality.moveZScouter('max');
@@ -2017,19 +2058,20 @@ DBZCCG.Saiyan['043'] = {
             DBZCCG.performingAction.transferCards("nonCombats", [cardIdx], "removedFromTheGame");
         });
     },
-    effectType: [DBZCCG.Combat.Effect.StageUp]
+    effectType: [DBZCCG.Combat.Effect["Power Stages"]["Raise"]]
 };
 
 DBZCCG.Saiyan['044'] = {
+    headshot: [DBZCCG.Personality.Personalities['Goku']],
     type: DBZCCG.Card.Type['Physical Combat'],
     style: DBZCCG.Card.Style.Freestyle,
-    personality: DBZCCG.Personality.Personalities.GOKU,
+    personality: DBZCCG.Personality.Personalities['Goku'],
     description: "Physical attack doing 1 life card of damage.",
     name: "Goku's Body Throw",
     number: '044',
     rarity: DBZCCG.Card.Rarity.Common,
-    texturePath: "images/DBZCCG/saiyan/044.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/044.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     activable: DBZCCG.Combat.defaultAttackerCheck,
     effect: function() {
         this.success = true;
@@ -2058,14 +2100,15 @@ DBZCCG.Saiyan['044'] = {
 };
 
 DBZCCG.Saiyan['045'] = {
+    headshot: [DBZCCG.Personality.Personalities['GIANT ALIEN INSECT']],
     type: DBZCCG.Card.Type['Non-Combat'],
     style: DBZCCG.Card.Style.Saiyan,
     description: "Villains only. Skip your next Combat step. Place the top 2 cards from your discard pile on the bottom of your Life Deck. Remove from the game after use.",
     name: "Saiyan City Destruction",
     number: '045',
     rarity: DBZCCG.Card.Rarity.Common,
-    texturePath: "images/DBZCCG/saiyan/045.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/045.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     playable: DBZCCG.Combat.defaultNonCombatCheck,
     activable: function(player) {
         return DBZCCG.performingAction.getPersonalityInControl() && ClassHelper.checkValue(DBZCCG.performingAction.mainPersonality.alignment,
@@ -2127,19 +2170,20 @@ DBZCCG.Saiyan['045'] = {
             DBZCCG.performingAction.transferCards("nonCombats", [cardIdx], "removedFromTheGame");
         });
     },
-    effectType: [DBZCCG.Combat.Effect.Regenerate, DBZCCG.Combat.Effect.EndCombat, DBZCCG.Combat.Effect.VillainOnly]
+    effectType: [DBZCCG.Combat.Effect.Cards.Regenerate, DBZCCG.Combat.Effect.Combat["End Combat"], DBZCCG.Combat.Effect["Specific Personality"]["Villains Only"]]
 };
 
 DBZCCG.Saiyan['046'] = {
+    headshot: [DBZCCG.Personality.Personalities['Goku']],
     type: DBZCCG.Card.Type['Physical Combat'],
     style: DBZCCG.Card.Style.Freestyle,
-    personality: DBZCCG.Personality.Personalities.GOKU,
+    personality: DBZCCG.Personality.Personalities['Goku'],
     description: "Physical attack doing double physical attack table damage.",
     name: "Goku's Anger Attack",
     number: '046',
     rarity: DBZCCG.Card.Rarity.Common,
-    texturePath: "images/DBZCCG/saiyan/046.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/046.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     activable: DBZCCG.Combat.defaultAttackerCheck,
     effect: function() {
         this.success = true;
@@ -2168,14 +2212,15 @@ DBZCCG.Saiyan['046'] = {
 };
 
 DBZCCG.Saiyan['047'] = {
+    headshot: [DBZCCG.Personality.Personalities['Raditz']],
     type: DBZCCG.Card.Type['Physical Combat'],
     style: DBZCCG.Card.Style.Freestyle,
     description: "Stops a physical attack. Costs 1 power stage.",
     name: "Raditz Total Defense",
     number: '047',
     rarity: DBZCCG.Card.Rarity.Common,
-    texturePath: "images/DBZCCG/saiyan/047.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/047.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     activable: function(player) {
         return DBZCCG.currentCard &&
                 DBZCCG.Combat.attackType === DBZCCG.Combat.Attack.Physical &&
@@ -2197,22 +2242,23 @@ DBZCCG.Saiyan['047'] = {
 };
 
 DBZCCG.Saiyan['048'] = {
+    headshot: [],
     type: DBZCCG.Card.Type['Non-Combat'],
     style: DBZCCG.Card.Style.Freestyle,
     description: "Use after you perform a successful physical attack to capture an opponent's Dragon Ball. Remove from the game after use.",
     name: "Goku's Touch",
-    personality: DBZCCG.Personality.Personalities.GOKU,
+    personality: DBZCCG.Personality.Personalities['Goku'],
     number: '048',
     rarity: DBZCCG.Card.Rarity.Common,
-    texturePath: "images/DBZCCG/saiyan/048.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/048.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     playable: DBZCCG.Combat.defaultNonCombatCheck,
     activable: function(player) {
         return DBZCCG.combat && DBZCCG.defendingPlayer &&
                 !DBZCCG.defendingPlayer.onlyDefend &&
                 !DBZCCG.defendingPlayer.onlyPass &&
                 player === DBZCCG.defendingPlayer &&
-                DBZCCG.Combat.actionATM === DBZCCG.Combat.Events['Combat Chain finished'] &&
+                DBZCCG.Combat.actionATM === DBZCCG.Combat.Events['Combat Chain Finished'] &&
                 DBZCCG.Combat.checkDragonballControl(DBZCCG.attackingPlayer).length > 0 &&
                 DBZCCG.Log.checkEventThisPhase(DBZCCG.Log.Type.sufferedAttack,
                 {player: DBZCCG.attackingPlayer, typeAttack: DBZCCG.Combat.Attack.Physical,
@@ -2245,18 +2291,19 @@ DBZCCG.Saiyan['048'] = {
             DBZCCG.waitingMainPlayerMouseCommand = false;
         });
     },
-    effectType: [DBZCCG.Combat.Effect.CaptureDragonball]
+    effectType: [DBZCCG.Combat.Effect.DragonBalls["Capture"]]
 };
 
 DBZCCG.Saiyan['049'] = {
+    headshot: [DBZCCG.Personality.Personalities['Roshi']],
     type: DBZCCG.Card.Type['Physical Combat'],
     style: DBZCCG.Card.Style.Orange,
     description: "Stops a physical attack. Raise your anger 1 level.",
     name: "Orange Wrist Flex Takedown",
     number: '049',
     rarity: DBZCCG.Card.Rarity.Common,
-    texturePath: "images/DBZCCG/saiyan/049.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/049.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     activable: function(player) {
         return DBZCCG.currentCard &&
                 DBZCCG.Combat.attackType === DBZCCG.Combat.Attack.Physical &&
@@ -2279,14 +2326,15 @@ DBZCCG.Saiyan['049'] = {
 };
 
 DBZCCG.Saiyan['050'] = {
+    headshot: [DBZCCG.Personality.Personalities['Raditz']],
     type: DBZCCG.Card.Type['Physical Combat'],
     style: DBZCCG.Card.Style.Orange,
     description: "Stops a physical attack. Raise your anger 1 level.",
     name: "Orange Shoulder Throw",
     number: '050',
     rarity: DBZCCG.Card.Rarity.Common,
-    texturePath: "images/DBZCCG/saiyan/050.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/050.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     activable: function(player) {
         return DBZCCG.currentCard &&
                 DBZCCG.Combat.attackType === DBZCCG.Combat.Attack.Physical &&
@@ -2309,14 +2357,15 @@ DBZCCG.Saiyan['050'] = {
 };
 
 DBZCCG.Saiyan['051'] = {
+    headshot: [DBZCCG.Personality.Personalities['Goku']],
     type: DBZCCG.Card.Type['Physical Combat'],
     style: DBZCCG.Card.Style.Orange,
     description: "Physical attack doing +2 power stages of damage. Raise your anger 1 level.",
     name: "Orange Hip Throw",
     number: '051',
     rarity: DBZCCG.Card.Rarity.Common,
-    texturePath: "images/DBZCCG/saiyan/051.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/051.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     activable: DBZCCG.Combat.defaultAttackerCheck,
     effect: function() {
         this.success = true;
@@ -2350,14 +2399,15 @@ DBZCCG.Saiyan['051'] = {
 };
 
 DBZCCG.Saiyan['052'] = {
+    headshot: [DBZCCG.Personality.Personalities['RED ASSISTANT DEMON WITH GLASSES']],
     type: DBZCCG.Card.Type['Energy Combat'],
     style: DBZCCG.Card.Style.Orange,
     description: "Stops an energy attack. Lower your opponent's anger 1 level.",
     name: "Orange Neck Restraints",
     number: '052',
     rarity: DBZCCG.Card.Rarity.Common,
-    texturePath: "images/DBZCCG/saiyan/052.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/052.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     activable: function(player) {
         return DBZCCG.currentCard &&
                 DBZCCG.Combat.attackType === DBZCCG.Combat.Attack.Energy &&
@@ -2380,14 +2430,15 @@ DBZCCG.Saiyan['052'] = {
 };
 
 DBZCCG.Saiyan['053'] = {
+    headshot: [DBZCCG.Personality.Personalities['Vegeta']],
     type: DBZCCG.Card.Type['Physical Combat'],
     style: DBZCCG.Card.Style.Orange,
     description: "Stops a physical attack. Lower your opponent's anger 1 level.",
     name: "Orange Holding After Takedown",
     number: '053',
     rarity: DBZCCG.Card.Rarity.Common,
-    texturePath: "images/DBZCCG/saiyan/053.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/053.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     activable: function(player) {
         return DBZCCG.currentCard &&
                 DBZCCG.Combat.attackType === DBZCCG.Combat.Attack.Physical &&
@@ -2406,18 +2457,19 @@ DBZCCG.Saiyan['053'] = {
             DBZCCG.defendingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
         });
     },
-    effectType: [DBZCCG.Combat.Defense.Physical, DBZCCG.Combat.Effect.LowerAnger]
+    effectType: [DBZCCG.Combat.Defense.Physical, DBZCCG.Combat.Effect.Anger["Lower"]]
 };
 
 DBZCCG.Saiyan['054'] = {
+    headshot: [DBZCCG.Personality.Personalities['Bulma']],
     type: DBZCCG.Card.Type['Physical Combat'],
     style: DBZCCG.Card.Style.Red,
     description: "Stops a physical attack. Raise your anger 1 level.",
     name: "Red Knee Strike",
     number: '054',
     rarity: DBZCCG.Card.Rarity.Common,
-    texturePath: "images/DBZCCG/saiyan/054.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/054.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     activable: function(player) {
         return DBZCCG.currentCard &&
                 DBZCCG.Combat.attackType === DBZCCG.Combat.Attack.Physical &&
@@ -2436,18 +2488,19 @@ DBZCCG.Saiyan['054'] = {
             DBZCCG.defendingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
         });
     },
-    effectType: [DBZCCG.Combat.Defense.Physical, DBZCCG.Combat.Effect.RaiseAnger]
+    effectType: [DBZCCG.Combat.Defense.Physical, DBZCCG.Combat.Effect.Anger["Raise"]]
 };
 
 DBZCCG.Saiyan['055'] = {
+    headshot: [DBZCCG.Personality.Personalities['Roshi']],
     type: DBZCCG.Card.Type['Physical Combat'],
     style: DBZCCG.Card.Style.Red,
     description: "Physical attack doing +1 power stage of damage. Raise your anger 1 level.",
     name: "Red Front Kick",
     number: '055',
     rarity: DBZCCG.Card.Rarity.Common,
-    texturePath: "images/DBZCCG/saiyan/055.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/055.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     activable: DBZCCG.Combat.defaultAttackerCheck,
     effect: function() {
         this.success = true;
@@ -2477,18 +2530,19 @@ DBZCCG.Saiyan['055'] = {
             DBZCCG.attackingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
         });
     },
-    effectType: [DBZCCG.Combat.Attack.Physical, DBZCCG.Combat.Effect.RaiseAnger]
+    effectType: [DBZCCG.Combat.Attack.Physical, DBZCCG.Combat.Effect.Anger["Raise"]]
 };
 
 DBZCCG.Saiyan['056'] = {
+    headshot: [DBZCCG.Personality.Personalities['Yajirobe']],
     type: DBZCCG.Card.Type['Energy Combat'],
     style: DBZCCG.Card.Style.Red,
     description: "Stops an energy attack.",
     name: "Red Side Kick",
     number: '056',
     rarity: DBZCCG.Card.Rarity.Common,
-    texturePath: "images/DBZCCG/saiyan/056.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/056.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     activable: function(player) {
         return DBZCCG.currentCard &&
                 DBZCCG.Combat.attackType === DBZCCG.Combat.Attack.Energy &&
@@ -2507,14 +2561,15 @@ DBZCCG.Saiyan['056'] = {
 };
 
 DBZCCG.Saiyan['057'] = {
+    headshot: [DBZCCG.Personality.Personalities['Krillin']],
     type: DBZCCG.Card.Type['Physical Combat'],
     style: DBZCCG.Card.Style.Red,
     description: "Physical attack doing +3 power stages of damage. Lower your opponent's anger 1 level.",
     name: "Red Round Kick",
     number: '057',
     rarity: DBZCCG.Card.Rarity.Common,
-    texturePath: "images/DBZCCG/saiyan/057.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/057.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     activable: DBZCCG.Combat.defaultAttackerCheck,
     effect: function() {
         this.success = true;
@@ -2544,18 +2599,19 @@ DBZCCG.Saiyan['057'] = {
             DBZCCG.attackingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
         });
     },
-    effectType: [DBZCCG.Combat.Attack.Physical, DBZCCG.Combat.Effect.LowerAnger]
+    effectType: [DBZCCG.Combat.Attack.Physical, DBZCCG.Combat.Effect.Anger["Lower"]]
 };
 
 DBZCCG.Saiyan['058'] = {
+    headshot: [DBZCCG.Personality.Personalities['Gohan'], DBZCCG.Personality.Personalities['T-REX']],
     type: DBZCCG.Card.Type['Physical Combat'],
     style: DBZCCG.Card.Style.Red,
     description: "Physical attack doing +3 power stages of damage. If successful, stops all energy attack this combat. Lower your opponent's anger 1 level.",
     name: "Red Back Kick",
     number: '058',
     rarity: DBZCCG.Card.Rarity.Common,
-    texturePath: "images/DBZCCG/saiyan/058.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/058.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     activable: DBZCCG.Combat.defaultAttackerCheck,
     effect: function() {
         this.success = true;
@@ -2625,18 +2681,19 @@ DBZCCG.Saiyan['058'] = {
             DBZCCG.attackingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
         });
     },
-    effectType: [DBZCCG.Combat.Attack.Physical, DBZCCG.Combat.Effect.LowerAnger]
+    effectType: [DBZCCG.Combat.Attack.Physical, DBZCCG.Combat.Effect.Anger["Lower"]]
 };
 
 DBZCCG.Saiyan['059'] = {
+    headshot: [DBZCCG.Personality.Personalities['Nappa']],
     type: DBZCCG.Card.Type['Physical Combat'],
     style: DBZCCG.Card.Style.Blue,
     description: "Stops a physical attack. Raise your anger 1 level.",
     name: "Blue Big Outside Drop",
     number: '059',
     rarity: DBZCCG.Card.Rarity.Common,
-    texturePath: "images/DBZCCG/saiyan/059.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/059.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     activable: function(player) {
         return DBZCCG.currentCard &&
                 DBZCCG.Combat.attackType === DBZCCG.Combat.Attack.Physical &&
@@ -2655,18 +2712,19 @@ DBZCCG.Saiyan['059'] = {
             DBZCCG.defendingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
         });
     },
-    effectType: [DBZCCG.Combat.Defense.Physical, DBZCCG.Combat.Effect.RaiseAnger]
+    effectType: [DBZCCG.Combat.Defense.Physical, DBZCCG.Combat.Effect.Anger["Raise"]]
 };
 
 DBZCCG.Saiyan['060'] = {
+    headshot: [DBZCCG.Personality.Personalities['Nappa']],
     type: DBZCCG.Card.Type['Physical Combat'],
     style: DBZCCG.Card.Style.Blue,
     description: "Stops a physical attack. Lower your opponent's anger 1 level.",
     name: "Blue One-Arm Shoulder Throw",
     number: '060',
     rarity: DBZCCG.Card.Rarity.Common,
-    texturePath: "images/DBZCCG/saiyan/060.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/060.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     activable: function(player) {
         return DBZCCG.currentCard &&
                 DBZCCG.Combat.attackType === DBZCCG.Combat.Attack.Physical &&
@@ -2685,18 +2743,19 @@ DBZCCG.Saiyan['060'] = {
             DBZCCG.defendingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
         });
     },
-    effectType: [DBZCCG.Combat.Defense.Physical, DBZCCG.Combat.Effect.LowerAnger]
+    effectType: [DBZCCG.Combat.Defense.Physical, DBZCCG.Combat.Effect.Anger["Lower"]]
 };
 
 DBZCCG.Saiyan['061'] = {
+    headshot: [DBZCCG.Personality.Personalities['Nappa']],
     type: DBZCCG.Card.Type['Physical Combat'],
     style: DBZCCG.Card.Style.Blue,
     description: "Stops a physical attack. Lower your opponent's anger 1 level.",
     name: "Blue Body Drop Throw",
     number: '061',
     rarity: DBZCCG.Card.Rarity.Uncommon,
-    texturePath: "images/DBZCCG/saiyan/061.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/061.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     activable: function(player) {
         return DBZCCG.currentCard &&
                 DBZCCG.Combat.attackType === DBZCCG.Combat.Attack.Physical &&
@@ -2715,18 +2774,19 @@ DBZCCG.Saiyan['061'] = {
             DBZCCG.defendingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
         });
     },
-    effectType: [DBZCCG.Combat.Defense.Physical, DBZCCG.Combat.Effect.LowerAnger]
+    effectType: [DBZCCG.Combat.Defense.Physical, DBZCCG.Combat.Effect.Anger["Lower"]]
 };
 
 DBZCCG.Saiyan['062'] = {
+    headshot: [DBZCCG.Personality.Personalities['Raditz']],
     type: DBZCCG.Card.Type['Physical Combat'],
     style: DBZCCG.Card.Style.Blue,
     description: "Stops a physical attack. Lower your opponent's anger 1 level.",
     name: "Blue Inner Leg Throw",
     number: '062',
     rarity: DBZCCG.Card.Rarity.Uncommon,
-    texturePath: "images/DBZCCG/saiyan/062.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/062.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     activable: function(player) {
         return DBZCCG.currentCard &&
                 DBZCCG.Combat.attackType === DBZCCG.Combat.Attack.Physical &&
@@ -2745,18 +2805,19 @@ DBZCCG.Saiyan['062'] = {
             DBZCCG.defendingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
         });
     },
-    effectType: [DBZCCG.Combat.Defense.Physical, DBZCCG.Combat.Effect.LowerAnger]
+    effectType: [DBZCCG.Combat.Defense.Physical, DBZCCG.Combat.Effect.Anger["Lower"]]
 };
 
 DBZCCG.Saiyan['063'] = {
+    headshot: [DBZCCG.Personality.Personalities['Raditz']],
     type: DBZCCG.Card.Type['Energy Combat'],
     style: DBZCCG.Card.Style.Blue,
     description: "Stops an energy attack. Lower your opponent's anger 1 level.",
     name: "Blue Big Whirl Throw",
     number: '063',
     rarity: DBZCCG.Card.Rarity.Uncommon,
-    texturePath: "images/DBZCCG/saiyan/063.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/063.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     activable: function(player) {
         return DBZCCG.currentCard &&
                 DBZCCG.Combat.attackType === DBZCCG.Combat.Attack.Energy &&
@@ -2775,18 +2836,19 @@ DBZCCG.Saiyan['063'] = {
             DBZCCG.defendingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
         });
     },
-    effectType: [DBZCCG.Combat.Defense.Energy, DBZCCG.Combat.Effect.LowerAnger]
+    effectType: [DBZCCG.Combat.Defense.Energy, DBZCCG.Combat.Effect.Anger["Lower"]]
 };
 
 DBZCCG.Saiyan['064'] = {
+    headshot: [DBZCCG.Personality.Personalities['Raditz']],
     type: DBZCCG.Card.Type['Physical Combat'],
     style: DBZCCG.Card.Style.Blue,
     description: "Stops a physical attack. Lower your opponent's anger 1 level.",
     name: "Blue Ground Holding",
     number: '064',
     rarity: DBZCCG.Card.Rarity.Uncommon,
-    texturePath: "images/DBZCCG/saiyan/064.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/064.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     activable: function(player) {
         return DBZCCG.currentCard &&
                 DBZCCG.Combat.attackType === DBZCCG.Combat.Attack.Physical &&
@@ -2805,18 +2867,19 @@ DBZCCG.Saiyan['064'] = {
             DBZCCG.defendingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
         });
     },
-    effectType: [DBZCCG.Combat.Defense.Physical, DBZCCG.Combat.Effect.LowerAnger]
+    effectType: [DBZCCG.Combat.Defense.Physical, DBZCCG.Combat.Effect.Anger["Lower"]]
 };
 
 DBZCCG.Saiyan['065'] = {
+    headshot: [DBZCCG.Personality.Personalities['KING KAI']],
     type: DBZCCG.Card.Type['Energy Combat'],
     style: DBZCCG.Card.Style.Black,
     description: "Energy attack doing 6 life cards. If successful, your opponent's lose 3 power stages to a minimum of 0.",
     rarity: DBZCCG.Card.Rarity.Uncommon,
     name: "Black Fore Fist Punch",
     number: '065',
-    texturePath: "images/DBZCCG/saiyan/065.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/065.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     activable: DBZCCG.Combat.defaultAttackerCheck,
     cost: function() {
         return {powerStage: 2};
@@ -2849,18 +2912,19 @@ DBZCCG.Saiyan['065'] = {
             DBZCCG.attackingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
         });
     },
-    effectType: [DBZCCG.Combat.Attack.Energy, DBZCCG.Combat.Effect.StageDown]
+    effectType: [DBZCCG.Combat.Attack.Energy, DBZCCG.Combat.Effect["Power Stages"]["Lower"]]
 };
 
 DBZCCG.Saiyan['066'] = {
+    headshot: [DBZCCG.Personality.Personalities['Gregory'], DBZCCG.Personality.Personalities['Goku'], DBZCCG.Personality.Personalities['Bubbles']],
     type: DBZCCG.Card.Type['Energy Combat'],
     style: DBZCCG.Card.Style.Black,
     description: "Energy attack or stops an energy attack.",
     name: "Black Knife Hand Strike",
     number: '066',
     rarity: DBZCCG.Card.Rarity.Uncommon,
-    texturePath: "images/DBZCCG/saiyan/066.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/066.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     activable: function(player) {
         var ret = false;
 
@@ -2935,14 +2999,15 @@ DBZCCG.Saiyan['066'] = {
 };
 
 DBZCCG.Saiyan['067'] = {
+    headshot: [DBZCCG.Personality.Personalities['KING KAI']],
     type: DBZCCG.Card.Type['Physical Combat'],
     style: DBZCCG.Card.Style.Black,
     description: "Stops a physical attack. Raise your anger 1 level.",
     name: "Black Elbow Strike",
     number: '067',
     rarity: DBZCCG.Card.Rarity.Uncommon,
-    texturePath: "images/DBZCCG/saiyan/067.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/067.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     activable: function(player) {
         return DBZCCG.currentCard &&
                 DBZCCG.Combat.attackType === DBZCCG.Combat.Attack.Physical &&
@@ -2961,18 +3026,19 @@ DBZCCG.Saiyan['067'] = {
             DBZCCG.defendingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
         });
     },
-    effectType: [DBZCCG.Combat.Defense.Physical, DBZCCG.Combat.Effect.RaiseAnger]
+    effectType: [DBZCCG.Combat.Defense.Physical, DBZCCG.Combat.Effect.Anger["Raise"]]
 };
 
 DBZCCG.Saiyan['068'] = {
+    headshot: [DBZCCG.Personality.Personalities['KING KAI']],
     type: DBZCCG.Card.Type['Energy Combat'],
     style: DBZCCG.Card.Style.Black,
     description: "Energy attack doing 5 life cards. Costs 4 power stages. Raise your anger 2 levels.",
     rarity: DBZCCG.Card.Rarity.Uncommon,
     name: "Black Front Kick",
     number: '068',
-    texturePath: "images/DBZCCG/saiyan/068.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/068.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     activable: DBZCCG.Combat.defaultAttackerCheck,
     cost: function() {
         return {powerStage: 4};
@@ -3006,18 +3072,19 @@ DBZCCG.Saiyan['068'] = {
             DBZCCG.attackingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
         });
     },
-    effectType: [DBZCCG.Combat.Attack.Energy, DBZCCG.Combat.Effect.RaiseAnger]
+    effectType: [DBZCCG.Combat.Attack.Energy, DBZCCG.Combat.Effect.Anger["Raise"]]
 };
 
 DBZCCG.Saiyan['069'] = {
+    headshot: [DBZCCG.Personality.Personalities['Baba']],
     type: DBZCCG.Card.Type['Physical Combat'],
     style: DBZCCG.Card.Style.Black,
     description: "Stops a physical attack. Raise your anger 2 levels.",
     name: "Black Side Kick",
     number: '069',
     rarity: DBZCCG.Card.Rarity.Uncommon,
-    texturePath: "images/DBZCCG/saiyan/069.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/069.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     activable: function(player) {
         return DBZCCG.currentCard &&
                 DBZCCG.Combat.attackType === DBZCCG.Combat.Attack.Physical &&
@@ -3036,18 +3103,19 @@ DBZCCG.Saiyan['069'] = {
             DBZCCG.defendingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
         });
     },
-    effectType: [DBZCCG.Combat.Defense.Physical, DBZCCG.Combat.Effect.RaiseAnger]
+    effectType: [DBZCCG.Combat.Defense.Physical, DBZCCG.Combat.Effect.Anger["Raise"]]
 };
 
 DBZCCG.Saiyan['070'] = {
+    headshot: [DBZCCG.Personality.Personalities['Krillin']],
     type: DBZCCG.Card.Type['Energy Combat'],
     style: DBZCCG.Card.Style.Black,
     description: "Energy attack doing 5 life cards of damage or stops a physical attack. Raise your anger 1 level.",
     name: "Black Turning Kick",
     number: '070',
     rarity: DBZCCG.Card.Rarity.Uncommon,
-    texturePath: "images/DBZCCG/saiyan/070.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/070.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     activable: function(player) {
         var ret = false;
 
@@ -3123,19 +3191,20 @@ DBZCCG.Saiyan['070'] = {
         });
 
     },
-    effectType: [DBZCCG.Combat.Attack.Energy, DBZCCG.Combat.Defense.Physical, DBZCCG.Combat.Effect.RaiseAnger]
+    effectType: [DBZCCG.Combat.Attack.Energy, DBZCCG.Combat.Defense.Physical, DBZCCG.Combat.Effect.Anger["Raise"]]
 };
 
 
 DBZCCG.Saiyan['071'] = {
+    headshot: [DBZCCG.Personality.Personalities['Bulma']],
     type: DBZCCG.Card.Type['Energy Combat'],
     style: DBZCCG.Card.Style.Black,
     description: "Energy attack doing 6 life cards. Costs 5 power stages. Raise your anger 1 level.",
     rarity: DBZCCG.Card.Rarity.Uncommon,
     name: "Black Back Kick",
     number: '071',
-    texturePath: "images/DBZCCG/saiyan/071.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/071.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     activable: DBZCCG.Combat.defaultAttackerCheck,
     cost: function() {
         return {powerStage: 5};
@@ -3168,18 +3237,19 @@ DBZCCG.Saiyan['071'] = {
             DBZCCG.attackingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
         });
     },
-    effectType: [DBZCCG.Combat.Attack.Energy, DBZCCG.Combat.Effect.RaiseAnger]
+    effectType: [DBZCCG.Combat.Attack.Energy, DBZCCG.Combat.Effect.Anger["Raise"]]
 };
 
 DBZCCG.Saiyan['072'] = {
+    headshot: [DBZCCG.Personality.Personalities['Goku']],
     type: DBZCCG.Card.Type['Energy Combat'],
     style: DBZCCG.Card.Style.Black,
     description: "Stops an energy attack. Raise your anger 1 level.",
     name: "Black Axe Heel Kick",
     number: '072',
     rarity: DBZCCG.Card.Rarity.Uncommon,
-    texturePath: "images/DBZCCG/saiyan/072.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/072.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     activable: function(player) {
         return DBZCCG.currentCard &&
                 DBZCCG.Combat.attackType === DBZCCG.Combat.Attack.Energy &&
@@ -3198,18 +3268,19 @@ DBZCCG.Saiyan['072'] = {
             DBZCCG.defendingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
         });
     },
-    effectType: [DBZCCG.Combat.Defense.Energy, DBZCCG.Combat.Effect.RaiseAnger]
+    effectType: [DBZCCG.Combat.Defense.Energy, DBZCCG.Combat.Effect.Anger["Raise"]]
 };
 
 DBZCCG.Saiyan['073'] = {
+    headshot: [DBZCCG.Personality.Personalities['Bulma']],
     type: DBZCCG.Card.Type['Energy Combat'],
     style: DBZCCG.Card.Style.Black,
     description: "Stops an energy attack. Raise your anger 1 level.",
     name: "Black Rear Spin Kick",
     number: '073',
     rarity: DBZCCG.Card.Rarity.Uncommon,
-    texturePath: "images/DBZCCG/saiyan/073.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/073.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     activable: function(player) {
         return DBZCCG.currentCard &&
                 DBZCCG.Combat.attackType === DBZCCG.Combat.Attack.Energy &&
@@ -3228,18 +3299,19 @@ DBZCCG.Saiyan['073'] = {
             DBZCCG.defendingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
         });
     },
-    effectType: [DBZCCG.Combat.Defense.Energy, DBZCCG.Combat.Effect.RaiseAnger]
+    effectType: [DBZCCG.Combat.Defense.Energy, DBZCCG.Combat.Effect.Anger["Raise"]]
 };
 
 DBZCCG.Saiyan['074'] = {
+    headshot: [DBZCCG.Personality.Personalities['Goku']],
     type: DBZCCG.Card.Type['Energy Combat'],
     style: DBZCCG.Card.Style.Black,
     description: "Energy attack. Raise your anger 1 level.",
     rarity: DBZCCG.Card.Rarity.Uncommon,
     name: "Black Jump Turn Kick",
     number: '074',
-    texturePath: "images/DBZCCG/saiyan/074.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/074.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     activable: DBZCCG.Combat.defaultAttackerCheck,
     cost: function() {
         return {powerStage: 2};
@@ -3271,20 +3343,21 @@ DBZCCG.Saiyan['074'] = {
             DBZCCG.attackingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
         });
     },
-    effectType: [DBZCCG.Combat.Attack.Energy, DBZCCG.Combat.Effect.RaiseAnger]
+    effectType: [DBZCCG.Combat.Attack.Energy, DBZCCG.Combat.Effect.Anger["Raise"]]
 };
 
 DBZCCG.Saiyan['075'] = {
+    headshot: [DBZCCG.Personality.Personalities['Goku'], DBZCCG.Personality.Personalities['BLUE DEMON GUARD']],
     type: DBZCCG.Card.Type['Dragonball'],
     style: DBZCCG.Card.Style.Freestyle,
     description: "Draw 3 cards if you wish. Place the top card in your discard pile at the bottom of your life deck.",
     limit: 1,
     name: "Earth Dragon Ball 3",
     number: '075',
-    rarity: DBZCCG.Card.Rarity.Common,
-    texturePath: "images/DBZCCG/saiyan/075.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
-    dbCode: DBZCCG.Dragonball['Earth Dragonball 3'],
+    rarity: DBZCCG.Card.Rarity.Uncommon,
+    texturePath: "images/cardimages/CCG/saiyan/075.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
+    dbCode: DBZCCG.DragonBall.Type['Earth Dragon Ball 3'],
     playable: DBZCCG.Combat.defaultDragonballCheck,
     effect: function() {
         var control = this.control;
@@ -3333,20 +3406,21 @@ DBZCCG.Saiyan['075'] = {
             return true;
         }
     },
-    effectType: [DBZCCG.Combat.Effect.Regenerate, DBZCCG.Combat.Effect.DrawCard]
+    effectType: [DBZCCG.Combat.Effect.DragonBalls["Earth Dragon Ball"], DBZCCG.Combat.Effect.Cards.Regenerate, DBZCCG.Combat.Effect.Cards["Draw"]]
 };
 
 DBZCCG.Saiyan['076'] = {
+    headshot: [DBZCCG.Personality.Personalities['Ox King']],
     type: DBZCCG.Card.Type['Dragonball'],
     style: DBZCCG.Card.Style.Freestyle,
     description: "End the next combat you are forced into. Raise your anger 2 levels.",
     limit: 1,
     name: "Earth Dragon Ball 4",
     number: '076',
-    rarity: DBZCCG.Card.Rarity.Common,
-    texturePath: "images/DBZCCG/saiyan/076.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
-    dbCode: DBZCCG.Dragonball['Earth Dragonball 4'],
+    rarity: DBZCCG.Card.Rarity.Uncommon,
+    texturePath: "images/cardimages/CCG/saiyan/076.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
+    dbCode: DBZCCG.DragonBall.Type['Earth Dragon Ball 4'],
     playable: DBZCCG.Combat.defaultDragonballCheck,
     effect: function() {
         var control = this.control;
@@ -3384,20 +3458,21 @@ DBZCCG.Saiyan['076'] = {
             control.mainPersonality.changeAnger(2);
         });
     },
-    effectType: [DBZCCG.Combat.Effect.EndCombat, DBZCCG.Combat.Effect.RaiseAnger]
+    effectType: [DBZCCG.Combat.Effect.DragonBalls["Earth Dragon Ball"], DBZCCG.Combat.Effect.Combat["End Combat"], DBZCCG.Combat.Effect.Anger["Raise"]]
 };
 
 DBZCCG.Saiyan['077'] = {
+    headshot: [DBZCCG.Personality.Personalities['Roshi']],
     type: DBZCCG.Card.Type['Dragonball'],
     style: DBZCCG.Card.Style.Freestyle,
     description: "Power up to full. Raise your anger 2 levels. Draw 2 cards if you wish. Place the two top cards in your discard pile at the bottom of your life deck.",
     limit: 1,
     name: "Earth Dragon Ball 5",
     number: '077',
-    rarity: DBZCCG.Card.Rarity.Common,
-    texturePath: "images/DBZCCG/saiyan/077.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
-    dbCode: DBZCCG.Dragonball['Earth Dragonball 5'],
+    rarity: DBZCCG.Card.Rarity.Uncommon,
+    texturePath: "images/cardimages/CCG/saiyan/077.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
+    dbCode: DBZCCG.DragonBall.Type['Earth Dragon Ball 5'],
     playable: DBZCCG.Combat.defaultDragonballCheck,
     effect: function() {
         var control = this.control;
@@ -3457,19 +3532,20 @@ DBZCCG.Saiyan['077'] = {
             return true;
         }
     },
-    effectType: [DBZCCG.Combat.Effect.Regenerate, DBZCCG.Combat.Effect.StageUp, DBZCCG.Combat.Effect.RaiseAnger, DBZCCG.Combat.Effect.DrawCard]
+    effectType: [DBZCCG.Combat.Effect.DragonBalls["Earth Dragon Ball"], DBZCCG.Combat.Effect.Cards.Regenerate, DBZCCG.Combat.Effect["Power Stages"]["Raise"], DBZCCG.Combat.Effect.Anger["Raise"], DBZCCG.Combat.Effect.Cards["Draw"]]
 };
 
 DBZCCG.Saiyan['078'] = {
+    headshot: [DBZCCG.Personality.Personalities['Roshi'], DBZCCG.Personality.Personalities['Raditz']],
     type: DBZCCG.Card.Type['Non-Combat'],
     style: DBZCCG.Card.Style.Freestyle,
     description: "Heroes only. Place the top 3 cards from your discard pile on the bottom of your Life Deck.",
     name: "Roshi Training",
     number: '078',
-    personality: DBZCCG.Personality.Personalities.ROSHI,
+    personality: DBZCCG.Personality.Personalities['Roshi'],
     rarity: DBZCCG.Card.Rarity.Uncommon,
-    texturePath: "images/DBZCCG/saiyan/078.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/078.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     playable: DBZCCG.Combat.defaultNonCombatCheck,
     activable: function(player) {
         return DBZCCG.performingAction.getPersonalityInControl() && ClassHelper.checkValue(DBZCCG.performingAction.mainPersonality.alignment,
@@ -3502,10 +3578,11 @@ DBZCCG.Saiyan['078'] = {
             DBZCCG.performingAction.transferCards("nonCombats", [cardIdx], "discardPile");
         });
     },
-    effectType: [DBZCCG.Combat.Effect.Regenerate, DBZCCG.Combat.Effect.HeroOnly]
+    effectType: [DBZCCG.Combat.Effect.Cards.Regenerate, DBZCCG.Combat.Effect["Specific Personality"]["Heroes Only"]]
 };
 
 DBZCCG.Saiyan['079'] = {
+    headshot: [],
     type: DBZCCG.Card.Type['Non-Combat'],
     style: DBZCCG.Card.Style.Freestyle,
     description: "Heroes only. Choose up to 2 cards from your discard pile and place them at the bottom of your Life Deck.",
@@ -3513,8 +3590,8 @@ DBZCCG.Saiyan['079'] = {
     number: '079',
     personality: DBZCCG.Personality.Personalities['KING KAI'],
     rarity: DBZCCG.Card.Rarity.Uncommon,
-    texturePath: "images/DBZCCG/saiyan/079.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/079.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     playable: DBZCCG.Combat.defaultNonCombatCheck,
     activable: function(player) {
         return DBZCCG.performingAction.getPersonalityInControl() && ClassHelper.checkValue(DBZCCG.performingAction.mainPersonality.alignment,
@@ -3564,21 +3641,22 @@ DBZCCG.Saiyan['079'] = {
             DBZCCG.performingAction.transferCards("nonCombats", [cardIdx], "discardPile");
         });
     },
-    effectType: [DBZCCG.Combat.Effect.Regenerate, DBZCCG.Combat.Effect.HeroOnly]
+    effectType: [DBZCCG.Combat.Effect.Cards.Regenerate, DBZCCG.Combat.Effect["Specific Personality"]["Heroes Only"]]
 };
 
 DBZCCG.Saiyan['080'] = {
+    headshot: [DBZCCG.Personality.Personalities['Vegeta']],
     type: DBZCCG.Card.Type['Non-Combat'],
     style: DBZCCG.Card.Style.Saiyan,
     description: "Villains and Goku only. Choose up to 2 cards from your discard pile and place them at the bottom of your Life Deck.",
     name: "Saiyan Training",
     number: '080',
     rarity: DBZCCG.Card.Rarity.Uncommon,
-    texturePath: "images/DBZCCG/saiyan/080.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/080.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     playable: DBZCCG.Combat.defaultNonCombatCheck,
     activable: function(player) {
-        return DBZCCG.performingAction.getPersonalityInControl() && (ClassHelper.checkValue(DBZCCG.performingAction.getPersonalityInControl().personality, DBZCCG.Personality.Personalities.GOKU) || ClassHelper.checkValue(DBZCCG.performingAction.mainPersonality.alignment,
+        return DBZCCG.performingAction.getPersonalityInControl() && (ClassHelper.checkValue(DBZCCG.performingAction.getPersonalityInControl().personality, DBZCCG.Personality.Personalities['Goku']) || ClassHelper.checkValue(DBZCCG.performingAction.mainPersonality.alignment,
                 DBZCCG.Personality.alignment.Villain)) && DBZCCG.Combat.defaultAttackerCheck(player, this);
     },
     effect: function() {
@@ -3627,18 +3705,19 @@ DBZCCG.Saiyan['080'] = {
                     "discardPile");
         });
     },
-    effectType: [DBZCCG.Combat.Effect.Regenerate, DBZCCG.Combat.Effect.VillainOnly]
+    effectType: [DBZCCG.Combat.Effect.Cards.Regenerate, DBZCCG.Combat.Effect["Specific Personality"]["Villains Only"]]
 };
 
 DBZCCG.Saiyan['089'] = {
+    headshot: [DBZCCG.Personality.Personalities['Krillin'], DBZCCG.Personality.Personalities['Yamcha'], DBZCCG.Personality.Personalities['Tien']],
     type: DBZCCG.Card.Type['Non-Combat'],
     style: DBZCCG.Card.Style.Freestyle,
     description: "Heroes only. Choose up to 2 cards from your discard pile and place them at the bottom of your Life Deck. Remove from the game after use.",
     name: "Dream Chamber Training",
     number: '089',
     rarity: DBZCCG.Card.Rarity.Uncommon,
-    texturePath: "images/DBZCCG/saiyan/089.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/089.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     playable: DBZCCG.Combat.defaultNonCombatCheck,
     activable: function(player) {
         return DBZCCG.performingAction.getPersonalityInControl() && ClassHelper.checkValue(DBZCCG.performingAction.mainPersonality.alignment,
@@ -3688,18 +3767,19 @@ DBZCCG.Saiyan['089'] = {
             DBZCCG.performingAction.transferCards("nonCombats", [cardIdx], "removedFromTheGame");
         });
     },
-    effectType: [DBZCCG.Combat.Effect.Regenerate, DBZCCG.Combat.Effect.HeroOnly]
+    effectType: [DBZCCG.Combat.Effect.Cards.Regenerate, DBZCCG.Combat.Effect["Specific Personality"]["Heroes Only"]]
 };
 
 DBZCCG.Saiyan['090'] = {
+    headshot: [DBZCCG.Personality.Personalities['Chichi']],
     type: DBZCCG.Card.Type['Combat'],
     style: DBZCCG.Card.Style.Freestyle,
     description: "Stops a physical or energy attack. Remove from the game after use.",
     name: "Mother's Touch",
     number: '090',
     rarity: DBZCCG.Card.Rarity.Uncommon,
-    texturePath: "images/DBZCCG/saiyan/090.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/090.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     activable: function(player) {
         return DBZCCG.currentCard &&
                 (DBZCCG.Combat.attackType === DBZCCG.Combat.Attack.Energy ||
@@ -3719,14 +3799,15 @@ DBZCCG.Saiyan['090'] = {
 };
 
 DBZCCG.Saiyan['091'] = {
+    headshot: [DBZCCG.Personality.Personalities['Raditz']],
     type: DBZCCG.Card.Type['Energy Combat'],
     style: DBZCCG.Card.Style.Saiyan,
     description: "Saiyan Heritage Only. Energy attack doing 7 power life cards of damage. Costs 4 power stages to perform. Remove from the game after use.",
     rarity: DBZCCG.Card.Rarity.Uncommon,
     name: "Saiyan Energy Throw",
     number: '091',
-    texturePath: "images/DBZCCG/saiyan/091.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/091.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     activable: function(player) {
         return DBZCCG.Combat.defaultAttackerCheck(player, this) && DBZCCG.Personality.checkHeritage(player.activePersonality.personality().personality, 'saiyan');
     },
@@ -3760,14 +3841,15 @@ DBZCCG.Saiyan['091'] = {
 };
 
 DBZCCG.Saiyan['092'] = {
+    headshot: [DBZCCG.Personality.Personalities['Raditz']],
     type: DBZCCG.Card.Type['Energy Combat'],
     style: DBZCCG.Card.Style.Saiyan,
     description: "Saiyan Heritage Only. Stops an energy attack.",
     name: "Saiyan Energy Defense",
     number: '092',
     rarity: DBZCCG.Card.Rarity.Uncommon,
-    texturePath: "images/DBZCCG/saiyan/092.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/092.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     activable: function(player) {
         return DBZCCG.currentCard &&
                 DBZCCG.Combat.attackType === DBZCCG.Combat.Attack.Energy &&
@@ -3787,14 +3869,15 @@ DBZCCG.Saiyan['092'] = {
 };
 
 DBZCCG.Saiyan['093'] = {
+    headshot: [DBZCCG.Personality.Personalities['Dream Saiyan 1'], DBZCCG.Personality.Personalities['Dream Saiyan 2']],
     type: DBZCCG.Card.Type['Energy Combat'],
     style: DBZCCG.Card.Style.Saiyan,
     description: "Saiyan Heritage Only. Energy attack doing 6 power life cards of damage.",
     rarity: DBZCCG.Card.Rarity.Uncommon,
     name: "Saiyan Mental Energy Attack",
     number: '093',
-    texturePath: "images/DBZCCG/saiyan/093.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/093.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     activable: function(player) {
         return DBZCCG.Combat.defaultAttackerCheck(player, this) && DBZCCG.Personality.checkHeritage(player.activePersonality.personality().personality, 'saiyan');
     },
@@ -3828,6 +3911,7 @@ DBZCCG.Saiyan['093'] = {
 };
 
 DBZCCG.Saiyan['094'] = {
+    headshot: [DBZCCG.Personality.Personalities['Gohan']],
     type: DBZCCG.Card.Type['Energy Combat'],
     style: DBZCCG.Card.Style.Saiyan,
     description: "Saiyan Heritage Only. Energy attack. Name a personality. Your opponent cannot perform physical attacks with that personality on his next attack phase. Costs 3 power stages to perform.",
@@ -3836,9 +3920,9 @@ DBZCCG.Saiyan['094'] = {
     cost: function() {
         return {powerStage: 3};
     },
-    rarity: DBZCCG.Card.Rarity.Common,
-    texturePath: "images/DBZCCG/saiyan/094.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    rarity: DBZCCG.Card.Rarity.Uncommon,
+    texturePath: "images/cardimages/CCG/saiyan/094.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     activable: function(player) {
         return DBZCCG.Combat.defaultAttackerCheck(player, this) && DBZCCG.Personality.checkHeritage(player.activePersonality.personality().personality, 'saiyan');
     },
@@ -3974,14 +4058,15 @@ DBZCCG.Saiyan['094'] = {
 };
 
 DBZCCG.Saiyan['095'] = {
+    headshot: [DBZCCG.Personality.Personalities['Gohan']],
     type: DBZCCG.Card.Type['Energy Combat'],
     style: DBZCCG.Card.Style.Saiyan,
     description: "Saiyan Heritage Only. Stops an energy attack. Stops an energy attack in your next defense phase.",
     name: "Saiyan Energy Aura",
     number: '095',
     rarity: DBZCCG.Card.Rarity.Uncommon,
-    texturePath: "images/DBZCCG/saiyan/095.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/095.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     activable: function(player) {
         return DBZCCG.currentCard &&
                 DBZCCG.Combat.attackType === DBZCCG.Combat.Attack.Energy &&
@@ -4022,18 +4107,19 @@ DBZCCG.Saiyan['095'] = {
             DBZCCG.defendingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
         });
     },
-    effectType: [DBZCCG.Combat.Defense.Energy, DBZCCG.Combat.Effect.Floating]
+    effectType: [DBZCCG.Combat.Defense.Energy, DBZCCG.Combat.Effect.Combat.Floating]
 };
 
 DBZCCG.Saiyan['096'] = {
+    headshot: [DBZCCG.Personality.Personalities['Vegeta']],
     type: DBZCCG.Card.Type['Physical Combat'],
     style: DBZCCG.Card.Style.Saiyan,
     description: "Saiyan Heritage Only. Stops a physical attack. Stops a physical attack in your next defense phase.",
     name: "Saiyan Sweeping Defense",
     number: '096',
     rarity: DBZCCG.Card.Rarity.Uncommon,
-    texturePath: "images/DBZCCG/saiyan/096.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/096.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     activable: function(player) {
         return DBZCCG.currentCard &&
                 DBZCCG.Combat.attackType === DBZCCG.Combat.Attack.Physical &&
@@ -4075,18 +4161,19 @@ DBZCCG.Saiyan['096'] = {
             DBZCCG.defendingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
         });
     },
-    effectType: [DBZCCG.Combat.Defense.Physical, DBZCCG.Combat.Effect.Floating]
+    effectType: [DBZCCG.Combat.Defense.Physical, DBZCCG.Combat.Effect.Combat.Floating]
 };
 
 DBZCCG.Saiyan['097'] = {
+    headshot: [DBZCCG.Personality.Personalities['Turtle'], DBZCCG.Personality.Personalities['Gohan']],
     type: DBZCCG.Card.Type['Non-Combat'],
     style: DBZCCG.Card.Style.Freestyle,
     description: "Power up 6 power stages.",
     name: "Power Up More!",
     number: '097',
-    rarity: DBZCCG.Card.Rarity.Common,
-    texturePath: "images/DBZCCG/saiyan/097.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    rarity: DBZCCG.Card.Rarity.Uncommon,
+    texturePath: "images/cardimages/CCG/saiyan/097.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     playable: DBZCCG.Combat.defaultNonCombatCheck,
     activable: DBZCCG.Combat.defaultAttackerCheck,
     effect: function() {
@@ -4103,86 +4190,19 @@ DBZCCG.Saiyan['097'] = {
             DBZCCG.attackingPlayer.transferCards("nonCombats", [cardIdx], "discardPile");
         });
     },
-    effectType: [DBZCCG.Combat.Effect.StageUp]
-};
-
-DBZCCG.Saiyan['099'] = {
-    type: DBZCCG.Card.Type['Non-Combat'],
-    style: DBZCCG.Card.Style.Freestyle,
-    description: "Increase your anger by 2 levels. Take the top 2 cards of your discard pile and place them at the bottom of your life deck. Limit 1 per deck.",
-    name: "Blazing Anger!",
-    number: '099',
-    texturePath: "images/DBZCCG/saiyan/099.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
-    rarity: DBZCCG.Card.Rarity.Uncommon,
-    playable: DBZCCG.Combat.defaultNonCombatCheck,
-    activable: DBZCCG.Combat.defaultAttackerCheck,
-    effect: function() {
-        this.success = true;
-
-        DBZCCG.listActions.splice(0, 0, function() {
-            var cardIdx = [];
-
-            if (DBZCCG.attackingPlayer.discardPile.cards.length > 0) {
-                cardIdx.push(DBZCCG.attackingPlayer.discardPile.cards.length - 1);
-            }
-
-            if (DBZCCG.attackingPlayer.discardPile.cards.length > 1) {
-                cardIdx.push(DBZCCG.attackingPlayer.discardPile.cards.length - 2);
-            }
-
-            DBZCCG.attackingPlayer.transferCards('discardPile', cardIdx, 'lifeDeck', 0);
-        });
-
-        DBZCCG.listActions.splice(0, 0, function() {
-            DBZCCG.attackingPlayer.mainPersonality.changeAnger(2);
-        });
-    },
-    postEffect: function(card) {
-        var cardIdx = DBZCCG.attackingPlayer.nonCombats.getCardIdx(card.display);
-        DBZCCG.listActions.splice(0, 0, function() {
-            DBZCCG.attackingPlayer.transferCards("nonCombats", [cardIdx], "discardPile");
-        });
-    }
-};
-
-DBZCCG.Saiyan['100'] = {
-    type: DBZCCG.Card.Type['Combat'],
-    style: DBZCCG.Card.Style.Freestyle,
-    description: "Stops a physical or energy attack. Remove from the game after use.",
-    name: "Vegeta's Surprise Defense",
-    number: '100',
-    personality: DBZCCG.Personality.Personalities.VEGETA,
-    rarity: DBZCCG.Card.Rarity.Uncommon,
-    texturePath: "images/DBZCCG/saiyan/100.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
-    activable: function(player) {
-        return DBZCCG.currentCard &&
-                (DBZCCG.Combat.attackType === DBZCCG.Combat.Attack.Energy ||
-                        DBZCCG.Combat.attackType === DBZCCG.Combat.Attack.Physical) &&
-                DBZCCG.Combat.defaultDefenderCheck(player, this);
-    },
-    effect: function() {
-        this.targetCard.success = false;
-    },
-    postEffect: function(card) {
-        var cardIdx = DBZCCG.defendingPlayer.inPlay.getCardIdx(card.display);
-        DBZCCG.listActions.splice(0, 0, function() {
-            DBZCCG.defendingPlayer.transferCards("inPlay", [cardIdx], "removedFromTheGame");
-        });
-    },
-    effectType: [DBZCCG.Combat.Defense.Omni, DBZCCG.Combat.Defense.Physical, DBZCCG.Combat.Defense.Energy]
+    effectType: [DBZCCG.Combat.Effect["Power Stages"]["Raise"]]
 };
 
 DBZCCG.Saiyan['098'] = {
+    headshot: [DBZCCG.Personality.Personalities['Piccolo']],
     type: DBZCCG.Card.Type['Non-Combat'],
     style: DBZCCG.Card.Style.Freestyle,
     description: "Power up to full. Choose up to 2 cards from your discard pile and place them at the bottom of your Life Deck.",
     name: "Power Up the Most!",
     number: '098',
     rarity: DBZCCG.Card.Rarity.Uncommon,
-    texturePath: "images/DBZCCG/saiyan/098.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/098.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     playable: DBZCCG.Combat.defaultNonCombatCheck,
     activable: DBZCCG.Combat.defaultAttackerCheck,
     effect: function() {
@@ -4235,19 +4255,90 @@ DBZCCG.Saiyan['098'] = {
             DBZCCG.performingAction.transferCards("nonCombats", [cardIdx], "discardPile");
         });
     },
-    effectType: [DBZCCG.Combat.Effect.Regenerate, DBZCCG.Combat.Effect.StageUp]
+    effectType: [DBZCCG.Combat.Effect.Cards.Regenerate, DBZCCG.Combat.Effect["Power Stages"]["Raise"]]
+};
+
+DBZCCG.Saiyan['099'] = {
+    headshot: [DBZCCG.Personality.Personalities['Piccolo']],
+    type: DBZCCG.Card.Type['Non-Combat'],
+    style: DBZCCG.Card.Style.Freestyle,
+    description: "Increase your anger by 2 levels. Take the top 2 cards of your discard pile and place them at the bottom of your life deck. Limit 1 per deck.",
+    name: "Blazing Anger!",
+    number: '099',
+    texturePath: "images/cardimages/CCG/saiyan/099.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
+    rarity: DBZCCG.Card.Rarity.Uncommon,
+    playable: DBZCCG.Combat.defaultNonCombatCheck,
+    activable: DBZCCG.Combat.defaultAttackerCheck,
+    effect: function() {
+        this.success = true;
+
+        DBZCCG.listActions.splice(0, 0, function() {
+            var cardIdx = [];
+
+            if (DBZCCG.attackingPlayer.discardPile.cards.length > 0) {
+                cardIdx.push(DBZCCG.attackingPlayer.discardPile.cards.length - 1);
+            }
+
+            if (DBZCCG.attackingPlayer.discardPile.cards.length > 1) {
+                cardIdx.push(DBZCCG.attackingPlayer.discardPile.cards.length - 2);
+            }
+
+            DBZCCG.attackingPlayer.transferCards('discardPile', cardIdx, 'lifeDeck', 0);
+        });
+
+        DBZCCG.listActions.splice(0, 0, function() {
+            DBZCCG.attackingPlayer.mainPersonality.changeAnger(2);
+        });
+    },
+    postEffect: function(card) {
+        var cardIdx = DBZCCG.attackingPlayer.nonCombats.getCardIdx(card.display);
+        DBZCCG.listActions.splice(0, 0, function() {
+            DBZCCG.attackingPlayer.transferCards("nonCombats", [cardIdx], "discardPile");
+        });
+    }
+};
+
+DBZCCG.Saiyan['100'] = {
+    headshot: [DBZCCG.Personality.Personalities['Vegeta']],
+    type: DBZCCG.Card.Type['Combat'],
+    style: DBZCCG.Card.Style.Freestyle,
+    description: "Stops a physical or energy attack. Remove from the game after use.",
+    name: "Vegeta's Surprise Defense",
+    number: '100',
+    personality: DBZCCG.Personality.Personalities['Vegeta'],
+    rarity: DBZCCG.Card.Rarity.Uncommon,
+    texturePath: "images/cardimages/CCG/saiyan/100.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
+    activable: function(player) {
+        return DBZCCG.currentCard &&
+                (DBZCCG.Combat.attackType === DBZCCG.Combat.Attack.Energy ||
+                        DBZCCG.Combat.attackType === DBZCCG.Combat.Attack.Physical) &&
+                DBZCCG.Combat.defaultDefenderCheck(player, this);
+    },
+    effect: function() {
+        this.targetCard.success = false;
+    },
+    postEffect: function(card) {
+        var cardIdx = DBZCCG.defendingPlayer.inPlay.getCardIdx(card.display);
+        DBZCCG.listActions.splice(0, 0, function() {
+            DBZCCG.defendingPlayer.transferCards("inPlay", [cardIdx], "removedFromTheGame");
+        });
+    },
+    effectType: [DBZCCG.Combat.Defense.Omni, DBZCCG.Combat.Defense.Physical, DBZCCG.Combat.Defense.Energy]
 };
 
 DBZCCG.Saiyan['108'] = {
+    headshot: [DBZCCG.Personality.Personalities['Goku']],
     type: DBZCCG.Card.Type['Energy Combat'],
     style: DBZCCG.Card.Style.Freestyle,
     description: "Prevents 3 life card of damage from an energy attack. If used by Goku, this card stays on the table to be used one more time this combat.",
     name: "Goku's Energy Defense",
     number: '108',
-    personality: DBZCCG.Personality.Personalities.GOKU,
+    personality: DBZCCG.Personality.Personalities['Goku'],
     rarity: DBZCCG.Card.Rarity.Uncommon,
-    texturePath: "images/DBZCCG/saiyan/108.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/108.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     numberOfUses: 0,
     activable: function(player) {
         return DBZCCG.currentCard
@@ -4294,8 +4385,8 @@ DBZCCG.Saiyan['108'] = {
     postEffect: function(card) {
         var cardIdx = DBZCCG.defendingPlayer.inPlay.getCardIdx(card.display);
         this.numberOfUses++;
-        if ((this.numberOfUses === 2 && ClassHelper.checkValue(DBZCCG.defendingPlayer.getPersonalityInControl().personality, DBZCCG.Personality.Personalities.GOKU)) ||
-                !ClassHelper.checkValue(DBZCCG.defendingPlayer.getPersonalityInControl().personality, DBZCCG.Personality.Personalities.GOKU)) {
+        if ((this.numberOfUses === 2 && ClassHelper.checkValue(DBZCCG.defendingPlayer.getPersonalityInControl().personality, DBZCCG.Personality.Personalities['Goku'])) ||
+                !ClassHelper.checkValue(DBZCCG.defendingPlayer.getPersonalityInControl().personality, DBZCCG.Personality.Personalities['Goku'])) {
             this.numberOfUses = 0;
             DBZCCG.listActions.splice(0, 0, function() {
                 DBZCCG.defendingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
@@ -4306,15 +4397,16 @@ DBZCCG.Saiyan['108'] = {
 };
 
 DBZCCG.Saiyan['109'] = {
+    headshot: [DBZCCG.Personality.Personalities['Piccolo']],
     type: DBZCCG.Card.Type['Energy Combat'],
     style: DBZCCG.Card.Style.Freestyle,
     description: "Energy attack doing 6 power life cards of damage. Costs 5 power stages to perform.",
     rarity: DBZCCG.Card.Rarity.Uncommon,
-    personality: DBZCCG.Personality.Personalities.PICCOLO,
+    personality: DBZCCG.Personality.Personalities['Piccolo'],
     name: "Piccolo's Energy Attack",
     number: '109',
-    texturePath: "images/DBZCCG/saiyan/109.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/109.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     activable: DBZCCG.Combat.defaultAttackerCheck,
     cost: function() {
         return {powerStage: 5};
@@ -4346,15 +4438,16 @@ DBZCCG.Saiyan['109'] = {
 };
 
 DBZCCG.Saiyan['110'] = {
+    headshot: [DBZCCG.Personality.Personalities['Piccolo']],
     type: DBZCCG.Card.Type['Physical Combat'],
     style: DBZCCG.Card.Style.Freestyle,
     description: "Stops a physical attack. Power up 4 stages.",
     name: "Piccolo's Physical Defense",
     number: '110',
-    personality: DBZCCG.Personality.Personalities.PICCOLO,
+    personality: DBZCCG.Personality.Personalities['Piccolo'],
     rarity: DBZCCG.Card.Rarity.Uncommon,
-    texturePath: "images/DBZCCG/saiyan/110.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/110.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     activable: function(player) {
         return DBZCCG.currentCard &&
                 DBZCCG.Combat.attackType === DBZCCG.Combat.Attack.Physical &&
@@ -4373,19 +4466,20 @@ DBZCCG.Saiyan['110'] = {
             DBZCCG.defendingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
         });
     },
-    effectType: [DBZCCG.Combat.Effect.StageUp, DBZCCG.Combat.Defense.Physical]
+    effectType: [DBZCCG.Combat.Effect["Power Stages"]["Raise"], DBZCCG.Combat.Defense.Physical]
 };
 
 DBZCCG.Saiyan['111'] = {
+    headshot: [DBZCCG.Personality.Personalities['Gohan'], DBZCCG.Personality.Personalities['Piccolo']],
     type: DBZCCG.Card.Type['Energy Combat'],
     style: DBZCCG.Card.Style.Freestyle,
     description: "Stops an energy attack. Raise your anger 1 level.",
     name: "Gohan's Energy Defense",
-    personality: DBZCCG.Personality.Personalities.GOHAN,
+    personality: DBZCCG.Personality.Personalities['Gohan'],
     number: '111',
     rarity: DBZCCG.Card.Rarity.Uncommon,
-    texturePath: "images/DBZCCG/saiyan/111.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/111.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     activable: function(player) {
         return DBZCCG.currentCard &&
                 DBZCCG.Combat.attackType === DBZCCG.Combat.Attack.Energy &&
@@ -4404,19 +4498,20 @@ DBZCCG.Saiyan['111'] = {
             DBZCCG.defendingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
         });
     },
-    effectType: [DBZCCG.Combat.Defense.Energy, DBZCCG.Combat.Effect.RaiseAnger]
+    effectType: [DBZCCG.Combat.Defense.Energy, DBZCCG.Combat.Effect.Anger["Raise"]]
 };
 
 DBZCCG.Saiyan['112'] = {
+    headshot: [DBZCCG.Personality.Personalities['Krillin']],
     type: DBZCCG.Card.Type['Combat'],
     style: DBZCCG.Card.Style.Freestyle,
     description: "Play this card as a defense. If your opponent's attack does life cards of damage to you, you may take the first life card of damage from that attack and place it in your hand instead of discarding it. If used by Krillin, this card stays in play to be used on more time this Combat.",
     name: "Krillin's Physical Defense",
     number: '112',
-    personality: DBZCCG.Personality.Personalities.KRILLIN,
+    personality: DBZCCG.Personality.Personalities['Krillin'],
     rarity: DBZCCG.Card.Rarity.Uncommon,
-    texturePath: "images/DBZCCG/saiyan/112.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/112.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     numberOfUses: 0,
     activable: function(player) {
         return DBZCCG.currentCard
@@ -4461,27 +4556,28 @@ DBZCCG.Saiyan['112'] = {
     postEffect: function(card) {
         var cardIdx = DBZCCG.defendingPlayer.inPlay.getCardIdx(card.display);
         this.numberOfUses++;
-        if ((this.numberOfUses === 2 && ClassHelper.checkValue(DBZCCG.defendingPlayer.getPersonalityInControl().personality, DBZCCG.Personality.Personalities.KRILLIN)) ||
-                !ClassHelper.checkValue(DBZCCG.defendingPlayer.getPersonalityInControl().personality, DBZCCG.Personality.Personalities.KRILLIN)) {
+        if ((this.numberOfUses === 2 && ClassHelper.checkValue(DBZCCG.defendingPlayer.getPersonalityInControl().personality, DBZCCG.Personality.Personalities['Krillin'])) ||
+                !ClassHelper.checkValue(DBZCCG.defendingPlayer.getPersonalityInControl().personality, DBZCCG.Personality.Personalities['Krillin'])) {
             this.numberOfUses = 0;
             DBZCCG.listActions.splice(0, 0, function() {
                 DBZCCG.defendingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
             });
         }
     },
-    effectType: [DBZCCG.Combat.Effect.DrawCard]
+    effectType: [DBZCCG.Combat.Effect.Cards["Draw"]]
 };
 
 DBZCCG.Saiyan['113'] = {
+    headshot: [DBZCCG.Personality.Personalities['Krillin']],
     type: DBZCCG.Card.Type['Energy Combat'],
     style: DBZCCG.Card.Style.Freestyle,
-    personality: DBZCCG.Personality.Personalities.KRILLIN,
+    personality: DBZCCG.Personality.Personalities['Krillin'],
     description: "Energy attack doing 2 life cards of damage. If used by Krillin this card stays on the table to be used one more time this combat.",
     name: "Krillin's Energy Attack",
     number: '113',
     rarity: DBZCCG.Card.Rarity.Uncommon,
-    texturePath: "images/DBZCCG/saiyan/113.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/113.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     activable: DBZCCG.Combat.defaultAttackerCheck,
     numberOfUses: 0,
     cost: function() {
@@ -4525,8 +4621,8 @@ DBZCCG.Saiyan['113'] = {
     postEffect: function(card) {
         var cardIdx = DBZCCG.attackingPlayer.inPlay.getCardIdx(card.display);
         this.numberOfUses++;
-        if ((this.numberOfUses === 2 && ClassHelper.checkValue(DBZCCG.attackingPlayer.getPersonalityInControl().personality, DBZCCG.Personality.Personalities.KRILLIN)) ||
-                !ClassHelper.checkValue(DBZCCG.attackingPlayer.getPersonalityInControl().personality, DBZCCG.Personality.Personalities.KRILLIN)) {
+        if ((this.numberOfUses === 2 && ClassHelper.checkValue(DBZCCG.attackingPlayer.getPersonalityInControl().personality, DBZCCG.Personality.Personalities['Krillin'])) ||
+                !ClassHelper.checkValue(DBZCCG.attackingPlayer.getPersonalityInControl().personality, DBZCCG.Personality.Personalities['Krillin'])) {
             this.numberOfUses = 0;
             DBZCCG.listActions.splice(0, 0, function() {
                 DBZCCG.attackingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
@@ -4537,15 +4633,16 @@ DBZCCG.Saiyan['113'] = {
 };
 
 DBZCCG.Saiyan['114'] = {
+    headshot: [DBZCCG.Personality.Personalities['Tien']],
     type: DBZCCG.Card.Type['Energy Combat'],
     style: DBZCCG.Card.Style.Freestyle,
     description: "Stops an energy attack.",
     name: "Tien's Energy Defense",
     number: '114',
-    personality: DBZCCG.Personality.Personalities.TIEN,
+    personality: DBZCCG.Personality.Personalities['Tien'],
     rarity: DBZCCG.Card.Rarity.Uncommon,
-    texturePath: "images/DBZCCG/saiyan/114.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/114.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     activable: function(player) {
         return DBZCCG.currentCard &&
                 DBZCCG.Combat.attackType === DBZCCG.Combat.Attack.Energy &&
@@ -4564,15 +4661,16 @@ DBZCCG.Saiyan['114'] = {
 };
 
 DBZCCG.Saiyan['115'] = {
+    headshot: [DBZCCG.Personality.Personalities['Tien'], DBZCCG.Personality.Personalities['Yamcha']],
     type: DBZCCG.Card.Type['Energy Combat'],
     style: DBZCCG.Card.Style.Freestyle,
     description: "Energy attack doing 2 power life cards of damage. Costs 3 power stages to perform.",
     rarity: DBZCCG.Card.Rarity.Uncommon,
-    personality: DBZCCG.Personality.Personalities.YAMCHA,
+    personality: DBZCCG.Personality.Personalities['Yamcha'],
     name: "Yamcha's Energy Attack",
     number: '115',
-    texturePath: "images/DBZCCG/saiyan/115.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/115.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     activable: DBZCCG.Combat.defaultAttackerCheck,
     cost: function() {
         return {powerStage: 3};
@@ -4604,15 +4702,16 @@ DBZCCG.Saiyan['115'] = {
 };
 
 DBZCCG.Saiyan['116'] = {
+    headshot: [DBZCCG.Personality.Personalities['Yamcha']],
     type: DBZCCG.Card.Type['Physical Combat'],
     style: DBZCCG.Card.Style.Freestyle,
     description: "Prevents 3 life card of damage from a physical attack.",
     name: "Yamcha's Physical Defense",
-    personality: DBZCCG.Personality.Personalities.YAMCHA,
+    personality: DBZCCG.Personality.Personalities['Yamcha'],
     number: '116',
     rarity: DBZCCG.Card.Rarity.Uncommon,
-    texturePath: "images/DBZCCG/saiyan/116.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/116.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     activable: function(player) {
         return DBZCCG.currentCard
                 && DBZCCG.Combat.attackType === DBZCCG.Combat.Attack.Physical
@@ -4651,15 +4750,16 @@ DBZCCG.Saiyan['116'] = {
 };
 
 DBZCCG.Saiyan['117'] = {
+    headshot: [DBZCCG.Personality.Personalities['Raditz']],
     type: DBZCCG.Card.Type['Combat'],
     style: DBZCCG.Card.Style.Freestyle,
     description: "Forces a hero opponent to discard the top card of his life deck. Remove from the game after use.",
     name: "Raditz Energy Wall",
     number: '117',
     rarity: DBZCCG.Card.Rarity.Uncommon,
-    personality: DBZCCG.Personality.Personalities.RADITZ,
-    texturePath: "images/DBZCCG/saiyan/117.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    personality: DBZCCG.Personality.Personalities['Raditz'],
+    texturePath: "images/cardimages/CCG/saiyan/117.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     activable: function(player) {
         return DBZCCG.defendingPlayer && ClassHelper.checkValue(DBZCCG.defendingPlayer.mainPersonality.alignment,
                 DBZCCG.Personality.alignment.Hero) && DBZCCG.Combat.defaultAttackerCheck(player, this);
@@ -4677,19 +4777,20 @@ DBZCCG.Saiyan['117'] = {
             DBZCCG.performingAction.transferCards("inPlay", [cardIdx], "removedFromTheGame");
         });
     },
-    effectType: [DBZCCG.Combat.Effect.DiscardCard]
+    effectType: [DBZCCG.Combat.Effect.Cards["Discard cards"]]
 };
 
 DBZCCG.Saiyan['118'] = {
+    headshot: [DBZCCG.Personality.Personalities['Raditz']],
     type: DBZCCG.Card.Type['Combat'],
     style: DBZCCG.Card.Style.Freestyle,
     description: "Lower a hero opponent's anger 2 levels. Remove from the game after use.",
     name: "Raditz Physical Defense",
     number: '118',
     rarity: DBZCCG.Card.Rarity.Uncommon,
-    personality: DBZCCG.Personality.Personalities.RADITZ,
-    texturePath: "images/DBZCCG/saiyan/118.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    personality: DBZCCG.Personality.Personalities['Raditz'],
+    texturePath: "images/cardimages/CCG/saiyan/118.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     activable: function(player) {
         return DBZCCG.defendingPlayer && ClassHelper.checkValue(DBZCCG.defendingPlayer.mainPersonality.alignment,
                 DBZCCG.Personality.alignment.Hero) && DBZCCG.Combat.defaultAttackerCheck(player, this);
@@ -4705,20 +4806,21 @@ DBZCCG.Saiyan['118'] = {
             DBZCCG.performingAction.transferCards("inPlay", [cardIdx], "removedFromTheGame");
         });
     },
-    effectType: [DBZCCG.Combat.Effect.LowerAnger]
+    effectType: [DBZCCG.Combat.Effect.Anger["Lower"]]
 };
 
 DBZCCG.Saiyan['120'] = {
+    headshot: [DBZCCG.Personality.Personalities['Nappa']],
     type: DBZCCG.Card.Type['Energy Combat'],
     style: DBZCCG.Card.Style.Freestyle,
-    personality: DBZCCG.Personality.Personalities.NAPPA,
+    personality: DBZCCG.Personality.Personalities['Nappa'],
     limit: 1,
     description: "Stops an energy attack. For the remainder of combat stops all your opponent's energy attacks. Remove from the game after use. Limit 1 per deck.",
     name: "Nappa's Energy Aura",
     number: '120',
     rarity: DBZCCG.Card.Rarity.Uncommon,
-    texturePath: "images/DBZCCG/saiyan/120.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/120.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     activable: function(player) {
         return DBZCCG.currentCard
                 && DBZCCG.Combat.attackType === DBZCCG.Combat.Attack.Energy
@@ -4758,16 +4860,17 @@ DBZCCG.Saiyan['120'] = {
 };
 
 DBZCCG.Saiyan['121'] = {
+    headshot: [DBZCCG.Personality.Personalities['Nappa']],
     type: DBZCCG.Card.Type['Physical Combat'],
     style: DBZCCG.Card.Style.Freestyle,
-    personality: DBZCCG.Personality.Personalities.NAPPA,
+    personality: DBZCCG.Personality.Personalities['Nappa'],
     limit: 1,
     description: "Stops a physical attack. For the remainder of combat stops all your opponent's physical attacks. Remove from the game after use. Limit 1 per deck.",
     name: "Nappa's Physical Resistance",
     number: '121',
     rarity: DBZCCG.Card.Rarity.Uncommon,
-    texturePath: "images/DBZCCG/saiyan/121.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/121.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     activable: function(player) {
         return DBZCCG.currentCard
                 && DBZCCG.Combat.attackType === DBZCCG.Combat.Attack.Physical
@@ -4806,15 +4909,16 @@ DBZCCG.Saiyan['121'] = {
 };
 
 DBZCCG.Saiyan['122'] = {
+    headshot: [DBZCCG.Personality.Personalities['Yajirobe']],
     type: DBZCCG.Card.Type['Energy Combat'],
     style: DBZCCG.Card.Style.Freestyle,
-    personality: DBZCCG.Personality.Personalities.YAJIROBE,
+    personality: DBZCCG.Personality.Personalities['Yajirobe'],
     description: "Energy attack doing 1 life card of damage. Remove from the game after use.",
     name: "Yajirobe's Energy Attack",
     number: '122',
     rarity: DBZCCG.Card.Rarity.Uncommon,
-    texturePath: "images/DBZCCG/saiyan/122.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/122.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     activable: DBZCCG.Combat.defaultAttackerCheck,
     effect: function() {
         this.success = true;
@@ -4846,16 +4950,17 @@ DBZCCG.Saiyan['122'] = {
 };
 
 DBZCCG.Saiyan['123'] = {
+    headshot: [DBZCCG.Personality.Personalities['Chiaotzu'], DBZCCG.Personality.Personalities['Tien'], DBZCCG.Personality.Personalities['Popo']],
     type: DBZCCG.Card.Type['Energy Combat'],
     style: DBZCCG.Card.Style.Freestyle,
-    personality: DBZCCG.Personality.Personalities.CHIAOTZU,
+    personality: DBZCCG.Personality.Personalities['Chiaotzu'],
     description: "Energy attack doing 3 life card of damage. Remove from the game after use.",
     name: "Chiaotzu's Energy Manipulation",
     limit: 1,
     number: '123',
     rarity: DBZCCG.Card.Rarity.Uncommon,
-    texturePath: "images/DBZCCG/saiyan/123.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/123.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     activable: DBZCCG.Combat.defaultAttackerCheck,
     effect: function() {
         this.success = true;
@@ -4887,15 +4992,16 @@ DBZCCG.Saiyan['123'] = {
 };
 
 DBZCCG.Saiyan['153'] = {
+    headshot: [DBZCCG.Personality.Personalities['Goku']],
     type: DBZCCG.Card.Type['Energy Combat'],
     style: DBZCCG.Card.Style.Freestyle,
     description: "Stops a physical attack. Remove from the game after use.",
     name: "Goku's Energy Blast!",
     number: '153',
-    personality: DBZCCG.Personality.Personalities.GOKU,
+    personality: DBZCCG.Personality.Personalities['Goku'],
     rarity: DBZCCG.Card.Rarity.Uncommon,
-    texturePath: "images/DBZCCG/saiyan/153.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/153.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     activable: function(player) {
         return DBZCCG.currentCard &&
                 DBZCCG.Combat.attackType === DBZCCG.Combat.Attack.Physical &&
@@ -4914,15 +5020,16 @@ DBZCCG.Saiyan['153'] = {
 };
 
 DBZCCG.Saiyan['154'] = {
+    headshot: [DBZCCG.Personality.Personalities['Piccolo']],
     type: DBZCCG.Card.Type['Energy Combat'],
     style: DBZCCG.Card.Style.Freestyle,
     description: "Stops an energy attack. Remove from the game after use.",
     name: "Piccolo Sidestep!",
     number: '154',
-    personality: DBZCCG.Personality.Personalities.PICCOLO,
+    personality: DBZCCG.Personality.Personalities['Piccolo'],
     rarity: DBZCCG.Card.Rarity.Uncommon,
-    texturePath: "images/DBZCCG/saiyan/154.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/154.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     activable: function(player) {
         return DBZCCG.currentCard &&
                 DBZCCG.Combat.attackType === DBZCCG.Combat.Attack.Energy &&
@@ -4941,19 +5048,21 @@ DBZCCG.Saiyan['154'] = {
 };
 
 DBZCCG.Saiyan['158'] = {
+    headshot: [DBZCCG.Personality.Personalities['Goku']],
     type: DBZCCG.Card.Type.Personality,
     style: DBZCCG.Card.Style.Freestyle,
     PUR: 1,
     alignment: DBZCCG.Personality.alignment.Hero,
     description: "Power: Energy attack doing 3 life cards of damage. Costs 1 power stage.",
     level: 1,
+    limit: 1,
     rarity: DBZCCG.Card.Rarity.Fixed,
     name: "Goku",
     highTech: false,
-    number: 158,
-    texturePath: "images/DBZCCG/saiyan/158.jpg",
-    personality: DBZCCG.Personality.Personalities.GOKU,
-    saga: DBZCCG.Card.Saga.Saiyan,
+    number: '158',
+    texturePath: "images/cardimages/CCG/saiyan/158.jpg",
+    personality: DBZCCG.Personality.Personalities['Goku'],
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     powerStages: [0, 500, 600, 700, 800, 900, 1000, 1100, 1200, 1300, 1400],
     activable: DBZCCG.Combat.personalityPowerDefaultAttackCheck,
     cost: function() {
@@ -4984,19 +5093,21 @@ DBZCCG.Saiyan['158'] = {
 };
 
 DBZCCG.Saiyan['159'] = {
+    headshot: [DBZCCG.Personality.Personalities['Goku']],
     type: DBZCCG.Card.Type.Personality,
     style: DBZCCG.Card.Style.Freestyle,
     PUR: 2,
     alignment: DBZCCG.Personality.alignment.Hero,
     description: "Power: Physical attack doing 4 power stages of damage.",
     level: 2,
+    limit: 1,
     rarity: DBZCCG.Card.Rarity.Fixed,
     name: "Goku",
     highTech: false,
-    number: 159,
-    texturePath: "images/DBZCCG/saiyan/159.jpg",
-    personality: DBZCCG.Personality.Personalities.GOKU,
-    saga: DBZCCG.Card.Saga.Saiyan,
+    number: '159',
+    texturePath: "images/cardimages/CCG/saiyan/159.jpg",
+    personality: DBZCCG.Personality.Personalities['Goku'],
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     powerStages: [0, 3200, 3700, 4200, 4700, 5200, 5700, 6200, 6700, 7200, 7700],
     activable: DBZCCG.Combat.personalityPowerDefaultAttackCheck,
     effect: function() {
@@ -5024,16 +5135,18 @@ DBZCCG.Saiyan['159'] = {
 };
 
 DBZCCG.Saiyan['160'] = {
+    headshot: [DBZCCG.Personality.Personalities['Goku']],
     type: DBZCCG.Card.Type.Personality,
     style: DBZCCG.Card.Style.Freestyle,
     PUR: 3,
     alignment: DBZCCG.Personality.alignment.Hero,
     description: "Power: Once per combat, reduces the damage of an energy attack by 2 life cards.",
     level: 3,
+    limit: 1,
     rarity: DBZCCG.Card.Rarity.Fixed,
     name: "Goku",
     highTech: false,
-    number: 160,
+    number: '160',
     activable: function(player) {
         return DBZCCG.currentCard
                 && DBZCCG.Combat.attackType === DBZCCG.Combat.Attack.Energy
@@ -5065,14 +5178,15 @@ DBZCCG.Saiyan['160'] = {
     postEffect: function(card) {
         card.turn = parseInt($('#turnCounterNumber')[0].innerHTML);
     },
-    texturePath: "images/DBZCCG/saiyan/160.jpg",
-    personality: DBZCCG.Personality.Personalities.GOKU,
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/160.jpg",
+    personality: DBZCCG.Personality.Personalities['Goku'],
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     powerStages: [0, 8000, 8500, 9000, 9500, 10000, 10500, 11000, 11500, 12000, 12500],
     effectType: [DBZCCG.Combat.Defense.Energy, DBZCCG.Combat.Defense.Prevention]
 };
 
 DBZCCG.Saiyan['173'] = {
+    headshot: [DBZCCG.Personality.Personalities['Vegeta']],
     type: DBZCCG.Card.Type.Personality,
     style: DBZCCG.Card.Style.Freestyle,
     PUR: 2,
@@ -5080,6 +5194,7 @@ DBZCCG.Saiyan['173'] = {
     alignment: DBZCCG.Personality.alignment.Rogue,
     description: "Power: Once per combat, reduces the damage of an energy attack to 2 life cards.",
     level: 1,
+    limit: 1,
     name: "Vegeta",
     activable: function(player) {
         return DBZCCG.currentCard
@@ -5113,28 +5228,30 @@ DBZCCG.Saiyan['173'] = {
         card.turn = parseInt($('#turnCounterNumber')[0].innerHTML);
     },
     highTech: false,
-    number: 173,
-    texturePath: "images/DBZCCG/saiyan/173.jpg",
-    personality: DBZCCG.Personality.Personalities.VEGETA,
-    saga: DBZCCG.Card.Saga.Saiyan,
+    number: '173',
+    texturePath: "images/cardimages/CCG/saiyan/173.jpg",
+    personality: DBZCCG.Personality.Personalities['Vegeta'],
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     powerStages: [0, 2000, 2200, 2400, 2600, 2800, 3000, 3200, 3400, 3600, 3800],
     effectType: [DBZCCG.Combat.Defense.Energy, DBZCCG.Combat.Defense.Prevention]
 };
 
 DBZCCG.Saiyan['174'] = {
+    headshot: [DBZCCG.Personality.Personalities['Vegeta']],
     type: DBZCCG.Card.Type.Personality,
     style: DBZCCG.Card.Style.Freestyle,
     PUR: 4,
     alignment: DBZCCG.Personality.alignment.Rogue,
     description: "Power: Energy attack doing 3 life cards of damage. Costs 1 power stage.",
     level: 2,
+    limit: 1,
     rarity: DBZCCG.Card.Rarity.Fixed,
     name: "Vegeta",
     highTech: false,
-    number: 174,
-    texturePath: "images/DBZCCG/saiyan/174.jpg",
-    personality: DBZCCG.Personality.Personalities.VEGETA,
-    saga: DBZCCG.Card.Saga.Saiyan,
+    number: '174',
+    texturePath: "images/cardimages/CCG/saiyan/174.jpg",
+    personality: DBZCCG.Personality.Personalities['Vegeta'],
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     powerStages: [0, 4200, 4700, 5200, 5700, 6200, 6700, 7200, 7700, 8200, 8700],
     activable: DBZCCG.Combat.personalityPowerDefaultAttackCheck,
     cost: function() {
@@ -5165,19 +5282,21 @@ DBZCCG.Saiyan['174'] = {
 };
 
 DBZCCG.Saiyan['175'] = {
+    headshot: [DBZCCG.Personality.Personalities['Vegeta']],
     type: DBZCCG.Card.Type.Personality,
     style: DBZCCG.Card.Style.Freestyle,
     PUR: 4,
     alignment: DBZCCG.Personality.alignment.Rogue,
     description: "Power: Once per game, after performing a successful energy attack, steal a Dragon Ball. After this effect, the combat ends.",
     level: 3,
+    limit: 1,
     rarity: DBZCCG.Card.Rarity.Fixed,
     name: "Vegeta",
     highTech: false,
-    number: 175,
-    texturePath: "images/DBZCCG/saiyan/175.jpg",
-    personality: DBZCCG.Personality.Personalities.VEGETA,
-    saga: DBZCCG.Card.Saga.Saiyan,
+    number: '175',
+    texturePath: "images/cardimages/CCG/saiyan/175.jpg",
+    personality: DBZCCG.Personality.Personalities['Vegeta'],
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     powerStages: [0, 9000, 10000, 11000, 12000, 13000, 14000, 15000, 16000, 17000, 18000],
     postEffect: function(card) {
         this.used = true;
@@ -5191,7 +5310,7 @@ DBZCCG.Saiyan['175'] = {
                 DBZCCG.combat && DBZCCG.defendingPlayer &&
                 player === DBZCCG.defendingPlayer &&
                 !DBZCCG.defendingPlayer.onlyDefend && !DBZCCG.defendingPlayer.onlyPass
-                && DBZCCG.Combat.actionATM === DBZCCG.Combat.Events['Combat Chain finished'] &&
+                && DBZCCG.Combat.actionATM === DBZCCG.Combat.Events['Combat Chain Finished'] &&
                 DBZCCG.Combat.checkDragonballControl(DBZCCG.attackingPlayer).length > 0 &&
                 DBZCCG.Log.checkEventThisPhase(DBZCCG.Log.Type.sufferedAttack,
                 {player: DBZCCG.attackingPlayer, typeAttack: DBZCCG.Combat.Attack.Energy,
@@ -5212,10 +5331,11 @@ DBZCCG.Saiyan['175'] = {
         // effect still happening
         return true;
     },
-    effectType: [DBZCCG.Combat.Effect.CaptureDragonball, DBZCCG.Combat.Effect.EndCombat]
+    effectType: [DBZCCG.Combat.Effect.DragonBalls["Capture"], DBZCCG.Combat.Effect.Combat["End Combat"]]
 };
 
 DBZCCG.Saiyan['186'] = {
+    headshot: [DBZCCG.Personality.Personalities['Gohan']],
     type: DBZCCG.Card.Type['Dragonball'],
     style: DBZCCG.Card.Style.Freestyle,
     description: "This card has an active power that reads \"End's a Combat. Power up to full.\"."
@@ -5224,9 +5344,9 @@ DBZCCG.Saiyan['186'] = {
     name: "Earth Dragon Ball 6",
     number: '186',
     rarity: DBZCCG.Card.Rarity.Rare,
-    texturePath: "images/DBZCCG/saiyan/186.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
-    dbCode: DBZCCG.Dragonball['Earth Dragonball 6'],
+    texturePath: "images/cardimages/CCG/saiyan/186.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
+    dbCode: DBZCCG.DragonBall.Type['Earth Dragon Ball 6'],
     activable: function(player) {
         return DBZCCG.combat &&
                 player === this.control && this.cameIntoPlay && this.charges > 0 && DBZCCG.Combat.defaultAttackerCheck(player, this);
@@ -5265,10 +5385,11 @@ DBZCCG.Saiyan['186'] = {
             this.charges--;
         }
     },
-    effectType: [DBZCCG.Combat.Effect.EndCombat, DBZCCG.Combat.Effect.StageUp, DBZCCG.Combat.Effect.LowerAnger]
+    effectType: [DBZCCG.Combat.Effect.DragonBalls["Earth Dragon Ball"], DBZCCG.Combat.Effect.Combat["End Combat"], DBZCCG.Combat.Effect["Power Stages"]["Raise"], DBZCCG.Combat.Effect.Anger["Lower"]]
 };
 
 DBZCCG.Saiyan['187'] = {
+    headshot: [DBZCCG.Personality.Personalities['Bulma']],
     type: DBZCCG.Card.Type['Dragonball'],
     style: DBZCCG.Card.Style.Freestyle,
     description: "Play this card from your hand during combat to end it. Pick 3 cards from your discard pile and put them at the top of your Life Deck.\"."
@@ -5277,11 +5398,11 @@ DBZCCG.Saiyan['187'] = {
     name: "Earth Dragon Ball 7",
     number: '187',
     rarity: DBZCCG.Card.Rarity.Rare,
-    texturePath: "images/DBZCCG/saiyan/187.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
-    dbCode: DBZCCG.Dragonball['Earth Dragonball 7'],
+    texturePath: "images/cardimages/CCG/saiyan/187.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
+    dbCode: DBZCCG.DragonBall.Type['Earth Dragon Ball 7'],
     playable: function(player) {
-        return (DBZCCG.Combat.defaultNonCombatCheck(player) || DBZCCG.Combat.defaultAttackerCheck(player)) && !DBZCCG.Dragonball.checkInPlay(this);
+        return (DBZCCG.Combat.defaultNonCombatCheck(player) || DBZCCG.Combat.defaultAttackerCheck(player)) && !DBZCCG.DragonBall.checkInPlay(this);
     },
     effect: function() {
         var control = this.control;
@@ -5338,18 +5459,19 @@ DBZCCG.Saiyan['187'] = {
             return true;
         }
     },
-    effectType: [DBZCCG.Combat.Effect.EndCombat, DBZCCG.Combat.Effect.LowerAnger, DBZCCG.Combat.Effect.Regenerate]
+    effectType: [DBZCCG.Combat.Effect.DragonBalls["Earth Dragon Ball"], DBZCCG.Combat.Effect.Combat["End Combat"], DBZCCG.Combat.Effect.Anger["Lower"], DBZCCG.Combat.Effect.Cards.Regenerate]
 };
 
 DBZCCG.Saiyan['188'] = {
+    headshot: [DBZCCG.Personality.Personalities['Gohan']],
     type: DBZCCG.Card.Type['Combat'],
     style: DBZCCG.Card.Style.Freestyle,
     description: "Capture an opponent's Dragon Ball.",
     name: "Earth Dragon Ball Capture",
     number: '188',
     rarity: DBZCCG.Card.Rarity.Rare,
-    texturePath: "images/DBZCCG/saiyan/188.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/188.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     activable: function(player) {
         return DBZCCG.Combat.checkDragonballControl(DBZCCG.defendingPlayer).length > 0 &&
                 DBZCCG.Combat.defaultAttackerCheck(player, this);
@@ -5371,18 +5493,19 @@ DBZCCG.Saiyan['188'] = {
             DBZCCG.performingAction.transferCards("inPlay", [cardIdx], "discardPile");
         });
     },
-    effectType: [DBZCCG.Combat.Effect.CaptureDragonball]
+    effectType: [DBZCCG.Combat.Effect.DragonBalls["Capture"]]
 };
 
 DBZCCG.Saiyan['189'] = {
+    headshot: [DBZCCG.Personality.Personalities['Goku']],
     type: DBZCCG.Card.Type['Energy Combat'],
     style: DBZCCG.Card.Style.Freestyle,
     description: "Energy attack. If successful, capture a Dragon Ball.",
     rarity: DBZCCG.Card.Rarity.Rare,
     name: "Earth Dragon Ball Combat",
     number: '189',
-    texturePath: "images/DBZCCG/saiyan/189.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/189.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     activable: DBZCCG.Combat.defaultAttackerCheck,
     cost: function() {
         return {powerStage: 2};
@@ -5421,18 +5544,19 @@ DBZCCG.Saiyan['189'] = {
             DBZCCG.attackingPlayer.transferCards("inPlay", [cardIdx], "discardPile");
         });
     },
-    effectType: [DBZCCG.Combat.Attack.Energy, DBZCCG.Combat.Effect.CaptureDragonball]
+    effectType: [DBZCCG.Combat.Attack.Energy, DBZCCG.Combat.Effect.DragonBalls["Capture"]]
 };
 
 DBZCCG.Saiyan['190'] = {
+    headshot: [],
     type: DBZCCG.Card.Type['Non-Combat'],
     style: DBZCCG.Card.Style.Freestyle,
     description: "Increase your anger by 2 levels. Choose 2 cards of your discard pile and place them at the bottom of your life deck. Remove from the game after use.",
     name: "Enraged",
     number: '190',
-    texturePath: "images/DBZCCG/saiyan/190.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
-    rarity: DBZCCG.Card.Rarity.Common,
+    texturePath: "images/cardimages/CCG/saiyan/190.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
+    rarity: DBZCCG.Card.Rarity.Rare,
     playable: DBZCCG.Combat.defaultNonCombatCheck,
     activable: DBZCCG.Combat.defaultAttackerCheck,
     effect: function() {
@@ -5457,7 +5581,7 @@ DBZCCG.Saiyan['190'] = {
             });
 
         } else /* mainPlayer */ {
-            
+
             DBZCCG.performingAction.mainPersonality.changeAnger(2);
 
             for (var k = 0; k < 2; k++) {
@@ -5490,19 +5614,20 @@ DBZCCG.Saiyan['190'] = {
 };
 
 DBZCCG.Saiyan['192'] = {
+    headshot: [DBZCCG.Personality.Personalities['Goku']],
     type: DBZCCG.Card.Type['Non-Combat'],
     style: DBZCCG.Card.Style.Freestyle,
     description: "Use this card during your opponent's PUR Phase step. That opponent skip his next declare phase. Limit 2 per deck. Remove from the game after use.",
     name: "Teaching the Unteachable Forces Observation",
     number: '192',
     limit: 2,
-    texturePath: "images/DBZCCG/saiyan/192.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/192.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     rarity: DBZCCG.Card.Rarity.Rare,
     playable: DBZCCG.Combat.defaultNonCombatCheck,
     activable: function(player) {
         return player.checkOwnership(this.display) && player.checkActivation(this) &&
-                DBZCCG.Combat.actionATM === DBZCCG.Combat.Events['Entering PUR Phase'] &&
+                DBZCCG.Combat.actionATM === DBZCCG.Combat.Events['Entering Pur Phase'] &&
                 DBZCCG.turnOwner !== player &&
                 player.nonCombats.getCardIdx(this.display) !== -1;
     },
@@ -5550,14 +5675,15 @@ DBZCCG.Saiyan['192'] = {
 
 
 DBZCCG.Saiyan['193'] = {
+    headshot: [DBZCCG.Personality.Personalities['Krillin']],
     type: DBZCCG.Card.Type['Non-Combat'],
     style: DBZCCG.Card.Style.Freestyle,
     description: "Choose up to 2 cards from your discard pile and place them at the bottom of your Life Deck. Remove from the game after use.",
     name: "Respect the Spirit",
     number: '193',
-    rarity: DBZCCG.Card.Rarity.Uncommon,
-    texturePath: "images/DBZCCG/saiyan/193.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    rarity: DBZCCG.Card.Rarity.Rare,
+    texturePath: "images/cardimages/CCG/saiyan/193.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     playable: DBZCCG.Combat.defaultNonCombatCheck,
     activable: DBZCCG.Combat.defaultAttackerCheck,
     effect: function() {
@@ -5606,18 +5732,19 @@ DBZCCG.Saiyan['193'] = {
             DBZCCG.performingAction.transferCards("nonCombats", [cardIdx], "removedFromTheGame");
         });
     },
-    effectType: [DBZCCG.Combat.Effect.Regenerate]
+    effectType: [DBZCCG.Combat.Effect.Cards.Regenerate]
 };
 
 DBZCCG.Saiyan['199'] = {
+    headshot: [DBZCCG.Personality.Personalities['Yajirobe']],
     type: DBZCCG.Card.Type['Combat'],
     style: DBZCCG.Card.Style.Freestyle,
     description: "Ends a combat. Place the bottom card from your discard pile at the bottom of your life deck. Remove from the game after use.",
     name: "Dream Fighting",
     number: '199',
     rarity: DBZCCG.Card.Rarity.Rare,
-    texturePath: "images/DBZCCG/saiyan/199.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/199.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     activable: DBZCCG.Combat.defaultAttackerCheck,
     effect: function() {
 
@@ -5641,19 +5768,20 @@ DBZCCG.Saiyan['199'] = {
             DBZCCG.performingAction.transferCards("inPlay", [cardIdx], "removedFromTheGame");
         });
     },
-    effectType: [DBZCCG.Combat.Effect.Regenerate, DBZCCG.Combat.Effect.EndCombat]
+    effectType: [DBZCCG.Combat.Effect.Cards.Regenerate, DBZCCG.Combat.Effect.Combat["End Combat"]]
 };
 
 
 DBZCCG.Saiyan['200'] = {
+    headshot: [DBZCCG.Personality.Personalities['Raditz']],
     type: DBZCCG.Card.Type['Combat'],
     style: DBZCCG.Card.Style.Freestyle,
     description: "Set your opponent's anger to 0. Remove from the game after use.",
     name: "Cutting the Tail",
     number: '200',
     rarity: DBZCCG.Card.Rarity.Rare,
-    texturePath: "images/DBZCCG/saiyan/200.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/200.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     activable: DBZCCG.Combat.defaultAttackerCheck,
     effect: function() {
         DBZCCG.listActions.splice(0, 0, function() {
@@ -5666,18 +5794,19 @@ DBZCCG.Saiyan['200'] = {
             DBZCCG.performingAction.transferCards("inPlay", [cardIdx], "removedFromTheGame");
         });
     },
-    effectType: [DBZCCG.Combat.Effect.LowerAnger]
+    effectType: [DBZCCG.Combat.Effect.Anger["Set"]]
 };
 
 DBZCCG.Saiyan['201'] = {
+    headshot: [DBZCCG.Personality.Personalities['Piccolo']],
     type: DBZCCG.Card.Type['Combat'],
     style: DBZCCG.Card.Style.Freestyle,
     description: "Raise your active personality to it's highest power stage. Remove from the game after use.",
     name: "The Tail Grows Back",
     number: '201',
     rarity: DBZCCG.Card.Rarity.Rare,
-    texturePath: "images/DBZCCG/saiyan/201.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/201.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     activable: DBZCCG.Combat.defaultAttackerCheck,
     effect: function() {
         DBZCCG.listActions.splice(0, 0, function() {
@@ -5690,10 +5819,11 @@ DBZCCG.Saiyan['201'] = {
             DBZCCG.performingAction.transferCards("inPlay", [cardIdx], "removedFromTheGame");
         });
     },
-    effectType: [DBZCCG.Combat.Effect.StageUp]
+    effectType: [DBZCCG.Combat.Effect["Power Stages"]["Raise"]]
 };
 
 DBZCCG.Saiyan['203'] = {
+    headshot: [DBZCCG.Personality.Personalities['Raditz']],
     type: DBZCCG.Card.Type['Combat'],
     style: DBZCCG.Card.Style.Saiyan,
     description: "Ends a combat. Skip your discard phase until your next turn. Limit 1 per deck. Remove from the game after use.",
@@ -5701,8 +5831,8 @@ DBZCCG.Saiyan['203'] = {
     limit: 1,
     number: '203',
     rarity: DBZCCG.Card.Rarity.Rare,
-    texturePath: "images/DBZCCG/saiyan/203.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/203.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     activable: DBZCCG.Combat.defaultAttackerCheck,
     effect: function() {
         var card = this;
@@ -5739,10 +5869,11 @@ DBZCCG.Saiyan['203'] = {
             DBZCCG.performingAction.transferCards("inPlay", [cardIdx], "removedFromTheGame");
         });
     },
-    effectType: [DBZCCG.Combat.Effect.Regenerate, DBZCCG.Combat.Effect.EndCombat]
+    effectType: [DBZCCG.Combat.Effect.Cards.Regenerate, DBZCCG.Combat.Effect.Combat["End Combat"]]
 };
 
 DBZCCG.Saiyan['204'] = {
+    headshot: [DBZCCG.Personality.Personalities['Tien']],
     type: DBZCCG.Card.Type['Combat'],
     style: DBZCCG.Card.Style.Freestyle,
     description: "Your opponent main personality gains 5 power stages. Draw the top 2 cards of your discard pile. Limit 1 per deck. Remove from the game after use.",
@@ -5750,8 +5881,8 @@ DBZCCG.Saiyan['204'] = {
     limit: 1,
     number: '204',
     rarity: DBZCCG.Card.Rarity.Rare,
-    texturePath: "images/DBZCCG/saiyan/204.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/204.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     activable: DBZCCG.Combat.defaultAttackerCheck,
     effect: function() {
 
@@ -5778,18 +5909,19 @@ DBZCCG.Saiyan['204'] = {
             DBZCCG.performingAction.transferCards("inPlay", [cardIdx], "removedFromTheGame");
         });
     },
-    effectType: [DBZCCG.Combat.Effect.DrawCard, DBZCCG.Combat.Effect.RaiseStage]
+    effectType: [DBZCCG.Combat.Effect.Cards["Draw"], DBZCCG.Combat.Effect.RaiseStage]
 };
 
 DBZCCG.Saiyan['205'] = {
+    headshot: [DBZCCG.Personality.Personalities['Raditz']],
     type: DBZCCG.Card.Type['Combat'],
     style: DBZCCG.Card.Style.Freestyle,
     description: "Your opponent's main personality loses 4 stages to a minimum of 0. Remove from the game after use.",
     name: "Grabbing the Tail",
     number: '205',
     rarity: DBZCCG.Card.Rarity.Rare,
-    texturePath: "images/DBZCCG/saiyan/205.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/205.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     activable: DBZCCG.Combat.defaultAttackerCheck,
     effect: function() {
         DBZCCG.listActions.splice(0, 0, function() {
@@ -5802,19 +5934,20 @@ DBZCCG.Saiyan['205'] = {
             DBZCCG.performingAction.transferCards("inPlay", [cardIdx], "removedFromTheGame");
         });
     },
-    effectType: [DBZCCG.Combat.Effect.StageDown]
+    effectType: [DBZCCG.Combat.Effect["Power Stages"]["Lower"]]
 };
 
 DBZCCG.Saiyan['206'] = {
+    headshot: [DBZCCG.Personality.Personalities['Nappa']],
     type: DBZCCG.Card.Type['Combat'],
     style: DBZCCG.Card.Style.Freestyle,
     description: "Ends a combat. Remove from the game after use.",
     name: "Nappa's Blinding Stare",
     number: '206',
-    personality: DBZCCG.Personality.Personalities.NAPPA,
+    personality: DBZCCG.Personality.Personalities['Nappa'],
     rarity: DBZCCG.Card.Rarity.Rare,
-    texturePath: "images/DBZCCG/saiyan/206.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/206.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     activable: DBZCCG.Combat.defaultAttackerCheck,
     effect: function() {
         DBZCCG.listActions.splice(0, 0, function() {
@@ -5827,18 +5960,19 @@ DBZCCG.Saiyan['206'] = {
             DBZCCG.performingAction.transferCards("inPlay", [cardIdx], "removedFromTheGame");
         });
     },
-    effectType: [DBZCCG.Combat.Effect.EndCombat]
+    effectType: [DBZCCG.Combat.Effect.Combat["End Combat"]]
 };
 
 DBZCCG.Saiyan['209'] = {
+    headshot: [DBZCCG.Personality.Personalities['Vegeta']],
     type: DBZCCG.Card.Type['Non-Combat'],
     style: DBZCCG.Card.Style.Freestyle,
     description: "Power up to full. Remove from the game after use.",
     name: "Broken Scouter",
     number: '209',
     rarity: DBZCCG.Card.Rarity.Rare,
-    texturePath: "images/DBZCCG/saiyan/209.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/209.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     playable: DBZCCG.Combat.defaultNonCombatCheck,
     activable: DBZCCG.Combat.defaultAttackerCheck,
     effect: function() {
@@ -5855,19 +5989,20 @@ DBZCCG.Saiyan['209'] = {
             DBZCCG.attackingPlayer.transferCards("nonCombats", [cardIdx], "removedFromTheGame");
         });
     },
-    effectType: [DBZCCG.Combat.Effect.StageUp]
+    effectType: [DBZCCG.Combat.Effect["Power Stages"]["Raise"]]
 };
 
 DBZCCG.Saiyan['210'] = {
+    headshot: [DBZCCG.Personality.Personalities['Goku']],
     type: DBZCCG.Card.Type['Physical Combat'],
     style: DBZCCG.Card.Style.Freestyle,
-    personality: DBZCCG.Personality.Personalities.RADITZ,
+    personality: DBZCCG.Personality.Personalities['Raditz'],
     description: "Physical attack doing triple physical attack table damage.",
     name: "Raditz Flying Kick",
     number: '210',
     rarity: DBZCCG.Card.Rarity.Rare,
-    texturePath: "images/DBZCCG/saiyan/210.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/210.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     activable: DBZCCG.Combat.defaultAttackerCheck,
     effect: function() {
         this.success = true;
@@ -5897,15 +6032,16 @@ DBZCCG.Saiyan['210'] = {
 };
 
 DBZCCG.Saiyan['212'] = {
+    headshot: [DBZCCG.Personality.Personalities['Piccolo']],
     type: DBZCCG.Card.Type['Non-Combat'],
     style: DBZCCG.Card.Style.Freestyle,
     description: "Stops a physical or energy attack.",
     name: "Piccolo's Flight",
     number: '212',
-    personality: DBZCCG.Personality.Personalities.PICCOLO,
+    personality: DBZCCG.Personality.Personalities['Piccolo'],
     rarity: DBZCCG.Card.Rarity.Rare,
-    texturePath: "images/DBZCCG/saiyan/212.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/212.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     playable: DBZCCG.Combat.defaultNonCombatCheck,
     activable: function(player) {
         return DBZCCG.currentCard &&
@@ -5926,15 +6062,16 @@ DBZCCG.Saiyan['212'] = {
 };
 
 DBZCCG.Saiyan['216'] = {
+    headshot: [DBZCCG.Personality.Personalities['Krillin']],
     type: DBZCCG.Card.Type['Energy Combat'],
     style: DBZCCG.Card.Style.Freestyle,
-    personality: DBZCCG.Personality.Personalities.KRILLIN,
+    personality: DBZCCG.Personality.Personalities['Krillin'],
     description: "Energy attack. Costs 1 power stage to perform.",
     rarity: DBZCCG.Card.Rarity.Rare,
     name: "Krillin's Energy Disk",
     number: '216',
-    texturePath: "images/DBZCCG/saiyan/216.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/216.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     activable: DBZCCG.Combat.defaultAttackerCheck,
     cost: function() {
         return {powerStage: 1};
@@ -5967,15 +6104,16 @@ DBZCCG.Saiyan['216'] = {
 };
 
 DBZCCG.Saiyan['219'] = {
+    headshot: [DBZCCG.Personality.Personalities['Raditz']],
     type: DBZCCG.Card.Type['Energy Combat'],
     style: DBZCCG.Card.Style.Freestyle,
-    personality: DBZCCG.Personality.Personalities.RADITZ,
+    personality: DBZCCG.Personality.Personalities['Raditz'],
     description: "Energy attack doing 2 life cards. Costs 0 power stages to perform.",
     rarity: DBZCCG.Card.Rarity.Rare,
     name: "Raditz Energy Burst",
     number: '219',
-    texturePath: "images/DBZCCG/saiyan/219.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/219.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     activable: DBZCCG.Combat.defaultAttackerCheck,
     effect: function() {
         this.success = true;
@@ -6004,15 +6142,16 @@ DBZCCG.Saiyan['219'] = {
 };
 
 DBZCCG.Saiyan['220'] = {
+    headshot: [DBZCCG.Personality.Personalities['Vegeta']],
     type: DBZCCG.Card.Type['Energy Combat'],
     style: DBZCCG.Card.Style.Freestyle,
     description: "Takes a maximum of 1 life card of damage from an energy attack. Remove from the game after use.",
     name: "Vegeta's Stance",
-    personality: DBZCCG.Personality.Personalities.VEGETA,
+    personality: DBZCCG.Personality.Personalities['Vegeta'],
     number: '220',
     rarity: DBZCCG.Card.Rarity.Rare,
-    texturePath: "images/DBZCCG/saiyan/220.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/220.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     activable: function(player) {
         return DBZCCG.currentCard &&
                 DBZCCG.Combat.attackType === DBZCCG.Combat.Attack.Energy &&
@@ -6051,14 +6190,15 @@ DBZCCG.Saiyan['220'] = {
 };
 
 DBZCCG.Saiyan['226'] = {
+    headshot: [DBZCCG.Personality.Personalities['Gohan'], DBZCCG.Personality.Personalities['Krillin']],
     type: DBZCCG.Card.Type['Non-Combat'],
     style: DBZCCG.Card.Style.Freestyle,
     description: "Defense Shield: Stops the first unstopped physical or energy attack made against you. Remove from the game after use.",
     name: "T-Rex Defense",
     number: '226',
     rarity: DBZCCG.Card.Rarity.Rare,
-    texturePath: "images/DBZCCG/saiyan/226.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/226.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     playable: DBZCCG.Combat.defaultNonCombatCheck,
     defenseShield: function(player) {
         return DBZCCG.openCard && DBZCCG.openCard.effectType instanceof Array
@@ -6075,22 +6215,26 @@ DBZCCG.Saiyan['226'] = {
             DBZCCG.defendingPlayer.transferCards("nonCombats", [cardIdx], "removedFromTheGame");
         });
     },
-    effectType: [DBZCCG.Combat.Defense.Energy, DBZCCG.Combat.Defense.Omni, DBZCCG.Combat.Defense.Physical, DBZCCG.Combat.Defense.DefenseShield]
+    effectType: [DBZCCG.Combat.Defense.Energy, DBZCCG.Combat.Defense.Omni, DBZCCG.Combat.Defense.Physical, DBZCCG.Combat.Defense["Defense Shield"]]
 };
 
 DBZCCG.Saiyan['240'] = {
+    headshot: [],
     type: DBZCCG.Card.Type['Non-Combat'],
     style: DBZCCG.Card.Style.Freestyle,
     description: "Reveal the top cards on your opponent's Life Deck until you find a Dragon Ball. Set the Dragon Ball aside. Shuffle your opponent's Life Deck. Place the Dragon Ball at the bottom of your opponent's Life Deck. Limit 1 per deck.",
     name: "Vegeta's Trick",
     number: '240',
+    limit: 1,
     rarity: DBZCCG.Card.Rarity.Rare,
-    texturePath: "images/DBZCCG/saiyan/240.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/240.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     playable: DBZCCG.Combat.defaultNonCombatCheck,
-    activable: DBZCCG.Combat.defaultAttackerCheck,
+    activable: function (player) { 
+        return DBZCCG.Combat.defaultAttackerCheck(player, this) &&
+                player.nonCombats.getCardIdx(this.display) !== -1;
+    },
     effect: function() {
-
         var opponent;
 
         for (var i = 0; i < DBZCCG.table.players.length && !opponent; i++) {
@@ -6168,19 +6312,20 @@ DBZCCG.Saiyan['240'] = {
             DBZCCG.performingAction.transferCards("nonCombats", [cardIdx], "discardPile");
         });
     },
-    effectType: [DBZCCG.Combat.Effect.ShufflePile]
+    effectType: [DBZCCG.Combat.Effect.Cards["Shuffle"]]
 };
 
 DBZCCG.Saiyan['247'] = {
+    headshot: [DBZCCG.Personality.Personalities['Piccolo'], DBZCCG.Personality.Personalities['Goku']],
     type: DBZCCG.Card.Type['Combat'],
     style: DBZCCG.Card.Style.Freestyle,
     description: "Stops a physical or energy attack.",
     name: "Goku's Truce",
     number: '247',
-    personality: DBZCCG.Personality.Personalities.GOKU,
+    personality: DBZCCG.Personality.Personalities['Goku'],
     rarity: DBZCCG.Card.Rarity['Ultra Rare'],
-    texturePath: "images/DBZCCG/saiyan/247.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/247.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     activable: function(player) {
         return DBZCCG.currentCard &&
                 (DBZCCG.Combat.attackType === DBZCCG.Combat.Attack.Energy ||
@@ -6200,15 +6345,16 @@ DBZCCG.Saiyan['247'] = {
 };
 
 DBZCCG.Saiyan['248'] = {
+    headshot: [DBZCCG.Personality.Personalities['Piccolo'], DBZCCG.Personality.Personalities['Goku'], DBZCCG.Personality.Personalities['Gohan']],
     type: DBZCCG.Card.Type['Energy Combat'],
     style: DBZCCG.Card.Style.Freestyle,
-    personality: DBZCCG.Personality.Personalities.RADITZ,
+    personality: DBZCCG.Personality.Personalities['Goku'],
     description: "Energy attack doing 5 life cards. Costs 0 power stages to perform.",
     rarity: DBZCCG.Card.Rarity['Ultra Rare'],
     name: "Goku's Plan",
     number: '248',
-    texturePath: "images/DBZCCG/saiyan/248.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/248.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     activable: DBZCCG.Combat.defaultAttackerCheck,
     effect: function() {
         this.success = true;
@@ -6237,14 +6383,15 @@ DBZCCG.Saiyan['248'] = {
 };
 
 DBZCCG.Saiyan['249'] = {
+    headshot: [DBZCCG.Personality.Personalities['Goku']],
     type: DBZCCG.Card.Type['Non-Combat'],
     style: DBZCCG.Card.Style.Freestyle,
     description: "Heroes only. Place the top 3 cards from your discard pile on the bottom of your Life Deck. Limit 1 per deck.",
     name: "Medic Kit",
     number: '249',
     rarity: DBZCCG.Card.Rarity['Ultra Rare'],
-    texturePath: "images/DBZCCG/saiyan/249.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/249.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     playable: DBZCCG.Combat.defaultNonCombatCheck,
     activable: function(player) {
         return DBZCCG.performingAction.getPersonalityInControl() && ClassHelper.checkValue(DBZCCG.performingAction.mainPersonality.alignment,
@@ -6277,18 +6424,20 @@ DBZCCG.Saiyan['249'] = {
             DBZCCG.performingAction.transferCards("nonCombats", [cardIdx], "discardPile");
         });
     },
-    effectType: [DBZCCG.Combat.Effect.Regenerate, DBZCCG.Combat.Effect.HeroOnly]
+    effectType: [DBZCCG.Combat.Effect.Cards.Regenerate, DBZCCG.Combat.Effect["Specific Personality"]["Heroes Only"]]
 };
 
 DBZCCG.Saiyan['250'] = {
+    headshot: [DBZCCG.Personality.Personalities['Tien'], DBZCCG.Personality.Personalities['Chiaotzu']],
     type: DBZCCG.Card.Type['Combat'],
     style: DBZCCG.Card.Style.Freestyle,
     description: "Stops all heroes from losing 1 life card of damage from every attack for the remainder of Combat. Remove from the game after use.",
     name: "Chiaotzu's Physical Defense",
     number: '250',
+    personality: [DBZCCG.Personality.Personalities['Chiaotzu']],
     rarity: DBZCCG.Card.Rarity['Ultra Rare'],
-    texturePath: "images/DBZCCG/saiyan/250.jpg",
-    saga: DBZCCG.Card.Saga.Saiyan,
+    texturePath: "images/cardimages/CCG/saiyan/250.jpg",
+    saga: DBZCCG.Card.Saga["Collectible Card Game"].Saiyan,
     activable: DBZCCG.Combat.defaultAttackerCheck,
     effect: function() {
         for (var i = 0; i < DBZCCG.table.players.length; i++) {

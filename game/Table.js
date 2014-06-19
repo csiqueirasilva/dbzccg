@@ -1,8 +1,5 @@
-DBZCCG.Table = {}
-
 DBZCCG.Table.basePlayerDistance = 1;
 
-DBZCCG.Table.Camera = {};
 DBZCCG.Table.Camera.Top = 0;
 DBZCCG.Table.Camera.Side = 1;
 

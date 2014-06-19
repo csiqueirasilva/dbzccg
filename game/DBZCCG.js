@@ -1,49 +1,59 @@
 // http://github.com/csiqueirasilva/dbzccg.js
 
-var DBZCCG = {};
+// workers
 
-DBZCCG.Load = {};
+DBZCCG.Worker.worker = new Worker('lib/worker/generic.js');
+DBZCCG.Worker.worker.onmessage = function(event) {
+    if(event.data && DBZCCG.Worker.events[event.data.cmd] instanceof Function) {
+        DBZCCG.Worker.events[event.data.cmd](event);
+    }
+};
 
-DBZCCG.Load.mustHave = function () {
+DBZCCG.Load.mustHave = function() {
     return DBZCCG.Load.foilFriezaDefault && DBZCCG.Load.foilSaiyanDefault && DBZCCG.Load.particleTexture && DBZCCG.Load.cardBack;
 };
 
+DBZCCG.Load.sourceCardFetch = false;
+DBZCCG.Load.skipLoad = false;
+
 DBZCCG.loadFunction = function(checkLoad, buildScene, render, controls, finishLoad, afterLoadCallback) {
-    $('body').children('hide');
-    $('canvas').remove();
-
-    var loadingText = document.createElement('h1');
-    loadingText.id = 'loadingText';
-    loadingText.innerHTML = 'Loading!!!';
-    loadingText.style['z-index'] = 1000000;
-    document.body.appendChild(loadingText);
-
+    window.InterfaceDBZ.toggleModalProgress("Loading...");
+                    
     var loadModelInterval = window.setInterval(function() {
-        if (checkLoad()) {
+        if (!(checkLoad instanceof Function) || checkLoad()) {
             window.clearInterval(loadModelInterval);
-            var scr = DBZCCG.Screen.create(buildScene, render, controls);
-
+            var scr = undefined;
+            if(buildScene instanceof Function && render instanceof Function && controls instanceof Function) {
+                scr = DBZCCG.Screen.create(buildScene, render, controls);
+            }
+            
             var interval = window.setInterval(function() {
                 var count = DBZCCG.loadIcr + "/" + DBZCCG.loadCounter;
-                loadingText.innerHTML = count;
                 console.log(count);
-                if (DBZCCG.finishedLoading && DBZCCG.loadCounter === DBZCCG.loadIcr) {
+                if (DBZCCG.finishedLoading && 
+                        ((DBZCCG.loadCounter === DBZCCG.loadIcr && DBZCCG.loadCounter !== 0) ||
+                        DBZCCG.Load.skipLoad) ) {
                     window.clearInterval(interval);
-                    // Remove loading screen
-                    $(loadingText).remove();
+                    window.InterfaceDBZ.toggleModalProgress();
+                    
+                    if(finishLoad instanceof Function) {
+                        finishLoad();
+                    }
 
-                    finishLoad();
-
-                    scr.start();
+                    if(scr !== undefined) {
+                        scr.start();
+                    }
 
                     window.onresize();
 
                     DBZCCG.waitingMainPlayerMouseCommand = true;
                     console.log('Load is finished');
 
-                    afterLoadCallback();
+                    if(afterLoadCallback instanceof Function) {
+                        afterLoadCallback();
+                    }
                 }
-            }, 10);
+            }, 100);
         }
     }, 10);
 };
@@ -99,7 +109,19 @@ DBZCCG.createDialog = function(title, content, id) {
     document.getElementById('hud').appendChild(elem);
 
     // TODO: Add nicescrollbar to the Dialog. It is tricky.
-    $(elem).dialog({resizable: false, title: title, autoOpen: false, height: window.innerHeight * 0.5, width: window.innerWidth * 0.333,
+    $(elem).dialog({resizable: false, 
+        title: title, 
+        autoOpen: false, 
+        height: window.innerHeight * 0.5, 
+        width: window.innerWidth * 0.333,
+        open: function () {
+            $(elem)
+                .parent()
+                .find('.ui-dialog-buttonpane')
+                .find('button')
+                .addClass('btn')
+                .addClass('btn-default');  
+        },
         close: function() {
             $(this).remove();
         }});
@@ -116,6 +138,7 @@ DBZCCG.effectDialog = function() {
                 "Skip opportunity": function() {
                     DBZCCG.Combat.removeSelectionParticles();
                     $('#effect-btn').hide();
+                    DBZCCG.Interface.leftSideMenuOnResize();
                     DBZCCG.performingTurn = false;
                     DBZCCG.waitingMainPlayerMouseCommand = false;
                     $(this).dialog('close');
@@ -128,6 +151,7 @@ DBZCCG.declareDialog = function() {
             {
                 "Declare combat": function() {
                     $('#combat-btn').hide();
+                    DBZCCG.Interface.leftSideMenuOnResize();
                     DBZCCG.combat = true;
                     DBZCCG.performingTurn = false;
                     DBZCCG.waitingMainPlayerMouseCommand = false;
@@ -135,6 +159,7 @@ DBZCCG.declareDialog = function() {
                 },
                 "Skip combat": function() {
                     $('#combat-btn').hide();
+                    DBZCCG.Interface.leftSideMenuOnResize();
                     DBZCCG.combat = false;
                     DBZCCG.performingTurn = false;
                     DBZCCG.waitingMainPlayerMouseCommand = false;
@@ -148,12 +173,14 @@ DBZCCG.rejuvenateDialog = function() {
             {
                 "Rejuvenate": function() {
                     $('#rejuvenate-btn').hide();
+                    DBZCCG.Interface.leftSideMenuOnResize();
                     DBZCCG.waitingMainPlayerMouseCommand = false;
                     DBZCCG.performingAction.rejuvenate(true);
                     $(this).dialog('close');
                 },
                 "Do not rejuvenate": function() {
                     $('#rejuvenate-btn').hide();
+                    DBZCCG.Interface.leftSideMenuOnResize();
                     DBZCCG.waitingMainPlayerMouseCommand = false;
                     DBZCCG.performingTurn = false;
                     $(this).dialog('close');
@@ -165,6 +192,7 @@ DBZCCG.hideCombatIcons = function() {
     $('#pass-btn').hide();
     $('#final-physical-btn').hide();
     DBZCCG.qtipElement.qtip('hide');
+    DBZCCG.Interface.leftSideMenuOnResize();
 };
 
 DBZCCG.finalPhysicalDialog = function() {
@@ -175,6 +203,7 @@ DBZCCG.finalPhysicalDialog = function() {
                 window.setTimeout(function() {
 
                     $('#pass-btn').hide();
+                    DBZCCG.Interface.leftSideMenuOnResize();
 
                     document.getElementById('final-physical-btn').onclick = function() {
 
@@ -194,6 +223,7 @@ DBZCCG.finalPhysicalDialog = function() {
                                                 DBZCCG.toolTip.idxHand = player.hand.getCardIdx(DBZCCG.toolTip.parent);
                                                 DBZCCG.qtipElement.qtip('hide');
                                                 $('#final-physical-btn').hide();
+                                                DBZCCG.Interface.leftSideMenuOnResize();
 
                                                 player.transferCards("hand", [DBZCCG.toolTip.idxHand], "discardPile");
 
@@ -306,6 +336,30 @@ DBZCCG.incrementLoad = function() {
 /* Interface variables */
 DBZCCG.toolTip = {};
 
+DBZCCG.toolTip.showDescription = function() {
+    var parent = DBZCCG.toolTip.parent;
+
+    if (parent.descriptionBox instanceof Function) {
+        var display = parent;
+        if (parent.displayObject instanceof Function) {
+            display = parent.displayObject();
+        }
+
+        if (DBZCCG.leftScreen && DBZCCG.leftScreen.focusElement instanceof Function) {
+            DBZCCG.leftScreen.focusElement(display, display.leftScreenCallback);
+        }
+
+        var textReturn = parent.descriptionBox();
+        if (typeof textReturn === "string") {
+            DBZCCG.descriptionBox(textReturn);
+        }
+    }
+
+    if (!parent.doNotFocus) {
+        $('#object-info').modal('show');
+    }
+};
+
 DBZCCG.updateBillboards = function(camera) {
 
     var obj;
@@ -316,20 +370,6 @@ DBZCCG.updateBillboards = function(camera) {
         obj.position.z += 1;
         obj.position.y += 0.5;
     }
-};
-
-DBZCCG.resizeToolbar = function(rendererWidth, left, right) {
-    var elem = document.getElementById('toolbar');
-    elem.style.left = Math.ceil(rendererWidth * 0.62) + parseInt(left) + 'px';
-    elem.style.right = right + 'px';
-    elem.style.width = rendererWidth * 0.38 + 'px';
-};
-
-DBZCCG.resizeTurnCounter = function(rendererWidth, left, right) {
-    var elem = document.getElementById('turnCounter');
-    elem.style.left = Math.ceil(rendererWidth * 0.394) + parseInt(left) + 'px';
-    elem.style.right = right + 'px';
-    elem.style.width = rendererWidth * 0.214 + 'px';
 };
 
 DBZCCG.descriptionBox = function(content) {

@@ -1,11 +1,14 @@
-DBZCCG.Pile = {};
-
-DBZCCG.Pile.Face = {};
-
-DBZCCG.Pile.cardBase = DBZCCG.Card.create();
+(function () {
+    var interval = setInterval(function() {
+        if(DBZCCG.Card.cardModel) {
+            DBZCCG.Pile.cardBase = DBZCCG.Card.create();
+            clearInterval(interval);
+        }
+    }, 50);
+})();
 
 DBZCCG.Pile.PileObject = function(data, faceUp, owner) {
-    this.number = data.number;
+    this.number = data.length;
     this.owner = owner;
 
     var pile = this;
@@ -21,6 +24,10 @@ DBZCCG.Pile.PileObject = function(data, faceUp, owner) {
         } else {
             DBZCCG.objects.push(display);
         }
+    }
+
+    function getYPosition (index) {
+        return DBZCCG.Card.cornerWidth * DBZCCG.Card.cardThicknessScale * index * 2;
     }
 
     function createDisplay(number, faceUp) {
@@ -67,12 +74,11 @@ DBZCCG.Pile.PileObject = function(data, faceUp, owner) {
 
             var otherCards = pile.display.children;
 
-            card.display.position.y = DBZCCG.Card.cornerWidth * DBZCCG.Card.cardThicknessScale *
-                    (50 + card.display.parent.children.length + pile.display.children.length) * 2;
+            card.display.position.y = getYPosition(50 + card.display.parent.children.length + pile.display.children.length);
 
             var target = pile.display.position.clone();
             target.add(pile.display.parent.position);
-            target.y = DBZCCG.Card.cornerWidth * DBZCCG.Card.cardThicknessScale * cardIdx * 2;
+            target.y = getYPosition(cardIdx);
             var animation = new TWEEN.Tween(card.display.position).to(target, timer);
 
             var newTopCard = false;
@@ -81,7 +87,7 @@ DBZCCG.Pile.PileObject = function(data, faceUp, owner) {
 
             animation.onStart(function() {
 
-                DBZCCG.Sound.transfer(1);
+                //DBZCCG.Sound.transfer(1);
 
                 if (cardIdx === otherCards.length) {
                     if (faceUp) {
@@ -238,7 +244,7 @@ DBZCCG.Pile.PileObject = function(data, faceUp, owner) {
 
             /* Everyone above the removed card get down by 1 card (aka get the position of the card below it) */
             for (var i = otherCards.length - 1; i >= 0; i--) {
-                otherCards[i].position.y = DBZCCG.Card.cornerWidth * DBZCCG.Card.cardThicknessScale * i * 2;
+                otherCards[i].position.y = getYPosition(i);
             }
 
             pile.display.remove(removedCard);
@@ -324,9 +330,9 @@ DBZCCG.Pile.PileObject = function(data, faceUp, owner) {
         }
     };
 
-    this.display = createDisplay(data.number, faceUp);
-    this.currentCards = data.number;
-    this.cards = data.cards || [];
+    this.display = createDisplay(data.length, faceUp);
+    this.currentCards = data.length;
+    this.cards = data || [];
 
     this.setOwnerCallback = function(callback) {
         this.display.owner = callback;
@@ -393,13 +399,13 @@ DBZCCG.Pile.PileObject = function(data, faceUp, owner) {
             }
             
             var insides = new THREE.Mesh(insideGeo, new THREE.MeshFaceMaterial(materials));
-            insides.position.y = DBZCCG.Card.cornerWidth * DBZCCG.Card.cardThicknessScale * (pile.currentCards - 1);
+            insides.position.y = getYPosition(i); // Maybe needs to get divided by 2
             insides.rotation.x = Math.PI / 2;
             obj.add(insides);
             if (faceUp) {
                 clone.position.y = 0;
             } else {
-                clone.position.y = DBZCCG.Card.cornerWidth * DBZCCG.Card.cardThicknessScale * (pile.currentCards - 1) * 2;
+                clone.position.y = getYPosition(pile.currentCards - 1);
             }
             obj.add(clone);
         }
@@ -451,7 +457,7 @@ DBZCCG.Pile.PileObject = function(data, faceUp, owner) {
             this.cards.push(oldCards[sourceIdx]);
             oldCards.splice(sourceIdx, 1);
 
-            child.position.y = DBZCCG.Card.cornerWidth * DBZCCG.Card.cardThicknessScale * targetIdx * 2;
+            child.position.y = getYPosition(targetIdx);
             this.display.add(child);
 
             while (this.cards.length !== totalLength) {
@@ -462,7 +468,7 @@ DBZCCG.Pile.PileObject = function(data, faceUp, owner) {
                 this.cards.push(oldCards[sourceIdx]);
                 oldCards.splice(sourceIdx, 1);
 
-                child.position.y = DBZCCG.Card.cornerWidth * DBZCCG.Card.cardThicknessScale * targetIdx * 2;
+                child.position.y = getYPosition(targetIdx);
                 this.display.add(child);
             }
 
@@ -477,7 +483,7 @@ DBZCCG.Pile.PileObject = function(data, faceUp, owner) {
                 }
 
                 if ((++sound % 7) === 0 && sound < 18) {
-                    DBZCCG.Sound.shuffle();
+                    //DBZCCG.Sound.shuffle();
                 }
             });
 
@@ -545,5 +551,5 @@ DBZCCG.Pile.PileObject = function(data, faceUp, owner) {
 DBZCCG.Pile.PileObject.prototype.constructor = DBZCCG.Pile.PileObject;
 
 DBZCCG.Pile.create = function(data, faceUp, owner) {
-    return new DBZCCG.Pile.PileObject(data || {number: 50}, faceUp, owner);
+    return new DBZCCG.Pile.PileObject(data || [], faceUp, owner);
 };

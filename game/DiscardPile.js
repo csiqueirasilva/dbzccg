@@ -1,5 +1,3 @@
-DBZCCG.DiscardPile = {};
-
 DBZCCG.DiscardPile.DiscardPileObject = function (discardPile, faceUp, owner) {
     DBZCCG.Pile.PileObject.apply(this, arguments);
 
@@ -38,5 +36,5 @@ DBZCCG.DiscardPile.DiscardPileObject.prototype = Object.create(DBZCCG.Pile.PileO
 DBZCCG.DiscardPile.DiscardPileObject.prototype.constructor = DBZCCG.DiscardPile.DiscardPileObject;
 
 DBZCCG.DiscardPile.create = function(discardPile, owner) {
-    return new DBZCCG.DiscardPile.DiscardPileObject(discardPile || {number: 0}, true, owner);
+    return new DBZCCG.DiscardPile.DiscardPileObject(discardPile || [], true, owner);
 };

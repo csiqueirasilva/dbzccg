@@ -1,5 +1,3 @@
-DBZCCG.RemovedPile = {};
-
 DBZCCG.RemovedPile.RemovedPileObject = function(removedPile, faceUp) {
     DBZCCG.Pile.PileObject.apply(this, arguments);
 
@@ -20,5 +18,5 @@ DBZCCG.RemovedPile.RemovedPileObject.prototype = Object.create(DBZCCG.Pile.PileO
 DBZCCG.RemovedPile.RemovedPileObject.prototype.constructor = DBZCCG.RemovedPile.RemovedPileObject;
 
 DBZCCG.RemovedPile.create = function(removedPile) {
-    return new DBZCCG.RemovedPile.RemovedPileObject(removedPile || {number: 0}, true);
+    return new DBZCCG.RemovedPile.RemovedPileObject(removedPile || [], true);
 };

@@ -1,0 +1,18 @@
+<style>
+    .desktop-menu-link {
+        color: #000;
+        text-shadow: none;
+    }
+
+    .desktop-menu-link:hover {
+        color: #000;
+        text-shadow: none;
+    }
+    
+    #points-menu-display {
+        color: #000;
+        text-shadow: none;
+    }
+</style>
+
+<div id="header-content-margin-fix"></div>

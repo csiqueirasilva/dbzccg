@@ -1,8 +1,4 @@
-DBZCCG.Log = {};
-
 DBZCCG.Log.entries = [];
-
-DBZCCG.Log.Type = {};
 
 DBZCCG.Log.Type.sufferedDamage = 0;
 DBZCCG.Log.Type.sufferedAttack = 1;
@@ -36,8 +32,8 @@ DBZCCG.Log.logEntry = function(msg, card, type) {
         log.innerHTML += '<b>' + DBZCCG.performingAction.displayName() + '</b>' + '@' + this.phase + "[" + this.entryDate.toLocaleString() + "]" + '<br />';
         log.innerHTML += this.msg;
 
-        document.getElementById("logBox").appendChild(log);
-        $('#logBox').animate({scrollTop: $('#logBox')[0].scrollHeight}, 'slow');
+        document.getElementById("log-box").appendChild(log);
+        $('#log-box').animate({scrollTop: $('#log-box')[0].scrollHeight}, 'slow');
     }
 
     return new LogObject(msg, card);

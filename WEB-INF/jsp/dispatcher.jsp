@@ -1,1 +1,1 @@
-<jsp:include page="../template/wrapper.jsp" />
+<jsp:include page="/WEB-INF/template/wrapper.jsp" />

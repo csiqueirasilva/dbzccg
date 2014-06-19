@@ -1,24 +1,22 @@
-DBZCCG.LifeDeck = {};
-
 DBZCCG.LifeDeck.minimumSize = 50;
 DBZCCG.LifeDeck.maximumSize = 85;
 DBZCCG.LifeDeck.namekianMaximumSize = 90;
 
 DBZCCG.LifeDeck.LifeDeckObject = function(deckObject, faceUp, owner) {
     var cardList = [];
-    if (!deckObject.number) {
+
+    if (deckObject.length === undefined) {
         /* THIS IS THE DEMO CODE */
         var allowedCards = [];
 
-        for (var i in DBZCCG.Saiyan) {
+        for (var i in DBZCCG.Card.sourceCardsReference) {
             if (!isNaN(parseInt(i))) {
                 allowedCards.push(i);
             }
         }
 
         //exceptions
-        allowedCards.splice(allowedCards.indexOf('158'), 3);
-        allowedCards.splice(allowedCards.indexOf('173'), 3);
+        allowedCards.splice(allowedCards.indexOf('141'), 6);
 
         var card;
         while (cardList.length < DBZCCG.LifeDeck.maximumSize - 3) {
@@ -26,7 +24,7 @@ DBZCCG.LifeDeck.LifeDeckObject = function(deckObject, faceUp, owner) {
 
             var count = 0;
             for (var i = 0; i < cardList.length; i++) {
-                if (cardList[i].number === allowedCards[idx]) {
+                if (cardList[i].id === allowedCards[idx]) {
                     count++;
                 }
             }
@@ -34,9 +32,10 @@ DBZCCG.LifeDeck.LifeDeckObject = function(deckObject, faceUp, owner) {
             if (count === 3) {
                 allowedCards.splice(idx, 1);
             } else {
-                var cardData = DBZCCG.Saiyan[allowedCards[idx]];
+                var cardData = DBZCCG.Card.sourceCardsReference[allowedCards[idx]];
+                
                 if (cardData.limit !== count) {
-                    card = DBZCCG.Card.createCard(cardData);
+                    card = DBZCCG.Card.createCard({"texturePath":"images/cardimages/CCG/saiyan/" + cardData.number + ".jpg","sourceCard": allowedCards[idx],"foil":null,"alternativeArt":false,"specularMapPath":"images/cardimages/CCG/saiyan/specularmap.jpg","offerTrade":false,"tradeable":false});
                     card.display.turnGameDisplay();
                     cardList.push(card);
                 } else {
@@ -45,11 +44,16 @@ DBZCCG.LifeDeck.LifeDeckObject = function(deckObject, faceUp, owner) {
             }
         }
 
-        deckObject.number = cardList.length;
-        deckObject.cards = cardList;
-
+        deckObject = cardList;
+        
         /* End of demo code */
+    } else {
+        for(var i = 0; i < deckObject.length; i++) {
+            deckObject[i] = DBZCCG.Card.createCard(deckObject[i]);
+        }
     }
+
+    console.log(deckObject);
 
     DBZCCG.Pile.PileObject.apply(this, arguments);
 

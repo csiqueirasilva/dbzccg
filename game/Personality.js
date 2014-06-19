@@ -1,53 +1,3 @@
-DBZCCG.Personality = {};
-
-DBZCCG.Personality.Personalities = {};
-
-DBZCCG.Personality.Personalities.GOKU = 1;
-DBZCCG.Personality.Personalities.NAPPA = 2;
-DBZCCG.Personality.Personalities.VEGETA = 3;
-DBZCCG.Personality.Personalities.RADITZ = 4;
-DBZCCG.Personality.Personalities.PICCOLO = 5;
-DBZCCG.Personality.Personalities.CHIAOTZU = 6;
-DBZCCG.Personality.Personalities.TIEN = 7;
-DBZCCG.Personality.Personalities.KRILLIN = 8;
-DBZCCG.Personality.Personalities.GOHAN = 9;
-DBZCCG.Personality.Personalities.YAMCHA = 10;
-DBZCCG.Personality.Personalities.YAJIROBE = 11;
-DBZCCG.Personality.Personalities.BULMA = 12;
-DBZCCG.Personality.Personalities.CHICHI = 13;
-DBZCCG.Personality.Personalities.SAIBAIMEN = 14;
-DBZCCG.Personality.Personalities.ROSHI = 15;
-DBZCCG.Personality.Personalities.BABA = 16;
-DBZCCG.Personality.Personalities['KING KAI'] = 17;
-
-DBZCCG.Personality.FemaleList = [
-    DBZCCG.Personality.Personalities.BULMA,
-    DBZCCG.Personality.Personalities.CHICHI,
-    DBZCCG.Personality.Personalities.BABA
-];
-
-DBZCCG.Personality.alignment = {};
-DBZCCG.Personality.alignment.Hero = 1;
-DBZCCG.Personality.alignment.Villain = 2;
-DBZCCG.Personality.alignment.Rogue = 3;
-
-DBZCCG.Personality.SaiyanHeritage = [DBZCCG.Personality.Personalities.GOKU, DBZCCG.Personality.Personalities.NAPPA, DBZCCG.Personality.Personalities.VEGETA, DBZCCG.Personality.Personalities.RADITZ, DBZCCG.Personality.Personalities.GOHAN];
-DBZCCG.Personality.NamekianHeritage = [DBZCCG.Personality.Personalities.PICCOLO];
-DBZCCG.Personality.Hero = [DBZCCG.Personality.Personalities.BABA,
-    DBZCCG.Personality.Personalities.ROSHI,
-    DBZCCG.Personality.Personalities.GOKU,
-    DBZCCG.Personality.Personalities.VEGETA,
-    DBZCCG.Personality.Personalities.PICCOLO,
-    DBZCCG.Personality.Personalities.CHIAOTZU,
-    DBZCCG.Personality.Personalities.TIEN,
-    DBZCCG.Personality.Personalities.KRILLIN,
-    DBZCCG.Personality.Personalities.GOHAN,
-    DBZCCG.Personality.Personalities.YAMCHA,
-    DBZCCG.Personality.Personalities.YAJIROBE,
-    DBZCCG.Personality.Personalities.BULMA,
-    DBZCCG.Personality.Personalities.CHICHI];
-DBZCCG.Personality.Villain = [DBZCCG.Personality.Personalities.SAIBAIMEN, DBZCCG.Personality.Personalities.RADITZ, DBZCCG.Personality.Personalities.PICCOLO, DBZCCG.Personality.Personalities.VEGETA, DBZCCG.Personality.Personalities.NAPPA];
-
 DBZCCG.Personality.zScouterMaterial = new THREE.MeshLambertMaterial({transparent: true, shading: THREE.SmoothShading, color: 0xFF2233});
 
 (function() {
@@ -63,7 +13,7 @@ DBZCCG.Personality.zScouterMaterial = new THREE.MeshLambertMaterial({transparent
 })();
 
 DBZCCG.Personality.checkHeritage = function(personality, heritage) {
-    heritage = heritage.charAt(0).toUpperCase() + heritage.substring(1) + 'Heritage';
+    heritage = heritage.charAt(0).toUpperCase() + heritage.substring(1) + ' Heritage';
     var ret = false;
     for (var i = 0; i < DBZCCG.Personality[heritage].length && !ret; i++) {
         if (ClassHelper.checkValue(personality, DBZCCG.Personality[heritage][i])) {
@@ -101,7 +51,7 @@ DBZCCG.Personality.PersonalityObject = function(data) {
 
         content += "<div class='property-description-box'>\
                             <div class='card-label-pur'>\
-                                <div title='PUR'>" + card.PUR + "</div>\
+                                <div title='PUR'>" + card.pur + "</div>\
                             </div>" +
                 $(cardDesc).filter(".card-description")[0].outerHTML.replace("div class", "div style='width: 80%; float: left;' class") +
                 "</div>";
@@ -128,12 +78,8 @@ DBZCCG.Personality.PersonalityObject = function(data) {
         return content;
     };
 
-    this.level = data.level;
-    this.powerStages = data.powerStages;
     this.powerStageType = data.powerStageType || 'regular';
     this.currentPowerStageAboveZero = data.currentPowerStageAboveZero;
-    this.alignment = data.alignment;
-    this.PUR = data.PUR;
 };
 
 DBZCCG.Personality.PersonalityObject.prototype = Object.create(DBZCCG.Card.CardObject.prototype);
@@ -180,7 +126,7 @@ DBZCCG.Personality.PersonalityObject.prototype.raiseZScouter = function(numberPo
     }
 
 
-    DBZCCG.Sound.power(diffPowerStage);
+    //DBZCCG.Sound.power(diffPowerStage);
     DBZCCG.Combat.hoverText((diffPowerStage < 0 ? '' : '+') + diffPowerStage.toString(), this.zScouter, diffPowerStage > 0 ? 0x00FF00 : 0xFF0000);
 
     this.moveZScouter(resultPowerStage, noDelay, true);
@@ -217,7 +163,7 @@ DBZCCG.Personality.PersonalityObject.prototype.moveZScouter = function(toPowerSt
                 .add(northDir);
 
         var moveAnimation = new TWEEN.Tween(startPos).to(endPos, 120);
-        moveAnimation.easing(TWEEN.Easing.Circular.In);
+        moveAnimation.easing(TWEEN.Easing.CircularIn);
 
         var zScouter = this.zScouter;
         moveAnimation.onUpdate(function() {
@@ -236,7 +182,7 @@ DBZCCG.Personality.PersonalityObject.prototype.moveZScouter = function(toPowerSt
                     msg += " (" + card.currentPowerStageAboveZero + " " + (card.currentPowerStageAboveZero === 1 ? "stage" : "stages") + " above 0)";
                 }
 
-                DBZCCG.Sound.power();
+                //DBZCCG.Sound.power();
                 DBZCCG.Combat.hoverText("=" + card.powerStages[card.currentPowerStageAboveZero], card.zScouter);
                 DBZCCG.Log.logEntry(msg);
             }

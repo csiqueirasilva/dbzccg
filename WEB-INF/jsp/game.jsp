@@ -46,21 +46,21 @@
         </div>
 
         <div id="toolbar">
-            <div id="final-physical-btn" class="btn">
+            <div id="final-physical-btn" class="game-btn">
             </div>
-            <div id="rejuvenate-btn" class="btn">
+            <div id="rejuvenate-btn" class="game-btn">
             </div>
-            <div id="capture-btn" class="btn">
+            <div id="capture-btn" class="game-btn">
             </div>
-            <div id="combat-btn" class="btn">
+            <div id="combat-btn" class="game-btn">
             </div>
-            <div id="effect-btn" class="btn">
+            <div id="effect-btn" class="game-btn">
             </div>
-            <div id="pass-btn" class="btn">
+            <div id="pass-btn" class="game-btn">
             </div>
-            <div id="log-btn" class="btn">
+            <div id="log-btn" class="game-btn">
             </div>
-            <div id="sound-btn" class="btn sound-off">                
+            <div id="sound-btn" class="game-btn sound-off">                
             </div>
         </div>
 
@@ -98,19 +98,21 @@
         <script type="text/javascript">
             (function(){
                 <jsp:include page="../../build/dbzccg.min.js" />
+                <jsp:include page="../../lib/BufferGeometryUtils.js" />
                 $(window).load(function() {
                     /* DEBUG */
                     window.DBZCCG = DBZCCG;
                     window.THREE = THREE;
                     window.MathHelper = MathHelper;
+                    window.TWEEN = TWEEN;
                     
                     window.toHand = function (code, player) {
                         var card = DBZCCG.Card.createCard(code);
                         DBZCCG.mainScene.add(card.display);
                         DBZCCG.table.players[player].hand.addCard([card], true);
                     };
-                    
                     /* END OF DEBUG */
+                    
                     DBZCCG.create();
                 });
             })();

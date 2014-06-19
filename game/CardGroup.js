@@ -1,5 +1,3 @@
-DBZCCG.CardGroup = {};
-
 DBZCCG.CardGroup.YCoord = 5;
 DBZCCG.CardGroup.maxDisplaySize = 6;
 DBZCCG.CardGroup.maxWidth = DBZCCG.Card.cardWidth * DBZCCG.CardGroup.maxDisplaySize;
@@ -287,7 +285,7 @@ DBZCCG.CardGroup.create = function(cardGroup) {
                 
                 if(card) {
                     if(this.name !== 'floatingEffects') {
-                        DBZCCG.Sound.transfer();
+                        //DBZCCG.Sound.transfer();
                     }
                 }
             }

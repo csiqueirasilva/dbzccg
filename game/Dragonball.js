@@ -1,13 +1,4 @@
-DBZCCG.Dragonball = {};
-DBZCCG.Dragonball['Earth Dragonball 1'] = 0;
-DBZCCG.Dragonball['Earth Dragonball 2'] = 1;
-DBZCCG.Dragonball['Earth Dragonball 3'] = 2;
-DBZCCG.Dragonball['Earth Dragonball 4'] = 3;
-DBZCCG.Dragonball['Earth Dragonball 5'] = 4;
-DBZCCG.Dragonball['Earth Dragonball 6'] = 5;
-DBZCCG.Dragonball['Earth Dragonball 7'] = 6;
-
-DBZCCG.Dragonball.checkInPlay = function(db) {
+DBZCCG.DragonBall.checkInPlay = function(db) {
     var result = false;
     var players = DBZCCG.table.players;
     // check if dragonball is in play
@@ -23,12 +14,10 @@ DBZCCG.Dragonball.checkInPlay = function(db) {
     return result;
 };
 
-DBZCCG.Dragonball.DragonballObject = function (data) {
+DBZCCG.DragonBall.DragonballObject = function (data) {
     DBZCCG.Card.CardObject.apply(this, arguments);
-
     this.display.parentCard = this;
 
-    this.dbCode = data.dbCode;
 
     this.capture = function(player, doNotUse) {
         if (this.control !== player) {
@@ -59,9 +48,9 @@ DBZCCG.Dragonball.DragonballObject = function (data) {
     };
 };
 
-DBZCCG.Dragonball.DragonballObject.prototype = Object.create(DBZCCG.Card.CardObject.prototype);
-DBZCCG.Dragonball.DragonballObject.prototype.constructor = DBZCCG.Dragonball.DragonballObject;
+DBZCCG.DragonBall.DragonballObject.prototype = Object.create(DBZCCG.Card.CardObject.prototype);
+DBZCCG.DragonBall.DragonballObject.prototype.constructor = DBZCCG.DragonBall.DragonballObject;
 
-DBZCCG.Dragonball.create = function(data) {
-    return new DBZCCG.Dragonball.DragonballObject(data);
+DBZCCG.DragonBall.create = function(data) {
+    return new DBZCCG.DragonBall.DragonballObject(data);
 };

@@ -1,8 +1,6 @@
-DBZCCG.Sound = {};
+/* Experimental!
 
 DBZCCG.Sound.on = false;
-
-DBZCCG.Sound.Background = {};
 
 DBZCCG.Sound.Background.bgm = [
 //    'w3flpmg0GPM',
@@ -312,3 +310,5 @@ DBZCCG.Sound.transfer = function(sound) {
         //lowLag.play("transfer" + (Math.round((DBZCCG.Sound.transferSounds.length - 1) * Math.random())));
     }
 };
+
+*/

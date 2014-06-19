@@ -9,7 +9,7 @@ DBZCCG.checkObjectLoad = function() {
             DBZCCG.Combat.selectionParticles ? true : false);
 };
 
-DBZCCG.create = function() {
+DBZCCG.create = function(playerData) {
 
     /* Three related */
     var mouse = new THREE.Vector2();
@@ -22,7 +22,15 @@ DBZCCG.create = function() {
     var scr = null;
 
     /* Interface related */
-    DBZCCG.qtipElement = $('#hud');
+    $('#hud').show();
+
+    /* Heartbeat for user session */
+    
+    window.setInterval(function () {
+        $.ajax({
+            url: DBZCCG.Load.heartBeatUrl
+        });
+    }, 120000);
 
     function loadDefaultBackground() {
         var particleImage = DBZCCG.Combat.particleTexture;
@@ -95,7 +103,7 @@ DBZCCG.create = function() {
         };
     }
 
-    function loadWoodenTable(sizeX, sizeY) {
+    function loadGradientBG(sizeX, sizeY) {
         this.loadImage('images/bg/bg5.jpg', sizeX, sizeY);
     }
 
@@ -164,7 +172,7 @@ DBZCCG.create = function() {
         DBZCCG.loadCounter = 0;
         DBZCCG.loadIcr = 0;
 
-        DBZCCG.background = ThreeHelper.createBackground(scene, camera, loadWoodenTable);
+        DBZCCG.background = ThreeHelper.createBackground(scene, camera, loadGradientBG);
 
         var light = new THREE.PointLight(0xF0F0F0); // soft white light
         light.position.set(0, 100, 0);
@@ -172,39 +180,15 @@ DBZCCG.create = function() {
 
         DBZCCG.table = table = DBZCCG.Table.create([
             /*P1*/
-            {name: 'Human', mainPersonality: {alignment: DBZCCG.Personality.alignment.Hero, currentMainPersonalityLevel: 1, currentPowerStageAboveZero: 5, currentAngerLevel: 0,
-                    angerLevelNeededToLevel: 5, personalities: [DBZCCG.Saiyan['158'], DBZCCG.Saiyan['159'], DBZCCG.Saiyan['160']]}},
+            playerData || {name: 'Human', mainPersonality: {alignment: DBZCCG.Personality.alignment.Hero, currentMainPersonalityLevel: 1, currentPowerStageAboveZero: 5, currentAngerLevel: 0,
+                    angerLevelNeededToLevel: 5, personalities: [{"id":3698,"texturePath":"images/cardimages/CCG/saiyan/158.jpg","sourceCard":144,"foil":null,"alternativeArt":false,"specularMapPath":"images/cardimages/CCG/saiyan/specularmap.jpg","offerTrade":false,"owner":1,"tradeable":false},{"id":3697,"texturePath":"images/cardimages/CCG/saiyan/159.jpg","sourceCard":145,"foil":null,"alternativeArt":false,"specularMapPath":"images/cardimages/CCG/saiyan/specularmap.jpg","offerTrade":false,"owner":1,"tradeable":false},{"id":3696,"texturePath":"images/cardimages/CCG/saiyan/160.jpg","sourceCard":146,"foil":null,"alternativeArt":false,"specularMapPath":"images/cardimages/CCG/saiyan/specularmap.jpg","offerTrade":false,"owner":1,"tradeable":false}]}},
             /*P2*/
             {name: 'CPU', mainPersonality: {alignment: DBZCCG.Personality.alignment.Villain, currentMainPersonalityLevel: 1, currentPowerStageAboveZero: 5, currentAngerLevel: 0,
-                    angerLevelNeededToLevel: 5, personalities: [DBZCCG.Saiyan['173'], DBZCCG.Saiyan['174'], DBZCCG.Saiyan['175']]}}
+                    angerLevelNeededToLevel: 5, personalities: [{"id":3698,"texturePath":"images/cardimages/CCG/saiyan/158.jpg","sourceCard":144,"foil":null,"alternativeArt":false,"specularMapPath":"images/cardimages/CCG/saiyan/specularmap.jpg","offerTrade":false,"owner":1,"tradeable":false},{"id":3697,"texturePath":"images/cardimages/CCG/saiyan/159.jpg","sourceCard":145,"foil":null,"alternativeArt":false,"specularMapPath":"images/cardimages/CCG/saiyan/specularmap.jpg","offerTrade":false,"owner":1,"tradeable":false},{"id":3696,"texturePath":"images/cardimages/CCG/saiyan/160.jpg","sourceCard":146,"foil":null,"alternativeArt":false,"specularMapPath":"images/cardimages/CCG/saiyan/specularmap.jpg","offerTrade":false,"owner":1,"tradeable":false}]}}
         ], camera, scene);
 
         DBZCCG.resizeLabels = table.updateLabelPlayers;
         DBZCCG.mainScene = scene;
-
-        // set onclick callback for pass
-        document.getElementById('pass-btn').onclick = function() {
-            DBZCCG.passDialog(DBZCCG.passMessage);
-        };
-
-        // set onclick callback for pass
-        document.getElementById('final-physical-btn').onclick = function() {
-            DBZCCG.finalPhysicalDialog();
-        };
-
-        // set onclick callback for combat
-        document.getElementById('effect-btn').onclick = function() {
-            DBZCCG.effectDialog();
-        };
-
-        // set onclick callback for combat
-        document.getElementById('combat-btn').onclick = function() {
-            DBZCCG.declareDialog();
-        };
-
-        document.getElementById('rejuvenate-btn').onclick = function() {
-            DBZCCG.rejuvenateDialog();
-        };
 
         for (var i = 0; i < table.players.length; i++) {
             table.players[i].newLifeCardDamage = 0;
@@ -225,7 +209,7 @@ DBZCCG.create = function() {
                             }
 
                             var performingTurn;
-                            var inPlay = DBZCCG.Dragonball.checkInPlay(card);
+                            var inPlay = DBZCCG.DragonBall.checkInPlay(card);
 
                             var pile = this.pile;
 
@@ -320,13 +304,13 @@ DBZCCG.create = function() {
         function displayPhaseMessage(id, callback, noPhaseWarn) {
             DBZCCG.performingAnimation = true;
 
-            $('#turnOrder').children().removeClass('selectedTurn');
-            $('#turnOrder').children(id.replace('-warn', '')).addClass('selectedTurn');
+            $('#turnOrder').find('.selectedTurn').removeClass('selectedTurn');
+            $('#turnOrder').find(id.replace('-warn', '')).addClass('selectedTurn');
 
             if (!noPhaseWarn) {
 
                 $(id).fadeIn(250, function() {
-                    DBZCCG.Sound.turn();
+                    //DBZCCG.Sound.turn();
                 });
 
                 window.setTimeout(function() {
@@ -400,7 +384,7 @@ DBZCCG.create = function() {
 
                 listActions.push(function() {
                     DBZCCG.performingAction = player;
-                    DBZCCG.Combat.checkUseWhenNeeded(DBZCCG.Combat.Events['Entering PUR Phase']);
+                    DBZCCG.Combat.checkUseWhenNeeded(DBZCCG.Combat.Events['Entering Pur Phase']);
                 });
 
                 listActions.push(function() {
@@ -520,6 +504,11 @@ DBZCCG.create = function() {
                     });
                 }
 
+                window.setTimeout(function() {
+                    // SetUpdaters
+                    TWEEN.runChecks();
+                }, 500);
+
                 listActions.push(function() {
                     invokeTurn();
                 });
@@ -543,8 +532,21 @@ DBZCCG.create = function() {
                 listActions.shift()();
             } else if (DBZCCG.gameOver) {
                 DBZCCG.clearMouseOver();
-                $('#modal-post-game').show();
+                $('#turnCounter').css('z-index', 8999);
                 window.clearInterval(mainLoopInterval);
+                
+                $.ajax({
+                    url: DBZCCG.Load.afterMatchUrl
+                })
+                
+                .done(function () {
+                    DBZCCG.Interface.updateUserPoints(3);
+                    $('.modal-post-game').show();
+                })
+                
+                .fail(function () {
+                    alert('Failed to compute match data.');
+                });
             }
         }
 
@@ -555,10 +557,9 @@ DBZCCG.create = function() {
     }
 
     function render(cameraControl, renderer, scene, camera, stats) {
-
+        DBZCCG.clock.getDelta();
+    
         renderer.clear();
-
-        TWEEN.update();
 
         // Update selection arrows
         DBZCCG.Combat.updateSelectionArrows();
@@ -582,7 +583,6 @@ DBZCCG.create = function() {
 
         renderer.render(scene, camera);
 
-        DBZCCG.leftScreen.render();
         stats.update();
     }
 
@@ -596,6 +596,9 @@ DBZCCG.create = function() {
         camera.updateProjectionMatrix();
         renderer.setSize(window.innerWidth, window.innerHeight);
 
+        DBZCCG.qtipElement = $('#hud');
+        DBZCCG.Interface.startQtip();
+        
         // DEBUG
         document.body.appendChild(stats.domElement);
         stats.domElement.id = 'stats';
@@ -624,7 +627,7 @@ DBZCCG.create = function() {
         });
 
         Mousetrap.bind('z', function() {
-            DBZCCG.Sound.Background.nextTrack();
+            //DBZCCG.Sound.Background.nextTrack();
         });
 
 //        Mousetrap.bind('c', function() {
@@ -653,9 +656,6 @@ DBZCCG.create = function() {
         });
 
         Mousetrap.bind('esc', function() {
-            $('#log-dialog').dialog('close');
-            $('#leftBar').hide();
-            window.onresize();
         });
 
         Mousetrap.bind('l', function() {
@@ -803,60 +803,13 @@ DBZCCG.create = function() {
 
         display.addEventListener('mouseup', documentOnMouseUp);
 
-        window.onscroll = function() {
-            window.scrollTo(0, 0);
-        };
+        DBZCCG.Interface.disableScroll();
 
         /*
          * End of callbacks for the main screen
          */
 
-        /* Tooltip for the renderer */
-        DBZCCG.qtipElement.qtip({
-            content: {
-                text: function(event, api) {
-                    return DBZCCG.toolTip.customContent ? DBZCCG.toolTip.customContent : DBZCCG.toolTip.content;
-                }
-            },
-            position: {
-                my: 'bottom center',
-                at: 'center',
-                target: 'mouse',
-                adjust: {mouse: false},
-                viewport: $(window)
-            },
-            style: {
-                classes: "qtip-rounded qtip-tipsy"
-            },
-            show: false,
-            hide: {
-                effect: false
-            }
-        });
-
-        DBZCCG.toolTip.showDescription = function() {
-            var parent = DBZCCG.toolTip.parent;
-
-            if (parent.descriptionBox instanceof Function) {
-                var display = parent;
-                if (parent.displayObject instanceof Function) {
-                    display = parent.displayObject();
-                }
-
-                DBZCCG.leftScreen.focusElement(display, display.leftScreenCallback);
-
-                var textReturn = parent.descriptionBox();
-                if (typeof textReturn === "string") {
-                    DBZCCG.descriptionBox(textReturn);
-                }
-            }
-
-            if (!parent.doNotFocus) {
-                $('#object-info').dialog('open');
-            }
-
-            window.onresize();
-        };
+        DBZCCG.Interface.startQtip();
 
         DBZCCG.toolTip.content = document.createElement('div');
         DBZCCG.toolTip.content.id = 'cardContextTooltip';
@@ -866,211 +819,9 @@ DBZCCG.create = function() {
          * Toolbar
          */
 
-        document.getElementById('log-btn').onclick = function(event) {
-            if (event.button === 0) {
-                DBZCCG.qtipElement.qtip('hide');
-                window.onresize();
-                if ($('#communication-box').is(':visible')) {
-                    $('#communication-box').hide();
-                } else {
-                    $('#communication-box').show();
-                }
-            }
-        };
-
-        /*
-         * Adding left screen (info screen)
-         */
-
-        DBZCCG.leftScreen = {};
-
-        DBZCCG.leftScreen.render = function() {
-            var delta = DBZCCG.clock.getDelta();
-
-            if ($('#object-info').is(':visible')) {
-                this.control.update(delta);
-                this.light.position.copy(this.camera.position);
-                this.renderer.render(this.scene, this.camera);
-            }
-        };
-
-        DBZCCG.leftScreen.width = document.getElementById('display-object-screen').offsetWidth;
-        DBZCCG.leftScreen.height = document.getElementById('display-object-screen').offsetHeight;
-
-        DBZCCG.leftScreen.scene = new THREE.Scene();
-        DBZCCG.leftScreen.renderer = new THREE.WebGLRenderer({antialias: true});
-        DBZCCG.leftScreen.renderer.setClearColor(0x000000, 1);
-        DBZCCG.leftScreen.light = new THREE.PointLight(0xF0F0F0, 1, 1000);
-        DBZCCG.leftScreen.scene.add(DBZCCG.leftScreen.light);
-        DBZCCG.leftScreen.renderer.setSize(DBZCCG.leftScreen.width, DBZCCG.leftScreen.height);
-        DBZCCG.leftScreen.camera = new THREE.PerspectiveCamera(45, DBZCCG.leftScreen.width / DBZCCG.leftScreen.height, 0.001, 1000);
-        DBZCCG.leftScreen.control = new THREE.OrbitControls(DBZCCG.leftScreen.camera);
-        DBZCCG.leftScreen.control.minDistance = DBZCCG.Card.cardHeight;
-        DBZCCG.leftScreen.control.maxDistance = DBZCCG.Card.cardHeight * 3;
-        DBZCCG.leftScreen.control.noPan = true;
-        DBZCCG.leftScreen.control.enabled = false;
-
-        DBZCCG.leftScreen.renderer.domElement.onmouseover = function() {
-            DBZCCG.leftScreen.control.enabled = true;
-        };
-
-        DBZCCG.leftScreen.renderer.domElement.onmouseout = function() {
-            DBZCCG.leftScreen.control.enabled = false;
-        };
-
-        DBZCCG.leftScreen.focusElement = function(target, positionElement) {
-            if (this.targetElement !== target) {
-                /* Cloning */
-                var obj = new THREE.Object3D();
-                function traverseChild(elem, father) {
-                    if (elem.children instanceof Array && elem.children.length > 0) {
-                        for (var k in elem.children) {
-                            traverseChild(elem.children[k], elem);
-                        }
-                    } else if (elem instanceof THREE.Mesh) {
-                        var material;
-
-                        if (elem.material instanceof THREE.MeshFaceMaterial) {
-                            materials = [];
-                            var envMap;
-                            for (var i = 0; i < elem.material.materials.length; i++) {
-                                if (elem.material.materials[i].envMap) {
-                                    envMap = [];
-                                    for (var k = 0; k < elem.material.materials[i].envMap.image.length; k++) {
-                                        envMap.push(elem.material.materials[i].envMap.image[k].src);
-                                    }
-                                    envMap = THREE.ImageUtils.loadTextureCube(envMap,
-                                            undefined, function() {
-                                        console.log('Loaded envMap:');
-                                        console.log(envMap);
-                                    }, function() {
-                                        DBZCCG.Load.error = true;
-                                        console.log('Error while loading envMap:');
-                                        console.log(envMap);
-                                    });
-                                } else {
-                                    envMap = null;
-                                }
-
-                                var m = new THREE.MeshPhongMaterial({
-                                    map: (elem.material.materials[i].map ?
-                                            THREE.ImageUtils.loadTexture(elem.material.materials[i].map.sourceFile,
-                                            undefined, function() {
-                                        console.log('Loaded texture: ' + elem.material.materials[i].map.sourceFile);
-                                    }, function() {
-                                        DBZCCG.Load.error = true;
-                                        console.log('Error while loading texture: ' + elem.material.materials[i].map.sourceFile)
-                                    }) : null),
-                                    vertexColors: elem.material.materials[i].vertexColors,
-                                    envMap: envMap,
-                                    specularMap: (elem.material.materials[i].specularMap ?
-                                            THREE.ImageUtils.loadTexture(elem.material.materials[i].specularMap.sourceFile, function() {
-                                        console.log('Loaded specular map: ' + elem.material.materials[i].specularMap.sourceFile);
-                                    }, function() {
-                                        DBZCCG.Load.error = true;
-                                        console.log('Error while specular map: ' + elem.material.materials[i].specularMap.sourceFile)
-                                    }) : null),
-                                    reflectivity: elem.material.materials[i].reflectivity
-                                });
-
-                                m.needsUpdate = true;
-
-                                materials.push(m);
-                            }
-                            material = new THREE.MeshFaceMaterial(materials);
-                        } else if (!elem.material.map) {
-                            material = elem.material.clone();
-                            material.needsUpdate = true;
-                        } else {
-                            material = new THREE.MeshLambertMaterial();
-                            if (elem.material.color) {
-                                material.color = elem.material.color;
-                            }
-
-                            material.blending = elem.material.blending;
-
-                            if (elem.material.map) {
-                                material.map = THREE.ImageUtils.loadTexture(elem.material.map.sourceFile,
-                                        undefined, function() {
-                                    console.log('Loaded texture: ' + elem.material.map.sourceFile);
-                                }, function() {
-                                    DBZCCG.Load.error = true;
-                                    console.log('Error while loading texture: ' + elem.material.map.sourceFile)
-                                });
-                                material.map.needsUpdate = true;
-                            }
-                            material.needsUpdate = true;
-                        }
-
-                        var geometry = elem.geometry.clone();
-                        var mesh = new THREE.Mesh(geometry, material);
-
-                        geometry.buffersNeedUpdate = true;
-                        geometry.uvsNeedUpdate = true;
-
-                        mesh.scale.copy(elem.scale);
-                        mesh.rotation.copy(elem.rotation);
-                        mesh.position.copy(elem.position);
-                        if (father) {
-                            mesh.scale.multiply(father.scale);
-                        }
-                        obj.add(mesh);
-                    }
-                }
-
-                if (target instanceof THREE.Mesh || target instanceof THREE.Object3D) {
-                    traverseChild(target);
-                    /* End of Cloning */
-
-                    obj.scale.copy(target.scale);
-                    obj.rotation.copy(target.rotation);
-                    obj.position.copy(target.position);
-                }
-
-                if (this.focusedElement) {
-                    this.scene.remove(this.focusedElement);
-                }
-
-                this.camera.position.set(0, 0, 0);
-                this.camera.rotation.set(0, 0, 0);
-                this.camera.position.y += 10;
-
-                if (positionElement instanceof Function) {
-                    var ret = positionElement(target, obj);
-                    if (ret) {
-                        obj = ret;
-                    }
-                }
-
-                this.focusedElement = obj;
-                this.targetElement = target;
-
-                this.scene.add(obj);
-                this.camera.lookAt(obj.position);
-                this.control.center.copy(obj.position);
-            }
-        };
-
-        // debug
-        //DBZCCG.leftScreen.focusElement(new THREE.Mesh(new THREE.SphereGeometry(1, 64,32), new THREE.MeshLambertMaterial({shading: THREE.SmoothShading, side: THREE.DoubleSide, color: 0xFFFFFF})));
-
-        document.getElementById('display-object-screen').appendChild(DBZCCG.leftScreen.renderer.domElement);
-
-        /*
-         * End of Adding left screen          
-         */
-
-        // resize
-        window.onresize = function() {
+        InterfaceDBZ.onGameResize = function() {
             // resize static dialogs
-            $('#log-dialog').dialog('option', 'width', window.innerWidth * 0.5);
-            $('#log-dialog').dialog('option', 'height', window.innerHeight * 0.6);
-
-            $('#object-info').dialog('option', 'width', window.innerWidth * 0.5);
-            $('#object-info').dialog('option', 'height', window.innerHeight * 0.6);
-
-            // Hide tooltips
-            DBZCCG.qtipElement.qtip('hide');
+            DBZCCG.Interface.leftSideMenuOnResize();
 
             // RESIZE Main Screen
             var WIDTH = window.innerWidth,
@@ -1078,22 +829,12 @@ DBZCCG.create = function() {
             camera.aspect = WIDTH / HEIGHT;
             camera.updateProjectionMatrix();
 
-            DBZCCG.leftScreen.width = document.getElementById('display-object-screen').offsetWidth;
-            DBZCCG.leftScreen.height = document.getElementById('display-object-screen').offsetHeight;
-
-            DBZCCG.leftScreen.renderer.setSize(DBZCCG.leftScreen.width, DBZCCG.leftScreen.height);
             renderer.setSize(WIDTH, HEIGHT);
             document.getElementById('renderer-wrapper').style.width = WIDTH + 'px';
             document.getElementById('renderer-wrapper').style.height = HEIGHT + 'px';
 
-            DBZCCG.leftScreen.camera.aspect = DBZCCG.leftScreen.width / DBZCCG.leftScreen.height;
-            DBZCCG.leftScreen.camera.updateProjectionMatrix();
-
             var right = document.getElementById('renderer-wrapper').style.right.replace(/px/g, '');
             var left = document.getElementById('renderer-wrapper').style.left.replace(/px/g, '');
-
-            DBZCCG.resizeToolbar(WIDTH, left, right);
-            DBZCCG.resizeTurnCounter(WIDTH, left, right);
 
             // Resize labels
             DBZCCG.resizeLabels();
@@ -1103,16 +844,11 @@ DBZCCG.create = function() {
             }
         };
 
+        $('#turnCounter').show();
         return null;
     }
 
-    DBZCCG.loadFunction(DBZCCG.checkObjectLoad, buildScene, render, controls, function() {
-        //show HUD
-        DBZCCG.clearDescriptionBox();
-        document.getElementById("hud").style.display = "block";
-        $('#turnCounter').show();
-        $('#toolbar').show();
-    },
+    DBZCCG.loadFunction(DBZCCG.checkObjectLoad, buildScene, render, controls, null,
             function() {
                 DBZCCG.running = true;
             });

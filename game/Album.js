@@ -671,8 +671,8 @@ DBZCCG.Album.create = function(scene, globalReflections) {
                 var rotPos = new TWEEN.Tween(pages[currentPage].position).to(
                         position, timer);
 
-                rotAni.easing(TWEEN.Easing.Sinusoidal.In);
-                rotPos.easing(TWEEN.Easing.Circular.In);
+                rotAni.easing(TWEEN.Easing.SinusoidalIn);
+                rotPos.easing(TWEEN.Easing.CircularIn);
 
                 rotAni.onUpdate(function() {
                     rotationFix(this);
@@ -716,8 +716,8 @@ DBZCCG.Album.create = function(scene, globalReflections) {
                 var rotPos = new TWEEN.Tween(pages[currentPage - 1].position).to(
                         position, timer);
 
-                rotAni.easing(TWEEN.Easing.Sinusoidal.In);
-                rotPos.easing(TWEEN.Easing.Circular.In);
+                rotAni.easing(TWEEN.Easing.SinusoidalIn);
+                rotPos.easing(TWEEN.Easing.CircularIn);
 
                 rotAni.onUpdate(function() {
                     rotationFix(this);
@@ -895,15 +895,7 @@ DBZCCG.album = function() {
 
         display.addEventListener('mousemove', onDocumentMouseMove, false);
 
-        // resize
-        window.onresize = function() {
-
-            $('#object-info').dialog('option', 'width', window.innerWidth * 0.5);
-            $('#object-info').dialog('option', 'height', window.innerHeight * 0.6);
-
-            // Hide tooltips
-            DBZCCG.qtipElement.qtip('hide');
-
+        InterfaceDBZ.onGameResize = function() {
             // RESIZE Main Screen
             var WIDTH = window.innerWidth,
                     HEIGHT = window.innerHeight;
@@ -948,5 +940,6 @@ DBZCCG.album = function() {
         $('.album-btn').show();
     }
 
-    DBZCCG.loadFunction(DBZCCG.checkAlbumLoad, buildScene, render, controls, loadUI, function() {});
+    DBZCCG.loadFunction(DBZCCG.checkAlbumLoad, buildScene, render, controls, loadUI, function() {
+    });
 };

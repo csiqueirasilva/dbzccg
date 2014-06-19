@@ -1,7 +1,3 @@
-// http://github.com/csiqueirasilva
-
-DBZCCG.Screen = {};
-
 DBZCCG.Screen.findCallbackObject = function(object, callback) {
     var parent;
 

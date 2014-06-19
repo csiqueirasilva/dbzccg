@@ -1,47 +1,47 @@
 <!-- caching images -->
 <img src='images/html/image-main-album-description.jpg' style='display: none;'/>
 
-<div id="main-description-image">
-    <button id="btn-demo" class="main-description-btn btn btn-inverse" href="game.htm">PLAY THE DEMO</button>
-    <button id="btn-demo-album" class="main-description-btn btn btn-info" href="album.htm">THE SAIYAN SAGA ALBUM</button>
+<button id="btn-demo" class="main-description-btn btn btn-inverse" href="game.htm">PLAY THE DEMO</button>
+<button id="btn-demo-album" class="main-description-btn btn btn-info" href="album.htm">THE SAIYAN SAGA ALBUM</button>
 
+<div id="main-description-image">
     <div id='main-description-image-overlay'>
         <h2 class='title'></h2>
         <span class='description'></span>
     </div>
-    
-    <script>
-        (function() {
-            $('.main-description-btn').click(function() {
-                window.location.href = $(this).attr('href');
-            });
-
-            var o = {
-                'btn-demo': {
-                    background: 'images/html/image-main-description.jpg',
-                    title: 'PLAY NOW',
-                    description: 'Play against the AI featuring two decks using random Saiyan Saga cards!'
-                },
-                'btn-demo-album': {
-                    background: 'images/html/image-main-album-description.jpg',
-                    title: 'THE SAIYAN SAGA CARD ALBUM',
-                    description: 'Browse through the implemented Saiyan Saga cards.'
-                }};
-    
-
-            $('.main-description-btn').mouseover(function() {
-                var id = $(this).attr('id');
-                $('#main-description-image').css('background', "url('" + o[id].background + "')");
-                $('#main-description-image').css('background-position', "center");
-                $('#main-description-image-overlay > .title').html(o[id].title);
-                $('#main-description-image-overlay > .description').html(o[id].description);
-            });
-            
-            // default
-            $('#btn-demo').trigger('mouseover');
-        })();
-    </script>
 </div>
+
+<script>
+    (function() {
+        $('.main-description-btn').click(function() {
+            window.location.href = $(this).attr('href');
+        });
+
+        var o = {
+            'btn-demo': {
+                background: 'images/html/image-main-description.jpg',
+                title: 'PLAY NOW',
+                description: 'Play against the AI featuring two decks using random Saiyan Saga cards!'
+            },
+            'btn-demo-album': {
+                background: 'images/html/image-main-album-description.jpg',
+                title: 'THE SAIYAN SAGA CARD ALBUM',
+                description: 'Browse through the implemented Saiyan Saga cards.'
+            }};
+
+
+        $('.main-description-btn').mouseover(function() {
+            var id = $(this).attr('id');
+            $('#main-description-image').css('background', "url('" + o[id].background + "')");
+            $('#main-description-image').css('background-position', "center");
+            $('#main-description-image-overlay > .title').html(o[id].title);
+            $('#main-description-image-overlay > .description').html(o[id].description);
+        });
+
+        // default
+        $('#btn-demo').trigger('mouseover');
+    })();
+</script>
 
 <h2 id='content-title'>PROJECT INTRODUCTION</h2>
 

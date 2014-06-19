@@ -1,7 +1,3 @@
-DBZCCG.MainPersonality = {};
-
-DBZCCG.MainPersonality.maxLevel = 5;
-
 // Globals for the zSword Model
 (function() {
     var manager = new THREE.LoadingManager();
@@ -85,7 +81,7 @@ DBZCCG.MainPersonality.MainPersonalityObject.prototype.setAnger = function(n, no
         animation.onStart(function() {
             var text = "=" + anger;
             DBZCCG.Combat.hoverText(text, mp.zScabbard);
-            DBZCCG.Sound.anger(anger - oldAnger);
+            //DBZCCG.Sound.anger(anger - oldAnger);
         });
 
         animation.onUpdate(function() {
@@ -110,7 +106,7 @@ DBZCCG.MainPersonality.MainPersonalityObject.prototype.setAnger = function(n, no
             }, 200);
         });
 
-        animation.easing(TWEEN.Easing.Circular.In);
+        animation.easing(TWEEN.Easing.CircularIn);
 
         animation.start();
     } else if (anger === this.currentAngerLevel) {
@@ -162,7 +158,7 @@ DBZCCG.MainPersonality.MainPersonalityObject.prototype.changeAnger = function(n,
                     text = (diffAnger < 0 ? '' : '+') + diffAnger;
                     DBZCCG.Combat.hoverText(text, mp.zScabbard);
                 }
-                DBZCCG.Sound.anger(diffAnger);
+                //DBZCCG.Sound.anger(diffAnger);
             });
 
             animation.onUpdate(function() {
@@ -206,7 +202,7 @@ DBZCCG.MainPersonality.MainPersonalityObject.prototype.changeAnger = function(n,
                 DBZCCG.performingAnimation = false;
             });
 
-            animation.easing(TWEEN.Easing.Circular.In);
+            animation.easing(TWEEN.Easing.CircularIn);
 
             animation.start();
         } else {
@@ -311,7 +307,7 @@ DBZCCG.MainPersonality.MainPersonalityObject.prototype.advanceLevels = function(
 
             rp[0].currentPowerStageAboveZero = rp[0].zScouter = undefined;
             mp.currentMainPersonalityLevel++;
-            DBZCCG.Sound.level(1);
+            //DBZCCG.Sound.level(1);
             currentLevelStepAside.start();
         } else if (mp.currentMainPersonalityLevel !== 1 && n < 0) {
             DBZCCG.performingAnimation = true;
@@ -398,7 +394,7 @@ DBZCCG.MainPersonality.MainPersonalityObject.prototype.advanceLevels = function(
             rp[rp.length - 1].zScouter.parentPersonality = rp[rp.length - 1];
 
             mp.currentMainPersonalityLevel--;
-            DBZCCG.Sound.level(-1);
+            //DBZCCG.Sound.level(-1);
             previousLevelStepAside.start();
         } else {
             var currentLevel = mp.personalities[mp.currentMainPersonalityLevel - 1];
