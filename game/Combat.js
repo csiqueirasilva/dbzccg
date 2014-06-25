@@ -1072,12 +1072,18 @@ DBZCCG.Combat.speechBubble = function(text, display) {
 };
 
 DBZCCG.Combat.setMouseOverCallback = function(display) {
+    var hoverElement = null;
+    
     display.mouseOver = function() {
 
         if (!$('.qtip').is(':visible')) {
             
-            DBZCCG.qtipElement.qtip('option', {'position.adjust.y': -30});
-            DBZCCG.qtipElement.qtip('option', {'position.adjust.mouse': true});
+            if($('.card-info-link:hover').length === 1) {
+                hoverElement = $('.card-info-link:hover');
+                DBZCCG.qtipElement.qtip('option', {'position.target': hoverElement});
+            } else {
+                DBZCCG.qtipElement.qtip('option', {'position.adjust.mouse': true});
+            }
             
             DBZCCG.toolTip.customContent = this.displayHoverText();
 
@@ -1085,7 +1091,7 @@ DBZCCG.Combat.setMouseOverCallback = function(display) {
                 var displayImg = display.parentCard.getTextureImg();
                 var cardImage = '';
                 if (displayImg) {
-                    cardImage = '<img class="hover-image-card" src ="' + displayImg + '" style="float:left; width: 14vmax;" />';
+                    cardImage = '<img class="hover-image-card" src="' + displayImg + '" style="float:left; width: 14vmax;" />';
                 }
 
                 var wrapper = document.createElement('div');
@@ -1093,7 +1099,7 @@ DBZCCG.Combat.setMouseOverCallback = function(display) {
                 wrapper.innerHTML = DBZCCG.toolTip.customContent;
                 wrapper.style.width = Math.floor($('#object-info').width() * 0.25) + 'px';
 
-                DBZCCG.toolTip.customContent = cardImage + wrapper.outerHTML + "<div style='clear:both;' />";
+                DBZCCG.toolTip.customContent = "<div class='qtip-card-description'>" + cardImage + wrapper.outerHTML + "</div><div style='clear:both;' />";
             }
 
             DBZCCG.qtipElement.qtip('show');
@@ -1110,8 +1116,14 @@ DBZCCG.Combat.setMouseOverCallback = function(display) {
 
     display.click = display.mouseOut = function() {
         if (DBZCCG.toolTip.customContent) {
-            DBZCCG.qtipElement.qtip('option', {'position.adjust.y': 0});
-            DBZCCG.qtipElement.qtip('option', {'position.adjust.mouse': false});
+            
+            if(hoverElement !== null) {
+                DBZCCG.qtipElement.qtip('option', {'position.target': 'mouse'});
+                hoverElement = null;
+            } else {
+                DBZCCG.qtipElement.qtip('option', {'position.adjust.mouse': false});
+            }
+            
             DBZCCG.qtipElement.qtip('hide');
             $(DBZCCG.toolTip.customContent).remove();
             DBZCCG.toolTip.customContent = undefined;

@@ -12,6 +12,12 @@
     </ol>
 
     <div class="row">
+        <div class="col-md-12">
+            <h1>DECK STATUS: <span id="deck-database-status">UP TO DATE</span></h1>
+        </div>
+    </div>
+        
+    <div class="row">
         <div class="col-md-3">
             <button type="button" id="deck-build-remove-deck" class="btn btn-xl btn-default"><span class="glyphicon glyphicon-remove"></span>Remove Deck</button>
         </div>
@@ -52,6 +58,7 @@
             InterfaceDBZ.selectWindow(buttons);
         });
     </script>
+    
 </c:if>
 
 <div class="row deck-build-search-results">
@@ -201,6 +208,14 @@
         var deckId = parseInt('${deck.id}');
         deckId = isNaN(deckId) ? null : deckId;
         var readyToSave = false;
+        var userReady = false;
+        var saving = false;
+        var updateQueued = false;
+    
+        var DECK_UP_TO_DATE = "UP TO DATE";
+        var DECK_SAVING = "SAVING";
+        var DECK_FAILED_TO_UPDATE = "UPDATE FAILED";
+        var DECK_CHANGES_QUEUED = "UPDATE QUEUED, WAITING PREVIOUS UPDATE";
 
         function updateUrlData() {
             o = {};
@@ -239,20 +254,38 @@
 
             <c:if test="${not publicContent}">
             if(readyToSave) {
-                    $.ajax({
-                        url: "<c:url value="collection/decks/save"/>",
-                        data: {d: stringfied},
-                        dataType: "json",
-                        method: "POST"
-                    })
+                    if(!saving) {
+                        saving = true;
+                        $("#deck-database-status").html(DECK_SAVING);
 
-                    .fail(function() {
-                        alert("Failed to update the deck");
-                    })
+                        $.ajax({
+                            url: "<c:url value="collection/decks/save"/>",
+                            data: {d: stringfied},
+                            dataType: "json",
+                            method: "POST"
+                        })
 
-                    .done(function(r) {
-                        console.log(r);
-                    });
+                        .fail(function() {
+                            $("#deck-database-status").html(DECK_FAILED_TO_UPDATE);
+                            alert("Failed to update the deck");
+                        })
+
+                        .done(function(r) {
+                            $("#deck-database-status").html(DECK_UP_TO_DATE);
+                        })
+
+                        .complete(function() {
+                            saving = false;
+                            if(updateQueued) {
+                                updateQueued = false;
+                                updateUrlData();
+                            }
+                        });
+                        
+                    } else {
+                        updateQueued = true;
+                        $("#deck-database-status").html(DECK_CHANGES_QUEUED);
+                    }
             }
             </c:if>
 
@@ -635,9 +668,18 @@
                     $(button).parents('tr').find('.deck-build-remove')
                             .attr('disabled', false);
 
-
                     updateUrlData();
+                    
+                    scrollUserMouse(button, window.event);
                 };
+
+                function scrollUserMouse(button, event) {
+                    if(userReady) {
+                        $('html, body').animate({
+                            scrollTop: $(button).offset().top - event.y + parseInt(button.offsetHeight/2)
+                        }, 1);
+                    }
+                }
 
                 window.InterfaceDBZ.removeCardFromDeck = function(button) {
                     var o = toDeckObject(button);
@@ -662,6 +704,8 @@
                     checkRemoveEligibility();
 
                     updateUrlData();
+                    
+                    scrollUserMouse(button, window.event);
                 };
 
                 window.InterfaceDBZ.removeDeckBuildTableEntry = function(button) {
@@ -792,6 +836,8 @@
                                 <c:if test="${not publicContent}">
                                     readyToSave = true;
                                 </c:if>
+                                    
+                                userReady = true;
                             }
                         }
                     }, 1000);

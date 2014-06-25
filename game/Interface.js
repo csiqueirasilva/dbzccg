@@ -188,7 +188,7 @@ DBZCCG.Interface.addLeftSideMenu = function(page, chatUrl, elem) {
             my: 'bottom center',
             at: 'center',
             target: 'mouse',
-            adjust: {mouse: true},
+            adjust: {mouse: false},
             viewport: $(window)
         },
         style: {
@@ -365,7 +365,7 @@ DBZCCG.Interface.startQtip = function() {
             my: 'bottom center',
             at: 'center',
             target: 'mouse',
-            adjust: {mouse: false},
+            adjust: {mouse: false, method: "flip flip"},
             viewport: $(window)
         },
         style: {
@@ -1292,8 +1292,7 @@ DBZCCG.Interface.deckBuildSearch = function(wrapper, collection, callback, butto
             if ($('#deck-build-advanced-search-description').hasClass('active')) {
                 results = $.grep(results, function(elem, key) {
                     var card = window.InterfaceDBZ
-                            .cachedCards[$(elem).attr('cached-saga')]
-                            [$(elem).attr('cached-number')]
+                            .cachedCards[$(elem).attr('cached-id')]
                             [$(elem).attr('cached-index')];
 
                     if (card.description.toLowerCase().match(searchString) !== null) {
@@ -1317,8 +1316,7 @@ DBZCCG.Interface.deckBuildSearch = function(wrapper, collection, callback, butto
             $.each($('.deck-build-advanced-filter-content'), function(key, value) {
                 results = $.grep(results, function(elem, key) {
                     var card = window.InterfaceDBZ
-                            .cachedCards[$(elem).attr('cached-saga')]
-                            [$(elem).attr('cached-number')]
+                            .cachedCards[$(elem).attr('cached-id')]
                             [$(elem).attr('cached-index')];
 
                     var dataId = parseInt($(value).attr('data-id'));

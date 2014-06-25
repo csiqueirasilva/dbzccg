@@ -164,7 +164,7 @@
 
                 <jsp:include page="header.jsp" />
 
-                <c:if test="${not fn:contains(content, 'game/match') && not fn:contains(content, 'game/demo') && not fn:contains(content, 'game/match')}">
+                <c:if test="${not fn:contains(content, 'game/album') && not fn:contains(content, 'game/match') && not fn:contains(content, 'game/demo') && not fn:contains(content, 'game/match')}">
 
                     <div id="main-wrapper">
                         <!-- main content -->
@@ -175,7 +175,7 @@
 
                         <jsp:include page="../content/${fn:substring(content, 1, fn:length(content))}" />
 
-                        <c:if test="${not fn:contains(content, 'game/match') && not fn:contains(content, 'game/demo') && not fn:contains(content, 'game/match')}">
+                        <c:if test="${not fn:contains(content, 'game/album') && not fn:contains(content, 'game/match') && not fn:contains(content, 'game/demo') && not fn:contains(content, 'game/match')}">
 
                         </div>
                         <!-- end of main content -->

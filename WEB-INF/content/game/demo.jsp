@@ -21,22 +21,6 @@
 <h2 class='modal-post-game' id='modal-post-game-msg'>YOU HAVE BEEN GRANTED <img src="images/icons/token-currency-icon.png" /> 3</h2>
 </c:if>
 
-
-<div id="object-info">
-    <div id='display-object-screen' style='width: 35%; height: 100%; float: left;'>
-    </div>
-
-    <div style='text-align: justify; width: 65%; float: left;'>
-        <div id='descriptionBox'>
-        </div>
-
-        <div id='descriptionBoxContent'>
-        </div>
-    </div>
-
-    <div style='clear: both;'></div>
-</div>
-
 <div id="turnCounter">
     <div id="turnOrder">
         <ol class="breadcrumb">

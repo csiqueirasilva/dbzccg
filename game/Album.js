@@ -1,6 +1,3 @@
-DBZCCG.Album = {};
-DBZCCG.Album.reflections = [];
-
 (function() {
     var manager = new THREE.LoadingManager();
     manager.onProgress = function(item, loaded, total) {
@@ -275,9 +272,9 @@ DBZCCG.Album.create = function(scene, globalReflections) {
             var card = DBZCCG.Card.createCard(DBZCCG[data.content.saga][data.content.number]);
             card.display.scale.z = DBZCCG.Card.cardThicknessScale;
 
-            for (var p = 0; p < card.display.children[0].material.materials.length; p++) {
-                card.display.children[0].material.materials[p].transparent = false;
-            }
+//            for (var p = 0; p < card.display.children[0].material.materials.length; p++) {
+//                card.display.children[0].material.materials[p].transparent = false;
+//            }
 
             var individualIdx = Math.floor(data.idx / 3);
             card.display.position.x = -3.5 + (reverse ? 2 - (data.idx % 3) : (data.idx % 3)) * 4.25;
@@ -776,6 +773,7 @@ DBZCCG.album = function() {
 
     /* Interface related */
     DBZCCG.qtipElement = $('body');
+    DBZCCG.Interface.startQtip();
 
     function buildScene(scene, camera) {
         /* Load variables */
@@ -906,28 +904,6 @@ DBZCCG.album = function() {
             document.getElementById('renderer-wrapper').style.width = WIDTH + 'px';
             document.getElementById('renderer-wrapper').style.height = HEIGHT + 'px';
         };
-
-        $('body').qtip({
-            content: {
-                text: function(event, api) {
-                    return DBZCCG.toolTip.customContent ? DBZCCG.toolTip.customContent : DBZCCG.toolTip.content;
-                }
-            },
-            position: {
-                my: 'bottom center',
-                at: 'center',
-                target: 'mouse',
-                adjust: {mouse: false},
-                viewport: $(window)
-            },
-            style: {
-                classes: "qtip-rounded qtip-tipsy"
-            },
-            show: false,
-            hide: {
-                effect: false
-            }
-        });
 
         console.log('Controls loaded');
         return control;

@@ -1,6 +1,9 @@
 // Object initializer
 var DBZCCG = {};
 
+DBZCCG.Album = {};
+DBZCCG.Album.reflections = [];
+
 DBZCCG.Worker = {};
 DBZCCG.Worker.events = [];
 DBZCCG.Load = {};

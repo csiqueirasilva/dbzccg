@@ -1,3 +1,6 @@
+<%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+
 <!doctype html>
 <html lang="en">
     <head>
@@ -6,9 +9,14 @@
 
         <link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Open+Sans">
 
-        <style type="text/css">
-            <jsp:include page="../../build/dbzccg.min.css" />
+        <style>
+            <%@include file="/build/dbzccg.min.css" %>
         </style>
+
+        <style type="text/css">
+            <%@include file="/css/site.css" %>
+        </style>
+
 
         <script id="skybox_vertex_shader" type="x-shader/x-fragment">
             <%@include file="../../game/skyboxvertexshader.glsl"%>
@@ -44,12 +52,11 @@
         <button class='album-btn' id='previous-page-button'>Previous Page (Z)</button>
 
         <!-- libs -->
-        <script>
-            <jsp:include page="../../build/dbzccg.min.js" />
+        <script type="text/javascript" src="<c:url value="/build/dbzccg.min.js" />">
         </script>
 
         <!-- libs that require callbacks -->
-        <script src="http://www.youtube.com/iframe_api"></script>
+<!--        <script src="http://www.youtube.com/iframe_api"></script>-->
 
         <script type="text/javascript">
             $(window).load(function() {

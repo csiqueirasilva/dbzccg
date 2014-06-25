@@ -1,8 +1,11 @@
+<%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+
 <!-- caching images -->
 <img src='images/html/image-main-album-description.jpg' style='display: none;'/>
 
-<button id="btn-demo" class="main-description-btn btn btn-inverse" href="game.htm">PLAY THE DEMO</button>
-<button id="btn-demo-album" class="main-description-btn btn btn-info" href="album.htm">THE SAIYAN SAGA ALBUM</button>
+<button id="btn-demo" class="main-description-btn btn btn-inverse" href="<c:url value="game/demo" />" >PLAY THE DEMO</button>
+<button id="btn-demo-album" class="main-description-btn btn btn-info" href="<c:url value="game/album" />">THE SAIYAN SAGA ALBUM</button>
 
 <div id="main-description-image">
     <div id='main-description-image-overlay'>

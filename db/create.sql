@@ -326,3 +326,5 @@ select * from users;
 select * from authorities;
 
 update users set enable = 't';
+
+select * from types_source_cards;
