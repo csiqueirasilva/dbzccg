@@ -1,0 +1,1 @@
+<jsp:include page="../template/game/wrapper.jsp" />

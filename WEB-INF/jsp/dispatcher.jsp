@@ -1,1 +1,0 @@
-<jsp:include page="/WEB-INF/template/wrapper.jsp" />
